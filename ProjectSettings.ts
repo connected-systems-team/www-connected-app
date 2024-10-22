@@ -11,7 +11,7 @@ export const ProjectSettings: StructureSettingsInterface = {
     url: 'https://www.connected.app/',
     apis: {
         base: {
-            url: 'https://api.connected.app/graphql', // This needs to be an absolute url, as relative urls cannot be used in SSR
+            url: 'https://api.connected.app/', // This needs to be an absolute url, as relative urls cannot be used in SSR
         },
     },
     modules: {
@@ -28,18 +28,18 @@ export const ProjectSettings: StructureSettingsInterface = {
         url: 'https://assets.connected.app/',
         favicon: {
             light: {
-                location: '/images/icons/favicons/favicon-light.png',
+                location: '/images/icons/favicon/favicon-light.png',
             },
             dark: {
-                location: '/images/icons/favicons/favicon-dark.png',
+                location: '/images/icons/favicon/favicon-dark.png',
             },
         },
         logo: {
             light: {
-                location: '/images/logos/logo-light.png',
+                location: '/images/logo/connected-logo-with-wordmark.svg',
             },
             dark: {
-                location: '/images/logos/logo-dark.png',
+                location: '/images/logo/connected-logo-with-wordmark-inverted.svg',
             },
             width: 180,
             height: 37,
@@ -58,6 +58,13 @@ export const ProjectSettings: StructureSettingsInterface = {
             title: 'X',
             url: 'https://x.com/connecteddotapp',
             type: 'social',
+        },
+    },
+    services: {
+        google: {
+            analytics: {
+                id: 'G-4PQ84S8CMS',
+            },
         },
     },
 };

@@ -1,0 +1,162 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type AtlasNode {
+  alias: String!
+  createdAt: DateTimeISO!
+  id: String!
+  region: Region!
+  regionId: String!
+  updatedAt: DateTimeISO!
+}
+
+"""The type of procedure."""
+enum AtlasProcedureType {
+  NorpCheck
+  PortScan
+}
+
+type Cluster {
+  active: Boolean!
+  createdAt: DateTimeISO!
+  id: String!
+  name: String!
+  updatedAt: DateTimeISO!
+}
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.This scalar is serialized to a string in ISO 8601 format and parsed from a string in ISO 8601 format.
+"""
+scalar DateTimeISO
+
+input GridRegionCreateInput {
+  active: Boolean
+  displayName: String!
+  identifier: String!
+}
+
+input GridRegionUpdateInput {
+  active: Boolean
+  displayName: String
+  regionId: String
+  regionIdentifier: String
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+type Mutation {
+  gridRegionCreate(input: GridRegionCreateInput!): Region!
+  gridRegionUpdate(input: GridRegionUpdateInput!): Region
+  taskCreatePortScan(input: TaskPortScanInput!): [Task!]!
+}
+
+type Query {
+  gridRegions: [Region!]!
+  task(input: TaskInput!): Task
+  taskGroup(input: TaskGroupInput!): [Task!]!
+}
+
+type Region {
+  active: Boolean!
+  createdAt: DateTimeISO!
+  displayName: String!
+  id: String!
+  identifier: String!
+  updatedAt: DateTimeISO!
+}
+
+type Task {
+  assignments: [TaskAssignment!]!
+  attempts: Float!
+  createdAt: DateTimeISO!
+  createdByAccountId: String
+  createdByProfileId: String
+  groupdId: String
+  id: String!
+  lastResultId: String
+  maxAttempts: Float!
+  meta: JSON
+  origin: TaskOrigin!
+  priority: Float!
+  procedureArguments: JSON!
+  procedureType: AtlasProcedureType!
+  regionId: String!
+  results: [TaskResult!]!
+  runAt: DateTimeISO
+  state: TaskState!
+  updatedAt: DateTimeISO!
+}
+
+type TaskAssignment {
+  active: Boolean!
+  atlasNode: AtlasNode!
+  attempt: Float!
+  createdAt: DateTimeISO!
+  id: String!
+  region: Region!
+  regionId: String!
+  updatedAt: DateTimeISO!
+}
+
+input TaskGroupInput {
+  groupdId: String!
+}
+
+input TaskInput {
+  taskId: String!
+}
+
+"""Where the task originated from."""
+enum TaskOrigin {
+  System
+  User
+}
+
+input TaskPortScanInput {
+  host: String!
+  ports: [String!]!
+  regions: [String!]
+}
+
+type TaskResult {
+  atlasNodeId: String
+  attempt: Float!
+  cluster: Cluster
+  clusterId: String
+  createdAt: DateTimeISO!
+  duration: Float!
+  error: JSON
+  id: String!
+  meta: JSON
+  ranAt: DateTimeISO
+  region: Region
+  regionId: String
+  result: JSON
+  taskId: String!
+  type: TaskResultType!
+  updatedAt: DateTimeISO!
+}
+
+"""Task result type."""
+enum TaskResultType {
+  Error
+  Failure
+  Success
+}
+
+"""The possible states of a task."""
+enum TaskState {
+  Assigned
+  Cancelled
+  CheckedOut
+  Failed
+  Pending
+  Retry
+  Running
+  Succeeded
+}

@@ -1,0 +1,153 @@
+# Task Create Port Scan Mutation
+mutation TaskCreatePortScan($input: TaskPortScanInput!) {
+    taskCreatePortScan(input: $input) {
+        id
+        groupdId
+        regionId
+        lastResultId
+        state
+        priority
+        procedureType
+        procedureArguments
+        runAt
+        attempts
+        maxAttempts
+        assignments {
+            id
+            active
+            attempt
+            atlasNode {
+                id
+                alias
+                updatedAt
+                createdAt
+            }
+            region {
+                identifier
+            }
+            updatedAt
+            createdAt
+        }
+        meta
+        results {
+            id
+            taskId
+            regionId
+            region {
+                id
+                identifier
+                displayName
+                active
+                updatedAt
+                createdAt
+            }
+            clusterId
+            cluster {
+                id
+                name
+                active
+                updatedAt
+                createdAt
+            }
+            atlasNodeId
+            type
+            ranAt
+            attempt
+            duration
+            result
+            meta
+            error
+            createdAt
+            updatedAt
+        }
+        createdAt
+        updatedAt
+    }
+}
+
+# Task Port Scan Query
+query TaskPortScan($input: TaskInput!) {
+    task(input: $input) {
+        id
+        groupdId
+        regionId
+        lastResultId
+        state
+        priority
+        procedureType
+        procedureArguments
+        runAt
+        attempts
+        maxAttempts
+        assignments {
+            id
+            active
+            attempt
+            atlasNode {
+                id
+                alias
+                updatedAt
+                createdAt
+            }
+            region {
+                identifier
+            }
+            updatedAt
+            createdAt
+        }
+        meta
+        results {
+            id
+            taskId
+            regionId
+            region {
+                id
+                identifier
+                displayName
+                active
+                updatedAt
+                createdAt
+            }
+            clusterId
+            cluster {
+                id
+                name
+                active
+                updatedAt
+                createdAt
+            }
+            atlasNodeId
+            type
+            ranAt
+            attempt
+            duration
+            result
+            meta
+            error
+            createdAt
+            updatedAt
+        }
+        createdAt
+        updatedAt
+    }
+}
+
+# Grid Regions Query
+query GridRegions {
+    gridRegions {
+        id
+        identifier
+        displayName
+        active
+        updatedAt
+        createdAt
+    }
+}
+
+# query whois($input: String!) {
+#     whois(input: $input) {
+#         id
+#         result
+#         createdAt
+#     }
+# }
