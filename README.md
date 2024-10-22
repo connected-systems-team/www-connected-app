@@ -31,7 +31,9 @@ Before you begin, ensure you have the following installed on your local machine:
     cd ../../
     ```
 
-3. **Install Dependencies with `NPM`**
+3. **Update package.json and Install Dependencies with `NPM`**
+
+    First, update the name field in `package.json` to the name of your project.
 
     Navigate into the project’s directory and install the necessary dependencies.
 
