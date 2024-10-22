@@ -64,6 +64,7 @@ export function AboutPage() {
                 </li>
             </ul>
 
+            {/* Why Choose Connected? */}
             <h4 className="mb-3 mt-6">Why Choose Connected?</h4>
             <p>
                 Connected.app stands out in the market due to its robust and comprehensive set of features designed to
