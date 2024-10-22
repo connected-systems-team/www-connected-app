@@ -1,15 +1,15 @@
 {
-    "name": "structure-next-template",
+    "name": "www.connected.app",
     "version": "1.0.0",
     "private": true,
     "engines": {
         "node": "22.9.0"
     },
     "scripts": {
-        "dev": "next dev --port 7878",
-        "dev:wrangler": "wrangler dev --port 7878",
+        "dev": "next dev --experimental-https --port 2666 --hostname localhost.connected.app",
+        "dev:wrangler": "wrangler dev --port 2666",
         "build": "cloudflare",
-        "preview": "cloudflare && wrangler dev --port 7878",
+        "preview": "cloudflare && wrangler dev --port 2666",
         "deploy": "cloudflare && wrangler deploy",
         "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
         "lint": "next lint",

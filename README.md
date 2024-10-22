@@ -1,4 +1,4 @@
-# structure-next-template
+# Connected Website
 
 This is a [Next.js](https://nextjs.org/) project which uses [OpenNext for Cloudflare](https://github.com/opennextjs/opennextjs-cloudflare) for hosting. This project uses Tailwind CSS for styling.
 
@@ -13,7 +13,7 @@ Before you begin, ensure you have the following installed on your local machine:
 
 1. **Fork the Repository**
 
-    First, fork the `structure-next-template` repository using GitHub.
+    First, fork the `www.connected.app` repository using GitHub.
 
 2. **Clone the Repository to Your Local Machine Using `git`**
 
@@ -21,10 +21,16 @@ Before you begin, ensure you have the following installed on your local machine:
     git clone YOUR_FORK
     ```
 
+    Move the `www.connected.app` folder to `www.connected.tld` since macOS will think anything with .app at the end is an app:
+
+    ```bash
+    mv www.connected.app www.connected.tld
+    ```
+
     Then, initialize the Structure submodule:
 
     ```bash
-    cd YOUR_FORK
+    cd www.connected.tld
     git submodule update --init --recursive
     cd libraries/structure
     git checkout main

@@ -1,5 +1,5 @@
 #:schema node_modules/wrangler/config-schema.json
-name = "www.system.inc" # Update to the name of your Worker
+name = "www.connected.app"
 main = ".worker-next/index.mjs"
 
 compatibility_date = "2024-09-26"
@@ -13,8 +13,8 @@ assets = { directory = ".worker-next/assets", binding = "ASSETS" }
 
 # Custom Domains
 routes = [
-    { pattern = "system.inc", custom_domain = true }, # Add your domain here
-    { pattern = "www.system.inc", custom_domain = true } # Add your domain here
+    { pattern = "connected.app", custom_domain = true },
+    { pattern = "www.connected.app", custom_domain = true }
 ]
 
 # Enable Logs
@@ -22,6 +22,6 @@ routes = [
 enabled = true
 
 # Enable Cache KV
-[[kv_namespaces]]
-binding = "NEXT_CACHE_WORKERS_KV"
-id = "YOUR_KV_NAMESPACE_ID" # Add your KV namespace ID here
+# [[kv_namespaces]]
+# binding = "NEXT_CACHE_WORKERS_KV"
+# id = "YOUR_KV_NAMESPACE_ID"

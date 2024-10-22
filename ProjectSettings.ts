@@ -3,15 +3,15 @@ import { StructureSettingsInterface } from './libraries/structure/StructureSetti
 
 // ProjectSettings
 export const ProjectSettings: StructureSettingsInterface = {
-    identifier: 'yourProject',
-    title: 'Your Title',
-    ownerDisplayName: 'Your Company, Inc.',
-    tagline: 'Your tagline',
-    description: 'Your description of the project.',
-    url: 'https://www.PROJECT_DOMAIN.TLD/',
+    identifier: 'connected',
+    title: 'Connected',
+    ownerDisplayName: 'Connected',
+    tagline: 'Network Monitoring and Security',
+    description: "We are building the world's most advanced network monitoring platform.",
+    url: 'https://www.connected.app/',
     apis: {
         base: {
-            url: 'https://api.PROJECT_DOMAIN.TLD/graphql', // This needs to be an absolute url, as relative urls cannot be used in SSR
+            url: 'https://api.connected.app/graphql', // This needs to be an absolute url, as relative urls cannot be used in SSR
         },
     },
     modules: {
@@ -25,7 +25,7 @@ export const ProjectSettings: StructureSettingsInterface = {
         defaultClassName: 'light',
     },
     assets: {
-        url: 'https://assets.PROJECT_DOMAIN.TLD/',
+        url: 'https://assets.connected.app/',
         favicon: {
             light: {
                 location: '/images/icons/favicons/favicon-light.png',
@@ -41,7 +41,7 @@ export const ProjectSettings: StructureSettingsInterface = {
             dark: {
                 location: '/images/logos/logo-dark.png',
             },
-            width: 102,
+            width: 180,
             height: 37,
         },
     },
@@ -50,13 +50,13 @@ export const ProjectSettings: StructureSettingsInterface = {
             url: 'https://github.com/system-inc/structure-next/',
         },
         project: {
-            url: 'https://github.com/YOUR_PROJECT_REPOSITORY',
+            url: 'https://github.com/connected-systems-team/www.connected.app/',
         },
     },
     platforms: {
         x: {
             title: 'X',
-            url: 'https://x.com/YOUR_USERNAME',
+            url: 'https://x.com/connecteddotapp',
             type: 'social',
         },
     },
