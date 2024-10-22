@@ -1,13 +1,13 @@
 # structure-next-template
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`c3`](https://developers.cloudflare.com/pages/get-started/c3). This project uses Tailwind CSS for styling.
+This is a [Next.js](https://nextjs.org/) project which uses [OpenNext for Cloudflare](https://github.com/opennextjs/opennextjs-cloudflare) for hosting. This project uses Tailwind CSS for styling.
 
 ## Prerequisites
 
 Before you begin, ensure you have the following installed on your local machine:
 
+-   Node.js v22.9.0
 -   [NVM (Node Version Manager)](https://github.com/nvm-sh/nvm)
--   Node.js v20.11.1
 
 ## Setting Up Your Development Environment
 
@@ -43,11 +43,15 @@ Before you begin, ensure you have the following installed on your local machine:
 
     `ProjectSettings.ts` is used to configure all of your project settings. Update the file with your project-specific information.
 
-5. **Update the Assets Hostname in `next.config.mjs`**
+5. **Update wrangler.toml**
+
+    `wrangler.toml` is used to configure your deployment to Cloudflare. You will need to review each line in this file and update it for your project.
+
+6. **Update the Assets Hostname in `next.config.mjs`**
 
     The project assumes you will be using a service like Cloudflare R2 to store images. Next.JS needs to be configured to not to optimize images from that host.
 
-6. **(If Using Base API) Update Your package.json Scripts and System hosts File**
+7. **(If Using Base API) Update Your package.json Scripts and System hosts File**
 
     **Update Your package.json Scripts**
 
@@ -79,7 +83,7 @@ Before you begin, ensure you have the following installed on your local machine:
 
     Now `localhost.PROJECT_DOMAIN.TLD` will point to your local machine.
 
-7. **Start the Development Server**
+8. **Start the Development Server**
 
     Start the development server using:
 
@@ -103,13 +107,11 @@ This command expects the `api` git repository to be in the `api` folder in the s
 
 ## Cloudflare Integration
 
-Besides the `npm run dev` script mentioned above `c3` has added a few extra scripts that allow you to integrate the application with the [Cloudflare Pages](https://pages.cloudflare.com/) environment, these are:
+-   `npm run build` to build the application
+-   `npm run preview` to locally preview your application using the [Wrangler](https://developers.cloudflare.com/workers/wrangler/) CLI
+-   `npm run deploy` to deploy your application using the [Wrangler](https://developers.cloudflare.com/workers/wrangler/) CLI
 
--   `pages:build` to build the application for Pages using the [`@cloudflare/next-on-pages`](https://github.com/cloudflare/next-on-pages) CLI
--   `preview` to locally preview your Pages application using the [Wrangler](https://developers.cloudflare.com/workers/wrangler/) CLI
--   `deploy` to deploy your Pages application using the [Wrangler](https://developers.cloudflare.com/workers/wrangler/) CLI
-
-> **Note:** While the `npm run dev` script is optimal for local development you should use `npm run preview` on your application as well (periodically or before deployments) in order to make sure that it can properly work in the Pages environment (for more details see the [`@cloudflare/next-on-pages` recommended workflow](https://github.com/cloudflare/next-on-pages/blob/05b6256/internal-packages/next-dev/README.md#recommended-workflow))
+> **Note:** While the `npm run dev` script is optimal for local development you should use `npm run preview` on your application as well (periodically or before deployments) in order to make sure that it can properly work in the Cloudflare environment
 
 ## Routing in Next.js
 
@@ -125,6 +127,6 @@ The following resources may help you familiarize yourself with the technologies 
 
 -   [Next.js Documentation](https://nextjs.org/docs)
 -   [Tailwind CSS Documentation](https://tailwindcss.com/docs)
--   [Cloudflare Pages Documentation](https://developers.cloudflare.com/pages/)
+-   [OpenNext for Cloudflare](https://opennext.js.org/cloudflare)
 
 Happy coding!
