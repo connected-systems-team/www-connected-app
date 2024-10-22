@@ -1,0 +1,123 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.This scalar is serialized to a string in ISO 8601 format and parsed from a string in ISO 8601 format.
+"""
+scalar DateTimeISO
+
+type MediaObject {
+    type: MediaObjectType!
+    url: String!
+    variant: String
+}
+
+enum MediaObjectType {
+    File
+    Image
+    Video
+}
+
+type Mutation {
+    supportTicketCommentCreate(input: SupportTicketCommentCreateInput!): SupportTicketComment!
+    supportTicketCommentCreateAdmin(input: SupportTicketCommentCreateInput!): SupportTicketComment!
+    supportTicketCreate(input: SupportTicketCreateInput!): SupportTicketComment!
+}
+
+type Pagination {
+    itemIndex: Int!
+    itemIndexForNextPage: Int
+    itemIndexForPreviousPage: Int
+    itemsPerPage: Int!
+    itemsTotal: Int!
+    page: Int!
+    pagesTotal: Int!
+}
+
+input PaginationInput {
+    itemIndex: Int
+    itemsPerPage: Int!
+}
+
+type PaginationSupportTicketResult {
+    items: [SupportTicket!]!
+    pagination: Pagination
+}
+
+type Query {
+    supportTickets(pagination: PaginationInput): PaginationSupportTicketResult!
+    supportTicketsAdmin(pagination: PaginationInput): PaginationSupportTicketResult!
+}
+
+"""
+The format of the string rich-content
+"""
+enum RichContentFormat {
+    Html
+    Markdown
+    PlainText
+}
+
+type SupportTicket {
+    attachments: [MediaObject!]
+    comments: [SupportTicketComment!]!
+    createdAt: DateTimeISO!
+    description: String
+    id: String!
+    identifier: String!
+    status: SupportTicketStatus!
+    title: String!
+    type: String!
+    userEmailAddress: String!
+}
+
+type SupportTicketComment {
+    attachments: [MediaObject!]
+    content: String!
+    contentType: RichContentFormat!
+    createdAt: DateTimeISO!
+    emailMessageId: String
+    id: String!
+    replyToCommentId: String
+    source: SupportTicketCommentSource!
+    visibility: SupportTicketCommentVisibility!
+}
+
+input SupportTicketCommentCreateInput {
+    content: String!
+    contentType: RichContentFormat
+    emailAddress: String
+    emailName: String
+    replyToCommentId: String!
+    ticketId: String!
+    visibility: SupportTicketCommentVisibility
+}
+
+enum SupportTicketCommentSource {
+    Agent
+    User
+}
+
+enum SupportTicketCommentVisibility {
+    Internal
+    Public
+}
+
+input SupportTicketCreateInput {
+    description: String
+    emailAddress: String!
+    initialComment: SupportTicketCommentCreateInput
+    title: String!
+    type: String!
+}
+
+"""
+The status of a support ticket
+"""
+enum SupportTicketStatus {
+    Archived
+    Closed
+    Open
+}

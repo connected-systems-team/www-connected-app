@@ -52,9 +52,37 @@ enum ColumnFilterConditionOperator {
     NotLike
 }
 
+type CommerceCheckoutSession {
+    closedAt: DateTimeISO
+    completedAt: DateTimeISO
+    createdAt: DateTimeISO!
+    createdByAccountId: String!
+    createdByProfileId: String!
+    externalMetadata: JSON
+    failedCount: Float!
+    id: String!
+    orders: [CommerceOrder!]!
+    status: CommerceCheckoutSessionStatus!
+}
+
+input CommerceCheckoutSessionCreateInput {
+    emailAddress: String!
+    itemIds: [String!]!
+    paymentProcessorType: PaymentProcessorType! = StripeProxy
+}
+
+enum CommerceCheckoutSessionStatus {
+    Closed
+    Complete
+    Expired
+    Failed
+    Pending
+}
+
 type CommerceOrder {
     batchIdentifier: String!
     beneficiaryEmailAddress: String
+    checkoutSessionId: String!
     createdAt: DateTimeISO!
     discounts: [Discount!]
     emailAddress: String!
@@ -95,7 +123,6 @@ type CommerceOrderLineItem {
     fulfilledQuantity: Int!
     id: String!
     indexId: Int!
-    inventoryHoldId: String
     productVariantId: String!
     quantity: Int!
     shippedQuantity: Int!
@@ -144,7 +171,7 @@ enum CommerceOrderLogSource {
 The visibility of the order log.
 """
 enum CommerceOrderLogVisibility {
-    Private
+    Internal
     Public
 }
 
@@ -261,13 +288,13 @@ input CreateProductVariantInput {
     description: String
     gtin: String
     inventoryPolicy: ProductVariantInventoryPolicy!
-    inventoryQuantity: Float
     name: String!
     position: Float
     price: ProductVariantPriceInput
     productId: String
     setDefault: Boolean
     sku: String
+    taxCode: String
     unitInfo: ProductVariantUnitInfoInput
 }
 
@@ -295,6 +322,17 @@ scalar DateTimeISO
 Decimal custom scalar type
 """
 scalar Decimal
+
+"""
+The status of the delivery
+"""
+enum DeliveryStatus {
+    AttemptedDelivery
+    Delivered
+    InTransit
+    OutForDelivery
+    ReadyForPickup
+}
 
 type Discount {
     code: String
@@ -491,6 +529,8 @@ type Mutation {
         tier: AddressBookEntryTier
     ): AddressBookEntry!
     commerceCartUpdate(items: [ShoppingBagItemInput!]!): ShoppingBag!
+    commerceCheckoutSessionCreate(input: CommerceCheckoutSessionCreateInput!): CommerceCheckoutSession!
+    commerceCheckoutSessionRefreshStatus(id: String!): CommerceCheckoutSession!
     commerceDiscountCreate(input: CreateDiscountInput!): Discount!
     commerceDiscountRuleCreate(input: CreateDiscountRuleInput!): DiscountRule!
     commerceGenerateManifest(shipmentIds: [String!]!): ShipmentManifest!
@@ -632,7 +672,9 @@ enum PaymentMethodType {
 }
 
 enum PaymentProcessorType {
-    Stripe
+    AppleInAppPurchase
+    StripeEmbedded
+    StripeProxy
 }
 
 """
@@ -714,12 +756,12 @@ type ProductVariant {
     gtin: String
     id: String!
     inventoryPolicy: ProductVariantInventoryPolicy!
-    inventoryQuantity: Float
     name: String!
     position: Float
     price: ProductVariantPriceObject!
     sku: String
     status: ProductVariantStatus!
+    taxCode: String
     unitInfo: ProductVariantUnitInfoObject
     updatedAt: DateTimeISO!
     updatedByAccountId: String
@@ -734,6 +776,7 @@ input ProductVariantAttributeInput {
 }
 
 enum ProductVariantAttributeKey {
+    AppStore
     Color
     Credits
     Size
@@ -834,6 +877,7 @@ input PurchaseOrderLabelsInput {
 type Query {
     commerceAddressBookEntries: [AddressBookEntry!]!
     commerceCart: ShoppingBag!
+    commerceCheckoutSession(id: String!): CommerceCheckoutSession!
     commerceDiscountRules(input: PaginationInputWithFilters): PaginationDiscountRuleResult!
     commerceDiscounts(input: PaginationInputWithFilters): PaginationDiscountResult!
     commerceOrder(emailAddress: String, identifier: String!): CommerceOrderResult!
@@ -876,11 +920,13 @@ type Shipment {
     createdByAccountId: String!
     createdByProfileId: String!
     deliveredAt: DateTimeISO
+    deliveryStatus: DeliveryStatus!
     id: String!
     label: ShippingLabel
     orderIndexId: Int!
     orderSlip: ShippingOrderSlip
     shippedAt: DateTimeISO
+    source: String!
     status: ShipmentStatus!
     statusDescription: String
     toAddress: StreetAddressObject!
@@ -925,9 +971,11 @@ type ShippingLabel {
     serviceType: ShippingServiceType!
     source: ShippingLabelSource!
     trackingNumber: String!
+    trackingUrl: String
 }
 
 enum ShippingLabelSource {
+    Others
     Stamps
 }
 
@@ -1087,6 +1135,7 @@ input UpdateProductVariantInput {
     setDefault: Boolean
     sku: String
     status: ProductVariantStatus
+    taxCode: String
     unitInfo: ProductVariantUnitInfoInput
 }
 

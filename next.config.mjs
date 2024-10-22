@@ -1,21 +1,9 @@
-// Dependencies
-import { setupDevPlatform as setupDevelopmentPlatform } from '@cloudflare/next-on-pages/next-dev';
-
-// Here we use the @cloudflare/next-on-pages next-dev module to allow us to use bindings during local development
-// (when running the application with `next dev`), for more information see:
-// https://github.com/cloudflare/next-on-pages/blob/5712c57ea7/internal-packages/next-dev/README.md
-if(process.env.NODE_ENV === 'development') {
-    await setupDevelopmentPlatform();
-}
-
 // Next Configuration
 /** @type {import('next').NextConfig} */
 export const NextConfiguration = {
-    optimizeFonts: false, // Do not optimize fonts as we are on Cloudflare not Vercel
+    // optimizeFonts: false, // Do not optimize fonts as we are on Cloudflare not Vercel
     images: {
         unoptimized: true, // Do not optimize images as we are on Cloudflare not Vercel
-        minimumCacheTTL: 60 * 60 * 24 * 365, // // Sets cache-control header to 1 year
-        formats: ['image/avif', 'image/webp'],
         remotePatterns: [
             {
                 protocol: 'https',

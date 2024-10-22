@@ -56,14 +56,18 @@ type Mutation {
     postCreateAdmin(input: PostCreateInput!): Post!
     postDelete(id: String!, note: String): String!
     postDeleteAdmin(id: String!, note: String): String!
+    postDraft(id: String!): Post!
     postPublish(id: String!): Post!
     postPublishAdmin(id: String!): Post!
     postReactionCreate(commentId: String, content: String!, postId: String): Boolean!
     postReactionDelete(commentId: String, content: String!, postId: String): Boolean!
     postReportCreate(input: PostReportInput!): PostReport!
     postReportModerate(approval: Boolean!, id: String!, note: String): Post!
-    postTopicCreate(name: String!): PostTopic!
+    postTopicAssignPost(assign: Boolean!, postId: String!, topicId: String!): Boolean!
+    postTopicCreate(input: PostTopicCreateInput!): PostTopic!
     postTopicDelete(id: String!): Boolean!
+    postTopicUpdate(input: PostTopicUpdateInput!): PostTopic!
+    postTopicUpdatePosition(id: String!, input: PostTopicUpdatePositionInput!): PostTopic!
     postUnvote(commentId: String, postId: String, type: PostVoteType): Boolean!
     postUpdate(id: String!, input: PostUpdateInput!): Post!
     postUpdateAdmin(id: String!, input: PostUpdateInput!): Post!
@@ -153,8 +157,7 @@ type Post {
     slug: String!
     status: PostStatus!
     title: String!
-    topic: PostTopic
-    topicId: String
+    topics: [PostTopic!]
     type: String!
     updatedAt: DateTimeISO!
     updatedByAccountId: String
@@ -199,12 +202,13 @@ input PostCreateInput {
     allowReaction: Boolean
     allowVote: Boolean
     content: String
+    contentType: RichContentFormat
     description: String
     metadata: JSON
     slug: String!
     status: PostStatus
     title: String!
-    topicId: String
+    topicIds: [String!]
     type: String!
 }
 
@@ -271,8 +275,42 @@ enum PostStatus {
 
 type PostTopic {
     createdAt: DateTimeISO!
+    description: String
     id: String!
-    name: String!
+    nextSiblingId: String
+    postCount: Int!
+    previousSiblingId: String
+    slug: String!
+    title: String!
+    type: String!
+}
+
+input PostTopicCreateInput {
+    description: String
+    parentId: String
+    position: Float
+    slug: String!
+    title: String!
+    type: String!
+}
+
+type PostTopicQueryResult {
+    pagedPosts: PagedPosts!
+    subTopics: [PostTopic!]
+    topic: PostTopic!
+}
+
+input PostTopicUpdateInput {
+    description: String
+    id: String!
+    slug: String
+    title: String
+}
+
+input PostTopicUpdatePositionInput {
+    moveToRoot: Boolean
+    parentId: String
+    position: Float
 }
 
 input PostUpdateInput {
@@ -287,7 +325,6 @@ input PostUpdateInput {
     publishedAt: DateTimeISO
     slug: String
     title: String
-    topicId: String
     type: String
 }
 
@@ -304,7 +341,7 @@ type PublicProfile {
 }
 
 type Query {
-    post(id: String, identifier: String): Post!
+    post(id: String, identifier: String, slug: String): Post!
     postAdmin(id: String, identifier: String): Post!
     postComments(input: PaginationInput, orderBy: OrderBy, postId: String!, threadId: String): PagedPostComments!
     postReactionProfiles(
@@ -314,10 +351,25 @@ type Query {
         postId: String
     ): PagedPostReactionProfile!
     postReports(commentId: String, pagination: PaginationInput, postId: String): PagedPostReports!
-    postTopics: [PostTopic!]!
+    postTopic(
+        pagination: PaginationInput
+        """
+        path should be in format of: /'slug1'/'slug2'/'slug3'/.../'targetSlug'
+        """
+        path: String
+        slug: String!
+        type: String!
+    ): PostTopicQueryResult!
+    postTopicById(id: String!): PostTopic!
+    postTopics(
+        """
+        List of ids to filter
+        """
+        ids: [String!]
+    ): [PostTopic!]!
     posts(input: PaginationInputWithFilters, orderBy: OrderBy): PagedPosts!
     postsAdmin(input: PaginationInputWithFilters, orderBy: OrderBy): PagedPosts!
-    postsByTopic(orderBy: OrderBy, pagination: PaginationInput, topicName: String!): PagedPosts!
+    postsByTopic(id: String!, orderBy: OrderBy, pagination: PaginationInput): PagedPosts!
     postsMine(input: PaginationInputWithFilters, orderBy: OrderBy): PagedPosts!
 }
 

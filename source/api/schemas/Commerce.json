@@ -9,7 +9,7 @@
             "PaymentProcessorType": {
                 "kind": "enum",
                 "type": "PaymentProcessorType",
-                "values": ["Stripe"]
+                "values": ["StripeProxy", "StripeEmbedded", "AppleInAppPurchase"]
             },
             "String": {
                 "kind": "scalar",
@@ -214,7 +214,7 @@
                 "kind": "enum",
                 "type": "CommerceOrderLogVisibility",
                 "description": "The visibility of the order log.",
-                "values": ["Public", "Private"]
+                "values": ["Public", "Internal"]
             },
             "CommerceOrderLogSource": {
                 "kind": "enum",
@@ -264,10 +264,16 @@
                 "description": "The status of the shipping",
                 "values": ["Pending", "LabelPurchased", "LabelPrinted", "Shipped", "Delivered", "Cancelled"]
             },
+            "DeliveryStatus": {
+                "kind": "enum",
+                "type": "DeliveryStatus",
+                "description": "The status of the delivery",
+                "values": ["AttemptedDelivery", "ReadyForPickup", "InTransit", "OutForDelivery", "Delivered"]
+            },
             "ShippingLabelSource": {
                 "kind": "enum",
                 "type": "ShippingLabelSource",
-                "values": ["Stamps"]
+                "values": ["Stamps", "Others"]
             },
             "ShippingServiceType": {
                 "kind": "enum",
@@ -353,6 +359,11 @@
                     "IsNotNull"
                 ]
             },
+            "CommerceCheckoutSessionStatus": {
+                "kind": "enum",
+                "type": "CommerceCheckoutSessionStatus",
+                "values": ["Pending", "Complete", "Failed", "Closed", "Expired"]
+            },
             "WalletEntryStatus": {
                 "kind": "enum",
                 "type": "WalletEntryStatus",
@@ -398,7 +409,7 @@
             "ProductVariantAttributeKey": {
                 "kind": "enum",
                 "type": "ProductVariantAttributeKey",
-                "values": ["Color", "Size", "SubscriptionPlan", "Credits"]
+                "values": ["Color", "Size", "SubscriptionPlan", "Credits", "AppStore"]
             },
             "ProductStatus": {
                 "kind": "enum",
@@ -599,6 +610,38 @@
                         "type": "CreateOrderPaymentMethodInput",
                         "required": true,
                         "name": "paymentMethod"
+                    }
+                ]
+            },
+            "CommerceCheckoutSessionCreateInput": {
+                "kind": "object",
+                "type": "CommerceCheckoutSessionCreateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "itemIds",
+                        "validation": [
+                            {
+                                "type": "arrayUnique"
+                            },
+                            {
+                                "type": "arrayNotEmpty"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "emailAddress"
+                    },
+                    {
+                        "kind": "enum",
+                        "type": "PaymentProcessorType",
+                        "required": true,
+                        "name": "paymentProcessorType"
                     }
                 ]
             },
@@ -1172,6 +1215,12 @@
                         "name": "price"
                     },
                     {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "taxCode"
+                    },
+                    {
                         "kind": "enum",
                         "type": "ProductVariantInventoryPolicy",
                         "required": true,
@@ -1187,17 +1236,6 @@
                                     },
                                     ["Deny", "AllowWaitlist", "AllowBackorder"]
                                 ]
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Float",
-                        "required": false,
-                        "name": "inventoryQuantity",
-                        "validation": [
-                            {
-                                "type": "isInt"
                             }
                         ]
                     },
@@ -1536,6 +1574,12 @@
                         ]
                     },
                     {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "taxCode"
+                    },
+                    {
                         "kind": "enum",
                         "type": "ProductVariantInventoryPolicy",
                         "required": false,
@@ -1716,65 +1760,6 @@
                     }
                 ]
             },
-            "WarehouseCreateInput": {
-                "kind": "object",
-                "type": "WarehouseCreateInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "name",
-                        "validation": [
-                            {
-                                "type": "maxLength",
-                                "constraints": [128]
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "object",
-                        "type": "StreetAddressInput",
-                        "required": true,
-                        "name": "address"
-                    }
-                ]
-            },
-            "WarehouseUpdateInput": {
-                "kind": "object",
-                "type": "WarehouseUpdateInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "id",
-                        "validation": [
-                            {
-                                "type": "isUuid"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "name",
-                        "validation": [
-                            {
-                                "type": "maxLength",
-                                "constraints": [128]
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "object",
-                        "type": "StreetAddressInput",
-                        "required": false,
-                        "name": "address"
-                    }
-                ]
-            },
             "WarehouseInventoryCreateInput": {
                 "kind": "object",
                 "type": "WarehouseInventoryCreateInput",
@@ -1891,6 +1876,65 @@
                 "kind": "enum",
                 "type": "WarehouseInventoryUpdateType",
                 "values": ["Set", "Add", "Subtract"]
+            },
+            "WarehouseCreateInput": {
+                "kind": "object",
+                "type": "WarehouseCreateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "name",
+                        "validation": [
+                            {
+                                "type": "maxLength",
+                                "constraints": [128]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "object",
+                        "type": "StreetAddressInput",
+                        "required": true,
+                        "name": "address"
+                    }
+                ]
+            },
+            "WarehouseUpdateInput": {
+                "kind": "object",
+                "type": "WarehouseUpdateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "id",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "name",
+                        "validation": [
+                            {
+                                "type": "maxLength",
+                                "constraints": [128]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "object",
+                        "type": "StreetAddressInput",
+                        "required": false,
+                        "name": "address"
+                    }
+                ]
             },
             "PurchaseOrderLabelsInput": {
                 "kind": "object",

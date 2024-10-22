@@ -16,10 +16,10 @@
                 "type": "DateTimeISO",
                 "description": "A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.This scalar is serialized to a string in ISO 8601 format and parsed from a string in ISO 8601 format."
             },
-            "CustomerSupportTicketStatus": {
+            "SupportTicketStatus": {
                 "kind": "enum",
-                "type": "CustomerSupportTicketStatus",
-                "description": "The status of a customer support ticket",
+                "type": "SupportTicketStatus",
+                "description": "The status of a support ticket",
                 "values": ["Open", "Closed", "Archived"]
             },
             "RichContentFormat": {
@@ -28,14 +28,14 @@
                 "description": "The format of the string rich-content",
                 "values": ["Markdown", "Html", "PlainText"]
             },
-            "CustomerSupportTicketCommentSource": {
+            "SupportTicketCommentSource": {
                 "kind": "enum",
-                "type": "CustomerSupportTicketCommentSource",
+                "type": "SupportTicketCommentSource",
                 "values": ["User", "Agent"]
             },
-            "CustomerSupportTicketCommentVisibility": {
+            "SupportTicketCommentVisibility": {
                 "kind": "enum",
-                "type": "CustomerSupportTicketCommentVisibility",
+                "type": "SupportTicketCommentVisibility",
                 "values": ["Public", "Internal"]
             },
             "MediaObjectType": {
@@ -61,9 +61,9 @@
                     }
                 ]
             },
-            "CustomerSupportTicketCommentCreateInput": {
+            "SupportTicketCommentCreateInput": {
                 "kind": "object",
-                "type": "CustomerSupportTicketCommentCreateInput",
+                "type": "SupportTicketCommentCreateInput",
                 "fields": [
                     {
                         "kind": "scalar",
@@ -101,7 +101,7 @@
                     },
                     {
                         "kind": "enum",
-                        "type": "CustomerSupportTicketCommentVisibility",
+                        "type": "SupportTicketCommentVisibility",
                         "required": false,
                         "name": "visibility"
                     },
@@ -124,21 +124,43 @@
                     }
                 ]
             },
-            "CustomerSupportTicketCreateInput": {
+            "SupportTicketCreateInput": {
                 "kind": "object",
-                "type": "CustomerSupportTicketCreateInput",
+                "type": "SupportTicketCreateInput",
                 "fields": [
                     {
                         "kind": "scalar",
                         "type": "String",
                         "required": true,
-                        "name": "title"
+                        "name": "title",
+                        "validation": [
+                            {
+                                "type": "maxLength",
+                                "constraints": [256]
+                            }
+                        ]
                     },
                     {
                         "kind": "scalar",
                         "type": "String",
                         "required": false,
                         "name": "description"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "type",
+                        "validation": [
+                            {
+                                "type": "maxLength",
+                                "constraints": [36]
+                            },
+                            {
+                                "type": "isIn",
+                                "constraints": [["Contact", "SupportArticleFeedback"]]
+                            }
+                        ]
                     },
                     {
                         "kind": "scalar",
@@ -153,7 +175,7 @@
                     },
                     {
                         "kind": "object",
-                        "type": "CustomerSupportTicketCommentCreateInput",
+                        "type": "SupportTicketCommentCreateInput",
                         "required": false,
                         "name": "initialComment"
                     }

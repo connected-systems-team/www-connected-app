@@ -24,55 +24,12 @@ export type Scalars = {
   MonetaryDecimal: { input: any; output: any; }
 };
 
-export type AccessRole = {
-  __typename?: 'AccessRole';
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  expiresAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  id: Scalars['String']['output'];
-  status: AccessRoleStatus;
-  type: Scalars['String']['output'];
-  updatedAt: Scalars['DateTimeISO']['output'];
-  updatedByAccountId?: Maybe<Scalars['String']['output']>;
-  updatedByProfileId?: Maybe<Scalars['String']['output']>;
-};
-
 /** The status of an access role for an account/profile */
 export enum AccessRoleStatus {
   Active = 'Active',
   Expired = 'Expired',
   Revoked = 'Revoked'
 }
-
-export type Account = {
-  __typename?: 'Account';
-  accountEmails: Array<AccountEmail>;
-  createdAt: Scalars['DateTimeISO']['output'];
-  currentProfile?: Maybe<Profile>;
-  currentSession?: Maybe<AccountSession>;
-  defaultProfile?: Maybe<Profile>;
-  defaultProfileId?: Maybe<Scalars['String']['output']>;
-  primaryAccountEmail?: Maybe<AccountEmail>;
-  roles: Array<AccessRole>;
-};
-
-export type AccountEmail = {
-  __typename?: 'AccountEmail';
-  createdAt: Scalars['DateTimeISO']['output'];
-  emailAddress: Scalars['String']['output'];
-  id: Scalars['String']['output'];
-  isVerified: Scalars['Boolean']['output'];
-  source: Scalars['String']['output'];
-  type: AccountEmailType;
-  updatedAt: Scalars['DateTimeISO']['output'];
-};
-
-export type AccountEmailAddressesResult = {
-  __typename?: 'AccountEmailAddressesResult';
-  count: Scalars['Float']['output'];
-  emailAddresses: Array<AccountEmail>;
-};
 
 /** The type of an account email */
 export enum AccountEmailType {
@@ -128,17 +85,6 @@ export type AccountRegistrationOrSignInCreateInput = {
   emailAddress: Scalars['String']['input'];
 };
 
-export type AccountSession = {
-  __typename?: 'AccountSession';
-  createdAt: Scalars['DateTimeISO']['output'];
-  currentProfileId: Scalars['String']['output'];
-  id: Scalars['String']['output'];
-  lastUsed?: Maybe<Scalars['DateTimeISO']['output']>;
-  status: AccountSessionStatus;
-  statusChangedAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  updatedAt: Scalars['DateTimeISO']['output'];
-};
-
 export type AccountSessionDeleteInput = {
   sessionIds: Array<Scalars['String']['input']>;
 };
@@ -150,34 +96,11 @@ export enum AccountSessionStatus {
   Revoked = 'Revoked'
 }
 
-export type AddressBookEntry = {
-  __typename?: 'AddressBookEntry';
-  city: Scalars['String']['output'];
-  company?: Maybe<Scalars['String']['output']>;
-  country: Scalars['String']['output'];
-  createdAt: Scalars['DateTimeISO']['output'];
-  firstName: Scalars['String']['output'];
-  id: Scalars['String']['output'];
-  lastName: Scalars['String']['output'];
-  line1: Scalars['String']['output'];
-  line2?: Maybe<Scalars['String']['output']>;
-  phoneNumber?: Maybe<Scalars['String']['output']>;
-  postalCode: Scalars['String']['output'];
-  state: Scalars['String']['output'];
-  updatedAt: Scalars['DateTimeISO']['output'];
-};
-
 /** The tier of a saved address book entry */
 export enum AddressBookEntryTier {
   Primary = 'Primary',
   Secondary = 'Secondary'
 }
-
-export type AuthenticationChallenge = {
-  __typename?: 'AuthenticationChallenge';
-  challengeType: Scalars['String']['output'];
-  status: AuthenticationChallengeStatus;
-};
 
 /** The status of an authentication challenge. */
 export enum AuthenticationChallengeStatus {
@@ -185,33 +108,6 @@ export enum AuthenticationChallengeStatus {
   Open = 'Open',
   Success = 'Success'
 }
-
-export type AuthenticationEmailVerification = {
-  __typename?: 'AuthenticationEmailVerification';
-  authentication: AuthenticationSession;
-  verification: EmailVerification;
-};
-
-export type AuthenticationOperationResult = {
-  __typename?: 'AuthenticationOperationResult';
-  authentication: AuthenticationSession;
-  success: Scalars['Boolean']['output'];
-};
-
-export type AuthenticationRegistrationOrSignIn = {
-  __typename?: 'AuthenticationRegistrationOrSignIn';
-  authentication: AuthenticationSession;
-  emailAddress: Scalars['String']['output'];
-};
-
-export type AuthenticationSession = {
-  __typename?: 'AuthenticationSession';
-  createdAt: Scalars['DateTimeISO']['output'];
-  currentChallenge?: Maybe<AuthenticationChallenge>;
-  scopeType: Scalars['String']['output'];
-  status: AuthenticationSessionStatus;
-  updatedAt: Scalars['DateTimeISO']['output'];
-};
 
 /** The status of the authentication session. */
 export enum AuthenticationSessionStatus {
@@ -227,28 +123,9 @@ export enum AuthenticationSessionStatus {
   OpenStatuses = 'openStatuses'
 }
 
-export type AvailableMetadata = {
-  __typename?: 'AvailableMetadata';
-  dataType: Scalars['String']['output'];
-  key: Scalars['String']['output'];
-};
-
 export type AvailableMetadataInput = {
   dataType: Scalars['String']['input'];
   key: Scalars['String']['input'];
-};
-
-export type CampaignDeliveryStage = {
-  __typename?: 'CampaignDeliveryStage';
-  completedAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  emailTemplateContentId?: Maybe<Scalars['String']['output']>;
-  emailTemplateId?: Maybe<Scalars['String']['output']>;
-  emailsSent?: Maybe<Scalars['Int']['output']>;
-  indexId: Scalars['Int']['output'];
-  percentSent?: Maybe<Scalars['Int']['output']>;
-  percentToSend: Scalars['Int']['output'];
-  stageStatus: CampaignDeliveryStageStatus;
-  startedAt?: Maybe<Scalars['DateTimeISO']['output']>;
 };
 
 /** The status of the delivery stage */
@@ -297,31 +174,19 @@ export enum ColumnFilterGroupOperator {
   Or = 'Or'
 }
 
-export type CommerceOrder = {
-  __typename?: 'CommerceOrder';
-  batchIdentifier: Scalars['String']['output'];
-  beneficiaryEmailAddress?: Maybe<Scalars['String']['output']>;
-  createdAt: Scalars['DateTimeISO']['output'];
-  discounts?: Maybe<Array<Discount>>;
-  emailAddress: Scalars['String']['output'];
-  fulfillmentStatus: CommerceOrderFulfillmentStatus;
-  holdOnShipping: Scalars['Boolean']['output'];
-  id: Scalars['String']['output'];
-  identifier: Scalars['String']['output'];
-  lineItems?: Maybe<Array<CommerceOrderLineItem>>;
-  metadata?: Maybe<Scalars['JSON']['output']>;
-  orderLogs?: Maybe<Array<CommerceOrderLog>>;
-  payment?: Maybe<Payment>;
-  paymentId?: Maybe<Scalars['String']['output']>;
-  paymentStatus?: Maybe<PaymentStatus>;
-  priceInfo: CommerceOrderPrice;
-  shipments?: Maybe<Array<Shipment>>;
-  shippingInfo: CommerceOrderShippingInfo;
-  source: Scalars['String']['output'];
-  status: CommerceOrderStatus;
-  statusDescription?: Maybe<Scalars['String']['output']>;
-  updatedAt: Scalars['DateTimeISO']['output'];
+export type CommerceCheckoutSessionCreateInput = {
+  emailAddress: Scalars['String']['input'];
+  itemIds: Array<Scalars['String']['input']>;
+  paymentProcessorType?: PaymentProcessorType;
 };
+
+export enum CommerceCheckoutSessionStatus {
+  Closed = 'Closed',
+  Complete = 'Complete',
+  Expired = 'Expired',
+  Failed = 'Failed',
+  Pending = 'Pending'
+}
 
 /** The fulfillment status of the order */
 export enum CommerceOrderFulfillmentStatus {
@@ -333,48 +198,12 @@ export enum CommerceOrderFulfillmentStatus {
   Unfulfilled = 'Unfulfilled'
 }
 
-export type CommerceOrderLineItem = {
-  __typename?: 'CommerceOrderLineItem';
-  commerceOrderId: Scalars['String']['output'];
-  createdAt: Scalars['DateTimeISO']['output'];
-  fulfilledQuantity: Scalars['Int']['output'];
-  id: Scalars['String']['output'];
-  indexId: Scalars['Int']['output'];
-  inventoryHoldId?: Maybe<Scalars['String']['output']>;
-  productVariantId: Scalars['String']['output'];
-  quantity: Scalars['Int']['output'];
-  shippedQuantity: Scalars['Int']['output'];
-  status: CommerceOrderLineItemStatus;
-  statusDescription?: Maybe<Scalars['String']['output']>;
-  updatedAt: Scalars['DateTimeISO']['output'];
-};
-
-export type CommerceOrderLineItemPrice = {
-  __typename?: 'CommerceOrderLineItemPrice';
-  amount: Scalars['MonetaryDecimal']['output'];
-  indexId: Scalars['Int']['output'];
-  originalSubtotal: Scalars['MonetaryDecimal']['output'];
-  subtotal: Scalars['MonetaryDecimal']['output'];
-  tax: Scalars['MonetaryDecimal']['output'];
-};
-
 /** The status of the order line item */
 export enum CommerceOrderLineItemStatus {
   Cancelled = 'Cancelled',
   Pending = 'Pending',
   Shipped = 'Shipped'
 }
-
-export type CommerceOrderLog = {
-  __typename?: 'CommerceOrderLog';
-  commerceOrderId: Scalars['String']['output'];
-  content?: Maybe<Scalars['JSON']['output']>;
-  createdAt: Scalars['DateTimeISO']['output'];
-  description?: Maybe<Scalars['String']['output']>;
-  id: Scalars['String']['output'];
-  source: CommerceOrderLogSource;
-  visibility: CommerceOrderLogVisibility;
-};
 
 /** The source of the order log. */
 export enum CommerceOrderLogSource {
@@ -385,49 +214,9 @@ export enum CommerceOrderLogSource {
 
 /** The visibility of the order log. */
 export enum CommerceOrderLogVisibility {
-  Private = 'Private',
+  Internal = 'Internal',
   Public = 'Public'
 }
-
-export type CommerceOrderPrice = {
-  __typename?: 'CommerceOrderPrice';
-  amount: Scalars['MonetaryDecimal']['output'];
-  currencyCode: Scalars['String']['output'];
-  lineItemPrices: Array<CommerceOrderLineItemPrice>;
-  originalSubtotal: Scalars['MonetaryDecimal']['output'];
-  shippingRate: CommerceOrderShippingRate;
-  subtotal: Scalars['MonetaryDecimal']['output'];
-  tax: CommerceOrderTax;
-};
-
-export type CommerceOrderResult = CommerceOrder | PublicCommerceOrder;
-
-export type CommerceOrderShippingInfo = {
-  __typename?: 'CommerceOrderShippingInfo';
-  shippingAddress: StreetAddressObject;
-};
-
-export type CommerceOrderShippingRate = {
-  __typename?: 'CommerceOrderShippingRate';
-  amount: Scalars['MonetaryDecimal']['output'];
-  breakdown: Array<CommerceOrderShippingRateBreakdown>;
-  originalAmount: Scalars['MonetaryDecimal']['output'];
-};
-
-export type CommerceOrderShippingRateBreakdown = {
-  __typename?: 'CommerceOrderShippingRateBreakdown';
-  freeShipping: Scalars['Boolean']['output'];
-  items: Array<CommerceOrderShippingRateBreakdownItem>;
-  originalShippingRate: Scalars['MonetaryDecimal']['output'];
-  packageIndexId: Scalars['Int']['output'];
-  shippingRate: Scalars['MonetaryDecimal']['output'];
-};
-
-export type CommerceOrderShippingRateBreakdownItem = {
-  __typename?: 'CommerceOrderShippingRateBreakdownItem';
-  indexId: Scalars['Int']['output'];
-  quantity: Scalars['Int']['output'];
-};
 
 /** The status of the order */
 export enum CommerceOrderStatus {
@@ -441,29 +230,6 @@ export enum CommerceOrderStatus {
   WaitPayment = 'WaitPayment'
 }
 
-export type CommerceOrderTax = {
-  __typename?: 'CommerceOrderTax';
-  shipping: Scalars['MonetaryDecimal']['output'];
-  total: Scalars['MonetaryDecimal']['output'];
-};
-
-export type Contact = {
-  __typename?: 'Contact';
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  fields?: Maybe<Array<ContactField>>;
-  id: Scalars['String']['output'];
-  metadata: Scalars['JSON']['output'];
-  name: Scalars['String']['output'];
-  note?: Maybe<Scalars['String']['output']>;
-  source: Scalars['String']['output'];
-  type: ContactType;
-  updatedAt: Scalars['DateTimeISO']['output'];
-  updatedByAccountId?: Maybe<Scalars['String']['output']>;
-  updatedByProfileId?: Maybe<Scalars['String']['output']>;
-};
-
 export type ContactCreateInput = {
   fields?: InputMaybe<Array<ContactFieldCreateInput>>;
   metadata?: InputMaybe<Scalars['JSON']['input']>;
@@ -471,20 +237,6 @@ export type ContactCreateInput = {
   note?: InputMaybe<Scalars['String']['input']>;
   source: Scalars['String']['input'];
   type: ContactType;
-};
-
-export type ContactField = {
-  __typename?: 'ContactField';
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  id: Scalars['String']['output'];
-  label?: Maybe<Scalars['String']['output']>;
-  type: ContactFieldType;
-  updatedAt: Scalars['DateTimeISO']['output'];
-  updatedByAccountId?: Maybe<Scalars['String']['output']>;
-  updatedByProfileId?: Maybe<Scalars['String']['output']>;
-  value: Scalars['JSON']['output'];
 };
 
 export type ContactFieldCreateInput = {
@@ -619,13 +371,13 @@ export type CreateProductVariantInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   gtin?: InputMaybe<Scalars['String']['input']>;
   inventoryPolicy: ProductVariantInventoryPolicy;
-  inventoryQuantity?: InputMaybe<Scalars['Float']['input']>;
   name: Scalars['String']['input'];
   position?: InputMaybe<Scalars['Float']['input']>;
   price?: InputMaybe<ProductVariantPriceInput>;
   productId?: InputMaybe<Scalars['String']['input']>;
   setDefault?: InputMaybe<Scalars['Boolean']['input']>;
   sku?: InputMaybe<Scalars['String']['input']>;
+  taxCode?: InputMaybe<Scalars['String']['input']>;
   unitInfo?: InputMaybe<ProductVariantUnitInfoInput>;
 };
 
@@ -643,72 +395,6 @@ export enum CreditCardType {
   Unknown = 'Unknown',
   Visa = 'Visa'
 }
-
-export type CustomerSupportTicket = {
-  __typename?: 'CustomerSupportTicket';
-  attachments?: Maybe<Array<MediaObject>>;
-  comments: Array<CustomerSupportTicketComment>;
-  createdAt: Scalars['DateTimeISO']['output'];
-  description?: Maybe<Scalars['String']['output']>;
-  id: Scalars['String']['output'];
-  identifier: Scalars['String']['output'];
-  status: CustomerSupportTicketStatus;
-  title: Scalars['String']['output'];
-  userEmailAddress: Scalars['String']['output'];
-};
-
-export type CustomerSupportTicketComment = {
-  __typename?: 'CustomerSupportTicketComment';
-  attachments?: Maybe<Array<MediaObject>>;
-  content: Scalars['String']['output'];
-  contentType: RichContentFormat;
-  createdAt: Scalars['DateTimeISO']['output'];
-  emailMessageId?: Maybe<Scalars['String']['output']>;
-  id: Scalars['String']['output'];
-  replyToCommentId?: Maybe<Scalars['String']['output']>;
-  source: CustomerSupportTicketCommentSource;
-  visibility: CustomerSupportTicketCommentVisibility;
-};
-
-export type CustomerSupportTicketCommentCreateInput = {
-  content: Scalars['String']['input'];
-  contentType?: InputMaybe<RichContentFormat>;
-  emailAddress?: InputMaybe<Scalars['String']['input']>;
-  emailName?: InputMaybe<Scalars['String']['input']>;
-  replyToCommentId: Scalars['String']['input'];
-  ticketId: Scalars['String']['input'];
-  visibility?: InputMaybe<CustomerSupportTicketCommentVisibility>;
-};
-
-export enum CustomerSupportTicketCommentSource {
-  Agent = 'Agent',
-  User = 'User'
-}
-
-export enum CustomerSupportTicketCommentVisibility {
-  Internal = 'Internal',
-  Public = 'Public'
-}
-
-export type CustomerSupportTicketCreateInput = {
-  description?: InputMaybe<Scalars['String']['input']>;
-  emailAddress: Scalars['String']['input'];
-  initialComment?: InputMaybe<CustomerSupportTicketCommentCreateInput>;
-  title: Scalars['String']['input'];
-};
-
-/** The status of a customer support ticket */
-export enum CustomerSupportTicketStatus {
-  Archived = 'Archived',
-  Closed = 'Closed',
-  Open = 'Open'
-}
-
-export type DataInteractionDatabaseMetrics = {
-  __typename?: 'DataInteractionDatabaseMetrics';
-  data: Array<Scalars['JSON']['output']>;
-  timeInterval: TimeInterval;
-};
 
 export type DataInteractionDatabaseRelationInput = {
   data?: InputMaybe<Scalars['JSON']['input']>;
@@ -744,60 +430,14 @@ export type DataInteractionDatabaseTableRowUpdateInput = {
   tableName: Scalars['String']['input'];
 };
 
-export type DatabaseTableColumn = {
-  __typename?: 'DatabaseTableColumn';
-  isGenerated: Scalars['Boolean']['output'];
-  isKey: Scalars['Boolean']['output'];
-  isNullable: Scalars['Boolean']['output'];
-  isPrimaryKey: Scalars['Boolean']['output'];
-  keyTableName?: Maybe<Scalars['String']['output']>;
-  length: Scalars['String']['output'];
-  name: Scalars['String']['output'];
-  possibleValues?: Maybe<Array<Scalars['String']['output']>>;
-  type: Scalars['String']['output'];
-};
-
-export type DatabaseTableMetadata = {
-  __typename?: 'DatabaseTableMetadata';
-  columns?: Maybe<Array<DatabaseTableColumn>>;
-  databaseName: Scalars['String']['output'];
-  items?: Maybe<Array<Scalars['JSON']['output']>>;
-  pagination?: Maybe<Pagination>;
-  relations?: Maybe<Array<DatabaseTableRelation>>;
-  rowCount: Scalars['Int']['output'];
-  tableName: Scalars['String']['output'];
-};
-
-export type DatabaseTableRelation = {
-  __typename?: 'DatabaseTableRelation';
-  fieldName: Scalars['String']['output'];
-  inverseFieldName?: Maybe<Scalars['String']['output']>;
-  inverseTableName?: Maybe<Scalars['String']['output']>;
-  inverseType?: Maybe<Scalars['String']['output']>;
-  joinColumns?: Maybe<Array<Scalars['String']['output']>>;
-  tableName: Scalars['String']['output'];
-  type: Scalars['String']['output'];
-};
-
-export type DatabaseTableRowData = {
-  __typename?: 'DatabaseTableRowData';
-  columns?: Maybe<Array<DatabaseTableColumn>>;
-  databaseName: Scalars['String']['output'];
-  item?: Maybe<Scalars['JSON']['output']>;
-  relations?: Maybe<Array<DatabaseTableRelation>>;
-  tableName: Scalars['String']['output'];
-};
-
-export type DatabaseTablesResult = {
-  __typename?: 'DatabaseTablesResult';
-  items: Array<DatabaseTableMetadata>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type DatebaseMetadata = {
-  __typename?: 'DatebaseMetadata';
-  databaseName: Scalars['String']['output'];
-};
+/** The status of the delivery */
+export enum DeliveryStatus {
+  AttemptedDelivery = 'AttemptedDelivery',
+  Delivered = 'Delivered',
+  InTransit = 'InTransit',
+  OutForDelivery = 'OutForDelivery',
+  ReadyForPickup = 'ReadyForPickup'
+}
 
 export enum DeviceOrientation {
   Landscape = 'Landscape',
@@ -814,20 +454,6 @@ export type DeviceProperties = {
   operatingSystemVersion?: InputMaybe<Scalars['String']['input']>;
   orientation?: InputMaybe<DeviceOrientation>;
   resolution?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Discount = {
-  __typename?: 'Discount';
-  code?: Maybe<Scalars['String']['output']>;
-  conditions: Array<DiscountCondition>;
-  createdAt: Scalars['DateTimeISO']['output'];
-  endsAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  id: Scalars['String']['output'];
-  rule?: Maybe<DiscountRule>;
-  startsAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  type: DiscountType;
-  updatedAt: Scalars['DateTimeISO']['output'];
-  usageCount: Scalars['Int']['output'];
 };
 
 export type DiscountAllocationInput = {
@@ -848,19 +474,6 @@ export enum DiscountAllocationMethod {
   Flat = 'Flat'
 }
 
-export type DiscountAllocationObject = {
-  __typename?: 'DiscountAllocationObject';
-  buyThisGetY?: Maybe<Scalars['Int']['output']>;
-  buyThisGetYAmount?: Maybe<Scalars['MonetaryDecimal']['output']>;
-  buyXAmountGetThis?: Maybe<Scalars['MonetaryDecimal']['output']>;
-  buyXGetThis?: Maybe<Scalars['Int']['output']>;
-  maxAllocationLimit: Scalars['Float']['output'];
-  method: DiscountAllocationMethod;
-  target: DiscountAllocationTarget;
-  value: Scalars['MonetaryDecimal']['output'];
-  valueType: DiscountValueType;
-};
-
 export enum DiscountAllocationTarget {
   Across = 'Across',
   Each = 'Each',
@@ -868,30 +481,10 @@ export enum DiscountAllocationTarget {
   ShippingBreakdown = 'ShippingBreakdown'
 }
 
-export type DiscountCondition = {
-  __typename?: 'DiscountCondition';
-  createdAt: Scalars['DateTimeISO']['output'];
-  discountRuleId?: Maybe<Scalars['String']['output']>;
-  id: Scalars['String']['output'];
-  quantityRequirement?: Maybe<DiscountConditionRequirementObject>;
-  referenceId: Scalars['String']['output'];
-  subtotalRequirement?: Maybe<DiscountConditionRequirementObject>;
-  target: DiscountConditionTarget;
-  type: DiscountConditionType;
-  updatedAt: Scalars['DateTimeISO']['output'];
-};
-
 export type DiscountConditionRequirementInput = {
   maxValue?: InputMaybe<Scalars['Int']['input']>;
   minValue?: InputMaybe<Scalars['Int']['input']>;
   requiredValue?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type DiscountConditionRequirementObject = {
-  __typename?: 'DiscountConditionRequirementObject';
-  maxValue?: Maybe<Scalars['Int']['output']>;
-  minValue?: Maybe<Scalars['Int']['output']>;
-  requiredValue?: Maybe<Scalars['Int']['output']>;
 };
 
 export enum DiscountConditionTarget {
@@ -904,18 +497,6 @@ export enum DiscountConditionType {
   Products = 'Products',
   Vendors = 'Vendors'
 }
-
-export type DiscountRule = {
-  __typename?: 'DiscountRule';
-  allocation: DiscountAllocationObject;
-  conditions: Array<DiscountCondition>;
-  createdAt: Scalars['DateTimeISO']['output'];
-  displayTitle: Scalars['String']['output'];
-  id: Scalars['String']['output'];
-  oncePerCustomer: Scalars['Boolean']['output'];
-  title: Scalars['String']['output'];
-  updatedAt: Scalars['DateTimeISO']['output'];
-};
 
 export type DiscountRuleConditionInput = {
   discountRuleId?: InputMaybe<Scalars['String']['input']>;
@@ -938,61 +519,11 @@ export enum DiscountValueType {
   Percentage = 'Percentage'
 }
 
-export type EmailAutomation = {
-  __typename?: 'EmailAutomation';
-  automationKey: Scalars['String']['output'];
-  availableMetadata?: Maybe<Array<AvailableMetadata>>;
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  description?: Maybe<Scalars['String']['output']>;
-  emailTemplate?: Maybe<EmailTemplate>;
-  emailTemplateId?: Maybe<Scalars['String']['output']>;
-  fromEmail: Scalars['String']['output'];
-  fromName: Scalars['String']['output'];
-  id: Scalars['String']['output'];
-  subject: Scalars['String']['output'];
-  type: EmailAutomationType;
-  updatedAt: Scalars['DateTimeISO']['output'];
-  updatedByAccountId?: Maybe<Scalars['String']['output']>;
-  updatedByProfileId?: Maybe<Scalars['String']['output']>;
-};
-
-export type EmailAutomationResult = {
-  __typename?: 'EmailAutomationResult';
-  items: Array<EmailAutomation>;
-  pagination?: Maybe<Pagination>;
-};
-
 /** Email automation type */
 export enum EmailAutomationType {
   BuiltIn = 'BuiltIn',
   Custom = 'Custom'
 }
-
-export type EmailCampaign = {
-  __typename?: 'EmailCampaign';
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  currentStageIndexId: Scalars['Int']['output'];
-  deliveryStages: Array<CampaignDeliveryStage>;
-  description?: Maybe<Scalars['String']['output']>;
-  fromEmail: Scalars['String']['output'];
-  fromName: Scalars['String']['output'];
-  id: Scalars['String']['output'];
-  pagedEmailAddresses?: Maybe<PagedEmailCampaignEmailAddress>;
-  status: EmailCampaignStatus;
-  title: Scalars['String']['output'];
-  updatedAt: Scalars['DateTimeISO']['output'];
-  updatedByAccountId?: Maybe<Scalars['String']['output']>;
-  updatedByProfileId?: Maybe<Scalars['String']['output']>;
-};
-
-
-export type EmailCampaignPagedEmailAddressesArgs = {
-  pagination?: InputMaybe<PaginationInput>;
-};
 
 export type EmailCampaignCreateInput = {
   description?: InputMaybe<Scalars['String']['input']>;
@@ -1004,21 +535,6 @@ export type EmailCampaignCreateInput = {
   fromName: Scalars['String']['input'];
   stageInputs: Array<EmailCampaignStageInput>;
   title: Scalars['String']['input'];
-};
-
-export type EmailCampaignEmailAddress = {
-  __typename?: 'EmailCampaignEmailAddress';
-  createdAt: Scalars['DateTimeISO']['output'];
-  emailAddress: Scalars['String']['output'];
-  emailContent?: Maybe<EmailCampaignEmailContent>;
-  id: Scalars['String']['output'];
-  presetSendStage?: Maybe<Scalars['Int']['output']>;
-  sendAttempts?: Maybe<Scalars['Int']['output']>;
-  sentAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  sentStage?: Maybe<Scalars['Int']['output']>;
-  status: EmailCampaignEmailAddressStatus;
-  statusDescription?: Maybe<Scalars['String']['output']>;
-  updatedAt: Scalars['DateTimeISO']['output'];
 };
 
 export type EmailCampaignEmailAddressInput = {
@@ -1038,15 +554,6 @@ export type EmailCampaignEmailAddressUpdateInput = {
   action: ListEntryAction;
   emailAddress: Scalars['String']['input'];
   presetSendStage?: InputMaybe<Scalars['Int']['input']>;
-};
-
-export type EmailCampaignEmailContent = {
-  __typename?: 'EmailCampaignEmailContent';
-  content: Scalars['String']['output'];
-  contentFormat: EmailContentFormat;
-  fromEmailAddress: Scalars['String']['output'];
-  fromName: Scalars['String']['output'];
-  subject: Scalars['String']['output'];
 };
 
 export type EmailCampaignEmailListInput = {
@@ -1102,129 +609,14 @@ export enum EmailContentFormat {
   ToContentType = 'toContentType'
 }
 
-export type EmailList = {
-  __typename?: 'EmailList';
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  id: Scalars['String']['output'];
-  identifier: Scalars['String']['output'];
-  pagedEmailListEntries?: Maybe<PagedEmailListEntries>;
-  title: Scalars['String']['output'];
-  updatedAt: Scalars['DateTimeISO']['output'];
-  updatedByAccountId?: Maybe<Scalars['String']['output']>;
-  updatedByProfileId?: Maybe<Scalars['String']['output']>;
-};
-
-
-export type EmailListPagedEmailListEntriesArgs = {
-  pagination?: InputMaybe<PaginationInput>;
-};
-
-export type EmailListEntry = {
-  __typename?: 'EmailListEntry';
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  emailAddress: Scalars['String']['output'];
-  familyName?: Maybe<Scalars['String']['output']>;
-  givenName?: Maybe<Scalars['String']['output']>;
-  hashCode: Scalars['String']['output'];
-  id: Scalars['String']['output'];
-  metadata?: Maybe<Scalars['JSON']['output']>;
-  updatedAt: Scalars['DateTimeISO']['output'];
-  updatedByAccountId?: Maybe<Scalars['String']['output']>;
-  updatedByProfileId?: Maybe<Scalars['String']['output']>;
-};
-
-export type EmailTemplate = {
-  __typename?: 'EmailTemplate';
-  alias: Scalars['String']['output'];
-  contentHistory: Array<EmailTemplateContent>;
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  currentContent?: Maybe<EmailTemplateContent>;
-  currentVersion: Scalars['Float']['output'];
-  description?: Maybe<Scalars['String']['output']>;
-  id: Scalars['String']['output'];
-  status: EmailTemplateStatus;
-  title: Scalars['String']['output'];
-  updatedAt: Scalars['DateTimeISO']['output'];
-  updatedByAccountId?: Maybe<Scalars['String']['output']>;
-  updatedByProfileId?: Maybe<Scalars['String']['output']>;
-};
-
-export type EmailTemplateContent = {
-  __typename?: 'EmailTemplateContent';
-  activatedAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  body: Scalars['String']['output'];
-  contentFormat: EmailContentFormat;
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  id: Scalars['String']['output'];
-  languageCode: Scalars['String']['output'];
-  metadata?: Maybe<EmailTemplateMetadataObject>;
-  notes?: Maybe<Scalars['String']['output']>;
-  subject: Scalars['String']['output'];
-  version: Scalars['Float']['output'];
-};
-
-export type EmailTemplateContentEngagementMetrics = {
-  __typename?: 'EmailTemplateContentEngagementMetrics';
-  links: Array<EmailTemplateContentLinkEngagementMetrics>;
-  opened: Scalars['Int']['output'];
-  openedUnique: Scalars['Int']['output'];
-  sent: Scalars['Int']['output'];
-  sentError: Scalars['Int']['output'];
-  sentErrorUnique: Scalars['Int']['output'];
-  sentUnique: Scalars['Int']['output'];
-};
-
-export type EmailTemplateContentLinkEngagementMetrics = {
-  __typename?: 'EmailTemplateContentLinkEngagementMetrics';
-  clicked: Scalars['Int']['output'];
-  clickedUnique: Scalars['Int']['output'];
-  url: Scalars['String']['output'];
-};
-
-export type EmailTemplateImageAsset = {
-  __typename?: 'EmailTemplateImageAsset';
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  description?: Maybe<Scalars['String']['output']>;
-  id: Scalars['String']['output'];
-  imageUrl: Scalars['String']['output'];
-};
-
-export type EmailTemplateImageAssetsResult = {
-  __typename?: 'EmailTemplateImageAssetsResult';
-  items: Array<EmailTemplateImageAsset>;
-  pagination?: Maybe<Pagination>;
-};
-
 export type EmailTemplateLinkMetadataInput = {
   linkUrl: Scalars['String']['input'];
   replaceKey: Scalars['String']['input'];
 };
 
-export type EmailTemplateLinkMetadataObject = {
-  __typename?: 'EmailTemplateLinkMetadataObject';
-  linkUrl: Scalars['String']['output'];
-  replaceKey: Scalars['String']['output'];
-};
-
 export type EmailTemplateMediaMetadataInput = {
   assetId: Scalars['String']['input'];
   replaceKey?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type EmailTemplateMediaMetadataObject = {
-  __typename?: 'EmailTemplateMediaMetadataObject';
-  assetId: Scalars['String']['output'];
-  replaceKey?: Maybe<Scalars['String']['output']>;
 };
 
 export type EmailTemplateMetadataInput = {
@@ -1233,24 +625,10 @@ export type EmailTemplateMetadataInput = {
   replaceableMarkups: Array<EmailTemplateReplaceableMarkupInput>;
 };
 
-export type EmailTemplateMetadataObject = {
-  __typename?: 'EmailTemplateMetadataObject';
-  links: Array<EmailTemplateLinkMetadataObject>;
-  mediaAssets: Array<EmailTemplateMediaMetadataObject>;
-  replaceableMarkups: Array<EmailTemplateReplaceableMarkupObject>;
-};
-
 export type EmailTemplateReplaceableMarkupInput = {
   markup: Scalars['String']['input'];
   placeHoldValue: Scalars['String']['input'];
   replaceKey: Scalars['String']['input'];
-};
-
-export type EmailTemplateReplaceableMarkupObject = {
-  __typename?: 'EmailTemplateReplaceableMarkupObject';
-  markup: Scalars['String']['output'];
-  placeHoldValue: Scalars['String']['output'];
-  replaceKey: Scalars['String']['output'];
 };
 
 /** The status of an email template */
@@ -1259,19 +637,6 @@ export enum EmailTemplateStatus {
   Draft = 'Draft',
   Inactive = 'Inactive'
 }
-
-export type EmailTemplatesResult = {
-  __typename?: 'EmailTemplatesResult';
-  items: Array<EmailTemplate>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type EmailVerification = {
-  __typename?: 'EmailVerification';
-  emailAddress: Scalars['String']['output'];
-  lastEmailSentAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  status: EmailVerificationStatus;
-};
 
 /** The verification status of an email address. */
 export enum EmailVerificationStatus {
@@ -1282,13 +647,6 @@ export enum EmailVerificationStatus {
 
 export type EmailVerificationVerifyInput = {
   code: Scalars['String']['input'];
-};
-
-export type EngagementEvent = {
-  __typename?: 'EngagementEvent';
-  createdAt: Scalars['DateTimeISO']['output'];
-  id: Scalars['String']['output'];
-  name: Scalars['String']['output'];
 };
 
 export type EngagementEventContext = {
@@ -1303,67 +661,14 @@ export type EngagementEventContext = {
   viewTitle?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type EngagementLocationOverview = {
-  __typename?: 'EngagementLocationOverview';
-  countryCode?: Maybe<Scalars['String']['output']>;
-  latitude?: Maybe<Scalars['String']['output']>;
-  longitude?: Maybe<Scalars['String']['output']>;
-  uniqueDeviceCount: Scalars['Int']['output'];
-};
-
-export type EngagementOverview = {
-  __typename?: 'EngagementOverview';
-  deviceCategoryPercentages: Scalars['JSON']['output'];
-  locations: Array<EngagementLocationOverview>;
-  uniqueDeviceIds: Scalars['Int']['output'];
-  views: Array<EngagementViewOverview>;
-};
-
 export type EngagementOverviewInput = {
   endTime?: InputMaybe<Scalars['DateTimeISO']['input']>;
   startTime?: InputMaybe<Scalars['DateTimeISO']['input']>;
 };
 
-export type EngagementViewOverview = {
-  __typename?: 'EngagementViewOverview';
-  uniqueDeviceCount: Scalars['Int']['output'];
-  viewIdentifier?: Maybe<Scalars['String']['output']>;
-};
-
 export type EstimateOrderPriceInput = {
   lineItems: Array<OrderLineItemInput>;
   shippingAddress?: InputMaybe<StreetAddressInput>;
-};
-
-export type FulfillmentOrder = {
-  __typename?: 'FulfillmentOrder';
-  createdAt: Scalars['DateTimeISO']['output'];
-  emailAddress: Scalars['String']['output'];
-  holdOnShipping: Scalars['Boolean']['output'];
-  identifier: Scalars['String']['output'];
-  lineItems: Array<FulfillmentOrderLineItem>;
-  shipments: Array<Shipment>;
-  shippingAddress: StreetAddressObject;
-};
-
-export type FulfillmentOrderLineItem = {
-  __typename?: 'FulfillmentOrderLineItem';
-  fulfilledQuantity: Scalars['Int']['output'];
-  orderLineItemId: Scalars['String']['output'];
-  productVariant: FulfillmentProductVariant;
-  productVariantId: Scalars['String']['output'];
-  quantity: Scalars['Int']['output'];
-  shippedQuantity: Scalars['Int']['output'];
-};
-
-export type FulfillmentProductVariant = {
-  __typename?: 'FulfillmentProductVariant';
-  barcode?: Maybe<Scalars['String']['output']>;
-  description?: Maybe<Scalars['String']['output']>;
-  gtin?: Maybe<Scalars['String']['output']>;
-  id: Scalars['String']['output'];
-  name: Scalars['String']['output'];
-  sku?: Maybe<Scalars['String']['output']>;
 };
 
 export type GrantAccessRoleInput = {
@@ -1372,13 +677,6 @@ export type GrantAccessRoleInput = {
   expiresAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
   profileId?: InputMaybe<Scalars['String']['input']>;
   type: Scalars['String']['input'];
-};
-
-export type ImageObject = {
-  __typename?: 'ImageObject';
-  type: MediaObjectType;
-  url: Scalars['String']['output'];
-  variant?: Maybe<Scalars['String']['output']>;
 };
 
 export enum LengthUnit {
@@ -1399,654 +697,11 @@ export type MakePaymentToOrderInput = {
   paymentMethod: CreateOrderPaymentMethodInput;
 };
 
-export type MediaObject = {
-  __typename?: 'MediaObject';
-  type: MediaObjectType;
-  url: Scalars['String']['output'];
-  variant?: Maybe<Scalars['String']['output']>;
-};
-
 export enum MediaObjectType {
   File = 'File',
   Image = 'Image',
   Video = 'Video'
 }
-
-export type Mutation = {
-  __typename?: 'Mutation';
-  accountEmailDelete: OperationResult;
-  accountEmailMakePrimary: AccountEmail;
-  accountEmailVerificationComplete: AccountEmail;
-  accountEmailVerificationSend: EmailVerification;
-  accountMaintenanceSessionCreate: AuthenticationSession;
-  accountPasswordCreate: OperationResult;
-  accountPasswordVerify: AuthenticationOperationResult;
-  accountProfileImageRemove: Profile;
-  accountProfileUpdate: Profile;
-  accountRegistrationComplete: AuthenticationOperationResult;
-  accountRegistrationOrSignInCreate: AuthenticationRegistrationOrSignIn;
-  accountRoleGrant: AccessRole;
-  accountRoleRevoke: OperationResult;
-  accountSessionDelete: OperationResult;
-  accountSignInComplete: AuthenticationOperationResult;
-  accountSignOut: OperationResult;
-  commerceAddressBookEntryCreate: AddressBookEntry;
-  commerceCartUpdate: ShoppingBag;
-  commerceDiscountCreate: Discount;
-  commerceDiscountRuleCreate: DiscountRule;
-  commerceGenerateManifest: ShipmentManifest;
-  commerceMarkOrdersAsShipped: Array<CommerceOrder>;
-  commerceMarkShipmentBatchPrinted: ShipmentBatch;
-  commerceMarkShipmentBatchReadyToProcess: ShipmentBatch;
-  commerceOrderCancel: CommerceOrder;
-  commerceOrderCreate: CommerceOrder;
-  commerceOrderSetPayment: CommerceOrder;
-  commerceProductBundleCreate: ProductBundle;
-  commerceProductBundleDelete: Scalars['Boolean']['output'];
-  commerceProductBundleUpdate: ProductBundle;
-  commerceProductCreate: Product;
-  commerceProductUpdate: Product;
-  commercePurchaseLabelForOrders: Scalars['String']['output'];
-  commerceSavedItemsUpdate: ShoppingBag;
-  commerceShoppingBagCheckout: Array<CommerceOrder>;
-  commerceShoppingBagClear: ShoppingBag;
-  commerceShoppingBagTransform: TransformShoppingBagResult;
-  commerceShoppingBagUpsert: ShoppingBag;
-  commerceVendorCreate: Vendor;
-  commerceVendorUpdate: Vendor;
-  commerceWalletEntryDelete: Scalars['Boolean']['output'];
-  commerceWalletEntryUpsert: WalletEntry;
-  contactCreate: Contact;
-  contactDelete: Scalars['Boolean']['output'];
-  contactFieldUpdate: Contact;
-  contactUpdate: Contact;
-  customerSupportTicketCommentCreate: CustomerSupportTicketComment;
-  customerSupportTicketCommentCreateAdmin: CustomerSupportTicketComment;
-  customerSupportTicketCreate: CustomerSupportTicketComment;
-  dataInteractionDatabaseTableRowCreate: Scalars['JSON']['output'];
-  dataInteractionDatabaseTableRowDelete: Scalars['Boolean']['output'];
-  dataInteractionDatabaseTableRowUpdate: Scalars['JSON']['output'];
-  dataInteractionDatabaseTableRowsDelete: Scalars['Int']['output'];
-  emailAutomationUpsert: EmailAutomation;
-  emailCampaignCreate: EmailCampaign;
-  emailCampaignEditEmailAddresses: EmailCampaign;
-  emailCampaignStartStage: EmailCampaign;
-  emailCampaignUpdate: EmailCampaign;
-  emailCampaignUpdateStatus: EmailCampaign;
-  emailContact: Scalars['String']['output'];
-  emailListCreate: EmailList;
-  emailListUpdate: EmailList;
-  emailTemplateContentUpsert: EmailTemplate;
-  emailTemplateCreate: EmailTemplate;
-  emailTemplateImageAssetDelete: Scalars['Boolean']['output'];
-  emailTemplateImageAssetSetDescription: EmailTemplateImageAsset;
-  emailTemplatePreview: Scalars['String']['output'];
-  emailTemplateUpdate: EmailTemplate;
-  emailVerificationSend: AuthenticationEmailVerification;
-  emailVerificationVerify: AuthenticationEmailVerification;
-  engagementEventCreate: Scalars['Boolean']['output'];
-  engagementEventsCreate: Scalars['Boolean']['output'];
-  postCommentCreate: PostComment;
-  postCommentDelete: Scalars['Boolean']['output'];
-  postCreateAdmin: Post;
-  postDelete: Scalars['String']['output'];
-  postDeleteAdmin: Scalars['String']['output'];
-  postPublish: Post;
-  postPublishAdmin: Post;
-  postReactionCreate: Scalars['Boolean']['output'];
-  postReactionDelete: Scalars['Boolean']['output'];
-  postReportCreate: PostReport;
-  postReportModerate: Post;
-  postTopicCreate: PostTopic;
-  postTopicDelete: Scalars['Boolean']['output'];
-  postUnvote: Scalars['Boolean']['output'];
-  postUpdate: Post;
-  postUpdateAdmin: Post;
-  postVote: Scalars['Boolean']['output'];
-  productVariantRemoveGalleryAsset: ProductVariant;
-  productVariantReorderGallery: ProductVariant;
-  sendEmail: Scalars['String']['output'];
-  waitListCreate: WaitList;
-  waitListDelete: Scalars['Boolean']['output'];
-  waitListEntryCreate: WaitListEntry;
-  waitListEntryDelete: Scalars['Boolean']['output'];
-  waitListUpdate: WaitList;
-  warehouseCreate: Warehouse;
-  warehouseDelete: Scalars['String']['output'];
-  warehouseInventoryCreate: WarehouseInventory;
-  warehouseInventoryDelete: Scalars['String']['output'];
-  warehouseInventoryUpdate: WarehouseInventory;
-  warehouseUpdate: Warehouse;
-};
-
-
-export type MutationAccountEmailDeleteArgs = {
-  accountEmailId: Scalars['String']['input'];
-};
-
-
-export type MutationAccountEmailMakePrimaryArgs = {
-  accountEmailId: Scalars['String']['input'];
-};
-
-
-export type MutationAccountEmailVerificationCompleteArgs = {
-  input: AccountEmailVerificationCompleteInput;
-};
-
-
-export type MutationAccountEmailVerificationSendArgs = {
-  input: AccountEmailVerificationSendInput;
-};
-
-
-export type MutationAccountPasswordCreateArgs = {
-  input: AccountPasswordCreateInput;
-};
-
-
-export type MutationAccountPasswordVerifyArgs = {
-  input: AccountPasswordVerifyInput;
-};
-
-
-export type MutationAccountProfileUpdateArgs = {
-  input: AccountProfileUpdateInput;
-};
-
-
-export type MutationAccountRegistrationCompleteArgs = {
-  input: AccountRegistrationCompleteInput;
-};
-
-
-export type MutationAccountRegistrationOrSignInCreateArgs = {
-  input: AccountRegistrationOrSignInCreateInput;
-};
-
-
-export type MutationAccountRoleGrantArgs = {
-  input: GrantAccessRoleInput;
-};
-
-
-export type MutationAccountRoleRevokeArgs = {
-  roleId: Scalars['String']['input'];
-};
-
-
-export type MutationAccountSessionDeleteArgs = {
-  input: AccountSessionDeleteInput;
-};
-
-
-export type MutationCommerceAddressBookEntryCreateArgs = {
-  address: StreetAddressInput;
-  alias?: InputMaybe<Scalars['String']['input']>;
-  tier?: InputMaybe<AddressBookEntryTier>;
-};
-
-
-export type MutationCommerceCartUpdateArgs = {
-  items: Array<ShoppingBagItemInput>;
-};
-
-
-export type MutationCommerceDiscountCreateArgs = {
-  input: CreateDiscountInput;
-};
-
-
-export type MutationCommerceDiscountRuleCreateArgs = {
-  input: CreateDiscountRuleInput;
-};
-
-
-export type MutationCommerceGenerateManifestArgs = {
-  shipmentIds: Array<Scalars['String']['input']>;
-};
-
-
-export type MutationCommerceMarkOrdersAsShippedArgs = {
-  orderIdentifiers: Array<Scalars['String']['input']>;
-};
-
-
-export type MutationCommerceMarkShipmentBatchPrintedArgs = {
-  id: Scalars['String']['input'];
-};
-
-
-export type MutationCommerceMarkShipmentBatchReadyToProcessArgs = {
-  id: Scalars['String']['input'];
-};
-
-
-export type MutationCommerceOrderCancelArgs = {
-  orderId: Scalars['String']['input'];
-};
-
-
-export type MutationCommerceOrderCreateArgs = {
-  input: CreateOrderInput;
-  paymentRequired?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type MutationCommerceOrderSetPaymentArgs = {
-  input: MakePaymentToOrderInput;
-};
-
-
-export type MutationCommerceProductBundleCreateArgs = {
-  input: CreateProductBundleInput;
-};
-
-
-export type MutationCommerceProductBundleDeleteArgs = {
-  id: Scalars['String']['input'];
-};
-
-
-export type MutationCommerceProductBundleUpdateArgs = {
-  input: UpdateProductBundleInput;
-};
-
-
-export type MutationCommerceProductCreateArgs = {
-  input: CreateProductInput;
-};
-
-
-export type MutationCommerceProductUpdateArgs = {
-  input: UpdateProductInput;
-};
-
-
-export type MutationCommercePurchaseLabelForOrdersArgs = {
-  input: PurchaseOrderLabelsInput;
-};
-
-
-export type MutationCommerceSavedItemsUpdateArgs = {
-  items: Array<ShoppingBagItemInput>;
-};
-
-
-export type MutationCommerceShoppingBagCheckoutArgs = {
-  input: ShoppingBagCheckoutInput;
-};
-
-
-export type MutationCommerceShoppingBagClearArgs = {
-  identifier: Scalars['String']['input'];
-};
-
-
-export type MutationCommerceShoppingBagTransformArgs = {
-  fromIdentifier: Scalars['String']['input'];
-  toIdentifier: Scalars['String']['input'];
-};
-
-
-export type MutationCommerceShoppingBagUpsertArgs = {
-  input: UpsertShoppingBagInput;
-};
-
-
-export type MutationCommerceVendorCreateArgs = {
-  input: CreateVendorInput;
-};
-
-
-export type MutationCommerceVendorUpdateArgs = {
-  input: UpdateVendorInput;
-};
-
-
-export type MutationCommerceWalletEntryDeleteArgs = {
-  id: Scalars['String']['input'];
-};
-
-
-export type MutationCommerceWalletEntryUpsertArgs = {
-  input: UpsertWalletEntryInput;
-};
-
-
-export type MutationContactCreateArgs = {
-  input: ContactCreateInput;
-};
-
-
-export type MutationContactDeleteArgs = {
-  id: Scalars['String']['input'];
-};
-
-
-export type MutationContactFieldUpdateArgs = {
-  contactId: Scalars['String']['input'];
-  input: ContactFieldUpdateInput;
-};
-
-
-export type MutationContactUpdateArgs = {
-  input: ContactUpdateInput;
-};
-
-
-export type MutationCustomerSupportTicketCommentCreateArgs = {
-  input: CustomerSupportTicketCommentCreateInput;
-};
-
-
-export type MutationCustomerSupportTicketCommentCreateAdminArgs = {
-  input: CustomerSupportTicketCommentCreateInput;
-};
-
-
-export type MutationCustomerSupportTicketCreateArgs = {
-  input: CustomerSupportTicketCreateInput;
-};
-
-
-export type MutationDataInteractionDatabaseTableRowCreateArgs = {
-  input: DataInteractionDatabaseTableRowCreateInput;
-};
-
-
-export type MutationDataInteractionDatabaseTableRowDeleteArgs = {
-  databaseName: Scalars['String']['input'];
-  id: Scalars['String']['input'];
-  ignoreOrphantCheck?: InputMaybe<Scalars['Boolean']['input']>;
-  tableName: Scalars['String']['input'];
-};
-
-
-export type MutationDataInteractionDatabaseTableRowUpdateArgs = {
-  input: DataInteractionDatabaseTableRowUpdateInput;
-};
-
-
-export type MutationDataInteractionDatabaseTableRowsDeleteArgs = {
-  databaseName: Scalars['String']['input'];
-  ids: Array<Scalars['String']['input']>;
-  ignoreOrphantCheck?: InputMaybe<Scalars['Boolean']['input']>;
-  tableName: Scalars['String']['input'];
-};
-
-
-export type MutationEmailAutomationUpsertArgs = {
-  input: UpsertEmailAutomationInput;
-};
-
-
-export type MutationEmailCampaignCreateArgs = {
-  input: EmailCampaignCreateInput;
-};
-
-
-export type MutationEmailCampaignEditEmailAddressesArgs = {
-  campaignId: Scalars['String']['input'];
-  emailAddressInputs: Array<EmailCampaignEmailAddressUpdateInput>;
-};
-
-
-export type MutationEmailCampaignStartStageArgs = {
-  id: Scalars['String']['input'];
-};
-
-
-export type MutationEmailCampaignUpdateArgs = {
-  input: EmailCampaignUpdateInput;
-};
-
-
-export type MutationEmailCampaignUpdateStatusArgs = {
-  id: Scalars['String']['input'];
-  status: EmailCampaignStatus;
-};
-
-
-export type MutationEmailContactArgs = {
-  input: EmailContactInput;
-};
-
-
-export type MutationEmailListCreateArgs = {
-  input: CreateEmailListInput;
-};
-
-
-export type MutationEmailListUpdateArgs = {
-  input: UpdateEmailListInput;
-};
-
-
-export type MutationEmailTemplateContentUpsertArgs = {
-  data: UpsertEmailTemplateContentInput;
-};
-
-
-export type MutationEmailTemplateCreateArgs = {
-  data: CreateEmailTemplateInput;
-};
-
-
-export type MutationEmailTemplateImageAssetDeleteArgs = {
-  id: Scalars['String']['input'];
-};
-
-
-export type MutationEmailTemplateImageAssetSetDescriptionArgs = {
-  description: Scalars['String']['input'];
-  id: Scalars['String']['input'];
-};
-
-
-export type MutationEmailTemplatePreviewArgs = {
-  input: PreviewEmailTemplateInput;
-};
-
-
-export type MutationEmailTemplateUpdateArgs = {
-  data: UpdateEmailTemplateInput;
-};
-
-
-export type MutationEmailVerificationVerifyArgs = {
-  input: EmailVerificationVerifyInput;
-};
-
-
-export type MutationEngagementEventCreateArgs = {
-  input: CreateEngagementEventInput;
-};
-
-
-export type MutationEngagementEventsCreateArgs = {
-  inputs: Array<CreateEngagementEventInput>;
-};
-
-
-export type MutationPostCommentCreateArgs = {
-  input: PostCommentCreateInput;
-};
-
-
-export type MutationPostCommentDeleteArgs = {
-  id: Scalars['String']['input'];
-};
-
-
-export type MutationPostCreateAdminArgs = {
-  input: PostCreateInput;
-};
-
-
-export type MutationPostDeleteArgs = {
-  id: Scalars['String']['input'];
-  note?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type MutationPostDeleteAdminArgs = {
-  id: Scalars['String']['input'];
-  note?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type MutationPostPublishArgs = {
-  id: Scalars['String']['input'];
-};
-
-
-export type MutationPostPublishAdminArgs = {
-  id: Scalars['String']['input'];
-};
-
-
-export type MutationPostReactionCreateArgs = {
-  commentId?: InputMaybe<Scalars['String']['input']>;
-  content: Scalars['String']['input'];
-  postId?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type MutationPostReactionDeleteArgs = {
-  commentId?: InputMaybe<Scalars['String']['input']>;
-  content: Scalars['String']['input'];
-  postId?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type MutationPostReportCreateArgs = {
-  input: PostReportInput;
-};
-
-
-export type MutationPostReportModerateArgs = {
-  approval: Scalars['Boolean']['input'];
-  id: Scalars['String']['input'];
-  note?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type MutationPostTopicCreateArgs = {
-  name: Scalars['String']['input'];
-};
-
-
-export type MutationPostTopicDeleteArgs = {
-  id: Scalars['String']['input'];
-};
-
-
-export type MutationPostUnvoteArgs = {
-  commentId?: InputMaybe<Scalars['String']['input']>;
-  postId?: InputMaybe<Scalars['String']['input']>;
-  type?: InputMaybe<PostVoteType>;
-};
-
-
-export type MutationPostUpdateArgs = {
-  id: Scalars['String']['input'];
-  input: PostUpdateInput;
-};
-
-
-export type MutationPostUpdateAdminArgs = {
-  id: Scalars['String']['input'];
-  input: PostUpdateInput;
-};
-
-
-export type MutationPostVoteArgs = {
-  commentId?: InputMaybe<Scalars['String']['input']>;
-  postId?: InputMaybe<Scalars['String']['input']>;
-  type?: InputMaybe<PostVoteType>;
-};
-
-
-export type MutationProductVariantRemoveGalleryAssetArgs = {
-  assetId: Scalars['String']['input'];
-  id: Scalars['String']['input'];
-};
-
-
-export type MutationProductVariantReorderGalleryArgs = {
-  assetIds: Array<Scalars['String']['input']>;
-  id: Scalars['String']['input'];
-};
-
-
-export type MutationSendEmailArgs = {
-  data: SendEmailInput;
-};
-
-
-export type MutationWaitListCreateArgs = {
-  data: WaitListCreationInput;
-};
-
-
-export type MutationWaitListDeleteArgs = {
-  forceDelete?: InputMaybe<Scalars['Boolean']['input']>;
-  id: Scalars['String']['input'];
-};
-
-
-export type MutationWaitListEntryCreateArgs = {
-  emailAddress: Scalars['String']['input'];
-  waitListIdentifier: Scalars['String']['input'];
-};
-
-
-export type MutationWaitListEntryDeleteArgs = {
-  emailAddress?: InputMaybe<Scalars['String']['input']>;
-  id?: InputMaybe<Scalars['String']['input']>;
-  waitListIdentifier?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type MutationWaitListUpdateArgs = {
-  data: WaitListUpdateInput;
-};
-
-
-export type MutationWarehouseCreateArgs = {
-  input: WarehouseCreateInput;
-};
-
-
-export type MutationWarehouseDeleteArgs = {
-  id: Scalars['String']['input'];
-};
-
-
-export type MutationWarehouseInventoryCreateArgs = {
-  input: WarehouseInventoryCreateInput;
-};
-
-
-export type MutationWarehouseInventoryDeleteArgs = {
-  id: Scalars['String']['input'];
-};
-
-
-export type MutationWarehouseInventoryUpdateArgs = {
-  input: WarehouseInventoryUpdateInput;
-};
-
-
-export type MutationWarehouseUpdateArgs = {
-  input: WarehouseUpdateInput;
-};
-
-export type OperationResult = {
-  __typename?: 'OperationResult';
-  success: Scalars['Boolean']['output'];
-};
 
 export type OrderBy = {
   direction?: InputMaybe<OrderByDirection>;
@@ -2065,107 +720,6 @@ export type OrderLineItemInput = {
   quantity: Scalars['Int']['input'];
 };
 
-export type PagedContactResult = {
-  __typename?: 'PagedContactResult';
-  items: Array<Contact>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type PagedDatabasesResult = {
-  __typename?: 'PagedDatabasesResult';
-  items: Array<DatebaseMetadata>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type PagedEmailCampaignEmailAddress = {
-  __typename?: 'PagedEmailCampaignEmailAddress';
-  items: Array<EmailCampaignEmailAddress>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type PagedEmailCampaigns = {
-  __typename?: 'PagedEmailCampaigns';
-  items: Array<EmailCampaign>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type PagedEmailListEntries = {
-  __typename?: 'PagedEmailListEntries';
-  items: Array<EmailListEntry>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type PagedEmailLists = {
-  __typename?: 'PagedEmailLists';
-  items: Array<EmailList>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type PagedPostComments = {
-  __typename?: 'PagedPostComments';
-  items: Array<PostComment>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type PagedPostReactionProfile = {
-  __typename?: 'PagedPostReactionProfile';
-  items: Array<PostReactionProfile>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type PagedPostReports = {
-  __typename?: 'PagedPostReports';
-  items: Array<PostReport>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type PagedPostRevisions = {
-  __typename?: 'PagedPostRevisions';
-  items: Array<PostRevision>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type PagedPosts = {
-  __typename?: 'PagedPosts';
-  items: Array<Post>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type Pagination = {
-  __typename?: 'Pagination';
-  itemIndex: Scalars['Int']['output'];
-  itemIndexForNextPage?: Maybe<Scalars['Int']['output']>;
-  itemIndexForPreviousPage?: Maybe<Scalars['Int']['output']>;
-  itemsPerPage: Scalars['Int']['output'];
-  itemsTotal: Scalars['Int']['output'];
-  page: Scalars['Int']['output'];
-  pagesTotal: Scalars['Int']['output'];
-};
-
-export type PaginationCustomerSupportTicketResult = {
-  __typename?: 'PaginationCustomerSupportTicketResult';
-  items: Array<CustomerSupportTicket>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type PaginationDiscountResult = {
-  __typename?: 'PaginationDiscountResult';
-  items: Array<Discount>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type PaginationDiscountRuleResult = {
-  __typename?: 'PaginationDiscountRuleResult';
-  items: Array<DiscountRule>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type PaginationFulfillmentOrderResult = {
-  __typename?: 'PaginationFulfillmentOrderResult';
-  items: Array<FulfillmentOrder>;
-  pagination?: Maybe<Pagination>;
-};
-
 export type PaginationInput = {
   itemIndex?: InputMaybe<Scalars['Int']['input']>;
   itemsPerPage: Scalars['Int']['input'];
@@ -2175,55 +729,6 @@ export type PaginationInputWithFilters = {
   filters?: InputMaybe<Array<ColumnFilter>>;
   itemIndex?: InputMaybe<Scalars['Int']['input']>;
   itemsPerPage: Scalars['Int']['input'];
-};
-
-export type PaginationOrderResult = {
-  __typename?: 'PaginationOrderResult';
-  items: Array<CommerceOrder>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type PaginationShipmentBatchResult = {
-  __typename?: 'PaginationShipmentBatchResult';
-  items: Array<ShipmentBatch>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type Payment = {
-  __typename?: 'Payment';
-  amount: Scalars['MonetaryDecimal']['output'];
-  authorizedAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  cancelledAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  capturedAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  confirmedAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  createdAt: Scalars['DateTimeISO']['output'];
-  currencyCode: Scalars['String']['output'];
-  externalReferenceId?: Maybe<Scalars['String']['output']>;
-  id: Scalars['String']['output'];
-  paymentMethod?: Maybe<PaymentMethod>;
-  paymentProcessorType: PaymentProcessorType;
-  status: PaymentStatus;
-  statusDescription?: Maybe<Scalars['String']['output']>;
-  updatedAt: Scalars['DateTimeISO']['output'];
-  walletEntryId?: Maybe<Scalars['String']['output']>;
-};
-
-export type PaymentMethod = {
-  externalResourceId?: Maybe<Scalars['String']['output']>;
-  paymentProcessorType: PaymentProcessorType;
-  type: PaymentMethodType;
-};
-
-export type PaymentMethodCreditCard = PaymentMethod & {
-  __typename?: 'PaymentMethodCreditCard';
-  billingAddress: StreetAddressObject;
-  cardType: CreditCardType;
-  expirationMonth: Scalars['Int']['output'];
-  expirationYear: Scalars['Int']['output'];
-  externalResourceId?: Maybe<Scalars['String']['output']>;
-  last4: Scalars['String']['output'];
-  paymentProcessorType: PaymentProcessorType;
-  type: PaymentMethodType;
 };
 
 export type PaymentMethodInput = {
@@ -2246,7 +751,9 @@ export enum PaymentMethodType {
 }
 
 export enum PaymentProcessorType {
-  Stripe = 'Stripe'
+  AppleInAppPurchase = 'AppleInAppPurchase',
+  StripeEmbedded = 'StripeEmbedded',
+  StripeProxy = 'StripeProxy'
 }
 
 /** The status of the payment */
@@ -2258,70 +765,6 @@ export enum PaymentStatus {
   FailToAuthorize = 'FailToAuthorize',
   Pending = 'Pending'
 }
-
-export type Post = {
-  __typename?: 'Post';
-  commentsPaged?: Maybe<PagedPostComments>;
-  content?: Maybe<Scalars['String']['output']>;
-  contentType: RichContentFormat;
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfile?: Maybe<PublicProfile>;
-  createdByProfileId: Scalars['String']['output'];
-  description?: Maybe<Scalars['String']['output']>;
-  downvoteCount: Scalars['Int']['output'];
-  id: Scalars['String']['output'];
-  identifier: Scalars['String']['output'];
-  latestRevisionId?: Maybe<Scalars['String']['output']>;
-  metadata?: Maybe<Scalars['JSON']['output']>;
-  note?: Maybe<Scalars['String']['output']>;
-  publishedAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  reactions?: Maybe<Array<PostReaction>>;
-  reportStatus?: Maybe<PostReportStatus>;
-  reportedCount: Scalars['Int']['output'];
-  revisionsPaged?: Maybe<PagedPostRevisions>;
-  settings?: Maybe<Scalars['JSON']['output']>;
-  slug: Scalars['String']['output'];
-  status: PostStatus;
-  title: Scalars['String']['output'];
-  topic?: Maybe<PostTopic>;
-  topicId?: Maybe<Scalars['String']['output']>;
-  type: Scalars['String']['output'];
-  updatedAt: Scalars['DateTimeISO']['output'];
-  updatedByAccountId?: Maybe<Scalars['String']['output']>;
-  updatedByProfileId?: Maybe<Scalars['String']['output']>;
-  upvoteCount: Scalars['Int']['output'];
-  voteType?: Maybe<PostVoteType>;
-};
-
-
-export type PostRevisionsPagedArgs = {
-  input: PaginationInput;
-};
-
-export type PostComment = {
-  __typename?: 'PostComment';
-  content: Scalars['String']['output'];
-  contentType: RichContentFormat;
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfile?: Maybe<PublicProfile>;
-  createdByProfileId: Scalars['String']['output'];
-  deleted: Scalars['Boolean']['output'];
-  downvoteCount: Scalars['Int']['output'];
-  id: Scalars['String']['output'];
-  postId: Scalars['String']['output'];
-  reactions?: Maybe<Array<PostReaction>>;
-  replyToCommentId?: Maybe<Scalars['String']['output']>;
-  reportStatus?: Maybe<PostReportStatus>;
-  reportedCount: Scalars['Int']['output'];
-  threadId?: Maybe<Scalars['String']['output']>;
-  updatedAt: Scalars['DateTimeISO']['output'];
-  updatedByAccountId?: Maybe<Scalars['String']['output']>;
-  updatedByProfileId?: Maybe<Scalars['String']['output']>;
-  upvoteCount: Scalars['Int']['output'];
-  voteType?: Maybe<PostVoteType>;
-};
 
 export type PostCommentCreateInput = {
   content: Scalars['String']['input'];
@@ -2336,39 +779,14 @@ export type PostCreateInput = {
   allowReaction?: InputMaybe<Scalars['Boolean']['input']>;
   allowVote?: InputMaybe<Scalars['Boolean']['input']>;
   content?: InputMaybe<Scalars['String']['input']>;
+  contentType?: InputMaybe<RichContentFormat>;
   description?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Scalars['JSON']['input']>;
   slug: Scalars['String']['input'];
   status?: InputMaybe<PostStatus>;
   title: Scalars['String']['input'];
-  topicId?: InputMaybe<Scalars['String']['input']>;
+  topicIds?: InputMaybe<Array<Scalars['String']['input']>>;
   type: Scalars['String']['input'];
-};
-
-export type PostReaction = {
-  __typename?: 'PostReaction';
-  content: Scalars['String']['output'];
-  count: Scalars['Int']['output'];
-  reacted: Scalars['Boolean']['output'];
-};
-
-export type PostReactionProfile = {
-  __typename?: 'PostReactionProfile';
-  displayName?: Maybe<Scalars['String']['output']>;
-  profileId: Scalars['String']['output'];
-  username: Scalars['String']['output'];
-};
-
-export type PostReport = {
-  __typename?: 'PostReport';
-  commentId?: Maybe<Scalars['String']['output']>;
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  id: Scalars['String']['output'];
-  note?: Maybe<Scalars['String']['output']>;
-  postId?: Maybe<Scalars['String']['output']>;
-  reason: Scalars['String']['output'];
 };
 
 export type PostReportInput = {
@@ -2384,37 +802,32 @@ export enum PostReportStatus {
   Rejected = 'Rejected'
 }
 
-export type PostRevision = {
-  __typename?: 'PostRevision';
-  content?: Maybe<Scalars['String']['output']>;
-  contentType?: Maybe<RichContentFormat>;
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  description?: Maybe<Scalars['String']['output']>;
-  id: Scalars['String']['output'];
-  metadata?: Maybe<Scalars['JSON']['output']>;
-  note?: Maybe<Scalars['String']['output']>;
-  postId: Scalars['String']['output'];
-  settings?: Maybe<Scalars['JSON']['output']>;
-  slug?: Maybe<Scalars['String']['output']>;
-  status?: Maybe<PostStatus>;
-  title?: Maybe<Scalars['String']['output']>;
-  topicId?: Maybe<Scalars['String']['output']>;
-  type?: Maybe<Scalars['String']['output']>;
-};
-
 export enum PostStatus {
   Deleted = 'Deleted',
   Draft = 'Draft',
   Published = 'Published'
 }
 
-export type PostTopic = {
-  __typename?: 'PostTopic';
-  createdAt: Scalars['DateTimeISO']['output'];
-  id: Scalars['String']['output'];
-  name: Scalars['String']['output'];
+export type PostTopicCreateInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  parentId?: InputMaybe<Scalars['String']['input']>;
+  position?: InputMaybe<Scalars['Float']['input']>;
+  slug: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  type: Scalars['String']['input'];
+};
+
+export type PostTopicUpdateInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
+  slug?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PostTopicUpdatePositionInput = {
+  moveToRoot?: InputMaybe<Scalars['Boolean']['input']>;
+  parentId?: InputMaybe<Scalars['String']['input']>;
+  position?: InputMaybe<Scalars['Float']['input']>;
 };
 
 export type PostUpdateInput = {
@@ -2429,7 +842,6 @@ export type PostUpdateInput = {
   publishedAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
-  topicId?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -2447,89 +859,16 @@ export type PreviewEmailTemplateInput = {
   withEngagement?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type Product = {
-  __typename?: 'Product';
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  defaultVariantId?: Maybe<Scalars['String']['output']>;
-  description?: Maybe<Scalars['String']['output']>;
-  id: Scalars['String']['output'];
-  identifier: Scalars['String']['output'];
-  name: Scalars['String']['output'];
-  status: ProductStatus;
-  updatedAt: Scalars['DateTimeISO']['output'];
-  updatedByAccountId?: Maybe<Scalars['String']['output']>;
-  updatedByProfileId?: Maybe<Scalars['String']['output']>;
-  variants?: Maybe<Array<ProductVariant>>;
-  vendor?: Maybe<Vendor>;
-  vendorId?: Maybe<Scalars['String']['output']>;
-};
-
-export type ProductBundle = {
-  __typename?: 'ProductBundle';
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  description?: Maybe<Scalars['String']['output']>;
-  id: Scalars['String']['output'];
-  identifier: Scalars['String']['output'];
-  items: Array<ProductBundleItem>;
-  name: Scalars['String']['output'];
-  updatedAt: Scalars['DateTimeISO']['output'];
-  updatedByAccountId?: Maybe<Scalars['String']['output']>;
-  updatedByProfileId?: Maybe<Scalars['String']['output']>;
-  visibility: ProductBundleVisibility;
-};
-
-export type ProductBundleItem = {
-  __typename?: 'ProductBundleItem';
-  indexId: Scalars['String']['output'];
-  productVariant?: Maybe<ProductVariant>;
-  productVariantId: Scalars['String']['output'];
-  quantity: Scalars['Float']['output'];
-};
-
 export enum ProductBundleVisibility {
   Public = 'Public',
   Unlisted = 'Unlisted'
 }
-
-export type ProductBundlesPaginationResult = {
-  __typename?: 'ProductBundlesPaginationResult';
-  items: Array<ProductBundle>;
-  pagination?: Maybe<Pagination>;
-};
 
 export enum ProductStatus {
   Active = 'Active',
   Archived = 'Archived',
   Draft = 'Draft'
 }
-
-export type ProductVariant = {
-  __typename?: 'ProductVariant';
-  attributes?: Maybe<Array<ProductVariantAttributeObject>>;
-  barcode?: Maybe<Scalars['String']['output']>;
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  description?: Maybe<Scalars['String']['output']>;
-  galleryUrls?: Maybe<Array<ProductVariantGalleryUrl>>;
-  gtin?: Maybe<Scalars['String']['output']>;
-  id: Scalars['String']['output'];
-  inventoryPolicy: ProductVariantInventoryPolicy;
-  inventoryQuantity?: Maybe<Scalars['Float']['output']>;
-  name: Scalars['String']['output'];
-  position?: Maybe<Scalars['Float']['output']>;
-  price: ProductVariantPriceObject;
-  sku?: Maybe<Scalars['String']['output']>;
-  status: ProductVariantStatus;
-  unitInfo?: Maybe<ProductVariantUnitInfoObject>;
-  updatedAt: Scalars['DateTimeISO']['output'];
-  updatedByAccountId?: Maybe<Scalars['String']['output']>;
-  updatedByProfileId?: Maybe<Scalars['String']['output']>;
-};
 
 export type ProductVariantAttributeInput = {
   displayName: Scalars['String']['input'];
@@ -2539,24 +878,12 @@ export type ProductVariantAttributeInput = {
 };
 
 export enum ProductVariantAttributeKey {
+  AppStore = 'AppStore',
   Color = 'Color',
   Credits = 'Credits',
   Size = 'Size',
   SubscriptionPlan = 'SubscriptionPlan'
 }
-
-export type ProductVariantAttributeObject = {
-  __typename?: 'ProductVariantAttributeObject';
-  displayName: Scalars['String']['output'];
-  key: ProductVariantAttributeKey;
-  metadata?: Maybe<Scalars['JSON']['output']>;
-  value: Scalars['String']['output'];
-};
-
-export type ProductVariantGalleryUrl = {
-  __typename?: 'ProductVariantGalleryURL';
-  variants: Array<MediaObject>;
-};
 
 /** Whether customers are allowed to place an order for the product variant when it's out of stock. */
 export enum ProductVariantInventoryPolicy {
@@ -2568,12 +895,6 @@ export enum ProductVariantInventoryPolicy {
 export type ProductVariantPriceInput = {
   amount: Scalars['MonetaryDecimal']['input'];
   currencyCode: Scalars['String']['input'];
-};
-
-export type ProductVariantPriceObject = {
-  __typename?: 'ProductVariantPriceObject';
-  amount: Scalars['MonetaryDecimal']['output'];
-  currencyCode: Scalars['String']['output'];
 };
 
 /** The status of the product variant. */
@@ -2594,483 +915,8 @@ export type ProductVariantUnitInfoInput = {
   widthUnit?: InputMaybe<LengthUnit>;
 };
 
-export type ProductVariantUnitInfoObject = {
-  __typename?: 'ProductVariantUnitInfoObject';
-  height?: Maybe<Scalars['Float']['output']>;
-  heightUnit?: Maybe<LengthUnit>;
-  length?: Maybe<Scalars['Float']['output']>;
-  lengthUnit?: Maybe<LengthUnit>;
-  weight?: Maybe<Scalars['Float']['output']>;
-  weightUnit?: Maybe<WeightUnit>;
-  width?: Maybe<Scalars['Float']['output']>;
-  widthUnit?: Maybe<LengthUnit>;
-};
-
-export type ProductsPaginationResult = {
-  __typename?: 'ProductsPaginationResult';
-  items: Array<Product>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type Profile = {
-  __typename?: 'Profile';
-  birthday?: Maybe<Scalars['DateTimeISO']['output']>;
-  createdAt: Scalars['DateTimeISO']['output'];
-  displayName?: Maybe<Scalars['String']['output']>;
-  familyName?: Maybe<Scalars['String']['output']>;
-  gender?: Maybe<Scalars['String']['output']>;
-  givenName?: Maybe<Scalars['String']['output']>;
-  id: Scalars['String']['output'];
-  imageUrls?: Maybe<Array<ImageObject>>;
-  middleName?: Maybe<Scalars['String']['output']>;
-  phoneNumber?: Maybe<Scalars['String']['output']>;
-  preferredName?: Maybe<Scalars['String']['output']>;
-  updatedAt: Scalars['DateTimeISO']['output'];
-  username: Scalars['String']['output'];
-};
-
-export type PublicCommerceOrder = {
-  __typename?: 'PublicCommerceOrder';
-  batchIdentifier: Scalars['String']['output'];
-  createdAt: Scalars['DateTimeISO']['output'];
-  fulfillmentStatus: CommerceOrderFulfillmentStatus;
-  identifier: Scalars['String']['output'];
-  lineItems?: Maybe<Array<PublicCommerceOrderLineItem>>;
-  paymentStatus?: Maybe<PaymentStatus>;
-  source: Scalars['String']['output'];
-  status: CommerceOrderStatus;
-};
-
-export type PublicCommerceOrderLineItem = {
-  __typename?: 'PublicCommerceOrderLineItem';
-  fulfilledQuantity: Scalars['Int']['output'];
-  id: Scalars['String']['output'];
-  indexId: Scalars['Int']['output'];
-  productVariantId: Scalars['String']['output'];
-  quantity: Scalars['Int']['output'];
-  shippedQuantity: Scalars['Int']['output'];
-  status: CommerceOrderLineItemStatus;
-};
-
-export type PublicProfile = {
-  __typename?: 'PublicProfile';
-  createdAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  displayName?: Maybe<Scalars['String']['output']>;
-  imageUrls?: Maybe<Array<ImageObject>>;
-  username: Scalars['String']['output'];
-};
-
 export type PurchaseOrderLabelsInput = {
   identifiers: Array<Scalars['String']['input']>;
-};
-
-export type Query = {
-  __typename?: 'Query';
-  accountCurrent: Account;
-  accountEmailAddresses: AccountEmailAddressesResult;
-  accountEmailVerification: EmailVerification;
-  accountProfileUsernameValidate: UniqueFieldValidationResult;
-  accountRoles: Array<AccessRole>;
-  accountSessions: Array<AccountSession>;
-  authenticationCurrent?: Maybe<AuthenticationSession>;
-  commerceAddressBookEntries: Array<AddressBookEntry>;
-  commerceCart: ShoppingBag;
-  commerceDiscountRules: PaginationDiscountRuleResult;
-  commerceDiscounts: PaginationDiscountResult;
-  commerceOrder: CommerceOrderResult;
-  commerceOrderPriceEstimate: CommerceOrderPrice;
-  commerceOrders: PaginationOrderResult;
-  commerceOrdersByGroupIdentifier: Array<CommerceOrderResult>;
-  commerceOrdersReadyToFulfill: PaginationFulfillmentOrderResult;
-  commerceOrdersReadyToShip: PaginationFulfillmentOrderResult;
-  commerceProduct: Product;
-  commerceProductAdmin: Product;
-  commerceProductBundle: ProductBundle;
-  commerceProductBundles: ProductBundlesPaginationResult;
-  commerceProducts: ProductsPaginationResult;
-  commerceProductsAdmin: ProductsPaginationResult;
-  commerceSavedItems: ShoppingBag;
-  commerceShipmentBatches: PaginationShipmentBatchResult;
-  commerceShoppingBag: ShoppingBag;
-  commerceShoppingBagPriceEstimate: Array<CommerceOrderPrice>;
-  commerceStreetAddressValidate: ValidateAddressResult;
-  commerceTaxRate: TaxRate;
-  commerceTaxRates: TaxRatesResult;
-  commerceVendor: Vendor;
-  commerceVendors: VendorsResult;
-  commerceWalletEntries: Array<WalletEntry>;
-  contact: Contact;
-  contacts: PagedContactResult;
-  customerSupportTickets: PaginationCustomerSupportTicketResult;
-  customerSupportTicketsAdmin: PaginationCustomerSupportTicketResult;
-  dataInteractionDatabaseTable: DatabaseTableMetadata;
-  dataInteractionDatabaseTableMetrics: Array<DataInteractionDatabaseMetrics>;
-  dataInteractionDatabaseTableRow: DatabaseTableRowData;
-  dataInteractionDatabaseTableRows: DatabaseTableMetadata;
-  dataInteractionDatabaseTables: DatabaseTablesResult;
-  dataInteractionDatabases: PagedDatabasesResult;
-  emailAutomation: EmailAutomation;
-  emailAutomationBuiltInAvailable: Array<EmailAutomation>;
-  emailAutomations: EmailAutomationResult;
-  emailCampaign: EmailCampaign;
-  emailCampaigns: PagedEmailCampaigns;
-  emailList: EmailList;
-  emailListEntries: PagedEmailLists;
-  emailListEntry: EmailList;
-  emailLists: PagedEmailLists;
-  emailTemplate: EmailTemplate;
-  emailTemplateContentEngagementMetrics: EmailTemplateContentEngagementMetrics;
-  emailTemplateImageAssets: EmailTemplateImageAssetsResult;
-  emailTemplates: EmailTemplatesResult;
-  emailVerification?: Maybe<AuthenticationEmailVerification>;
-  engagementEvents: Array<EngagementEvent>;
-  engagementOverview: EngagementOverview;
-  post: Post;
-  postAdmin: Post;
-  postComments: PagedPostComments;
-  postReactionProfiles: PagedPostReactionProfile;
-  postReports: PagedPostReports;
-  postTopics: Array<PostTopic>;
-  posts: PagedPosts;
-  postsAdmin: PagedPosts;
-  postsByTopic: PagedPosts;
-  postsMine: PagedPosts;
-  profilePublic?: Maybe<PublicProfile>;
-  waitListEntries: WaitListEntriesResult;
-  waitLists: WaitListResult;
-  warehouse: Warehouse;
-  warehouses: Array<Warehouse>;
-};
-
-
-export type QueryAccountProfileUsernameValidateArgs = {
-  username: Scalars['String']['input'];
-};
-
-
-export type QueryAccountRolesArgs = {
-  statuses?: InputMaybe<Array<Scalars['String']['input']>>;
-};
-
-
-export type QueryCommerceDiscountRulesArgs = {
-  input?: InputMaybe<PaginationInputWithFilters>;
-};
-
-
-export type QueryCommerceDiscountsArgs = {
-  input?: InputMaybe<PaginationInputWithFilters>;
-};
-
-
-export type QueryCommerceOrderArgs = {
-  emailAddress?: InputMaybe<Scalars['String']['input']>;
-  identifier: Scalars['String']['input'];
-};
-
-
-export type QueryCommerceOrderPriceEstimateArgs = {
-  input: EstimateOrderPriceInput;
-};
-
-
-export type QueryCommerceOrdersArgs = {
-  input?: InputMaybe<PaginationInputWithFilters>;
-};
-
-
-export type QueryCommerceOrdersByGroupIdentifierArgs = {
-  emailAddress?: InputMaybe<Scalars['String']['input']>;
-  identifier: Scalars['String']['input'];
-};
-
-
-export type QueryCommerceOrdersReadyToFulfillArgs = {
-  input?: InputMaybe<PaginationInput>;
-};
-
-
-export type QueryCommerceOrdersReadyToShipArgs = {
-  input?: InputMaybe<PaginationInput>;
-};
-
-
-export type QueryCommerceProductArgs = {
-  id?: InputMaybe<Scalars['String']['input']>;
-  identifier?: InputMaybe<Scalars['String']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryCommerceProductAdminArgs = {
-  id?: InputMaybe<Scalars['String']['input']>;
-  identifier?: InputMaybe<Scalars['String']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryCommerceProductBundleArgs = {
-  id?: InputMaybe<Scalars['String']['input']>;
-  identifier?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryCommerceProductBundlesArgs = {
-  input?: InputMaybe<PaginationInputWithFilters>;
-};
-
-
-export type QueryCommerceProductsArgs = {
-  input?: InputMaybe<PaginationInputWithFilters>;
-};
-
-
-export type QueryCommerceProductsAdminArgs = {
-  input?: InputMaybe<PaginationInputWithFilters>;
-};
-
-
-export type QueryCommerceShipmentBatchesArgs = {
-  input: QueryShipmentBatchInput;
-};
-
-
-export type QueryCommerceShoppingBagArgs = {
-  createIfNotExists?: InputMaybe<Scalars['Boolean']['input']>;
-  identifier: Scalars['String']['input'];
-};
-
-
-export type QueryCommerceShoppingBagPriceEstimateArgs = {
-  itemIds: Array<Scalars['String']['input']>;
-};
-
-
-export type QueryCommerceStreetAddressValidateArgs = {
-  address: StreetAddressInput;
-};
-
-
-export type QueryCommerceTaxRateArgs = {
-  postalCode: Scalars['String']['input'];
-  syncRemote?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type QueryCommerceTaxRatesArgs = {
-  pagination?: InputMaybe<PaginationInput>;
-};
-
-
-export type QueryCommerceVendorArgs = {
-  id?: InputMaybe<Scalars['String']['input']>;
-  identifier?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryCommerceVendorsArgs = {
-  input?: InputMaybe<PaginationInputWithFilters>;
-};
-
-
-export type QueryContactArgs = {
-  id: Scalars['String']['input'];
-};
-
-
-export type QueryContactsArgs = {
-  input?: InputMaybe<PaginationInputWithFilters>;
-};
-
-
-export type QueryCustomerSupportTicketsArgs = {
-  pagination?: InputMaybe<PaginationInput>;
-};
-
-
-export type QueryCustomerSupportTicketsAdminArgs = {
-  pagination?: InputMaybe<PaginationInput>;
-};
-
-
-export type QueryDataInteractionDatabaseTableArgs = {
-  databaseName: Scalars['String']['input'];
-  tableName: Scalars['String']['input'];
-};
-
-
-export type QueryDataInteractionDatabaseTableMetricsArgs = {
-  input: DataInteractionDatabaseTableMetricsQueryInput;
-};
-
-
-export type QueryDataInteractionDatabaseTableRowArgs = {
-  databaseName: Scalars['String']['input'];
-  id: Scalars['String']['input'];
-  tableName: Scalars['String']['input'];
-};
-
-
-export type QueryDataInteractionDatabaseTableRowsArgs = {
-  databaseName: Scalars['String']['input'];
-  filters?: InputMaybe<ColumnFilterGroup>;
-  orderBy?: InputMaybe<OrderBy>;
-  pagination?: InputMaybe<PaginationInput>;
-  tableName: Scalars['String']['input'];
-};
-
-
-export type QueryDataInteractionDatabaseTablesArgs = {
-  databaseName?: InputMaybe<Scalars['String']['input']>;
-  pagination?: InputMaybe<PaginationInput>;
-};
-
-
-export type QueryDataInteractionDatabasesArgs = {
-  pagination?: InputMaybe<PaginationInput>;
-};
-
-
-export type QueryEmailAutomationArgs = {
-  automationKey: Scalars['String']['input'];
-};
-
-
-export type QueryEmailAutomationsArgs = {
-  input?: InputMaybe<PaginationInput>;
-};
-
-
-export type QueryEmailCampaignArgs = {
-  id: Scalars['String']['input'];
-};
-
-
-export type QueryEmailCampaignsArgs = {
-  input?: InputMaybe<PaginationInputWithFilters>;
-};
-
-
-export type QueryEmailListArgs = {
-  identifier: Scalars['String']['input'];
-};
-
-
-export type QueryEmailListEntriesArgs = {
-  pagination?: InputMaybe<PaginationInput>;
-};
-
-
-export type QueryEmailListEntryArgs = {
-  emailAddress?: InputMaybe<Scalars['String']['input']>;
-  hashCode?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryEmailListsArgs = {
-  pagination?: InputMaybe<PaginationInput>;
-};
-
-
-export type QueryEmailTemplateArgs = {
-  alias?: InputMaybe<Scalars['String']['input']>;
-  id?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryEmailTemplateContentEngagementMetricsArgs = {
-  emailTemplateContentId: Scalars['String']['input'];
-};
-
-
-export type QueryEmailTemplateImageAssetsArgs = {
-  input?: InputMaybe<PaginationInputWithFilters>;
-};
-
-
-export type QueryEmailTemplatesArgs = {
-  input?: InputMaybe<PaginationInputWithFilters>;
-};
-
-
-export type QueryEngagementOverviewArgs = {
-  input?: InputMaybe<EngagementOverviewInput>;
-  live?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-export type QueryPostArgs = {
-  id?: InputMaybe<Scalars['String']['input']>;
-  identifier?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryPostAdminArgs = {
-  id?: InputMaybe<Scalars['String']['input']>;
-  identifier?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryPostCommentsArgs = {
-  input?: InputMaybe<PaginationInput>;
-  orderBy?: InputMaybe<OrderBy>;
-  postId: Scalars['String']['input'];
-  threadId?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryPostReactionProfilesArgs = {
-  commentId?: InputMaybe<Scalars['String']['input']>;
-  content: Scalars['String']['input'];
-  pagination?: InputMaybe<PaginationInput>;
-  postId?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryPostReportsArgs = {
-  commentId?: InputMaybe<Scalars['String']['input']>;
-  pagination?: InputMaybe<PaginationInput>;
-  postId?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryPostsArgs = {
-  input?: InputMaybe<PaginationInputWithFilters>;
-  orderBy?: InputMaybe<OrderBy>;
-};
-
-
-export type QueryPostsAdminArgs = {
-  input?: InputMaybe<PaginationInputWithFilters>;
-  orderBy?: InputMaybe<OrderBy>;
-};
-
-
-export type QueryPostsByTopicArgs = {
-  orderBy?: InputMaybe<OrderBy>;
-  pagination?: InputMaybe<PaginationInput>;
-  topicName: Scalars['String']['input'];
-};
-
-
-export type QueryPostsMineArgs = {
-  input?: InputMaybe<PaginationInputWithFilters>;
-  orderBy?: InputMaybe<OrderBy>;
-};
-
-
-export type QueryProfilePublicArgs = {
-  username: Scalars['String']['input'];
-};
-
-
-export type QueryWaitListEntriesArgs = {
-  input?: InputMaybe<QueryWaitListEntriesInput>;
-};
-
-
-export type QueryWaitListsArgs = {
-  input?: InputMaybe<PaginationInput>;
 };
 
 export type QueryShipmentBatchInput = {
@@ -3107,46 +953,6 @@ export type SendEmailInput = {
   toAddress: Scalars['String']['input'];
 };
 
-export type Shipment = {
-  __typename?: 'Shipment';
-  cancelledAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  deliveredAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  id: Scalars['String']['output'];
-  label?: Maybe<ShippingLabel>;
-  orderIndexId: Scalars['Int']['output'];
-  orderSlip?: Maybe<ShippingOrderSlip>;
-  shippedAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  status: ShipmentStatus;
-  statusDescription?: Maybe<Scalars['String']['output']>;
-  toAddress: StreetAddressObject;
-  updatedAt: Scalars['DateTimeISO']['output'];
-  updatedByAccountId?: Maybe<Scalars['String']['output']>;
-  updatedByProfileId?: Maybe<Scalars['String']['output']>;
-};
-
-export type ShipmentBatch = {
-  __typename?: 'ShipmentBatch';
-  batchKey: Scalars['String']['output'];
-  closedAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  createdAt: Scalars['DateTimeISO']['output'];
-  id: Scalars['String']['output'];
-  printedAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  processedAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  shipmentCount: Scalars['Float']['output'];
-  status: Scalars['String']['output'];
-  statusDescription?: Maybe<Scalars['String']['output']>;
-  updatedAt: Scalars['DateTimeISO']['output'];
-};
-
-export type ShipmentManifest = {
-  __typename?: 'ShipmentManifest';
-  createdAt: Scalars['DateTimeISO']['output'];
-  id: Scalars['String']['output'];
-};
-
 /** The status of the shipping */
 export enum ShipmentStatus {
   Cancelled = 'Cancelled',
@@ -3157,23 +963,10 @@ export enum ShipmentStatus {
   Shipped = 'Shipped'
 }
 
-export type ShippingLabel = {
-  __typename?: 'ShippingLabel';
-  carrier: Scalars['String']['output'];
-  labelId: Scalars['String']['output'];
-  serviceType: ShippingServiceType;
-  source: ShippingLabelSource;
-  trackingNumber: Scalars['String']['output'];
-};
-
 export enum ShippingLabelSource {
+  Others = 'Others',
   Stamps = 'Stamps'
 }
-
-export type ShippingOrderSlip = {
-  __typename?: 'ShippingOrderSlip';
-  storedObjectUrl?: Maybe<Scalars['String']['output']>;
-};
 
 export enum ShippingServiceType {
   UspsFirstClassMail = 'USPSFirstClassMail',
@@ -3182,18 +975,6 @@ export enum ShippingServiceType {
   UspsPriorityMail = 'USPSPriorityMail',
   UspsPriorityMailExpress = 'USPSPriorityMailExpress'
 }
-
-export type ShoppingBag = {
-  __typename?: 'ShoppingBag';
-  createdAt: Scalars['DateTimeISO']['output'];
-  description?: Maybe<Scalars['String']['output']>;
-  id: Scalars['String']['output'];
-  identifier: Scalars['String']['output'];
-  items: Array<ShoppingBagItem>;
-  profileId: Scalars['String']['output'];
-  title?: Maybe<Scalars['String']['output']>;
-  updatedAt: Scalars['DateTimeISO']['output'];
-};
 
 export type ShoppingBagCheckoutInput = {
   emailAddress: Scalars['String']['input'];
@@ -3210,22 +991,6 @@ export enum ShoppingBagEditionAction {
   SetQuantity = 'SetQuantity',
   UpdateItem = 'UpdateItem'
 }
-
-export type ShoppingBagItem = {
-  __typename?: 'ShoppingBagItem';
-  bagItemGroupKey: Scalars['String']['output'];
-  emailAddress?: Maybe<Scalars['String']['output']>;
-  firstName?: Maybe<Scalars['String']['output']>;
-  id: Scalars['String']['output'];
-  lastName?: Maybe<Scalars['String']['output']>;
-  productBundle?: Maybe<ProductBundle>;
-  productBundleId?: Maybe<Scalars['String']['output']>;
-  productVariant?: Maybe<ProductVariant>;
-  productVariantId?: Maybe<Scalars['String']['output']>;
-  quantity: Scalars['Float']['output'];
-  relationship?: Maybe<Scalars['String']['output']>;
-  shippingAddress?: Maybe<StreetAddressObject>;
-};
 
 export type ShoppingBagItemInput = {
   action: ShoppingBagEditionAction;
@@ -3254,36 +1019,40 @@ export type StreetAddressInput = {
   state: Scalars['String']['input'];
 };
 
-export type StreetAddressObject = {
-  __typename?: 'StreetAddressObject';
-  city: Scalars['String']['output'];
-  company?: Maybe<Scalars['String']['output']>;
-  country: Scalars['String']['output'];
-  firstName: Scalars['String']['output'];
-  lastName: Scalars['String']['output'];
-  line1: Scalars['String']['output'];
-  line2?: Maybe<Scalars['String']['output']>;
-  phoneNumber?: Maybe<Scalars['String']['output']>;
-  postalCode: Scalars['String']['output'];
-  state: Scalars['String']['output'];
+export type SupportTicketCommentCreateInput = {
+  content: Scalars['String']['input'];
+  contentType?: InputMaybe<RichContentFormat>;
+  emailAddress?: InputMaybe<Scalars['String']['input']>;
+  emailName?: InputMaybe<Scalars['String']['input']>;
+  replyToCommentId: Scalars['String']['input'];
+  ticketId: Scalars['String']['input'];
+  visibility?: InputMaybe<SupportTicketCommentVisibility>;
 };
 
-export type TaxRate = {
-  __typename?: 'TaxRate';
-  createdAt: Scalars['DateTimeISO']['output'];
-  id: Scalars['String']['output'];
-  lastSyncedAt: Scalars['DateTimeISO']['output'];
-  postalCode: Scalars['String']['output'];
-  rate: Scalars['Decimal']['output'];
-  rateDetail: Scalars['JSON']['output'];
-  updatedAt: Scalars['DateTimeISO']['output'];
+export enum SupportTicketCommentSource {
+  Agent = 'Agent',
+  User = 'User'
+}
+
+export enum SupportTicketCommentVisibility {
+  Internal = 'Internal',
+  Public = 'Public'
+}
+
+export type SupportTicketCreateInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  emailAddress: Scalars['String']['input'];
+  initialComment?: InputMaybe<SupportTicketCommentCreateInput>;
+  title: Scalars['String']['input'];
+  type: Scalars['String']['input'];
 };
 
-export type TaxRatesResult = {
-  __typename?: 'TaxRatesResult';
-  items: Array<TaxRate>;
-  pagination?: Maybe<Pagination>;
-};
+/** The status of a support ticket */
+export enum SupportTicketStatus {
+  Archived = 'Archived',
+  Closed = 'Closed',
+  Open = 'Open'
+}
 
 /** Possible time intervals used to group time series data. */
 export enum TimeInterval {
@@ -3297,12 +1066,6 @@ export enum TimeInterval {
   Quarter = 'Quarter',
   Year = 'Year'
 }
-
-export type TransformShoppingBagResult = {
-  __typename?: 'TransformShoppingBagResult';
-  from: ShoppingBag;
-  to: ShoppingBag;
-};
 
 export enum UniqueFieldValidationResult {
   Available = 'Available',
@@ -3374,6 +1137,7 @@ export type UpdateProductVariantInput = {
   setDefault?: InputMaybe<Scalars['Boolean']['input']>;
   sku?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<ProductVariantStatus>;
+  taxCode?: InputMaybe<Scalars['String']['input']>;
   unitInfo?: InputMaybe<ProductVariantUnitInfoInput>;
 };
 
@@ -3422,65 +1186,11 @@ export type UpsertWalletEntryInput = {
   tier?: InputMaybe<WalletEntryTier>;
 };
 
-export type ValidateAddressResult = {
-  __typename?: 'ValidateAddressResult';
-  candidateAddresses?: Maybe<Array<StreetAddressObject>>;
-  isApoFpo?: Maybe<Scalars['Boolean']['output']>;
-  isPoBox?: Maybe<Scalars['Boolean']['output']>;
-  isValid: Scalars['Boolean']['output'];
-  message?: Maybe<Scalars['String']['output']>;
-  originalAddress: StreetAddressObject;
-};
-
-export type Vendor = {
-  __typename?: 'Vendor';
-  address?: Maybe<AddressBookEntry>;
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  description?: Maybe<Scalars['String']['output']>;
-  id: Scalars['String']['output'];
-  identifier: Scalars['String']['output'];
-  name: Scalars['String']['output'];
-  pagedProducts?: Maybe<ProductsPaginationResult>;
-  products: ProductsPaginationResult;
-  status: VendorStatus;
-  updatedAt: Scalars['DateTimeISO']['output'];
-  updatedByAccountId?: Maybe<Scalars['String']['output']>;
-  updatedByProfileId?: Maybe<Scalars['String']['output']>;
-};
-
-
-export type VendorProductsArgs = {
-  input?: InputMaybe<PaginationInput>;
-};
-
 export enum VendorStatus {
   Active = 'Active',
   Archived = 'Archived',
   Inactive = 'Inactive'
 }
-
-export type VendorsResult = {
-  __typename?: 'VendorsResult';
-  items: Array<Vendor>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type WaitList = {
-  __typename?: 'WaitList';
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  description?: Maybe<Scalars['String']['output']>;
-  emailAutomation?: Maybe<EmailAutomation>;
-  id: Scalars['String']['output'];
-  identifier: Scalars['String']['output'];
-  title: Scalars['String']['output'];
-  updatedAt: Scalars['DateTimeISO']['output'];
-  updatedByAccountId?: Maybe<Scalars['String']['output']>;
-  updatedByProfileId?: Maybe<Scalars['String']['output']>;
-};
 
 export type WaitListCreationInput = {
   description?: InputMaybe<Scalars['String']['input']>;
@@ -3489,56 +1199,12 @@ export type WaitListCreationInput = {
   title: Scalars['String']['input'];
 };
 
-export type WaitListEntriesResult = {
-  __typename?: 'WaitListEntriesResult';
-  items: Array<WaitListEntry>;
-  pagination?: Maybe<Pagination>;
-};
-
-export type WaitListEntry = {
-  __typename?: 'WaitListEntry';
-  accountId?: Maybe<Scalars['String']['output']>;
-  contactedAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  countryCode?: Maybe<Scalars['String']['output']>;
-  createdAt: Scalars['DateTimeISO']['output'];
-  emailAddress: Scalars['String']['output'];
-  id: Scalars['String']['output'];
-  ipAddress?: Maybe<Scalars['String']['output']>;
-  message?: Maybe<Scalars['String']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-  notifiedAt?: Maybe<Scalars['DateTimeISO']['output']>;
-  profileId?: Maybe<Scalars['String']['output']>;
-  referredBy?: Maybe<Scalars['String']['output']>;
-  updatedAt: Scalars['DateTimeISO']['output'];
-  userAgent?: Maybe<Scalars['String']['output']>;
-  waitList?: Maybe<WaitList>;
-  waitListId: Scalars['String']['output'];
-};
-
-export type WaitListResult = {
-  __typename?: 'WaitListResult';
-  items: Array<WaitList>;
-  pagination?: Maybe<Pagination>;
-};
-
 export type WaitListUpdateInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   emailAutomationKey?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['String']['input']>;
   identifier?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type WalletEntry = {
-  __typename?: 'WalletEntry';
-  createdAt: Scalars['DateTimeISO']['output'];
-  id: Scalars['String']['output'];
-  identifier: Scalars['String']['output'];
-  paymentMethod: PaymentMethod;
-  status: WalletEntryStatus;
-  statusDescription?: Maybe<Scalars['String']['output']>;
-  tier: WalletEntryTier;
-  updatedAt: Scalars['DateTimeISO']['output'];
 };
 
 export enum WalletEntryStatus {
@@ -3552,31 +1218,9 @@ export enum WalletEntryTier {
   Secondary = 'Secondary'
 }
 
-export type Warehouse = {
-  __typename?: 'Warehouse';
-  address: StreetAddressObject;
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  id: Scalars['String']['output'];
-  name: Scalars['String']['output'];
-  updatedAt: Scalars['DateTimeISO']['output'];
-  updatedByAccountId?: Maybe<Scalars['String']['output']>;
-  updatedByProfileId?: Maybe<Scalars['String']['output']>;
-};
-
 export type WarehouseCreateInput = {
   address: StreetAddressInput;
   name: Scalars['String']['input'];
-};
-
-export type WarehouseInventory = {
-  __typename?: 'WarehouseInventory';
-  createdAt: Scalars['DateTimeISO']['output'];
-  id: Scalars['String']['output'];
-  lowInventoryThreshold?: Maybe<Scalars['Int']['output']>;
-  quantity: Scalars['Int']['output'];
-  updatedAt: Scalars['DateTimeISO']['output'];
 };
 
 export type WarehouseInventoryCreateInput = {
@@ -3814,21 +1458,21 @@ export type PostsQueryVariables = Exact<{
 }>;
 
 
-export type PostsQuery = { __typename?: 'Query', posts: { __typename?: 'PagedPosts', items: Array<{ __typename?: 'Post', id: string, identifier: string, slug: string, status: PostStatus, title: string, createdByProfileId: string, content?: string | null, upvoteCount: number, downvoteCount: number, voteType?: PostVoteType | null, reportedCount: number, reportStatus?: PostReportStatus | null, metadata?: any | null, latestRevisionId?: string | null, updatedAt: any, createdAt: any, createdByProfile?: { __typename?: 'PublicProfile', displayName?: string | null, username: string, imageUrls?: Array<{ __typename?: 'ImageObject', url: string, type: MediaObjectType, variant?: string | null }> | null } | null, topic?: { __typename?: 'PostTopic', name: string } | null, reactions?: Array<{ __typename?: 'PostReaction', content: string, count: number, reacted: boolean }> | null }>, pagination?: { __typename?: 'Pagination', itemIndex: number, itemIndexForPreviousPage?: number | null, itemIndexForNextPage?: number | null, itemsPerPage: number, itemsTotal: number, pagesTotal: number, page: number } | null } };
+export type PostsQuery = { __typename?: 'Query', posts: { __typename?: 'PagedPosts', items: Array<{ __typename?: 'Post', id: string, identifier: string, slug: string, status: PostStatus, title: string, createdByProfileId: string, content?: string | null, upvoteCount: number, downvoteCount: number, voteType?: PostVoteType | null, reportedCount: number, reportStatus?: PostReportStatus | null, metadata?: any | null, latestRevisionId?: string | null, updatedAt: any, createdAt: any, createdByProfile?: { __typename?: 'PublicProfile', displayName?: string | null, username: string, imageUrls?: Array<{ __typename?: 'ImageObject', url: string, type: MediaObjectType, variant?: string | null }> | null } | null, topics?: Array<{ __typename?: 'PostTopic', id: string, title: string, slug: string }> | null, reactions?: Array<{ __typename?: 'PostReaction', content: string, count: number, reacted: boolean }> | null }>, pagination?: { __typename?: 'Pagination', itemIndex: number, itemIndexForPreviousPage?: number | null, itemIndexForNextPage?: number | null, itemsPerPage: number, itemsTotal: number, pagesTotal: number, page: number } | null } };
 
 export type PostsMineQueryVariables = Exact<{
   pagination?: InputMaybe<PaginationInputWithFilters>;
 }>;
 
 
-export type PostsMineQuery = { __typename?: 'Query', postsMine: { __typename?: 'PagedPosts', items: Array<{ __typename?: 'Post', id: string, identifier: string, slug: string, status: PostStatus, title: string, createdByProfileId: string, content?: string | null, upvoteCount: number, downvoteCount: number, voteType?: PostVoteType | null, reportedCount: number, reportStatus?: PostReportStatus | null, metadata?: any | null, latestRevisionId?: string | null, updatedAt: any, createdAt: any, createdByProfile?: { __typename?: 'PublicProfile', displayName?: string | null, username: string, imageUrls?: Array<{ __typename?: 'ImageObject', url: string, type: MediaObjectType, variant?: string | null }> | null } | null, topic?: { __typename?: 'PostTopic', name: string } | null, reactions?: Array<{ __typename?: 'PostReaction', content: string, count: number, reacted: boolean }> | null }>, pagination?: { __typename?: 'Pagination', itemIndex: number, itemIndexForPreviousPage?: number | null, itemIndexForNextPage?: number | null, itemsPerPage: number, itemsTotal: number, pagesTotal: number, page: number } | null } };
+export type PostsMineQuery = { __typename?: 'Query', postsMine: { __typename?: 'PagedPosts', items: Array<{ __typename?: 'Post', id: string, identifier: string, slug: string, status: PostStatus, title: string, createdByProfileId: string, content?: string | null, upvoteCount: number, downvoteCount: number, voteType?: PostVoteType | null, reportedCount: number, reportStatus?: PostReportStatus | null, metadata?: any | null, latestRevisionId?: string | null, updatedAt: any, createdAt: any, createdByProfile?: { __typename?: 'PublicProfile', displayName?: string | null, username: string, imageUrls?: Array<{ __typename?: 'ImageObject', url: string, type: MediaObjectType, variant?: string | null }> | null } | null, topics?: Array<{ __typename?: 'PostTopic', id: string, title: string, slug: string }> | null, reactions?: Array<{ __typename?: 'PostReaction', content: string, count: number, reacted: boolean }> | null }>, pagination?: { __typename?: 'Pagination', itemIndex: number, itemIndexForPreviousPage?: number | null, itemIndexForNextPage?: number | null, itemsPerPage: number, itemsTotal: number, pagesTotal: number, page: number } | null } };
 
 export type PostQueryVariables = Exact<{
   identifier: Scalars['String']['input'];
 }>;
 
 
-export type PostQuery = { __typename?: 'Query', post: { __typename?: 'Post', id: string, identifier: string, slug: string, status: PostStatus, title: string, createdByProfileId: string, content?: string | null, upvoteCount: number, downvoteCount: number, voteType?: PostVoteType | null, reportedCount: number, reportStatus?: PostReportStatus | null, metadata?: any | null, latestRevisionId?: string | null, updatedAt: any, createdAt: any, createdByProfile?: { __typename?: 'PublicProfile', displayName?: string | null, username: string, imageUrls?: Array<{ __typename?: 'ImageObject', url: string, type: MediaObjectType, variant?: string | null }> | null } | null, topic?: { __typename?: 'PostTopic', name: string } | null, reactions?: Array<{ __typename?: 'PostReaction', content: string, count: number, reacted: boolean }> | null } };
+export type PostQuery = { __typename?: 'Query', post: { __typename?: 'Post', id: string, identifier: string, slug: string, status: PostStatus, title: string, createdByProfileId: string, content?: string | null, upvoteCount: number, downvoteCount: number, voteType?: PostVoteType | null, reportedCount: number, reportStatus?: PostReportStatus | null, type: string, metadata?: any | null, latestRevisionId?: string | null, updatedAt: any, createdAt: any, createdByProfile?: { __typename?: 'PublicProfile', displayName?: string | null, username: string, imageUrls?: Array<{ __typename?: 'ImageObject', url: string, type: MediaObjectType, variant?: string | null }> | null } | null, topics?: Array<{ __typename?: 'PostTopic', id: string, title: string }> | null, reactions?: Array<{ __typename?: 'PostReaction', content: string, count: number, reacted: boolean }> | null } };
 
 export type PostCreateMutationVariables = Exact<{
   input: PostCreateInput;
@@ -3844,6 +1488,13 @@ export type PostUpdateMutationVariables = Exact<{
 
 
 export type PostUpdateMutation = { __typename?: 'Mutation', postUpdate: { __typename?: 'Post', id: string, status: PostStatus, title: string, contentType: RichContentFormat, content?: string | null, settings?: any | null, upvoteCount: number, downvoteCount: number, metadata?: any | null, updatedAt: any, createdAt: any } };
+
+export type PostDeleteMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+}>;
+
+
+export type PostDeleteMutation = { __typename?: 'Mutation', postDelete: string };
 
 export type PostVoteMutationVariables = Exact<{
   postId: Scalars['String']['input'];
@@ -3891,6 +1542,71 @@ export type PostReportCreateMutationVariables = Exact<{
 
 
 export type PostReportCreateMutation = { __typename?: 'Mutation', postReportCreate: { __typename?: 'PostReport', id: string } };
+
+export type PostTopicByIdQueryVariables = Exact<{
+  id: Scalars['String']['input'];
+}>;
+
+
+export type PostTopicByIdQuery = { __typename?: 'Query', postTopicById: { __typename?: 'PostTopic', id: string, title: string, slug: string, description?: string | null, postCount: number, createdAt: any } };
+
+export type PostTopicsQueryVariables = Exact<{
+  ids?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type PostTopicsQuery = { __typename?: 'Query', postTopics: Array<{ __typename?: 'PostTopic', id: string, title: string, slug: string, description?: string | null, postCount: number, createdAt: any }> };
+
+export type PostTopicCreateMutationVariables = Exact<{
+  input: PostTopicCreateInput;
+}>;
+
+
+export type PostTopicCreateMutation = { __typename?: 'Mutation', postTopicCreate: { __typename?: 'PostTopic', id: string, title: string, slug: string, description?: string | null, postCount: number, createdAt: any } };
+
+export type PostTopicUpdateMutationVariables = Exact<{
+  input: PostTopicUpdateInput;
+}>;
+
+
+export type PostTopicUpdateMutation = { __typename?: 'Mutation', postTopicUpdate: { __typename?: 'PostTopic', id: string, title: string, slug: string, description?: string | null, postCount: number, createdAt: any } };
+
+export type PostTopicDeleteMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+}>;
+
+
+export type PostTopicDeleteMutation = { __typename?: 'Mutation', postTopicDelete: boolean };
+
+export type SupportPostQueryVariables = Exact<{
+  identifier: Scalars['String']['input'];
+}>;
+
+
+export type SupportPostQuery = { __typename?: 'Query', post: { __typename?: 'Post', identifier: string, slug: string, status: PostStatus, title: string, description?: string | null, content?: string | null, updatedAt: any, createdAt: any } };
+
+export type SupportPostsQueryVariables = Exact<{
+  paginationInputWithFilters?: InputMaybe<PaginationInputWithFilters>;
+}>;
+
+
+export type SupportPostsQuery = { __typename?: 'Query', posts: { __typename?: 'PagedPosts', pagination?: { __typename?: 'Pagination', itemIndex: number, itemIndexForPreviousPage?: number | null, itemIndexForNextPage?: number | null, itemsPerPage: number, itemsTotal: number, pagesTotal: number, page: number } | null, items: Array<{ __typename?: 'Post', identifier: string, slug: string, status: PostStatus, title: string, description?: string | null, content?: string | null, updatedAt: any, createdAt: any, topics?: Array<{ __typename?: 'PostTopic', id: string, title: string, slug: string }> | null }> } };
+
+export type SupportPostTopicQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+  path?: InputMaybe<Scalars['String']['input']>;
+  pagination?: InputMaybe<PaginationInput>;
+}>;
+
+
+export type SupportPostTopicQuery = { __typename?: 'Query', postTopic: { __typename?: 'PostTopicQueryResult', topic: { __typename?: 'PostTopic', id: string, title: string, slug: string, description?: string | null, postCount: number, createdAt: any }, subTopics?: Array<{ __typename?: 'PostTopic', id: string, title: string, slug: string, description?: string | null, postCount: number, createdAt: any }> | null, pagedPosts: { __typename?: 'PagedPosts', items: Array<{ __typename?: 'Post', id: string, identifier: string, slug: string, status: PostStatus, title: string, description?: string | null, content?: string | null, metadata?: any | null, updatedAt: any, createdAt: any }>, pagination?: { __typename?: 'Pagination', itemIndex: number, itemIndexForPreviousPage?: number | null, itemIndexForNextPage?: number | null, itemsPerPage: number, itemsTotal: number, pagesTotal: number, page: number } | null } } };
+
+export type SupportTicketCreateMutationVariables = Exact<{
+  input: SupportTicketCreateInput;
+}>;
+
+
+export type SupportTicketCreateMutation = { __typename?: 'Mutation', supportTicketCreate: { __typename?: 'SupportTicketComment', id: string } };
 
 export type WaitListsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3949,17 +1665,27 @@ export const EmailListsDocument = {"kind":"Document","definitions":[{"kind":"Ope
 export const EngagementEventCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"EngagementEventCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateEngagementEventInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"engagementEventCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}]}]}}]} as unknown as DocumentNode<EngagementEventCreateMutation, EngagementEventCreateMutationVariables>;
 export const EngagementEventsCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"EngagementEventsCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateEngagementEventInput"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"engagementEventsCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"inputs"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}]}]}}]} as unknown as DocumentNode<EngagementEventsCreateMutation, EngagementEventsCreateMutationVariables>;
 export const EngagementOverviewDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"EngagementOverview"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"engagementOverview"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"uniqueDeviceIds"}},{"kind":"Field","name":{"kind":"Name","value":"views"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"uniqueDeviceCount"}},{"kind":"Field","name":{"kind":"Name","value":"viewIdentifier"}}]}},{"kind":"Field","name":{"kind":"Name","value":"locations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"uniqueDeviceCount"}},{"kind":"Field","name":{"kind":"Name","value":"countryCode"}},{"kind":"Field","name":{"kind":"Name","value":"latitude"}},{"kind":"Field","name":{"kind":"Name","value":"longitude"}}]}},{"kind":"Field","name":{"kind":"Name","value":"deviceCategoryPercentages"}}]}}]}}]} as unknown as DocumentNode<EngagementOverviewQuery, EngagementOverviewQueryVariables>;
-export const PostsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Posts"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInputWithFilters"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"OrderBy"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"posts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"identifier"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"createdByProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"createdByProfile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"topic"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reactions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"count"}},{"kind":"Field","name":{"kind":"Name","value":"reacted"}}]}},{"kind":"Field","name":{"kind":"Name","value":"upvoteCount"}},{"kind":"Field","name":{"kind":"Name","value":"downvoteCount"}},{"kind":"Field","name":{"kind":"Name","value":"voteType"}},{"kind":"Field","name":{"kind":"Name","value":"reportedCount"}},{"kind":"Field","name":{"kind":"Name","value":"reportStatus"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}},{"kind":"Field","name":{"kind":"Name","value":"latestRevisionId"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}}]}}]}}]}}]} as unknown as DocumentNode<PostsQuery, PostsQueryVariables>;
-export const PostsMineDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PostsMine"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInputWithFilters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postsMine"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"identifier"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"createdByProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"createdByProfile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"topic"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reactions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"count"}},{"kind":"Field","name":{"kind":"Name","value":"reacted"}}]}},{"kind":"Field","name":{"kind":"Name","value":"upvoteCount"}},{"kind":"Field","name":{"kind":"Name","value":"downvoteCount"}},{"kind":"Field","name":{"kind":"Name","value":"voteType"}},{"kind":"Field","name":{"kind":"Name","value":"reportedCount"}},{"kind":"Field","name":{"kind":"Name","value":"reportStatus"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}},{"kind":"Field","name":{"kind":"Name","value":"latestRevisionId"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}}]}}]}}]}}]} as unknown as DocumentNode<PostsMineQuery, PostsMineQueryVariables>;
-export const PostDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Post"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"identifier"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"post"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"identifier"},"value":{"kind":"Variable","name":{"kind":"Name","value":"identifier"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"identifier"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"createdByProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"createdByProfile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"topic"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reactions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"count"}},{"kind":"Field","name":{"kind":"Name","value":"reacted"}}]}},{"kind":"Field","name":{"kind":"Name","value":"upvoteCount"}},{"kind":"Field","name":{"kind":"Name","value":"downvoteCount"}},{"kind":"Field","name":{"kind":"Name","value":"voteType"}},{"kind":"Field","name":{"kind":"Name","value":"reportedCount"}},{"kind":"Field","name":{"kind":"Name","value":"reportStatus"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}},{"kind":"Field","name":{"kind":"Name","value":"latestRevisionId"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<PostQuery, PostQueryVariables>;
+export const PostsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Posts"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInputWithFilters"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"OrderBy"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"posts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"identifier"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"createdByProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"createdByProfile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"topics"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reactions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"count"}},{"kind":"Field","name":{"kind":"Name","value":"reacted"}}]}},{"kind":"Field","name":{"kind":"Name","value":"upvoteCount"}},{"kind":"Field","name":{"kind":"Name","value":"downvoteCount"}},{"kind":"Field","name":{"kind":"Name","value":"voteType"}},{"kind":"Field","name":{"kind":"Name","value":"reportedCount"}},{"kind":"Field","name":{"kind":"Name","value":"reportStatus"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}},{"kind":"Field","name":{"kind":"Name","value":"latestRevisionId"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}}]}}]}}]}}]} as unknown as DocumentNode<PostsQuery, PostsQueryVariables>;
+export const PostsMineDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PostsMine"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInputWithFilters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postsMine"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"identifier"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"createdByProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"createdByProfile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"topics"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reactions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"count"}},{"kind":"Field","name":{"kind":"Name","value":"reacted"}}]}},{"kind":"Field","name":{"kind":"Name","value":"upvoteCount"}},{"kind":"Field","name":{"kind":"Name","value":"downvoteCount"}},{"kind":"Field","name":{"kind":"Name","value":"voteType"}},{"kind":"Field","name":{"kind":"Name","value":"reportedCount"}},{"kind":"Field","name":{"kind":"Name","value":"reportStatus"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}},{"kind":"Field","name":{"kind":"Name","value":"latestRevisionId"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}}]}}]}}]}}]} as unknown as DocumentNode<PostsMineQuery, PostsMineQueryVariables>;
+export const PostDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Post"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"identifier"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"post"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"identifier"},"value":{"kind":"Variable","name":{"kind":"Name","value":"identifier"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"identifier"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"createdByProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"createdByProfile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"topics"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reactions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"count"}},{"kind":"Field","name":{"kind":"Name","value":"reacted"}}]}},{"kind":"Field","name":{"kind":"Name","value":"upvoteCount"}},{"kind":"Field","name":{"kind":"Name","value":"downvoteCount"}},{"kind":"Field","name":{"kind":"Name","value":"voteType"}},{"kind":"Field","name":{"kind":"Name","value":"reportedCount"}},{"kind":"Field","name":{"kind":"Name","value":"reportStatus"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}},{"kind":"Field","name":{"kind":"Name","value":"latestRevisionId"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<PostQuery, PostQueryVariables>;
 export const PostCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PostCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PostCreateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postCreateAdmin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"contentType"}},{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"settings"}},{"kind":"Field","name":{"kind":"Name","value":"upvoteCount"}},{"kind":"Field","name":{"kind":"Name","value":"downvoteCount"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<PostCreateMutation, PostCreateMutationVariables>;
 export const PostUpdateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PostUpdate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PostUpdateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postUpdate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"contentType"}},{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"settings"}},{"kind":"Field","name":{"kind":"Name","value":"upvoteCount"}},{"kind":"Field","name":{"kind":"Name","value":"downvoteCount"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<PostUpdateMutation, PostUpdateMutationVariables>;
+export const PostDeleteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PostDelete"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postDelete"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}]}}]} as unknown as DocumentNode<PostDeleteMutation, PostDeleteMutationVariables>;
 export const PostVoteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PostVote"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"postId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"type"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PostVoteType"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postVote"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"postId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"postId"}}},{"kind":"Argument","name":{"kind":"Name","value":"type"},"value":{"kind":"Variable","name":{"kind":"Name","value":"type"}}}]}]}}]} as unknown as DocumentNode<PostVoteMutation, PostVoteMutationVariables>;
 export const PostUnvoteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PostUnvote"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"postId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postUnvote"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"postId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"postId"}}}]}]}}]} as unknown as DocumentNode<PostUnvoteMutation, PostUnvoteMutationVariables>;
 export const PostReactionCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PostReactionCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"postId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"content"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postReactionCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"postId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"postId"}}},{"kind":"Argument","name":{"kind":"Name","value":"content"},"value":{"kind":"Variable","name":{"kind":"Name","value":"content"}}}]}]}}]} as unknown as DocumentNode<PostReactionCreateMutation, PostReactionCreateMutationVariables>;
 export const PostReactionDeleteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PostReactionDelete"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"postId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"content"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postReactionDelete"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"postId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"postId"}}},{"kind":"Argument","name":{"kind":"Name","value":"content"},"value":{"kind":"Variable","name":{"kind":"Name","value":"content"}}}]}]}}]} as unknown as DocumentNode<PostReactionDeleteMutation, PostReactionDeleteMutationVariables>;
 export const PostReactionProfilesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PostReactionProfiles"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"postId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"content"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postReactionProfiles"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"postId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"postId"}}},{"kind":"Argument","name":{"kind":"Name","value":"content"},"value":{"kind":"Variable","name":{"kind":"Name","value":"content"}}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"profileId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}}]}}]}}]}}]} as unknown as DocumentNode<PostReactionProfilesQuery, PostReactionProfilesQueryVariables>;
 export const PostReportCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PostReportCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PostReportInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postReportCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<PostReportCreateMutation, PostReportCreateMutationVariables>;
+export const PostTopicByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PostTopicById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postTopicById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"postCount"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<PostTopicByIdQuery, PostTopicByIdQueryVariables>;
+export const PostTopicsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PostTopics"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"ids"}},"type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postTopics"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"ids"},"value":{"kind":"Variable","name":{"kind":"Name","value":"ids"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"postCount"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<PostTopicsQuery, PostTopicsQueryVariables>;
+export const PostTopicCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PostTopicCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PostTopicCreateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postTopicCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"postCount"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<PostTopicCreateMutation, PostTopicCreateMutationVariables>;
+export const PostTopicUpdateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PostTopicUpdate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PostTopicUpdateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postTopicUpdate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"postCount"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<PostTopicUpdateMutation, PostTopicUpdateMutationVariables>;
+export const PostTopicDeleteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PostTopicDelete"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postTopicDelete"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}]}}]} as unknown as DocumentNode<PostTopicDeleteMutation, PostTopicDeleteMutationVariables>;
+export const SupportPostDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SupportPost"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"identifier"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"post"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"identifier"},"value":{"kind":"Variable","name":{"kind":"Name","value":"identifier"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"identifier"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<SupportPostQuery, SupportPostQueryVariables>;
+export const SupportPostsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SupportPosts"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"paginationInputWithFilters"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInputWithFilters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"posts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"paginationInputWithFilters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}}]}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"identifier"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"topics"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<SupportPostsQuery, SupportPostsQueryVariables>;
+export const SupportPostTopicDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SupportPostTopic"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"slug"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"path"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postTopic"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"slug"},"value":{"kind":"Variable","name":{"kind":"Name","value":"slug"}}},{"kind":"Argument","name":{"kind":"Name","value":"path"},"value":{"kind":"Variable","name":{"kind":"Name","value":"path"}}},{"kind":"Argument","name":{"kind":"Name","value":"type"},"value":{"kind":"StringValue","value":"SupportArticle","block":false}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"topic"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"postCount"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"subTopics"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"postCount"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagedPosts"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"identifier"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}}]}}]}}]}}]}}]} as unknown as DocumentNode<SupportPostTopicQuery, SupportPostTopicQueryVariables>;
+export const SupportTicketCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SupportTicketCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SupportTicketCreateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"supportTicketCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<SupportTicketCreateMutation, SupportTicketCreateMutationVariables>;
 export const WaitListsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"WaitLists"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"waitLists"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}}]}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"identifier"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"emailAutomation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"automationKey"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"fromName"}},{"kind":"Field","name":{"kind":"Name","value":"fromEmail"}},{"kind":"Field","name":{"kind":"Name","value":"subject"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<WaitListsQuery, WaitListsQueryVariables>;
 export const WaitListCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"WaitListCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"WaitListCreationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"waitListCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"identifier"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<WaitListCreateMutation, WaitListCreateMutationVariables>;
 export const WaitListEntriesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"WaitListEntries"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"waitListIdentifier"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"itemsPerPage"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},"defaultValue":{"kind":"IntValue","value":"100"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"waitListEntries"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"itemsPerPage"},"value":{"kind":"Variable","name":{"kind":"Name","value":"itemsPerPage"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"waitListIdentifier"},"value":{"kind":"Variable","name":{"kind":"Name","value":"waitListIdentifier"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}}]}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"userAgent"}},{"kind":"Field","name":{"kind":"Name","value":"countryCode"}},{"kind":"Field","name":{"kind":"Name","value":"referredBy"}},{"kind":"Field","name":{"kind":"Name","value":"contactedAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<WaitListEntriesQuery, WaitListEntriesQueryVariables>;
@@ -4104,6 +1830,294 @@ export namespace GraphQLInputTypes {
     ],
   }
 
+  export const SupportTicketCommentVisibility: GraphQLInputEnumTypeMetadata = {
+    kind: 'enum',
+    type: 'SupportTicketCommentVisibility',
+    values: [
+      'Public',
+      'Internal'
+    ],
+  }
+
+  export const SupportTicketCommentCreateInput: GraphQLInputObjectTypeMetadata = {
+    kind: 'object',
+    type: 'SupportTicketCommentCreateInput',
+    fields: [
+      {
+        name: 'ticketId',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'isUuid',
+          }
+        ],
+      },
+      {
+        name: 'content',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+      },
+      {
+        name: 'contentType',
+        kind: 'enum',
+        type: GraphQLInputTypes.RichContentFormat,
+        required: false,
+      },
+      {
+        name: 'replyToCommentId',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'isUuid',
+          }
+        ],
+      },
+      {
+        name: 'visibility',
+        kind: 'enum',
+        type: GraphQLInputTypes.SupportTicketCommentVisibility,
+        required: false,
+      },
+      {
+        name: 'emailAddress',
+        kind: 'scalar',
+        type: 'String',
+        required: false,
+        validation: [
+          {
+            type: 'isEmail',
+          }
+        ],
+      },
+      {
+        name: 'emailName',
+        kind: 'scalar',
+        type: 'String',
+        required: false,
+      }
+    ],
+  }
+
+  export const SupportTicketCreateInput: GraphQLInputObjectTypeMetadata = {
+    kind: 'object',
+    type: 'SupportTicketCreateInput',
+    fields: [
+      {
+        name: 'title',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'maxLength',
+            constraints: [
+              256
+            ],
+          }
+        ],
+      },
+      {
+        name: 'description',
+        kind: 'scalar',
+        type: 'String',
+        required: false,
+      },
+      {
+        name: 'type',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'maxLength',
+            constraints: [
+              36
+            ],
+          },
+          {
+            type: 'isIn',
+            constraints: [
+              ["Contact","SupportArticleFeedback"]
+            ],
+          }
+        ],
+      },
+      {
+        name: 'emailAddress',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'isEmail',
+          }
+        ],
+      },
+      {
+        name: 'initialComment',
+        kind: 'object',
+        type: GraphQLInputTypes.SupportTicketCommentCreateInput,
+        required: false,
+      }
+    ],
+  }
+
+  export const PostTopicUpdateInput: GraphQLInputObjectTypeMetadata = {
+    kind: 'object',
+    type: 'PostTopicUpdateInput',
+    fields: [
+      {
+        name: 'id',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'isUuid',
+          }
+        ],
+      },
+      {
+        name: 'title',
+        kind: 'scalar',
+        type: 'String',
+        required: false,
+        validation: [
+          {
+            type: 'maxLength',
+            constraints: [
+              64
+            ],
+          }
+        ],
+      },
+      {
+        name: 'description',
+        kind: 'scalar',
+        type: 'String',
+        required: false,
+        validation: [
+          {
+            type: 'maxLength',
+            constraints: [
+              1024
+            ],
+          }
+        ],
+      },
+      {
+        name: 'slug',
+        kind: 'scalar',
+        type: 'String',
+        required: false,
+        validation: [
+          {
+            type: 'maxLength',
+            constraints: [
+              160
+            ],
+          }
+        ],
+      }
+    ],
+  }
+
+  export const PostTopicCreateInput: GraphQLInputObjectTypeMetadata = {
+    kind: 'object',
+    type: 'PostTopicCreateInput',
+    fields: [
+      {
+        name: 'title',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'maxLength',
+            constraints: [
+              64
+            ],
+          }
+        ],
+      },
+      {
+        name: 'description',
+        kind: 'scalar',
+        type: 'String',
+        required: false,
+        validation: [
+          {
+            type: 'maxLength',
+            constraints: [
+              1024
+            ],
+          }
+        ],
+      },
+      {
+        name: 'type',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'isIn',
+            constraints: [
+              ["Principle","Idea","SupportArticle"]
+            ],
+          },
+          {
+            type: 'maxLength',
+            constraints: [
+              24
+            ],
+          }
+        ],
+      },
+      {
+        name: 'slug',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'maxLength',
+            constraints: [
+              160
+            ],
+          }
+        ],
+      },
+      {
+        name: 'parentId',
+        kind: 'scalar',
+        type: 'String',
+        required: false,
+        validation: [
+          {
+            type: 'isUuid',
+          }
+        ],
+      },
+      {
+        name: 'position',
+        kind: 'scalar',
+        type: 'Float',
+        required: false,
+        validation: [
+          {
+            type: 'isInt',
+          }
+        ],
+      }
+    ],
+  }
+
   export const PostReportInput: GraphQLInputObjectTypeMetadata = {
     kind: 'object',
     type: 'PostReportInput',
@@ -4162,16 +2176,6 @@ export namespace GraphQLInputTypes {
     ],
   }
 
-  export const RichContentFormat: GraphQLInputEnumTypeMetadata = {
-    kind: 'enum',
-    type: 'RichContentFormat',
-    values: [
-      'Markdown',
-      'Html',
-      'PlainText'
-    ],
-  }
-
   export const PostUpdateInput: GraphQLInputObjectTypeMetadata = {
     kind: 'object',
     type: 'PostUpdateInput',
@@ -4199,7 +2203,7 @@ export namespace GraphQLInputTypes {
           {
             type: 'isIn',
             constraints: [
-              ["Principle","Idea"]
+              ["Principle","Idea","SupportArticle"]
             ],
           },
           {
@@ -4243,17 +2247,6 @@ export namespace GraphQLInputTypes {
         required: false,
       },
       {
-        name: 'topicId',
-        kind: 'scalar',
-        type: 'String',
-        required: false,
-        validation: [
-          {
-            type: 'isUuid',
-          }
-        ],
-      },
-      {
         name: 'publishedAt',
         kind: 'scalar',
         type: 'DateTimeISO',
@@ -4289,6 +2282,16 @@ export namespace GraphQLInputTypes {
         type: 'JSON',
         required: false,
       }
+    ],
+  }
+
+  export const RichContentFormat: GraphQLInputEnumTypeMetadata = {
+    kind: 'enum',
+    type: 'RichContentFormat',
+    values: [
+      'Markdown',
+      'Html',
+      'PlainText'
     ],
   }
 
@@ -4344,7 +2347,7 @@ export namespace GraphQLInputTypes {
           {
             type: 'isIn',
             constraints: [
-              ["Principle","Idea"]
+              ["Principle","Idea","SupportArticle"]
             ],
           },
           {
@@ -4382,13 +2385,19 @@ export namespace GraphQLInputTypes {
         required: false,
       },
       {
-        name: 'topicId',
+        name: 'contentType',
+        kind: 'enum',
+        type: GraphQLInputTypes.RichContentFormat,
+        required: false,
+      },
+      {
+        name: 'topicIds',
         kind: 'scalar',
         type: 'String',
-        required: false,
+        required: true,
         validation: [
           {
-            type: 'isUuid',
+            type: 'isArray',
           }
         ],
       },
@@ -5863,6 +3872,20 @@ export const PostUpdateOperation: GraphQLOperationMetadata<typeof PostUpdateDocu
   ],
 }
   
+export const PostDeleteOperation: GraphQLOperationMetadata<typeof PostDeleteDocument> = {
+  operation: 'PostDelete',
+  operationType: 'mutation',
+  document: PostDeleteDocument,
+  parameters: [
+    {
+      parameter: 'id',
+      required: true,
+      kind: 'scalar',
+      type: 'String',
+    },
+  ],
+}
+  
 export const PostVoteOperation: GraphQLOperationMetadata<typeof PostVoteDocument> = {
   operation: 'PostVote',
   operationType: 'mutation',
@@ -5973,6 +3996,146 @@ export const PostReportCreateOperation: GraphQLOperationMetadata<typeof PostRepo
       required: true,
       kind: 'object',
       type: GraphQLInputTypes.PostReportInput,
+    },
+  ],
+}
+  
+export const PostTopicByIdOperation: GraphQLOperationMetadata<typeof PostTopicByIdDocument> = {
+  operation: 'PostTopicById',
+  operationType: 'query',
+  document: PostTopicByIdDocument,
+  parameters: [
+    {
+      parameter: 'id',
+      required: true,
+      kind: 'scalar',
+      type: 'String',
+    },
+  ],
+}
+  
+export const PostTopicsOperation: GraphQLOperationMetadata<typeof PostTopicsDocument> = {
+  operation: 'PostTopics',
+  operationType: 'query',
+  document: PostTopicsDocument,
+  parameters: [
+    {
+      parameter: 'ids',
+      required: false,
+      kind: 'list',
+      itemKind: 'scalar',
+      type: 'String',
+      allowsEmpty: false,
+    },
+  ],
+}
+  
+export const PostTopicCreateOperation: GraphQLOperationMetadata<typeof PostTopicCreateDocument> = {
+  operation: 'PostTopicCreate',
+  operationType: 'mutation',
+  document: PostTopicCreateDocument,
+  parameters: [
+    {
+      parameter: 'input',
+      required: true,
+      kind: 'object',
+      type: GraphQLInputTypes.PostTopicCreateInput,
+    },
+  ],
+}
+  
+export const PostTopicUpdateOperation: GraphQLOperationMetadata<typeof PostTopicUpdateDocument> = {
+  operation: 'PostTopicUpdate',
+  operationType: 'mutation',
+  document: PostTopicUpdateDocument,
+  parameters: [
+    {
+      parameter: 'input',
+      required: true,
+      kind: 'object',
+      type: GraphQLInputTypes.PostTopicUpdateInput,
+    },
+  ],
+}
+  
+export const PostTopicDeleteOperation: GraphQLOperationMetadata<typeof PostTopicDeleteDocument> = {
+  operation: 'PostTopicDelete',
+  operationType: 'mutation',
+  document: PostTopicDeleteDocument,
+  parameters: [
+    {
+      parameter: 'id',
+      required: true,
+      kind: 'scalar',
+      type: 'String',
+    },
+  ],
+}
+  
+export const SupportPostOperation: GraphQLOperationMetadata<typeof SupportPostDocument> = {
+  operation: 'SupportPost',
+  operationType: 'query',
+  document: SupportPostDocument,
+  parameters: [
+    {
+      parameter: 'identifier',
+      required: true,
+      kind: 'scalar',
+      type: 'String',
+    },
+  ],
+}
+  
+export const SupportPostsOperation: GraphQLOperationMetadata<typeof SupportPostsDocument> = {
+  operation: 'SupportPosts',
+  operationType: 'query',
+  document: SupportPostsDocument,
+  parameters: [
+    {
+      parameter: 'paginationInputWithFilters',
+      required: false,
+      kind: 'object',
+      type: GraphQLInputTypes.PaginationInputWithFilters,
+    },
+  ],
+}
+  
+export const SupportPostTopicOperation: GraphQLOperationMetadata<typeof SupportPostTopicDocument> = {
+  operation: 'SupportPostTopic',
+  operationType: 'query',
+  document: SupportPostTopicDocument,
+  parameters: [
+    {
+      parameter: 'slug',
+      required: true,
+      kind: 'scalar',
+      type: 'String',
+    },
+    {
+      parameter: 'path',
+      required: false,
+      kind: 'scalar',
+      type: 'String',
+    },
+    {
+      parameter: 'pagination',
+      required: false,
+      kind: 'object',
+      type: GraphQLInputTypes.PaginationInput,
+    },
+  ],
+}
+  
+export const SupportTicketCreateOperation: GraphQLOperationMetadata<typeof SupportTicketCreateDocument> = {
+  operation: 'SupportTicketCreate',
+  operationType: 'mutation',
+  document: SupportTicketCreateDocument,
+  parameters: [
+    {
+      parameter: 'input',
+      required: true,
+      kind: 'object',
+      type: GraphQLInputTypes.SupportTicketCreateInput,
     },
   ],
 }

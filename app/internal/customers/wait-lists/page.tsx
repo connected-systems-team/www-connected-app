@@ -1,9 +1,7 @@
-export const runtime = 'edge'; // Enable server-side rendering
-
 // Dependencies - Next.js
 import { Metadata } from 'next';
 
-// Metadata
+// Next.js Metadata
 export async function generateMetadata(): Promise<Metadata> {
     return {
         title: 'Wait Lists • Customers • Internal',

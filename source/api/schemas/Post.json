@@ -197,6 +197,183 @@
                     }
                 ]
             },
+            "PostTopicCreateInput": {
+                "kind": "object",
+                "type": "PostTopicCreateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "title",
+                        "validation": [
+                            {
+                                "type": "maxLength",
+                                "constraints": [64]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "description",
+                        "validation": [
+                            {
+                                "type": "maxLength",
+                                "constraints": [1024]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "type",
+                        "validation": [
+                            {
+                                "type": "isIn",
+                                "constraints": [["Principle", "Idea", "SupportArticle"]]
+                            },
+                            {
+                                "type": "maxLength",
+                                "constraints": [24]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "slug",
+                        "validation": [
+                            {
+                                "type": "maxLength",
+                                "constraints": [160]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "parentId",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Float",
+                        "required": false,
+                        "name": "position",
+                        "validation": [
+                            {
+                                "type": "isInt"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "Float": {
+                "kind": "scalar",
+                "type": "Float",
+                "description": "The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point)."
+            },
+            "PostTopicUpdateInput": {
+                "kind": "object",
+                "type": "PostTopicUpdateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "id",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "title",
+                        "validation": [
+                            {
+                                "type": "maxLength",
+                                "constraints": [64]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "description",
+                        "validation": [
+                            {
+                                "type": "maxLength",
+                                "constraints": [1024]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "slug",
+                        "validation": [
+                            {
+                                "type": "maxLength",
+                                "constraints": [160]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "PostTopicUpdatePositionInput": {
+                "kind": "object",
+                "type": "PostTopicUpdatePositionInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "Float",
+                        "required": false,
+                        "name": "position",
+                        "validation": [
+                            {
+                                "type": "isInt"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "parentId",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Boolean",
+                        "required": false,
+                        "name": "moveToRoot",
+                        "validation": [
+                            {
+                                "type": "isBoolean"
+                            }
+                        ]
+                    }
+                ]
+            },
             "PostCreateInput": {
                 "kind": "object",
                 "type": "PostCreateInput",
@@ -240,7 +417,7 @@
                         "validation": [
                             {
                                 "type": "isIn",
-                                "constraints": [["Principle", "Idea"]]
+                                "constraints": [["Principle", "Idea", "SupportArticle"]]
                             },
                             {
                                 "type": "maxLength",
@@ -273,13 +450,19 @@
                         "name": "content"
                     },
                     {
+                        "kind": "enum",
+                        "type": "RichContentFormat",
+                        "required": false,
+                        "name": "contentType"
+                    },
+                    {
                         "kind": "scalar",
                         "type": "String",
-                        "required": false,
-                        "name": "topicId",
+                        "required": true,
+                        "name": "topicIds",
                         "validation": [
                             {
-                                "type": "isUuid"
+                                "type": "isArray"
                             }
                         ]
                     },
@@ -339,7 +522,7 @@
                         "validation": [
                             {
                                 "type": "isIn",
-                                "constraints": [["Principle", "Idea"]]
+                                "constraints": [["Principle", "Idea", "SupportArticle"]]
                             },
                             {
                                 "type": "maxLength",
@@ -376,17 +559,6 @@
                         "type": "RichContentFormat",
                         "required": false,
                         "name": "contentType"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "topicId",
-                        "validation": [
-                            {
-                                "type": "isUuid"
-                            }
-                        ]
                     },
                     {
                         "kind": "scalar",
