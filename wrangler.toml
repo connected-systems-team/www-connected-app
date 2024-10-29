@@ -2,27 +2,30 @@
 name = "www-connected-app"
 main = ".worker-next/index.mjs"
 
+# Compatiblity dates
 compatibility_date = "2024-09-26"
 compatibility_flags = ["nodejs_compat"]
 
-# Minification helps to keep the Worker bundle size down and improve start up time.
+# Minification helps to keep the Worker bundle size down and improve start up time
 minify = true
 
 # Use the new Workers + Assets to host the static frontend files
 assets = { directory = ".worker-next/assets", binding = "ASSETS" }
 
-# Custom Domains
+# Disable the workers.dev route
+workers_dev = false
+
+# Define custom domains
 routes = [
-    { pattern = "www-connected-app.connected-systems.workers.dev", custom_domain = false },
     { pattern = "connected.app", custom_domain = true },
     { pattern = "www.connected.app", custom_domain = true }
 ]
 
-# Enable Logs
+# Enable logs
 [observability]
 enabled = true
 
-# Enable Cache KV
+# Enable cache KV
 # [[kv_namespaces]]
 # binding = "NEXT_CACHE_WORKERS_KV"
 # id = "YOUR_KV_NAMESPACE_ID"
