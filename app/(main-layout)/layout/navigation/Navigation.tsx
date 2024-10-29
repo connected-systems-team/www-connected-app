@@ -21,7 +21,7 @@ export function Navigation(properties: NavigationInterface) {
     return (
         <nav
             className={mergeClassNames(
-                'container relative flex w-full items-center justify-between bg-light leading-7 text-dark transition-colors md:justify-between dark:bg-dark dark:text-light',
+                'container relative flex w-full items-center justify-between leading-7 text-dark transition-colors md:justify-between dark:text-light',
                 properties.className,
             )}
         >

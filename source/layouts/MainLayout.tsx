@@ -8,9 +8,6 @@ import Footer from '@project/app/(main-layout)/layout/footer/Footer';
 // Dependencies - Animation
 import LineLoadingAnimation from '@structure/source/common/animations/LineLoadingAnimation';
 
-// ClassName - Default Main Layout Container
-export const centeredMainLayoutContainerClassName = 'mx-auto max-w-[1080px] px-6 py-6';
-
 // Component - MainLayout
 export interface MainLayoutInterface {
     children: React.ReactNode;
@@ -20,7 +17,7 @@ export function MainLayout(properties: MainLayoutInterface) {
     return (
         <>
             {/* Navigation */}
-            <div className="sticky top-0 z-40 border-b bg-light transition-colors dark:bg-dark">
+            <div className="sticky top-0 z-40 border-b bg-light/90 backdrop-blur-3xl transition-colors dark:bg-dark-1/90">
                 <Navigation />
             </div>
 
