@@ -11,35 +11,23 @@ Before you begin, ensure you have the following installed on your local machine:
 
 ## Setting Up Your Development Environment
 
-1. **Fork the Repository**
-
-    First, fork the `www.connected.app` repository using GitHub.
-
-2. **Clone the Repository to Your Local Machine Using `git`**
+1. **Clone the Repository to Your Local Machine Using `git`**
 
     ```bash
-    git clone YOUR_FORK
-    ```
-
-    Move the `www.connected.app` folder to `www.connected.tld` since macOS will think anything with .app at the end is an app:
-
-    ```bash
-    mv www.connected.app www.connected.tld
+    git clone git@github.com:connected-systems-team/www-connected-app.git
     ```
 
     Then, initialize the Structure submodule:
 
     ```bash
-    cd www.connected.tld
+    cd www-connected-app
     git submodule update --init --recursive
     cd libraries/structure
     git checkout main
     cd ../../
     ```
 
-3. **Update package.json and Install Dependencies with `NPM`**
-
-    First, update the name field in `package.json` to the name of your project.
+2. **Install Dependencies with `NPM`**
 
     Navigate into the project’s directory and install the necessary dependencies.
 
@@ -47,39 +35,9 @@ Before you begin, ensure you have the following installed on your local machine:
     npm i
     ```
 
-4. **Update ProjectSettings.ts**
+3. **Update Your System hosts File**
 
-    `ProjectSettings.ts` is used to configure all of your project settings. Update the file with your project-specific information.
-
-5. **Update wrangler.toml**
-
-    `wrangler.toml` is used to configure your deployment to Cloudflare. You will need to review each line in this file and update it for your project.
-
-6. **Update the Assets Hostname in `next.config.mjs`**
-
-    The project assumes you will be using a service like Cloudflare R2 to store images. Next.JS needs to be configured to not to optimize images from that host.
-
-7. **(If Using Base API) Update Your package.json Scripts and System hosts File**
-
-    **Update Your package.json Scripts**
-
-    By default, the development server will run on port 7878 over regular `HTTP`, not `HTTPs`. If you are using the Base API, it will require `HTTP Only` cookies in order for the account system to work. These cookies are secure and are not accessible via JavaScript. These cookies will only be sent by web browsers with `HTTPS` connections. So, `HTTPS` needs to be enabled in your development environment.
-
-    Replace the dev script in your package.json:
-
-    ```
-    // Default
-    "dev": "next dev --port 7878",
-
-    // Update to:
-    "dev": "next dev --experimental-https --port 7878 --hostname localhost.PROJECT_DOMAIN.TLD",
-    ```
-
-    Where `PROJECT_DOMAIN.TLD` is the domain where you will host your project.
-
-    **Update Your System hosts File**
-
-    In order to access your `HTTPS` web server hosted on `localhost.PROJECT_DOMAIN.TLD`, you will need to update your system hosts file:
+    In order to access your `HTTPS` web server hosted on `localhost.connected.app`, you will need to update your system hosts file:
 
     ```bash
     sudo nano /etc/hosts
@@ -87,11 +45,11 @@ Before you begin, ensure you have the following installed on your local machine:
 
     Add this line:
 
-    `127.0.0.1       localhost.PROJECT_DOMAIN.TLD`
+    `127.0.0.1       localhost.connected.app`
 
-    Now `localhost.PROJECT_DOMAIN.TLD` will point to your local machine.
+    Now `localhost.connected.app` will point to your local machine.
 
-8. **Start the Development Server**
+4. **Start the Development Server**
 
     Start the development server using:
 
@@ -99,7 +57,7 @@ Before you begin, ensure you have the following installed on your local machine:
     npm run dev
     ```
 
-    You will be prompted to generate keys necessary to enable `HTTPS` for local development. After the server is running, open [https://localhost.PROJECT_DOMAIN.TLD:7878](https://localhost.PROJECT_DOMAIN.TLD:7878) with your browser.
+    You will be prompted to generate keys necessary to enable `HTTPS` for local development. After the server is running, open [https://localhost.connected.app:2666](https://localhost.connected.app:2666) with your browser.
 
     You can now view the website in your web browser. Please note that any changes you make in your local codebase will automatically be reflected on your local server.
 

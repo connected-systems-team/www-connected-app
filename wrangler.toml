@@ -1,5 +1,5 @@
 #:schema node_modules/wrangler/config-schema.json
-name = "website"
+name = "www-connected-app"
 main = ".worker-next/index.mjs"
 
 compatibility_date = "2024-09-26"
@@ -13,6 +13,7 @@ assets = { directory = ".worker-next/assets", binding = "ASSETS" }
 
 # Custom Domains
 routes = [
+    { pattern = "www-connected-app.connected-systems.workers.dev", custom_domain = false },
     { pattern = "connected.app", custom_domain = true },
     { pattern = "www.connected.app", custom_domain = true }
 ]
