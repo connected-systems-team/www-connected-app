@@ -20,7 +20,7 @@
                 "kind": "enum",
                 "type": "SupportTicketStatus",
                 "description": "The status of a support ticket",
-                "values": ["Open", "Closed", "Archived"]
+                "values": ["Open", "Closed", "Deleted"]
             },
             "RichContentFormat": {
                 "kind": "enum",
@@ -43,6 +43,113 @@
                 "type": "MediaObjectType",
                 "values": ["Image", "Video", "File"]
             },
+            "Boolean": {
+                "kind": "scalar",
+                "type": "Boolean",
+                "description": "The `Boolean` scalar type represents `true` or `false`."
+            },
+            "OrderBy": {
+                "kind": "object",
+                "type": "OrderBy",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "key"
+                    },
+                    {
+                        "kind": "enum",
+                        "type": "OrderByDirection",
+                        "required": false,
+                        "name": "direction"
+                    }
+                ]
+            },
+            "OrderByDirection": {
+                "kind": "enum",
+                "type": "OrderByDirection",
+                "description": "The order direction of a query",
+                "values": ["Ascending", "Descending"]
+            },
+            "PaginationInputWithFilters": {
+                "kind": "object",
+                "type": "PaginationInputWithFilters",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "Int",
+                        "required": true,
+                        "name": "itemsPerPage"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Int",
+                        "required": false,
+                        "name": "itemIndex"
+                    },
+                    {
+                        "kind": "object",
+                        "type": "ColumnFilter",
+                        "required": true,
+                        "name": "filters"
+                    }
+                ]
+            },
+            "ColumnFilter": {
+                "kind": "object",
+                "type": "ColumnFilter",
+                "fields": [
+                    {
+                        "kind": "enum",
+                        "type": "ColumnFilterConditionOperator",
+                        "required": true,
+                        "name": "operator"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Boolean",
+                        "required": false,
+                        "name": "caseSensitive"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "column"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "JSON",
+                        "required": true,
+                        "name": "value"
+                    }
+                ]
+            },
+            "ColumnFilterConditionOperator": {
+                "kind": "enum",
+                "type": "ColumnFilterConditionOperator",
+                "description": "The operator of a field filter",
+                "values": [
+                    "Equal",
+                    "NotEqual",
+                    "GreaterThan",
+                    "GreaterThanOrEqual",
+                    "LessThan",
+                    "LessThanOrEqual",
+                    "Like",
+                    "NotLike",
+                    "In",
+                    "NotIn",
+                    "IsNull",
+                    "IsNotNull"
+                ]
+            },
+            "JSON": {
+                "kind": "scalar",
+                "type": "JSON",
+                "description": "The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf)."
+            },
             "PaginationInput": {
                 "kind": "object",
                 "type": "PaginationInput",
@@ -58,6 +165,41 @@
                         "type": "Int",
                         "required": false,
                         "name": "itemIndex"
+                    }
+                ]
+            },
+            "SupportTicketUpdateInput": {
+                "kind": "object",
+                "type": "SupportTicketUpdateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "id",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "title",
+                        "validation": [
+                            {
+                                "type": "maxLength",
+                                "constraints": [256]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "description"
                     }
                 ]
             },
@@ -104,23 +246,6 @@
                         "type": "SupportTicketCommentVisibility",
                         "required": false,
                         "name": "visibility"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "emailAddress",
-                        "validation": [
-                            {
-                                "type": "isEmail"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "emailName"
                     }
                 ]
             },
@@ -180,11 +305,6 @@
                         "name": "initialComment"
                     }
                 ]
-            },
-            "Boolean": {
-                "kind": "scalar",
-                "type": "Boolean",
-                "description": "The `Boolean` scalar type represents `true` or `false`."
             },
             "__TypeKind": {
                 "kind": "enum",

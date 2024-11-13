@@ -98,13 +98,13 @@ function getRegionEmoji(regionIdentifier?: string) {
 }
 
 // Function to get the region display name from a region identifier
-function getRegionDisplayName(regionIdentifier: string, gridRegions: GridRegion[]) {
+function getRegionDisplayName(regionName: string, gridRegions: GridRegion[]) {
     // Find the grid region
     const gridRegion = gridRegions.find(function (gridRegion) {
-        return gridRegion.identifier === regionIdentifier;
+        return gridRegion.name === regionName;
     });
 
-    return getRegionEmoji(gridRegion?.identifier) + ' ' + (gridRegion?.displayName || 'Unknown');
+    return getRegionEmoji(gridRegion?.name) + ' ' + (gridRegion?.displayName || 'Unknown');
 }
 
 // Component - PortChecker
@@ -171,9 +171,9 @@ export function PortChecker(properties: PortCheckerInterface) {
                     return [
                         ...previousValue,
                         `Server ${getRegionEmoji(
-                            data.taskCreatePortScan[0]?.assignments[0]?.region.identifier,
+                            data.taskCreatePortScan[0]?.assignments[0]?.region.name,
                         )} #${alphanumericStringToNumber(
-                            data.taskCreatePortScan[0]?.assignments[0]?.atlasNode.id.split('-')[0],
+                            data.taskCreatePortScan[0]?.assignments[0]?.gridNode.id.split('-')[0],
                         )} assigned to inspect port ${remotePort}...`,
                     ];
                 });
@@ -231,7 +231,7 @@ export function PortChecker(properties: PortCheckerInterface) {
             //                     "id": "1ed414e0-b614-4d23-8b7e-928a9f7578e4",
             //                     "active": true,
             //                     "attempt": 4,
-            //                     "atlasNode": {
+            //                     "gridNode": {
             //                         "id": "000dcfb0-3341-423c-b89e-4e9305585a2b",
             //                         "alias": "chicago-1",
             //                         "updatedAt": "2024-06-22T06:19:19.000Z",
@@ -250,7 +250,7 @@ export function PortChecker(properties: PortCheckerInterface) {
             //                     "id": "60fed31e-487e-40a8-b604-33eefe219d00",
             //                     "active": true,
             //                     "attempt": 3,
-            //                     "atlasNode": {
+            //                     "gridNode": {
             //                         "id": "24f22806-c7d6-4d07-9776-3f39035f3e7e",
             //                         "alias": "london-1",
             //                         "updatedAt": "2024-06-22T06:14:59.000Z",
@@ -290,7 +290,7 @@ export function PortChecker(properties: PortCheckerInterface) {
             //                         "createdAt": "2024-06-20T04:48:07.073Z",
             //                         "__typename": "Cluster"
             //                     },
-            //                     "atlasNodeId": "000dcfb0-3341-423c-b89e-4e9305585a2b",
+            //                     "gridNodeId": "000dcfb0-3341-423c-b89e-4e9305585a2b",
             //                     "type": "Error",
             //                     "ranAt": "2024-06-22T07:16:25.000Z",
             //                     "attempt": 3,
@@ -332,9 +332,9 @@ export function PortChecker(properties: PortCheckerInterface) {
                         return [
                             ...previousValue,
                             `Server ${getRegionEmoji(
-                                taskPortScanQueryResult.data.task?.assignments[0]?.region.identifier,
+                                taskPortScanQueryResult.data.task?.assignments[0]?.region.name,
                             )} #${alphanumericStringToNumber(
-                                taskPortScanQueryResult.data.task?.assignments[0]?.atlasNode.id.split('-')[0],
+                                taskPortScanQueryResult.data.task?.assignments[0]?.gridNode.id.split('-')[0],
                             )} failed to resolve host...`,
                         ];
                     });
@@ -363,9 +363,9 @@ export function PortChecker(properties: PortCheckerInterface) {
                         return [
                             ...previousValue,
                             `Server ${getRegionEmoji(
-                                taskPortScanQueryResult.data.task?.assignments[0]?.region.identifier,
+                                taskPortScanQueryResult.data.task?.assignments[0]?.region.name,
                             )} #${alphanumericStringToNumber(
-                                taskPortScanQueryResult.data.task?.assignments[0]?.atlasNode.id.split('-')[0],
+                                taskPortScanQueryResult.data.task?.assignments[0]?.gridNode.id.split('-')[0],
                             )} reports port ${port} open...`,
                         ];
                     });
@@ -388,9 +388,9 @@ export function PortChecker(properties: PortCheckerInterface) {
                         return [
                             ...previousValue,
                             `Server ${getRegionEmoji(
-                                taskPortScanQueryResult.data.task?.assignments[0]?.region.identifier,
+                                taskPortScanQueryResult.data.task?.assignments[0]?.region.name,
                             )} #${alphanumericStringToNumber(
-                                taskPortScanQueryResult.data.task?.assignments[0]?.atlasNode.id.split('-')[0],
+                                taskPortScanQueryResult.data.task?.assignments[0]?.gridNode.id.split('-')[0],
                             )} reports port ${port} closed...`,
                         ];
                     });
@@ -516,14 +516,13 @@ export function PortChecker(properties: PortCheckerInterface) {
                                 items={
                                     gridRegionsQueryState.data?.gridRegions.map(function (gridRegion) {
                                         return {
-                                            value: gridRegion.identifier,
-                                            content:
-                                                getRegionEmoji(gridRegion.identifier) + ' ' + gridRegion.displayName,
+                                            value: gridRegion.name,
+                                            content: getRegionEmoji(gridRegion.name) + ' ' + gridRegion.displayName,
                                         };
                                     }) || []
                                 }
                                 placeholder="Loading regions..."
-                                defaultValue={gridRegionsQueryState.data?.gridRegions[0]?.identifier}
+                                defaultValue={gridRegionsQueryState.data?.gridRegions[0]?.name}
                             />
                         </div>
 

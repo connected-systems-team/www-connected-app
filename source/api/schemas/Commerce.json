@@ -4,7 +4,7 @@
             "PaymentMethodType": {
                 "kind": "enum",
                 "type": "PaymentMethodType",
-                "values": ["CreditCard"]
+                "values": ["CreditCard", "AppleInAppPurchase"]
             },
             "PaymentProcessorType": {
                 "kind": "enum",
@@ -482,7 +482,7 @@
                     {
                         "kind": "object",
                         "type": "StreetAddressInput",
-                        "required": true,
+                        "required": false,
                         "name": "shippingAddress"
                     },
                     {
@@ -1221,6 +1221,12 @@
                         "name": "taxCode"
                     },
                     {
+                        "kind": "scalar",
+                        "type": "Boolean",
+                        "required": false,
+                        "name": "isVirtual"
+                    },
+                    {
                         "kind": "enum",
                         "type": "ProductVariantInventoryPolicy",
                         "required": true,
@@ -1580,6 +1586,12 @@
                         "name": "taxCode"
                     },
                     {
+                        "kind": "scalar",
+                        "type": "Boolean",
+                        "required": false,
+                        "name": "isVirtual"
+                    },
+                    {
                         "kind": "enum",
                         "type": "ProductVariantInventoryPolicy",
                         "required": false,
@@ -1636,7 +1648,7 @@
                     },
                     {
                         "kind": "object",
-                        "type": "ProductVariantAttributeInput",
+                        "type": "UpdateProductVariantAttributeInput",
                         "required": true,
                         "name": "attributes"
                     },
@@ -1650,6 +1662,24 @@
                                 "type": "isBoolean"
                             }
                         ]
+                    }
+                ]
+            },
+            "UpdateProductVariantAttributeInput": {
+                "kind": "object",
+                "type": "UpdateProductVariantAttributeInput",
+                "fields": [
+                    {
+                        "kind": "object",
+                        "type": "ProductVariantAttributeInput",
+                        "required": true,
+                        "name": "attributeToUpsert"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "idToDelete"
                     }
                 ]
             },

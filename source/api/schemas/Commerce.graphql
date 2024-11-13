@@ -61,7 +61,7 @@ type CommerceCheckoutSession {
     externalMetadata: JSON
     failedCount: Float!
     id: String!
-    orders: [CommerceOrder!]!
+    orders: [CommerceOrder!]
     status: CommerceCheckoutSessionStatus!
 }
 
@@ -86,6 +86,7 @@ type CommerceOrder {
     createdAt: DateTimeISO!
     discounts: [Discount!]
     emailAddress: String!
+    fulfillmentSource: String
     fulfillmentStatus: CommerceOrderFulfillmentStatus!
     holdOnShipping: Boolean!
     id: String!
@@ -98,7 +99,7 @@ type CommerceOrder {
     paymentStatus: PaymentStatus
     priceInfo: CommerceOrderPrice!
     shipments: [Shipment!]
-    shippingInfo: CommerceOrderShippingInfo!
+    shippingInfo: CommerceOrderShippingInfo
     source: String!
     status: CommerceOrderStatus!
     statusDescription: String
@@ -252,7 +253,7 @@ input CreateOrderInput {
     lineItems: [OrderLineItemInput!]!
     metadata: JSON
     paymentMethod: CreateOrderPaymentMethodInput
-    shippingAddress: StreetAddressInput!
+    shippingAddress: StreetAddressInput
 }
 
 input CreateOrderPaymentMethodInput {
@@ -288,6 +289,7 @@ input CreateProductVariantInput {
     description: String
     gtin: String
     inventoryPolicy: ProductVariantInventoryPolicy!
+    isVirtual: Boolean
     name: String!
     position: Float
     price: ProductVariantPriceInput
@@ -529,6 +531,7 @@ type Mutation {
         tier: AddressBookEntryTier
     ): AddressBookEntry!
     commerceCartUpdate(items: [ShoppingBagItemInput!]!): ShoppingBag!
+    commerceCheckoutSessionCancel(id: String!): Boolean!
     commerceCheckoutSessionCreate(input: CommerceCheckoutSessionCreateInput!): CommerceCheckoutSession!
     commerceCheckoutSessionRefreshStatus(id: String!): CommerceCheckoutSession!
     commerceDiscountCreate(input: CreateDiscountInput!): Discount!
@@ -641,6 +644,12 @@ interface PaymentMethod {
     type: PaymentMethodType!
 }
 
+type PaymentMethodAppleInAppPurchase implements PaymentMethod {
+    externalResourceId: String
+    paymentProcessorType: PaymentProcessorType!
+    type: PaymentMethodType!
+}
+
 type PaymentMethodCreditCard implements PaymentMethod {
     billingAddress: StreetAddressObject!
     cardType: CreditCardType!
@@ -668,6 +677,7 @@ input PaymentMethodInputCreditCard {
 }
 
 enum PaymentMethodType {
+    AppleInAppPurchase
     CreditCard
 }
 
@@ -756,6 +766,7 @@ type ProductVariant {
     gtin: String
     id: String!
     inventoryPolicy: ProductVariantInventoryPolicy!
+    isVirtual: Boolean!
     name: String!
     position: Float
     price: ProductVariantPriceObject!
@@ -784,7 +795,9 @@ enum ProductVariantAttributeKey {
 }
 
 type ProductVariantAttributeObject {
+    createdAt: DateTimeISO!
     displayName: String!
+    id: String!
     key: ProductVariantAttributeKey!
     metadata: JSON
     value: String!
@@ -878,6 +891,7 @@ type Query {
     commerceAddressBookEntries: [AddressBookEntry!]!
     commerceCart: ShoppingBag!
     commerceCheckoutSession(id: String!): CommerceCheckoutSession!
+    commerceCheckoutSessionLatest: CommerceCheckoutSession!
     commerceDiscountRules(input: PaginationInputWithFilters): PaginationDiscountRuleResult!
     commerceDiscounts(input: PaginationInputWithFilters): PaginationDiscountResult!
     commerceOrder(emailAddress: String, identifier: String!): CommerceOrderResult!
@@ -902,7 +916,7 @@ type Query {
     commerceVendor(id: String, identifier: String): Vendor!
     commerceVendors(input: PaginationInputWithFilters): VendorsResult!
     commerceWalletEntries: [WalletEntry!]!
-    warehouse: Warehouse!
+    warehouse(id: String!): Warehouse!
     warehouses: [Warehouse!]!
 }
 
@@ -917,8 +931,8 @@ input QueryShipmentBatchInput {
 type Shipment {
     cancelledAt: DateTimeISO
     createdAt: DateTimeISO!
-    createdByAccountId: String!
-    createdByProfileId: String!
+    createdByAccountId: String
+    createdByProfileId: String
     deliveredAt: DateTimeISO
     deliveryStatus: DeliveryStatus!
     id: String!
@@ -1122,13 +1136,19 @@ input UpdateProductInput {
     updatedVariants: [UpdateProductVariantInput!]
 }
 
+input UpdateProductVariantAttributeInput {
+    attributeToUpsert: ProductVariantAttributeInput!
+    idToDelete: String
+}
+
 input UpdateProductVariantInput {
-    attributes: [ProductVariantAttributeInput!]
+    attributes: [UpdateProductVariantAttributeInput!]
     barcode: String
     description: String
     gtin: String
     id: String!
     inventoryPolicy: ProductVariantInventoryPolicy
+    isVirtual: Boolean
     name: String
     position: Float
     price: ProductVariantPriceInput

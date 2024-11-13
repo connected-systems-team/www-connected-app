@@ -14,16 +14,14 @@ mutation TaskCreatePortScan($input: TaskPortScanInput!) {
         maxAttempts
         assignments {
             id
-            active
             attempt
-            atlasNode {
+            gridNode {
                 id
-                alias
                 updatedAt
                 createdAt
             }
             region {
-                identifier
+                name
             }
             updatedAt
             createdAt
@@ -35,9 +33,8 @@ mutation TaskCreatePortScan($input: TaskPortScanInput!) {
             regionId
             region {
                 id
-                identifier
+                name
                 displayName
-                active
                 updatedAt
                 createdAt
             }
@@ -45,11 +42,10 @@ mutation TaskCreatePortScan($input: TaskPortScanInput!) {
             cluster {
                 id
                 name
-                active
                 updatedAt
                 createdAt
             }
-            atlasNodeId
+            gridNodeId
             type
             ranAt
             attempt
@@ -81,16 +77,14 @@ query TaskPortScan($input: TaskInput!) {
         maxAttempts
         assignments {
             id
-            active
             attempt
-            atlasNode {
+            gridNode {
                 id
-                alias
                 updatedAt
                 createdAt
             }
             region {
-                identifier
+                name
             }
             updatedAt
             createdAt
@@ -102,9 +96,8 @@ query TaskPortScan($input: TaskInput!) {
             regionId
             region {
                 id
-                identifier
+                name
                 displayName
-                active
                 updatedAt
                 createdAt
             }
@@ -112,11 +105,10 @@ query TaskPortScan($input: TaskInput!) {
             cluster {
                 id
                 name
-                active
                 updatedAt
                 createdAt
             }
-            atlasNodeId
+            gridNodeId
             type
             ranAt
             attempt
@@ -136,9 +128,8 @@ query TaskPortScan($input: TaskInput!) {
 query GridRegions {
     gridRegions {
         id
-        identifier
+        name
         displayName
-        active
         updatedAt
         createdAt
     }
