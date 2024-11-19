@@ -531,7 +531,7 @@ type Mutation {
         tier: AddressBookEntryTier
     ): AddressBookEntry!
     commerceCartUpdate(items: [ShoppingBagItemInput!]!): ShoppingBag!
-    commerceCheckoutSessionCancel(id: String!): Boolean!
+    commerceCheckoutSessionCancel(id: String!): OperationResult!
     commerceCheckoutSessionCreate(input: CommerceCheckoutSessionCreateInput!): CommerceCheckoutSession!
     commerceCheckoutSessionRefreshStatus(id: String!): CommerceCheckoutSession!
     commerceDiscountCreate(input: CreateDiscountInput!): Discount!
@@ -544,7 +544,7 @@ type Mutation {
     commerceOrderCreate(input: CreateOrderInput!, paymentRequired: Boolean): CommerceOrder!
     commerceOrderSetPayment(input: MakePaymentToOrderInput!): CommerceOrder!
     commerceProductBundleCreate(input: CreateProductBundleInput!): ProductBundle!
-    commerceProductBundleDelete(id: String!): Boolean!
+    commerceProductBundleDelete(id: String!): OperationResult!
     commerceProductBundleUpdate(input: UpdateProductBundleInput!): ProductBundle!
     commerceProductCreate(input: CreateProductInput!): Product!
     commerceProductUpdate(input: UpdateProductInput!): Product!
@@ -556,7 +556,7 @@ type Mutation {
     commerceShoppingBagUpsert(input: UpsertShoppingBagInput!): ShoppingBag!
     commerceVendorCreate(input: CreateVendorInput!): Vendor!
     commerceVendorUpdate(input: UpdateVendorInput!): Vendor!
-    commerceWalletEntryDelete(id: String!): Boolean!
+    commerceWalletEntryDelete(id: String!): OperationResult!
     commerceWalletEntryUpsert(input: UpsertWalletEntryInput!): WalletEntry!
     productVariantRemoveGalleryAsset(assetId: String!, id: String!): ProductVariant!
     productVariantReorderGallery(assetIds: [String!]!, id: String!): ProductVariant!
@@ -566,6 +566,23 @@ type Mutation {
     warehouseInventoryDelete(id: String!): String!
     warehouseInventoryUpdate(input: WarehouseInventoryUpdateInput!): WarehouseInventory!
     warehouseUpdate(input: WarehouseUpdateInput!): Warehouse!
+}
+
+type OperationResult {
+    success: Boolean!
+}
+
+input OrderBy {
+    direction: OrderByDirection
+    key: String!
+}
+
+"""
+The order direction of a query
+"""
+enum OrderByDirection {
+    Ascending
+    Descending
 }
 
 input OrderLineItemInput {
@@ -895,8 +912,10 @@ type Query {
     commerceDiscountRules(input: PaginationInputWithFilters): PaginationDiscountRuleResult!
     commerceDiscounts(input: PaginationInputWithFilters): PaginationDiscountResult!
     commerceOrder(emailAddress: String, identifier: String!): CommerceOrderResult!
+    commerceOrderAdmin(id: String!): CommerceOrder!
     commerceOrderPriceEstimate(input: EstimateOrderPriceInput!): CommerceOrderPrice!
     commerceOrders(input: PaginationInputWithFilters): PaginationOrderResult!
+    commerceOrdersAdmin(input: PaginationInputWithFilters, orderBy: OrderBy): PaginationOrderResult!
     commerceOrdersByGroupIdentifier(emailAddress: String, identifier: String!): [CommerceOrderResult!]!
     commerceOrdersReadyToFulfill(input: PaginationInput): PaginationFulfillmentOrderResult!
     commerceOrdersReadyToShip(input: PaginationInput): PaginationFulfillmentOrderResult!

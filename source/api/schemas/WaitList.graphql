@@ -10,10 +10,14 @@ scalar DateTimeISO
 
 type Mutation {
     waitListCreate(data: WaitListCreationInput!): WaitList!
-    waitListDelete(forceDelete: Boolean, id: String!): Boolean!
+    waitListDelete(forceDelete: Boolean, id: String!): OperationResult!
     waitListEntryCreate(emailAddress: String!, waitListIdentifier: String!): WaitListEntry!
-    waitListEntryDelete(emailAddress: String, id: String, waitListIdentifier: String): Boolean!
+    waitListEntryDelete(emailAddress: String, id: String, waitListIdentifier: String): OperationResult!
     waitListUpdate(data: WaitListUpdateInput!): WaitList!
+}
+
+type OperationResult {
+    success: Boolean!
 }
 
 type Pagination {

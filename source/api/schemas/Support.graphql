@@ -33,6 +33,12 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `dat
 """
 scalar DateTimeISO
 
+type ImageObject {
+    type: MediaObjectType!
+    url: String!
+    variant: String
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -51,14 +57,11 @@ enum MediaObjectType {
 }
 
 type Mutation {
+    supportTicketAssign(ticketId: String!, username: String): SupportTicket!
     supportTicketCommentCreateAdmin(input: SupportTicketCommentCreateInput!): SupportTicketComment!
     supportTicketCreate(input: SupportTicketCreateInput!): SupportTicket!
     supportTicketUpdateAdmin(input: SupportTicketUpdateInput!): SupportTicket!
-    supportTicketUpdateStatusAdmin(
-        comment: SupportTicketCommentCreateInput
-        id: String!
-        status: SupportTicketStatus!
-    ): SupportTicket!
+    supportTicketUpdateStatusAdmin(id: String!, status: SupportTicketStatus!): SupportTicket!
 }
 
 input OrderBy {
@@ -100,7 +103,15 @@ type PaginationSupportTicketResult {
     pagination: Pagination
 }
 
+type PublicProfile {
+    createdAt: DateTimeISO
+    displayName: String
+    imageUrls: [ImageObject!]
+    username: String!
+}
+
 type Query {
+    supportAllSupportProfiles: [PublicProfile!]!
     supportTickets(pagination: PaginationInput): PaginationSupportTicketResult!
     supportTicketsAdmin(orderBy: OrderBy, pagination: PaginationInputWithFilters): PaginationSupportTicketResult!
 }
@@ -117,6 +128,8 @@ enum RichContentFormat {
 type SupportTicket {
     answered: Boolean!
     answeredAt: DateTimeISO
+    assignedToProfile: PublicProfile
+    assignedToProfileId: String
     attachments: [MediaObject!]
     comments: [SupportTicketComment!]!
     createdAt: DateTimeISO!

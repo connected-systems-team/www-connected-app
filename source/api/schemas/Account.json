@@ -40,6 +40,58 @@
                 "description": "The status of an access role for an account/profile",
                 "values": ["Active", "Expired", "Revoked"]
             },
+            "MediaObjectType": {
+                "kind": "enum",
+                "type": "MediaObjectType",
+                "values": ["Image", "Video", "File"]
+            },
+            "OrderBy": {
+                "kind": "object",
+                "type": "OrderBy",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "key"
+                    },
+                    {
+                        "kind": "enum",
+                        "type": "OrderByDirection",
+                        "required": false,
+                        "name": "direction"
+                    }
+                ]
+            },
+            "OrderByDirection": {
+                "kind": "enum",
+                "type": "OrderByDirection",
+                "description": "The order direction of a query",
+                "values": ["Ascending", "Descending"]
+            },
+            "Int": {
+                "kind": "scalar",
+                "type": "Int",
+                "description": "The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
+            },
+            "PaginationInput": {
+                "kind": "object",
+                "type": "PaginationInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "Int",
+                        "required": true,
+                        "name": "itemsPerPage"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Int",
+                        "required": false,
+                        "name": "itemIndex"
+                    }
+                ]
+            },
             "EmailVerificationStatus": {
                 "kind": "enum",
                 "type": "EmailVerificationStatus",
@@ -62,11 +114,6 @@
                 "type": "Float",
                 "description": "The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point)."
             },
-            "MediaObjectType": {
-                "kind": "enum",
-                "type": "MediaObjectType",
-                "values": ["Image", "Video", "File"]
-            },
             "AccountSessionStatus": {
                 "kind": "enum",
                 "type": "AccountSessionStatus",
@@ -86,12 +133,7 @@
                         "kind": "scalar",
                         "type": "DateTimeISO",
                         "required": false,
-                        "name": "expiresAt",
-                        "validation": [
-                            {
-                                "type": "isDateString"
-                            }
-                        ]
+                        "name": "expiresAt"
                     },
                     {
                         "kind": "scalar",
@@ -102,35 +144,19 @@
                     {
                         "kind": "scalar",
                         "type": "String",
-                        "required": false,
-                        "name": "accountId",
-                        "validation": [
-                            {
-                                "type": "isUuid"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "profileId",
-                        "validation": [
-                            {
-                                "type": "isUuid"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
+                        "required": true,
                         "name": "emailAddress",
                         "validation": [
                             {
                                 "type": "isEmail"
                             }
                         ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "username"
                     }
                 ]
             },

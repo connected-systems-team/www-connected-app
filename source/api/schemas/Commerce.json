@@ -102,81 +102,6 @@
                     }
                 ]
             },
-            "Decimal": {
-                "kind": "scalar",
-                "type": "Decimal",
-                "description": "Decimal custom scalar type"
-            },
-            "JSON": {
-                "kind": "scalar",
-                "type": "JSON",
-                "description": "The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf)."
-            },
-            "PaginationInput": {
-                "kind": "object",
-                "type": "PaginationInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": true,
-                        "name": "itemsPerPage"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": false,
-                        "name": "itemIndex"
-                    }
-                ]
-            },
-            "MonetaryDecimal": {
-                "kind": "scalar",
-                "type": "MonetaryDecimal",
-                "description": "Monetary decimal custom scalar type, we stored and operate the value in cents, and this scalar will convert the value to dollar when read and convert the value to cents when write."
-            },
-            "EstimateOrderPriceInput": {
-                "kind": "object",
-                "type": "EstimateOrderPriceInput",
-                "fields": [
-                    {
-                        "kind": "object",
-                        "type": "OrderLineItemInput",
-                        "required": true,
-                        "name": "lineItems"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "StreetAddressInput",
-                        "required": false,
-                        "name": "shippingAddress"
-                    }
-                ]
-            },
-            "OrderLineItemInput": {
-                "kind": "object",
-                "type": "OrderLineItemInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": true,
-                        "name": "indexId"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": true,
-                        "name": "quantity"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "productVariantId"
-                    }
-                ]
-            },
             "CommerceOrderStatus": {
                 "kind": "enum",
                 "type": "CommerceOrderStatus",
@@ -203,6 +128,16 @@
                 "type": "CommerceOrderFulfillmentStatus",
                 "description": "The fulfillment status of the order",
                 "values": ["NotStart", "Unfulfilled", "PartiallyFulfilled", "Fulfilled", "Shipped", "Cancelled"]
+            },
+            "MonetaryDecimal": {
+                "kind": "scalar",
+                "type": "MonetaryDecimal",
+                "description": "Monetary decimal custom scalar type, we stored and operate the value in cents, and this scalar will convert the value to dollar when read and convert the value to cents when write."
+            },
+            "JSON": {
+                "kind": "scalar",
+                "type": "JSON",
+                "description": "The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf)."
             },
             "CommerceOrderLineItemStatus": {
                 "kind": "enum",
@@ -286,6 +221,30 @@
                     "USPSMediaMail"
                 ]
             },
+            "OrderBy": {
+                "kind": "object",
+                "type": "OrderBy",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "key"
+                    },
+                    {
+                        "kind": "enum",
+                        "type": "OrderByDirection",
+                        "required": false,
+                        "name": "direction"
+                    }
+                ]
+            },
+            "OrderByDirection": {
+                "kind": "enum",
+                "type": "OrderByDirection",
+                "description": "The order direction of a query",
+                "values": ["Ascending", "Descending"]
+            },
             "PaginationInputWithFilters": {
                 "kind": "object",
                 "type": "PaginationInputWithFilters",
@@ -357,6 +316,71 @@
                     "NotIn",
                     "IsNull",
                     "IsNotNull"
+                ]
+            },
+            "Decimal": {
+                "kind": "scalar",
+                "type": "Decimal",
+                "description": "Decimal custom scalar type"
+            },
+            "PaginationInput": {
+                "kind": "object",
+                "type": "PaginationInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "Int",
+                        "required": true,
+                        "name": "itemsPerPage"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Int",
+                        "required": false,
+                        "name": "itemIndex"
+                    }
+                ]
+            },
+            "EstimateOrderPriceInput": {
+                "kind": "object",
+                "type": "EstimateOrderPriceInput",
+                "fields": [
+                    {
+                        "kind": "object",
+                        "type": "OrderLineItemInput",
+                        "required": true,
+                        "name": "lineItems"
+                    },
+                    {
+                        "kind": "object",
+                        "type": "StreetAddressInput",
+                        "required": false,
+                        "name": "shippingAddress"
+                    }
+                ]
+            },
+            "OrderLineItemInput": {
+                "kind": "object",
+                "type": "OrderLineItemInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "Int",
+                        "required": true,
+                        "name": "indexId"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Int",
+                        "required": true,
+                        "name": "quantity"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "productVariantId"
+                    }
                 ]
             },
             "CommerceCheckoutSessionStatus": {
