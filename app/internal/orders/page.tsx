@@ -1,7 +1,7 @@
-// Dependencies - Next.js
+// Dependencies - React and Next.js
 import { Metadata } from 'next';
 
-// Next.js Metadata
+// Metadata
 export async function generateMetadata(): Promise<Metadata> {
     return {
         title: 'Orders • Internal',
@@ -9,4 +9,4 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 // Shim the default export from Structure
-export { default } from '@structure/source/internal/pages/orders/OrdersPage';
+export { default } from '@structure/source/modules/commerce/pages/internal/OrdersPage';
