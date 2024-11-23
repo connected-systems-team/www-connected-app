@@ -16,9 +16,9 @@ import { About } from '@project/app/(main-layout)/port-checker/About';
 import { useWebSocket } from '@structure/source/api/web-sockets/hooks/useWebSocket';
 
 // Dependencies - Types
-import { WebSocketEvent } from '@project/source/api/sockets/WebSocketMessage';
-import { TaskResultInterface } from '@project/source/api/sockets/TaskResultInterface';
-import { TaskAssigned, TaskCheckedIn, TaskRunning } from '@project/source/api/sockets/UserWebSocketEvents';
+import { WebSocketEvent } from '@structure/source/api/web-sockets/types/WebSocketMessage';
+import { TaskResultInterface } from '@project/source/api/web-sockets/TaskResultInterface';
+import { TaskAssigned, TaskCheckedIn, TaskRunning } from '@project/source/api/web-sockets/UserWebSocketEvents';
 
 // Dependencies - API
 import { useMutation, useApolloClient } from '@apollo/client';
