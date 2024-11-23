@@ -120,6 +120,7 @@ export function PortChecker(properties: PortCheckerInterface) {
     // Effect to handle WebSocket messages
     React.useEffect(
         function () {
+            console.log('[WebSocket Effect] Setting up handler');
             const removeHandler = addMessageHandler((event: WebSocketEvent) => {
                 console.log('[WebSocket] Received message:', event.type);
 
@@ -138,6 +139,15 @@ export function PortChecker(properties: PortCheckerInterface) {
                 }
 
                 console.log('[WebSocket] Message for task:', taskId);
+
+                // If we get a WebSocket message for our task while polling, stop polling
+                if(taskId === currentTaskCreatePortScanIdReference.current && usingFallback) {
+                    console.log('[WebSocket] Received message while polling, stopping polling');
+                    setUsingFallback(false);
+                    if(fallbackTimeoutReference.current) {
+                        clearTimeout(fallbackTimeoutReference.current);
+                    }
+                }
 
                 // Update last message time for our task
                 if(taskId === currentTaskCreatePortScanIdReference.current) {
@@ -203,7 +213,7 @@ export function PortChecker(properties: PortCheckerInterface) {
                 removeHandler();
             };
         },
-        [addMessageHandler],
+        [addMessageHandler, usingFallback], // Add usingFallback to dependencies
     );
 
     // Add helper function to handle task results
