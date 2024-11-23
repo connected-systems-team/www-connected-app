@@ -13,7 +13,7 @@ import { PortCheckStatusAnimatedList } from './PortCheckStatusAnimatedList';
 import { About } from '@project/app/(main-layout)/port-checker/About';
 
 // Dependencies - Hooks
-import { useWebSocket } from '@project/source/api/sockets/hooks/useWebSocket';
+import { useWebSocket } from '@structure/source/api/web-sockets/hooks/useWebSocket';
 
 // Dependencies - Types
 import { WebSocketEvent } from '@project/source/api/sockets/WebSocketMessage';
