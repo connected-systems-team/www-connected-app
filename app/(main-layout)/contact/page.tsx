@@ -1,12 +1,14 @@
-// Dependencies - Next.js
-import { Metadata } from 'next';
+// Dependencies - Main Components
+import { ContactPage } from '@structure/source/modules/support/pages/contact/ContactPage';
 
-// Metadata
-export async function generateMetadata(): Promise<Metadata> {
+// Next.js Metadata
+export async function generateMetadata() {
     return {
         title: 'Contact',
     };
 }
 
-// Page - Home
-export { default } from '@project/app/(main-layout)/contact/ContactPage';
+// Export - Default
+export default function Page() {
+    return <ContactPage />;
+}
