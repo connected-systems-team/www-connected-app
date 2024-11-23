@@ -3,6 +3,7 @@ import React from 'react';
 import { headers } from 'next/headers';
 
 // Dependencies - Main Components
+import { AuthorizationLayout } from '@structure/source/layouts/AuthorizationLayout';
 import { PortChecker } from '@project/app/(main-layout)/port-checker/PortChecker';
 
 // Component - HomePage
@@ -12,9 +13,11 @@ export function HomePage() {
 
     // Render the component
     return (
-        <div className="container flex w-full items-center justify-center pt-8">
-            <PortChecker publicIpAddress={publicIpAddress ?? undefined} />
-        </div>
+        <AuthorizationLayout>
+            <div className="container flex w-full items-center justify-center pt-8">
+                <PortChecker publicIpAddress={publicIpAddress ?? undefined} />
+            </div>
+        </AuthorizationLayout>
     );
 }
 
