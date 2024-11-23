@@ -5,11 +5,11 @@ import React from 'react';
 
 // Dependencies - Main Components
 import { FormInputReferenceInterface } from '@structure/source/common/forms/FormInput';
-import { PortCheckForm } from '@project/app/(main-layout)/home/port-checker/PortCheckForm';
-import { CommonPorts } from '@project/app/(main-layout)/home/port-checker/CommonPorts';
-import { YourPublicIpAddress } from '@project/app/(main-layout)/home/port-checker/YourPublicIpAddress';
-import { PortCheckStatusAnimatedList } from './port-checker/PortCheckStatusAnimatedList';
-import { About } from '@project/app/(main-layout)/home/port-checker/About';
+import { PortCheckForm } from '@project/app/(main-layout)/port-checker/PortCheckForm';
+import { CommonPorts } from '@project/app/(main-layout)/port-checker/CommonPorts';
+import { YourPublicIpAddress } from '@project/app/(main-layout)/port-checker/YourPublicIpAddress';
+import { PortCheckStatusAnimatedList } from './PortCheckStatusAnimatedList';
+import { About } from '@project/app/(main-layout)/port-checker/About';
 
 // Dependencies - Types
 import { TaskResultInterface } from '@project/source/api/sockets/TaskResultInterface';
@@ -24,7 +24,7 @@ import { useMutation, useApolloClient } from '@apollo/client';
 import { TaskCreatePortScanDocument, TaskPortScanDocument } from '@project/source/api/GraphQlGeneratedCode';
 
 // Dependencies - Utilities
-import { getRegionEmoji, alphanumericStringToNumber } from '@project/app/(main-layout)/home/port-checker/Region';
+import { getRegionEmoji, alphanumericStringToNumber } from '@project/app/(main-layout)/port-checker/Region';
 
 // Component - PortChecker
 export interface PortCheckerInterface {

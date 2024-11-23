@@ -16,7 +16,7 @@ import { GridRegionsDocument } from '@project/source/api/GraphQlGeneratedCode';
 import ArrowUpIcon from '@structure/assets/icons/interface/ArrowUpIcon.svg';
 
 // Dependencies - Utilities
-import { getRegionEmoji, getRegionDisplayName } from '@project/app/(main-layout)/home/port-checker/Region';
+import { getRegionEmoji, getRegionDisplayName } from '@project/app/(main-layout)/port-checker/Region';
 
 // Component - PortCheckForm
 export interface PortCheckFormInterface {

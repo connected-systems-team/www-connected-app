@@ -3,7 +3,7 @@ import React from 'react';
 import { headers } from 'next/headers';
 
 // Dependencies - Main Components
-import { PortChecker } from './PortChecker';
+import { PortChecker } from '@project/app/(main-layout)/port-checker/PortChecker';
 
 // Component - HomePage
 export function HomePage() {
