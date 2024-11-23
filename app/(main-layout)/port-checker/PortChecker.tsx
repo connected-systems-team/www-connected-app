@@ -12,13 +12,13 @@ import { YourPublicIpAddress } from '@project/app/(main-layout)/port-checker/You
 import { PortCheckStatusAnimatedList } from './PortCheckStatusAnimatedList';
 import { About } from '@project/app/(main-layout)/port-checker/About';
 
-// Dependencies - Types
-import { TaskResultInterface } from '@project/source/api/sockets/TaskResultInterface';
-import { WebSocketEvent } from '@project/source/api/sockets/WebSocketMessage';
-import { TaskAssigned, TaskCheckedIn, TaskRunning } from '@project/source/api/sockets/UserWebSocketEvents';
-
 // Dependencies - Hooks
 import { useWebSocket } from '@project/source/api/sockets/hooks/useWebSocket';
+
+// Dependencies - Types
+import { WebSocketEvent } from '@project/source/api/sockets/WebSocketMessage';
+import { TaskResultInterface } from '@project/source/api/sockets/TaskResultInterface';
+import { TaskAssigned, TaskCheckedIn, TaskRunning } from '@project/source/api/sockets/UserWebSocketEvents';
 
 // Dependencies - API
 import { useMutation, useApolloClient } from '@apollo/client';
@@ -40,8 +40,6 @@ export function PortChecker(properties: PortCheckerInterface) {
     // Hooks
     const apolloClient = useApolloClient();
     const [taskCreatePortScanMutation] = useMutation(TaskCreatePortScanDocument);
-
-    // Add WebSocket hook
     const { isConnected, addMessageHandler } = useWebSocket();
 
     // References
@@ -54,12 +52,15 @@ export function PortChecker(properties: PortCheckerInterface) {
     const websocketTimeoutReference = React.useRef<NodeJS.Timeout>();
     const fallbackTimeoutReference = React.useRef<NodeJS.Timeout>();
     const totalTimeoutReference = React.useRef<NodeJS.Timeout>();
+    const lastWebSocketMessageTimeReference = React.useRef<number>(0);
+    const isCheckingPortReference = React.useRef<boolean>(false); // Add this reference
 
     // Function to clean up all timeouts
     function cleanupTimeouts() {
-        if(websocketTimeoutReference.current) clearTimeout(websocketTimeoutReference.current);
+        if(websocketTimeoutReference.current) clearInterval(websocketTimeoutReference.current);
         if(fallbackTimeoutReference.current) clearTimeout(fallbackTimeoutReference.current);
         if(totalTimeoutReference.current) clearTimeout(totalTimeoutReference.current);
+        setUsingFallback(false); // Reset fallback state
     }
 
     // Function to poll task port scan
@@ -72,6 +73,7 @@ export function PortChecker(properties: PortCheckerInterface) {
         console.log('Polling task:', currentTaskCreatePortScanIdReference.current);
 
         try {
+            // Query the task
             const taskPortScanQueryResult = await apolloClient.query({
                 query: TaskPortScanDocument,
                 variables: {
@@ -81,11 +83,12 @@ export function PortChecker(properties: PortCheckerInterface) {
                 },
                 fetchPolicy: 'no-cache',
             });
-
             const task = taskPortScanQueryResult.data.task;
+
+            // Check if we received task data
             if(!task) {
                 console.log('No task data received');
-                if(usingFallback) {
+                if(checkingPort) {
                     fallbackTimeoutReference.current = setTimeout(pollTaskPortScan, 2000);
                 }
                 return;
@@ -93,19 +96,22 @@ export function PortChecker(properties: PortCheckerInterface) {
 
             console.log('Poll result:', task.state, task.results?.[0]?.result[0]);
 
+            // Handle task result
             if(task.state === 'Succeeded' || task.results?.[0]?.result[0]?.error) {
                 handleTaskResult(task.results[0] as TaskResultInterface);
-                setCheckingPort(false);
                 cleanupTimeouts();
+                setCheckingPort(false);
+                isCheckingPortReference.current = false;
+                setUsingFallback(false);
             }
-            else if(usingFallback && checkingPort) {
-                // Continue polling if we're in fallback mode and still checking
+            else if(checkingPort) {
+                // Continue polling if we're still checking
                 fallbackTimeoutReference.current = setTimeout(pollTaskPortScan, 2000);
             }
         }
         catch(error) {
             console.error('Polling error:', error);
-            if(usingFallback && checkingPort) {
+            if(checkingPort) {
                 fallbackTimeoutReference.current = setTimeout(pollTaskPortScan, 2000);
             }
         }
@@ -115,11 +121,44 @@ export function PortChecker(properties: PortCheckerInterface) {
     React.useEffect(
         function () {
             const removeHandler = addMessageHandler((event: WebSocketEvent) => {
-                if(!currentTaskCreatePortScanIdReference.current) return;
+                console.log('[WebSocket] Received message:', event.type);
 
-                // Clear websocket timeout since we received a message
-                if(websocketTimeoutReference.current) {
-                    clearTimeout(websocketTimeoutReference.current);
+                // Get taskId based on event type
+                let taskId: string | undefined;
+                switch(event.type) {
+                    case 'taskAssigned':
+                        taskId = (event as TaskAssigned).taskId;
+                        break;
+                    case 'taskRunning':
+                        taskId = (event as TaskRunning).taskId;
+                        break;
+                    case 'taskCheckedIn':
+                        taskId = (event as TaskCheckedIn).taskId;
+                        break;
+                }
+
+                console.log('[WebSocket] Message for task:', taskId);
+
+                // Update last message time for our task
+                if(taskId === currentTaskCreatePortScanIdReference.current) {
+                    console.log('[WebSocket] Updating last message time for our task');
+                    lastWebSocketMessageTimeReference.current = Date.now();
+                }
+
+                if(!currentTaskCreatePortScanIdReference.current) {
+                    console.log('[WebSocket] No current task ID, ignoring message');
+                    return;
+                }
+
+                // Only clear timeout if the message is for our current task
+                if(taskId === currentTaskCreatePortScanIdReference.current) {
+                    if(websocketTimeoutReference.current) {
+                        console.log('[WebSocket] Clearing timeout for matching task ID');
+                        clearTimeout(websocketTimeoutReference.current);
+                    }
+                }
+                else {
+                    console.log('[WebSocket] Message for different task, keeping timeout');
                 }
 
                 switch(event.type) {
@@ -151,15 +190,17 @@ export function PortChecker(properties: PortCheckerInterface) {
                         const checkedInEvent = event as TaskCheckedIn;
                         if(checkedInEvent.taskId === currentTaskCreatePortScanIdReference.current) {
                             handleTaskResult(checkedInEvent.result);
+                            cleanupTimeouts();
                             setCheckingPort(false);
+                            isCheckingPortReference.current = false;
+                            setUsingFallback(false);
                         }
                         break;
                 }
             });
 
-            return () => {
+            return function () {
                 removeHandler();
-                cleanupTimeouts();
             };
         },
         [addMessageHandler],
@@ -189,30 +230,50 @@ export function PortChecker(properties: PortCheckerInterface) {
     ) {
         cleanupTimeouts();
         setUsingFallback(false);
-        setCheckingPort(true);
         currentTaskCreatePortScanIdReference.current = undefined;
+        lastWebSocketMessageTimeReference.current = Date.now();
 
-        console.log('remoteAddress', remoteAddress, 'remotePort', remotePort, 'region', regionIdentifier);
+        // Update both state and ref
+        setCheckingPort(true);
+        isCheckingPortReference.current = true;
+
+        console.log('[checkPort] Starting with:', { remoteAddress, remotePort, regionIdentifier });
 
         setPortCheckStatusTextArray([`Checking port ${remotePort} on ${remoteAddress} from ${regionDisplayName}...`]);
 
         // Set up timeouts
-        websocketTimeoutReference.current = setTimeout(() => {
-            console.log('WebSocket timeout reached, switching to polling...');
-            if(checkingPort && currentTaskCreatePortScanIdReference.current) {
-                console.log('Starting fallback polling for task:', currentTaskCreatePortScanIdReference.current);
+        const checkWebSocketTimeout = setInterval(() => {
+            const now = Date.now();
+            const timeSinceLastMessage = now - lastWebSocketMessageTimeReference.current;
+
+            console.log('[WebSocket Check] Time since last message:', timeSinceLastMessage, {
+                checkingPort: isCheckingPortReference.current,
+                taskId: currentTaskCreatePortScanIdReference.current,
+                usingFallback: usingFallback,
+            });
+
+            if(
+                timeSinceLastMessage >= 5000 &&
+                isCheckingPortReference.current &&
+                currentTaskCreatePortScanIdReference.current &&
+                !usingFallback
+            ) {
+                console.log('[WebSocket Timeout] Starting fallback polling after 5s of no messages');
+                clearInterval(checkWebSocketTimeout);
                 setUsingFallback(true);
-                setPortCheckStatusTextArray((prev) => [...prev, 'Switching to backup method...']);
                 pollTaskPortScan();
             }
-        }, 5000);
+        }, 1000);
+
+        websocketTimeoutReference.current = checkWebSocketTimeout;
 
         // Total timeout
         totalTimeoutReference.current = setTimeout(() => {
             console.log('Total timeout reached');
-            if(checkingPort) {
+            if(isCheckingPortReference.current) {
                 setPortCheckStatusTextArray((prev) => [...prev, 'Port check timed out after 20 seconds.']);
                 setCheckingPort(false);
+                isCheckingPortReference.current = false;
                 setUsingFallback(false);
                 cleanupTimeouts();
             }
@@ -230,7 +291,8 @@ export function PortChecker(properties: PortCheckerInterface) {
                 },
             });
 
-            console.log('Mutation completed:', result.data);
+            console.log('[Mutation] Completed:', result.data);
+            console.log('[Mutation] Setting taskId to:', result.data?.taskCreatePortScan[0]?.id);
 
             // Set the task ID and start polling if WebSocket isn't working
             currentTaskCreatePortScanIdReference.current = result.data?.taskCreatePortScan[0]?.id;
@@ -241,19 +303,25 @@ export function PortChecker(properties: PortCheckerInterface) {
                 setPortCheckStatusTextArray((prev) => [...prev, 'Failed to start port check.']);
                 setCheckingPort(false);
                 cleanupTimeouts();
+                return; // Add early return
             }
-            else if(!isConnected) {
+
+            if(!isConnected) {
                 // If WebSocket isn't connected, start polling immediately
                 console.log('WebSocket not connected, starting polling immediately');
                 setUsingFallback(true);
                 setPortCheckStatusTextArray((prev) => [...prev, 'Using backup method...']);
                 pollTaskPortScan();
             }
+
+            // Reset last message time after successful mutation
+            lastWebSocketMessageTimeReference.current = Date.now();
         }
         catch(error) {
             console.error('Mutation error:', error);
             setPortCheckStatusTextArray((prev) => [...prev, 'Failed to start port check.']);
             setCheckingPort(false);
+            isCheckingPortReference.current = false;
             cleanupTimeouts();
         }
     }

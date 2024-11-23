@@ -31,7 +31,7 @@ export function useWebSocket() {
             webSocketReference.current?.readyState === WebSocket.OPEN ||
             webSocketReference.current?.readyState === WebSocket.CONNECTING
         ) {
-            console.log('WebSocket connection already exists');
+            // console.log('WebSocket connection already exists');
             return;
         }
 
@@ -41,7 +41,7 @@ export function useWebSocket() {
             webSocketReference.current = null;
         }
 
-        console.log('Creating new WebSocket');
+        // console.log('Creating new WebSocket');
         const webSocket = new WebSocket('wss://api.connected.app/ws/user/connect');
 
         // Only set the reference if we're not cleaning up
@@ -52,7 +52,7 @@ export function useWebSocket() {
         // Function to handle the WebSocket onopen event
         webSocket.onopen = function () {
             if(!isCleaningUpReference.current) {
-                console.log('WebSocket connected');
+                console.log('WebSocket connected to api.connected.app');
                 setIsConnected(true);
                 reconnectAttempts.current = 0;
             }
@@ -64,13 +64,13 @@ export function useWebSocket() {
 
         // Function to handle the WebSocket onclose event
         webSocket.onclose = function () {
-            console.log('WebSocket disconnected');
+            // console.log('WebSocket disconnected');
             setIsConnected(false);
 
             // Calculate reconnection delay using exponential backoff
             // Starts at 1s, doubles each attempt (1s, 2s, 4s, 8s...), caps at 30s
             const backoffDelay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000);
-            console.log(`Attempting to reconnect in ${backoffDelay}ms`);
+            // console.log(`Attempting to reconnect in ${backoffDelay}ms`);
 
             // Schedule reconnection attempt
             reconnectTimerReference.current = setTimeout(function () {
