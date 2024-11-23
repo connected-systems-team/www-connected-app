@@ -8,10 +8,10 @@ input ClientProperties {
 }
 
 input CreateEngagementEventInput {
+    category: String
     clientProperties: ClientProperties
-    deviceProperties: DeviceProperties!
+    deviceProperties: DeviceProperties
     eventContext: EngagementEventContext
-    locale: String
     name: String!
 }
 
@@ -27,14 +27,7 @@ enum DeviceOrientation {
 }
 
 input DeviceProperties {
-    cpu: String
-    id: String!
-    memory: String
-    model: String
-    operatingSystemName: String
-    operatingSystemVersion: String
     orientation: DeviceOrientation
-    resolution: String
 }
 
 type EngagementEvent {
@@ -50,6 +43,8 @@ input EngagementEventContext {
     previousViewTitle: String
     referrer: String
     sessionDurationInMilliseconds: Int
+    traceId: String
+    traceSequenceNumber: Int
     viewDurationInMilliseconds: Int
     viewIdentifier: String
     viewTitle: String

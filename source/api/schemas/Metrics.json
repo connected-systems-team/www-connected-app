@@ -57,29 +57,46 @@
                             {
                                 "type": "maxLength",
                                 "constraints": [64]
+                            },
+                            {
+                                "type": "isNotEmpty"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "category",
+                        "validation": [
+                            {
+                                "type": "maxLength",
+                                "constraints": [64]
+                            },
+                            {
+                                "type": "isNotEmpty"
                             }
                         ]
                     },
                     {
                         "kind": "object",
                         "type": "DeviceProperties",
-                        "required": true,
-                        "name": "deviceProperties"
+                        "required": false,
+                        "name": "deviceProperties",
+                        "validation": [
+                            {
+                                "type": "unknown"
+                            }
+                        ]
                     },
                     {
                         "kind": "object",
                         "type": "ClientProperties",
                         "required": false,
-                        "name": "clientProperties"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "locale",
+                        "name": "clientProperties",
                         "validation": [
                             {
-                                "type": "isLocale"
+                                "type": "unknown"
                             }
                         ]
                     },
@@ -87,7 +104,12 @@
                         "kind": "object",
                         "type": "EngagementEventContext",
                         "required": false,
-                        "name": "eventContext"
+                        "name": "eventContext",
+                        "validation": [
+                            {
+                                "type": "unknown"
+                            }
+                        ]
                     }
                 ]
             },
@@ -96,57 +118,23 @@
                 "type": "DeviceProperties",
                 "fields": [
                     {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "id",
-                        "validation": [
-                            {
-                                "type": "isUuid"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "operatingSystemName"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "operatingSystemVersion"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "cpu"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "memory"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "resolution"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "model"
-                    },
-                    {
                         "kind": "enum",
                         "type": "DeviceOrientation",
                         "required": false,
-                        "name": "orientation"
+                        "name": "orientation",
+                        "validation": [
+                            {
+                                "type": "isEnum",
+                                "constraints": [
+                                    {
+                                        "Portrait": "Portrait",
+                                        "Landscape": "Landscape",
+                                        "NotAvailable": "NotAvailable"
+                                    },
+                                    ["Portrait", "Landscape", "NotAvailable"]
+                                ]
+                            }
+                        ]
                     }
                 ]
             },
@@ -163,7 +151,16 @@
                         "kind": "scalar",
                         "type": "String",
                         "required": false,
-                        "name": "environment"
+                        "name": "environment",
+                        "validation": [
+                            {
+                                "type": "maxLength",
+                                "constraints": [64]
+                            },
+                            {
+                                "type": "isNotEmpty"
+                            }
+                        ]
                     }
                 ]
             },
@@ -175,55 +172,154 @@
                         "kind": "scalar",
                         "type": "String",
                         "required": false,
-                        "name": "viewIdentifier"
+                        "name": "viewIdentifier",
+                        "validation": [
+                            {
+                                "type": "maxLength",
+                                "constraints": [512]
+                            },
+                            {
+                                "type": "isNotEmpty"
+                            }
+                        ]
                     },
                     {
                         "kind": "scalar",
                         "type": "String",
                         "required": false,
-                        "name": "viewTitle"
+                        "name": "previousViewIdentifier",
+                        "validation": [
+                            {
+                                "type": "maxLength",
+                                "constraints": [512]
+                            },
+                            {
+                                "type": "isNotEmpty"
+                            }
+                        ]
                     },
                     {
                         "kind": "scalar",
                         "type": "String",
                         "required": false,
-                        "name": "previousViewIdentifier"
+                        "name": "traceId",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Int",
+                        "required": false,
+                        "name": "traceSequenceNumber",
+                        "validation": [
+                            {
+                                "type": "isInt"
+                            }
+                        ]
                     },
                     {
                         "kind": "scalar",
                         "type": "String",
                         "required": false,
-                        "name": "previousViewTitle"
+                        "name": "referrer",
+                        "validation": [
+                            {
+                                "type": "isUrl"
+                            },
+                            {
+                                "type": "maxLength",
+                                "constraints": [512]
+                            }
+                        ]
                     },
                     {
                         "kind": "scalar",
                         "type": "String",
                         "required": false,
-                        "name": "referrer"
+                        "name": "viewTitle",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            },
+                            {
+                                "type": "maxLength",
+                                "constraints": [512]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "previousViewTitle",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            },
+                            {
+                                "type": "maxLength",
+                                "constraints": [512]
+                            }
+                        ]
                     },
                     {
                         "kind": "scalar",
                         "type": "Int",
                         "required": false,
-                        "name": "loadDurationInMilliseconds"
+                        "name": "loadDurationInMilliseconds",
+                        "validation": [
+                            {
+                                "type": "isPositive"
+                            },
+                            {
+                                "type": "isInt"
+                            }
+                        ]
                     },
                     {
                         "kind": "scalar",
                         "type": "Int",
                         "required": false,
-                        "name": "viewDurationInMilliseconds"
+                        "name": "viewDurationInMilliseconds",
+                        "validation": [
+                            {
+                                "type": "isPositive"
+                            },
+                            {
+                                "type": "isInt"
+                            }
+                        ]
                     },
                     {
                         "kind": "scalar",
                         "type": "Int",
                         "required": false,
-                        "name": "previousViewDurationInMilliseconds"
+                        "name": "previousViewDurationInMilliseconds",
+                        "validation": [
+                            {
+                                "type": "isPositive"
+                            },
+                            {
+                                "type": "isInt"
+                            }
+                        ]
                     },
                     {
                         "kind": "scalar",
                         "type": "Int",
                         "required": false,
-                        "name": "sessionDurationInMilliseconds"
+                        "name": "sessionDurationInMilliseconds",
+                        "validation": [
+                            {
+                                "type": "isPositive"
+                            },
+                            {
+                                "type": "isInt"
+                            }
+                        ]
                     }
                 ]
             },

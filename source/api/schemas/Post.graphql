@@ -59,19 +59,23 @@ type Mutation {
     postDraft(id: String!): Post!
     postPublish(id: String!): Post!
     postPublishAdmin(id: String!): Post!
-    postReactionCreate(commentId: String, content: String!, postId: String): Boolean!
-    postReactionDelete(commentId: String, content: String!, postId: String): Boolean!
+    postReactionCreate(commentId: String, content: String!, postId: String): OperationResult!
+    postReactionDelete(commentId: String, content: String!, postId: String): OperationResult!
     postReportCreate(input: PostReportInput!): PostReport!
     postReportModerate(approval: Boolean!, id: String!, note: String): Post!
-    postTopicAssignPost(assign: Boolean!, postId: String!, topicId: String!): Boolean!
+    postTopicAssignPost(assign: Boolean!, postId: String!, topicId: String!): OperationResult!
     postTopicCreate(input: PostTopicCreateInput!): PostTopic!
-    postTopicDelete(id: String!): Boolean!
+    postTopicDelete(id: String!): OperationResult!
     postTopicUpdate(input: PostTopicUpdateInput!): PostTopic!
     postTopicUpdatePosition(id: String!, input: PostTopicUpdatePositionInput!): PostTopic!
-    postUnvote(commentId: String, postId: String, type: PostVoteType): Boolean!
+    postUnvote(commentId: String, postId: String, type: PostVoteType): OperationResult!
     postUpdate(id: String!, input: PostUpdateInput!): Post!
     postUpdateAdmin(id: String!, input: PostUpdateInput!): Post!
-    postVote(commentId: String, postId: String, type: PostVoteType): Boolean!
+    postVote(commentId: String, postId: String, type: PostVoteType): OperationResult!
+}
+
+type OperationResult {
+    success: Boolean!
 }
 
 input OrderBy {

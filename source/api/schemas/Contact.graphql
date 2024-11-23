@@ -123,9 +123,13 @@ enum ListEntryAction {
 
 type Mutation {
     contactCreate(input: ContactCreateInput!): Contact!
-    contactDelete(id: String!): Boolean!
+    contactDelete(id: String!): OperationResult!
     contactFieldUpdate(contactId: String!, input: ContactFieldUpdateInput!): Contact!
     contactUpdate(input: ContactUpdateInput!): Contact!
+}
+
+type OperationResult {
+    success: Boolean!
 }
 
 type PagedContactResult {

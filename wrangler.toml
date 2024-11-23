@@ -12,13 +12,16 @@ minify = true
 # Use the new Workers + Assets to host the static frontend files
 assets = { directory = ".worker-next/assets", binding = "ASSETS" }
 
-# Disable the workers.dev route
-workers_dev = false
 
 # Define custom domains
 routes = [
     { pattern = "connected.app", custom_domain = true },
     { pattern = "www.connected.app", custom_domain = true }
+]
+
+# Service Bindings
+services = [
+    { binding = "api", service = "api" }
 ]
 
 # Enable logs

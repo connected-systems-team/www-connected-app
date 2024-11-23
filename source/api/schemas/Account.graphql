@@ -35,7 +35,7 @@ type Account {
     defaultProfile: Profile
     defaultProfileId: String
     primaryAccountEmail: AccountEmail
-    roles: [AccessRole!]!
+    roles: [String!]!
 }
 
 type AccountAdminQueryObject {
@@ -116,6 +116,7 @@ input AccountRegistrationOrSignInCreateInput {
 
 type AccountSession {
     createdAt: DateTimeISO!
+    currentProfile: Profile
     currentProfileId: String!
     id: String!
     lastUsed: DateTimeISO
@@ -234,7 +235,7 @@ enum MediaObjectType {
 }
 
 type Mutation {
-    accountDeleteAdmin(emailAddress: String!): OperationResult!
+    accountDeleteAdmin(emailAddress: String!, reason: String): OperationResult!
     accountEmailDelete(accountEmailId: String!): OperationResult!
     accountEmailMakePrimary(accountEmailId: String!): AccountEmail!
     accountEmailVerificationComplete(input: AccountEmailVerificationCompleteInput!): AccountEmail!
@@ -303,6 +304,9 @@ type Profile {
     gender: String
     givenName: String
     id: String!
+    """
+    Profile asset URL
+    """
     imageUrls: [ImageObject!]
     middleName: String
     phoneNumber: String
