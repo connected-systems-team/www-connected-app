@@ -1,4 +1,4 @@
-import { WebSocketEvent } from './WebSocketMessage';
+import { WebSocketEvent } from '@structure/source/api/web-sockets/types/WebSocketMessage';
 import { TaskResultInterface } from './TaskResultInterface';
 
 export interface TaskAssigned extends WebSocketEvent, NodeTaskInfo {
