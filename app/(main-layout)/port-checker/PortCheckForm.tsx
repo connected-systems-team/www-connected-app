@@ -3,7 +3,7 @@ import React from 'react';
 // import Link from 'next/link';
 
 // Dependencies - Main Components
-import { Button } from '@structure/source/common/buttons/Button';
+import { ButtonElementType, Button } from '@structure/source/common/buttons/Button';
 import { FormInputReferenceInterface } from '@structure/source/common/forms/FormInput';
 import { FormInputText } from '@structure/source/common/forms/FormInputText';
 import { FormInputSelect } from '@structure/source/common/forms/FormInputSelect';
@@ -23,6 +23,7 @@ export interface PortCheckFormInterface {
     remoteAddressFormInputReference: React.RefObject<FormInputReferenceInterface>;
     remotePortFormInputReference: React.RefObject<FormInputReferenceInterface>;
     regionFormInputReference: React.RefObject<FormInputReferenceInterface>;
+    buttonReference: React.RefObject<ButtonElementType>;
     publicIpAddress?: string;
     checkingPort: boolean;
     checkPort: (remoteAddress: string, remotePort: number, regionIdentifier: string, regionDisplayName: string) => void;
@@ -30,6 +31,19 @@ export interface PortCheckFormInterface {
 export function PortCheckForm(properties: PortCheckFormInterface) {
     // Hooks
     const gridRegionsQueryState = useQuery(GridRegionsDocument);
+
+    // Function to check the port
+    function checkPort() {
+        properties.checkPort(
+            properties.remoteAddressFormInputReference.current?.getValue() || '',
+            properties.remotePortFormInputReference.current?.getValue(),
+            properties.regionFormInputReference.current?.getValue() || '',
+            getRegionDisplayName(
+                properties.regionFormInputReference.current?.getValue() || '',
+                gridRegionsQueryState.data?.gridRegions || [],
+            ),
+        );
+    }
 
     // Render the component
     return (
@@ -104,21 +118,12 @@ export function PortCheckForm(properties: PortCheckFormInterface) {
 
             {/* Check Port Button */}
             <Button
+                ref={properties.buttonReference}
                 variant="primary"
                 disabled={properties.checkingPort}
                 processing={properties.checkingPort}
                 className="mt-[30px] md:w-[107px]"
-                onClick={function () {
-                    properties.checkPort(
-                        properties.remoteAddressFormInputReference.current?.getValue() || '',
-                        properties.remotePortFormInputReference.current?.getValue(),
-                        properties.regionFormInputReference.current?.getValue() || '',
-                        getRegionDisplayName(
-                            properties.regionFormInputReference.current?.getValue() || '',
-                            gridRegionsQueryState.data?.gridRegions || [],
-                        ),
-                    );
-                }}
+                onClick={checkPort}
             >
                 Check Port
             </Button>

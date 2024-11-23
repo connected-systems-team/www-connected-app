@@ -4,6 +4,7 @@
 import React from 'react';
 
 // Dependencies - Main Components
+import { ButtonElementType } from '@structure/source/common/buttons/Button';
 import { FormInputReferenceInterface } from '@structure/source/common/forms/FormInput';
 import { PortCheckForm } from '@project/app/(main-layout)/port-checker/PortCheckForm';
 import { CommonPorts } from '@project/app/(main-layout)/port-checker/CommonPorts';
@@ -44,6 +45,7 @@ export function PortChecker(properties: PortCheckerInterface) {
     const { isConnected, addMessageHandler } = useWebSocket();
 
     // References
+    const buttonReference = React.useRef<ButtonElementType>(null);
     const remoteAddressFormInputReference = React.useRef<FormInputReferenceInterface>(null);
     const remotePortFormInputReference = React.useRef<FormInputReferenceInterface>(null);
     const regionFormInputReference = React.useRef<FormInputReferenceInterface>(null);
@@ -164,7 +166,7 @@ export function PortChecker(properties: PortCheckerInterface) {
     );
 
     // Add helper function to handle task results
-    const handleTaskResult = (result: TaskResultInterface) => {
+    function handleTaskResult(result: TaskResultInterface) {
         const portScanResult = result.result[0];
         const port = portScanResult.ports[0]?.port;
         const host = portScanResult.hostName;
@@ -176,7 +178,7 @@ export function PortChecker(properties: PortCheckerInterface) {
 
         const isOpen = portScanResult.ports[0]?.state === 'open';
         setPortCheckStatusTextArray((prev) => [...prev, `Port ${port} is ${isOpen ? 'open' : 'closed'} on ${host}.`]);
-    };
+    }
 
     // Function to check the port
     async function checkPort(
@@ -266,6 +268,7 @@ export function PortChecker(properties: PortCheckerInterface) {
                     remoteAddressFormInputReference={remoteAddressFormInputReference}
                     remotePortFormInputReference={remotePortFormInputReference}
                     regionFormInputReference={regionFormInputReference}
+                    buttonReference={buttonReference}
                     checkingPort={checkingPort}
                     checkPort={checkPort}
                 />
@@ -277,12 +280,12 @@ export function PortChecker(properties: PortCheckerInterface) {
 
             <CommonPorts
                 portSelected={function (port) {
+                    // Set the port in the form input
                     remotePortFormInputReference.current?.setValue(port.toString());
 
                     // Immediately check the port if not already checking
                     if(!checkingPort) {
-                        // TODO: Fix this
-                        //checkPort();
+                        buttonReference.current?.click();
                     }
                 }}
             />
