@@ -1,7 +1,7 @@
 'use client'; // This component uses client-only features
 
 // Dependencies - React and Next.js
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 
 // Dependencies - Main Components
@@ -11,15 +11,20 @@ import { Tip } from '@structure/source/common/popovers/Tip';
 import { FormInputReferenceInterface } from '@structure/source/common/forms/FormInput';
 import { FormInputText } from '@structure/source/common/forms/FormInputText';
 import { FormInputSelect } from '@structure/source/common/forms/FormInputSelect';
-// import { FormInputMultipleSelect } from '@structure/source/common/forms/FormInputMultipleSelect';
 import { CopyButton } from '@structure/source/common/buttons/CopyButton';
 import { AnimatedList } from '@project/source/common/animations/AnimatedList';
 import { ConnectedOutlineIcon } from '@project/source/common/ConnectedOutlineIcon';
 
+// Dependencies - Types
+import { TaskResultInterface } from '@project/source/api/sockets/TaskResultInterface';
+import { WebSocketEvent } from '@project/source/api/sockets/WebSocketMessage';
+import { TaskAssigned, TaskCheckedIn, TaskRunning } from '@project/source/api/sockets/UserWebSocketEvents';
+
+// Dependencies - Hooks
+import { useWebSocket } from '@project/source/api/sockets/hooks/useWebSocket';
+
 // Dependencies - Assets
-// import ArrowUpCurvyIcon from '@structure/assets/icons/interface/ArrowUpCurvyIcon.svg';
 import ArrowUpIcon from '@structure/assets/icons/interface/ArrowUpIcon.svg';
-// import InformationCircledIcon from '@structure/assets/icons/status/InformationCircledIcon.svg';
 import ErrorCircledIcon from '@structure/assets/icons/status/ErrorCircledIcon.svg';
 import CheckCircledIcon from '@structure/assets/icons/status/CheckCircledIcon.svg';
 import CheckCircledGreenBorderIcon from '@project/assets/icons/status/CheckCircledGreenBorderIcon.svg';
@@ -115,6 +120,7 @@ export function PortChecker(properties: PortCheckerInterface) {
     // State
     const [checkingPort, setCheckingPort] = React.useState<boolean>(false);
     const [portCheckStatusTextArray, setPortCheckStatusTextArray] = React.useState<string[]>([]);
+    const [usingFallback, setUsingFallback] = React.useState<boolean>(false);
 
     // Hooks
     const { themeClassName } = useTheme();
@@ -123,6 +129,9 @@ export function PortChecker(properties: PortCheckerInterface) {
     // const [taskCreatePortScanMutation, taskCreatePortScanMutationState] = useMutation(TaskCreatePortScanDocument);
     const [taskCreatePortScanMutation] = useMutation(TaskCreatePortScanDocument);
 
+    // Add WebSocket hook
+    const { isConnected, addMessageHandler } = useWebSocket();
+
     // References
     const remoteAddressFormInputReference = React.useRef<FormInputReferenceInterface>(null);
     const remotePortFormInputReference = React.useRef<FormInputReferenceInterface>(null);
@@ -130,12 +139,138 @@ export function PortChecker(properties: PortCheckerInterface) {
     const currentTaskCreatePortScanIdReference = React.useRef<string | undefined>(undefined);
     const currentTaskCreatePortScanGroupIdReference = React.useRef<string | undefined>(undefined);
     const currentTaskPortScanPollCountReference = React.useRef<number>(0);
+    const websocketTimeoutReference = React.useRef<NodeJS.Timeout>();
+    const fallbackTimeoutReference = React.useRef<NodeJS.Timeout>();
+    const totalTimeoutReference = React.useRef<NodeJS.Timeout>();
+
+    // Function to clean up all timeouts
+    function cleanupTimeouts() {
+        if(websocketTimeoutReference.current) clearTimeout(websocketTimeoutReference.current);
+        if(fallbackTimeoutReference.current) clearTimeout(fallbackTimeoutReference.current);
+        if(totalTimeoutReference.current) clearTimeout(totalTimeoutReference.current);
+    }
+
+    // Function to poll task port scan
+    async function pollTaskPortScan() {
+        if(!currentTaskCreatePortScanIdReference.current) {
+            console.log('No task ID to poll');
+            return;
+        }
+
+        console.log('Polling task:', currentTaskCreatePortScanIdReference.current);
+
+        try {
+            const taskPortScanQueryResult = await apolloClient.query({
+                query: TaskPortScanDocument,
+                variables: {
+                    input: {
+                        taskId: currentTaskCreatePortScanIdReference.current,
+                    },
+                },
+                fetchPolicy: 'no-cache',
+            });
+
+            const task = taskPortScanQueryResult.data.task;
+            if(!task) {
+                console.log('No task data received');
+                if(usingFallback) {
+                    fallbackTimeoutReference.current = setTimeout(pollTaskPortScan, 2000);
+                }
+                return;
+            }
+
+            console.log('Poll result:', task.state, task.results?.[0]?.result[0]);
+
+            if(task.state === 'Succeeded' || task.results?.[0]?.result[0]?.error) {
+                handleTaskResult(task.results[0] as TaskResultInterface);
+                setCheckingPort(false);
+                cleanupTimeouts();
+            }
+            else if(usingFallback && checkingPort) {
+                // Continue polling if we're in fallback mode and still checking
+                fallbackTimeoutReference.current = setTimeout(pollTaskPortScan, 2000);
+            }
+        }
+        catch(error) {
+            console.error('Polling error:', error);
+            if(usingFallback && checkingPort) {
+                fallbackTimeoutReference.current = setTimeout(pollTaskPortScan, 2000);
+            }
+        }
+    }
+
+    // Handle WebSocket events
+    useEffect(() => {
+        const removeHandler = addMessageHandler((event: WebSocketEvent) => {
+            if(!currentTaskCreatePortScanIdReference.current) return;
+
+            // Clear websocket timeout since we received a message
+            if(websocketTimeoutReference.current) {
+                clearTimeout(websocketTimeoutReference.current);
+            }
+
+            switch(event.type) {
+                case 'taskAssigned':
+                    const assignedEvent = event as TaskAssigned;
+                    if(assignedEvent.taskId === currentTaskCreatePortScanIdReference.current) {
+                        setPortCheckStatusTextArray((prev) => [
+                            ...prev,
+                            `Server ${getRegionEmoji(assignedEvent.region)} #${alphanumericStringToNumber(
+                                assignedEvent.nodeId,
+                            )} assigned...`,
+                        ]);
+                    }
+                    break;
+
+                case 'taskRunning':
+                    const runningEvent = event as TaskRunning;
+                    if(runningEvent.taskId === currentTaskCreatePortScanIdReference.current) {
+                        setPortCheckStatusTextArray((prev) => [
+                            ...prev,
+                            `Server ${getRegionEmoji(runningEvent.region)} #${alphanumericStringToNumber(
+                                runningEvent.nodeId,
+                            )} checking port...`,
+                        ]);
+                    }
+                    break;
+
+                case 'taskCheckedIn':
+                    const checkedInEvent = event as TaskCheckedIn;
+                    if(checkedInEvent.taskId === currentTaskCreatePortScanIdReference.current) {
+                        handleTaskResult(checkedInEvent.result);
+                        setCheckingPort(false);
+                    }
+                    break;
+            }
+        });
+
+        return () => {
+            removeHandler();
+            cleanupTimeouts();
+        };
+    }, []);
+
+    // Add helper function to handle task results
+    const handleTaskResult = (result: TaskResultInterface) => {
+        const portScanResult = result.result[0];
+        const port = portScanResult.ports[0]?.port;
+        const host = portScanResult.hostName;
+
+        if(portScanResult.error?.message === 'Failed to resolve host.') {
+            setPortCheckStatusTextArray((prev) => [...prev, 'Failed to resolve host.']);
+            return;
+        }
+
+        const isOpen = portScanResult.ports[0]?.state === 'open';
+        setPortCheckStatusTextArray((prev) => [...prev, `Port ${port} is ${isOpen ? 'open' : 'closed'} on ${host}.`]);
+    };
 
     // Function to check the port
     async function checkPort() {
-        console.log('Checking port...');
-
+        cleanupTimeouts();
+        setUsingFallback(false);
         setCheckingPort(true);
+        currentTaskCreatePortScanIdReference.current = undefined;
 
         const remoteAddress = remoteAddressFormInputReference.current?.getValue();
         const remotePort = remotePortFormInputReference.current?.getValue();
@@ -149,279 +284,65 @@ export function PortChecker(properties: PortCheckerInterface) {
             )}...`,
         ]);
 
-        // Perform the mutation
-        taskCreatePortScanMutation({
-            variables: {
-                input: {
-                    host: remoteAddress,
-                    ports: [remotePort],
-                    regions: [regionIdentifier],
-                },
-            },
-            onCompleted: function (data) {
-                console.log('data', data);
-
-                // Set the current task ID
-                currentTaskCreatePortScanIdReference.current = data.taskCreatePortScan[0]?.id ?? undefined;
-
-                // Set the current task group ID
-                currentTaskCreatePortScanGroupIdReference.current = data.taskCreatePortScan[0]?.groupdId ?? undefined;
-
-                setPortCheckStatusTextArray(function (previousValue) {
-                    return [
-                        ...previousValue,
-                        `Server ${getRegionEmoji(
-                            data.taskCreatePortScan[0]?.assignments[0]?.region.name,
-                        )} #${alphanumericStringToNumber(
-                            data.taskCreatePortScan[0]?.assignments[0]?.gridNode.id.split('-')[0],
-                        )} assigned to inspect port ${remotePort}...`,
-                    ];
-                });
-
+        // Set up timeouts
+        websocketTimeoutReference.current = setTimeout(() => {
+            console.log('WebSocket timeout reached, switching to polling...');
+            if(checkingPort && currentTaskCreatePortScanIdReference.current) {
+                console.log('Starting fallback polling for task:', currentTaskCreatePortScanIdReference.current);
+                setUsingFallback(true);
+                setPortCheckStatusTextArray((prev) => [...prev, 'Switching to backup method...']);
                 pollTaskPortScan();
-            },
-        });
-    }
+            }
+        }, 5000);
 
-    // Function to poll the task port scan
-    async function pollTaskPortScan() {
-        // If there is a current task ID
-        if(currentTaskCreatePortScanIdReference.current) {
-            console.log('Polling task port scan...');
+        // Total timeout
+        totalTimeoutReference.current = setTimeout(() => {
+            console.log('Total timeout reached');
+            if(checkingPort) {
+                setPortCheckStatusTextArray((prev) => [...prev, 'Port check timed out after 20 seconds.']);
+                setCheckingPort(false);
+                setUsingFallback(false);
+                cleanupTimeouts();
+            }
+        }, 20000);
 
-            // Perform the query
-            const taskPortScanQueryResult = await apolloClient.query({
-                query: TaskPortScanDocument,
+        // Perform the mutation
+        try {
+            const result = await taskCreatePortScanMutation({
                 variables: {
                     input: {
-                        taskId: currentTaskCreatePortScanIdReference.current,
+                        host: remoteAddress,
+                        ports: [remotePort],
+                        regions: [regionIdentifier],
                     },
                 },
-                fetchPolicy: 'no-cache',
             });
 
-            // taskPortScanQueryResult.data.task?.regionId
+            console.log('Mutation completed:', result.data);
 
-            // Increment the poll count
-            currentTaskPortScanPollCountReference.current += 1;
+            // Set the task ID and start polling if WebSocket isn't working
+            currentTaskCreatePortScanIdReference.current = result.data.taskCreatePortScan[0]?.id;
+            currentTaskCreatePortScanGroupIdReference.current = result.data.taskCreatePortScan[0]?.groupdId;
 
-            console.log('taskPortScanQueryResult', taskPortScanQueryResult);
-
-            // {
-            //     "data": {
-            //         "task": {
-            //             "id": "8c6a3ca0-acc1-4b4d-91a9-196e5f32e454",
-            //             "groupdId": null,
-            //             "regionId": "0ed78e55-5f9b-40b0-8c96-5ba6a98fd36a",
-            //             "lastResultId": null,
-            //             "state": "Running",
-            //             "priority": 0,
-            //             "procedureType": "PortScan",
-            //             "procedureArguments": {
-            //                 "host": "google21312312312.com",
-            //                 "ports": [
-            //                     "80"
-            //                 ]
-            //             },
-            //             "runAt": null,
-            //             "attempts": 2,
-            //             "maxAttempts": 3,
-            //             "assignments": [
-            //                 {
-            //                     "id": "1ed414e0-b614-4d23-8b7e-928a9f7578e4",
-            //                     "active": true,
-            //                     "attempt": 4,
-            //                     "gridNode": {
-            //                         "id": "000dcfb0-3341-423c-b89e-4e9305585a2b",
-            //                         "alias": "chicago-1",
-            //                         "updatedAt": "2024-06-22T06:19:19.000Z",
-            //                         "createdAt": "2024-06-20T22:10:21.670Z",
-            //                         "__typename": "AtlasNode"
-            //                     },
-            //                     "region": {
-            //                         "identifier": "north-america",
-            //                         "__typename": "Region"
-            //                     },
-            //                     "updatedAt": "2024-06-22T07:16:15.404Z",
-            //                     "createdAt": "2024-06-22T07:16:15.404Z",
-            //                     "__typename": "TaskAssignment"
-            //                 },
-            //                 {
-            //                     "id": "60fed31e-487e-40a8-b604-33eefe219d00",
-            //                     "active": true,
-            //                     "attempt": 3,
-            //                     "gridNode": {
-            //                         "id": "24f22806-c7d6-4d07-9776-3f39035f3e7e",
-            //                         "alias": "london-1",
-            //                         "updatedAt": "2024-06-22T06:14:59.000Z",
-            //                         "createdAt": "2024-06-22T02:47:55.289Z",
-            //                         "__typename": "AtlasNode"
-            //                     },
-            //                     "region": {
-            //                         "identifier": "europe",
-            //                         "__typename": "Region"
-            //                     },
-            //                     "updatedAt": "2024-06-22T07:16:27.356Z",
-            //                     "createdAt": "2024-06-22T07:16:27.356Z",
-            //                     "__typename": "TaskAssignment"
-            //                 }
-            //             ],
-            //             "meta": null,
-            //             "results": [
-            //                 {
-            //                     "id": "c7d06b8e-cf29-4892-90cf-7e716d41e1c0",
-            //                     "taskId": "8c6a3ca0-acc1-4b4d-91a9-196e5f32e454",
-            //                     "regionId": "0ed78e55-5f9b-40b0-8c96-5ba6a98fd36a",
-            //                     "region": {
-            //                         "id": "0ed78e55-5f9b-40b0-8c96-5ba6a98fd36a",
-            //                         "identifier": "north-america",
-            //                         "displayName": "North America",
-            //                         "active": true,
-            //                         "updatedAt": "2024-06-20T03:22:53.468Z",
-            //                         "createdAt": "2024-06-20T03:22:53.468Z",
-            //                         "__typename": "Region"
-            //                     },
-            //                     "clusterId": "9569e9fd-7ff3-4d2b-a49a-a46e6f0ed0f3",
-            //                     "cluster": {
-            //                         "id": "9569e9fd-7ff3-4d2b-a49a-a46e6f0ed0f3",
-            //                         "name": "vps-server",
-            //                         "active": true,
-            //                         "updatedAt": "2024-06-20T04:48:07.073Z",
-            //                         "createdAt": "2024-06-20T04:48:07.073Z",
-            //                         "__typename": "Cluster"
-            //                     },
-            //                     "gridNodeId": "000dcfb0-3341-423c-b89e-4e9305585a2b",
-            //                     "type": "Error",
-            //                     "ranAt": "2024-06-22T07:16:25.000Z",
-            //                     "attempt": 3,
-            //                     "duration": 83,
-            //                     "result": [
-            //                         {
-            //                             "error": {
-            //                                 "host": "google21312312312.com",
-            //                                 "port": "80",
-            //                                 "message": "Failed to resolve host."
-            //                             },
-            //                             "ports": [],
-            //                             "scanTime": "0.07 seconds",
-            //                             "nmapVersion": "7.93"
-            //                         }
-            //                     ],
-            //                     "meta": null,
-            //                     "error": null,
-            //                     "createdAt": "2024-06-22T07:16:26.456Z",
-            //                     "updatedAt": "2024-06-22T07:16:26.456Z",
-            //                     "__typename": "TaskResult"
-            //                 }
-            //             ],
-            //             "createdAt": "2024-06-22T07:16:14.976Z",
-            //             "updatedAt": "2024-06-22T07:16:29.000Z",
-            //             "__typename": "Task"
-            //         }
-            //     }
-            // }
-
-            // Not succeeded
-            if(taskPortScanQueryResult.data.task?.state !== 'Succeeded') {
-                // If the host is not resolved
-                if(
-                    taskPortScanQueryResult.data.task?.results[0]?.result[0]?.error?.message ===
-                    'Failed to resolve host.'
-                ) {
-                    setPortCheckStatusTextArray(function (previousValue) {
-                        return [
-                            ...previousValue,
-                            `Server ${getRegionEmoji(
-                                taskPortScanQueryResult.data.task?.assignments[0]?.region.name,
-                            )} #${alphanumericStringToNumber(
-                                taskPortScanQueryResult.data.task?.assignments[0]?.gridNode.id.split('-')[0],
-                            )} failed to resolve host...`,
-                        ];
-                    });
-
-                    // After a little delay
-                    setTimeout(function () {
-                        setPortCheckStatusTextArray(function (previousValue) {
-                            return [...previousValue, `Failed to resolve host.`];
-                        });
-
-                        // After a little delay
-                        setTimeout(function () {
-                            setCheckingPort(false);
-                        }, 1000);
-                    }, 1500);
-                }
+            if(!currentTaskCreatePortScanIdReference.current) {
+                console.error('No task ID received from mutation');
+                setPortCheckStatusTextArray((prev) => [...prev, 'Failed to start port check.']);
+                setCheckingPort(false);
+                cleanupTimeouts();
             }
-            // Succeeded
-            else if(taskPortScanQueryResult.data.task?.state === 'Succeeded') {
-                const host = taskPortScanQueryResult.data.task?.results[0]?.result[0]?.hostName;
-                const port = taskPortScanQueryResult.data.task?.results[0]?.result[0]?.ports[0]?.port;
-
-                // If the port is open
-                if(taskPortScanQueryResult.data.task?.results[0]?.result[0]?.ports[0]?.state === 'open') {
-                    setPortCheckStatusTextArray(function (previousValue) {
-                        return [
-                            ...previousValue,
-                            `Server ${getRegionEmoji(
-                                taskPortScanQueryResult.data.task?.assignments[0]?.region.name,
-                            )} #${alphanumericStringToNumber(
-                                taskPortScanQueryResult.data.task?.assignments[0]?.gridNode.id.split('-')[0],
-                            )} reports port ${port} open...`,
-                        ];
-                    });
-
-                    // After a little delay
-                    setTimeout(function () {
-                        setPortCheckStatusTextArray(function (previousValue) {
-                            return [...previousValue, `Port ${port} is open on ${host}.`];
-                        });
-
-                        // After a little delay
-                        setTimeout(function () {
-                            setCheckingPort(false);
-                        }, 1000);
-                    }, 1500);
-                }
-                // If the port is closed
-                else {
-                    setPortCheckStatusTextArray(function (previousValue) {
-                        return [
-                            ...previousValue,
-                            `Server ${getRegionEmoji(
-                                taskPortScanQueryResult.data.task?.assignments[0]?.region.name,
-                            )} #${alphanumericStringToNumber(
-                                taskPortScanQueryResult.data.task?.assignments[0]?.gridNode.id.split('-')[0],
-                            )} reports port ${port} closed...`,
-                        ];
-                    });
-
-                    // After a little delay
-                    setTimeout(function () {
-                        setPortCheckStatusTextArray(function (previousValue) {
-                            return [...previousValue, `Port ${port} is closed on ${host}.`];
-                        });
-
-                        // After a little delay
-                        setTimeout(function () {
-                            setCheckingPort(false);
-                        }, 1000);
-                    }, 1500);
-                }
-            }
-
-            // If the task is still running and the poll count is less than 10
-            if(
-                taskPortScanQueryResult.data.task?.state != 'Failed' &&
-                taskPortScanQueryResult.data.task?.state != 'Cancelled' &&
-                taskPortScanQueryResult.data.task?.state != 'Succeeded' &&
-                currentTaskPortScanPollCountReference.current < 25
-            ) {
-                // Poll again
-                setTimeout(pollTaskPortScan, 1250);
+            else if(!isConnected) {
+                // If WebSocket isn't connected, start polling immediately
+                console.log('WebSocket not connected, starting polling immediately');
+                setUsingFallback(true);
+                setPortCheckStatusTextArray((prev) => [...prev, 'Using backup method...']);
+                pollTaskPortScan();
             }
         }
-        else {
-            console.log('No task ID to poll.');
+        catch(error) {
+            console.error('Mutation error:', error);
+            setPortCheckStatusTextArray((prev) => [...prev, 'Failed to start port check.']);
+            setCheckingPort(false);
+            cleanupTimeouts();
         }
     }
 
