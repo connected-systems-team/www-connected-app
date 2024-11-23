@@ -137,7 +137,7 @@ export function PortChecker(properties: PortCheckerInterface) {
     const remotePortFormInputReference = React.useRef<FormInputReferenceInterface>(null);
     const regionFormInputReference = React.useRef<FormInputReferenceInterface>(null);
     const currentTaskCreatePortScanIdReference = React.useRef<string | undefined>(undefined);
-    const currentTaskCreatePortScanGroupIdReference = React.useRef<string | undefined>(undefined);
+    const currentTaskCreatePortScanGroupIdReference = React.useRef<string | null | undefined>(undefined);
     const currentTaskPortScanPollCountReference = React.useRef<number>(0);
     const websocketTimeoutReference = React.useRef<NodeJS.Timeout>();
     const fallbackTimeoutReference = React.useRef<NodeJS.Timeout>();
@@ -321,8 +321,8 @@ export function PortChecker(properties: PortCheckerInterface) {
             console.log('Mutation completed:', result.data);
 
             // Set the task ID and start polling if WebSocket isn't working
-            currentTaskCreatePortScanIdReference.current = result.data.taskCreatePortScan[0]?.id;
-            currentTaskCreatePortScanGroupIdReference.current = result.data.taskCreatePortScan[0]?.groupdId;
+            currentTaskCreatePortScanIdReference.current = result.data?.taskCreatePortScan[0]?.id;
+            currentTaskCreatePortScanGroupIdReference.current = result.data?.taskCreatePortScan[0]?.groupdId;
 
             if(!currentTaskCreatePortScanIdReference.current) {
                 console.error('No task ID received from mutation');

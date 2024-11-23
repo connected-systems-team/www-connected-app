@@ -49,6 +49,7 @@
         "recharts": "^2.13.0",
         "rehype-highlight": "^7.0.1",
         "remark-custom-header-id": "^1.0.0",
+        "remark-gfm": "^4.0.0",
         "tailwind-merge": "^2.5.4",
         "tailwindcss-animate": "^1.0.7"
     },
