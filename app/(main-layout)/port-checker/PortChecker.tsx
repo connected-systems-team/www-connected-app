@@ -35,18 +35,22 @@ export function PortChecker(properties: PortCheckerInterface) {
     // State
     const [checkingPort, setCheckingPort] = React.useState<boolean>(false);
     const [portCheckStatusTextArray, setPortCheckStatusTextArray] = React.useState<string[]>([]);
-    const [usingFallback, setUsingFallback] = React.useState<boolean>(false);
+    const [usingFallbackPolling, setUsingFallbackPolling] = React.useState<boolean>(false);
 
     // Hooks
+    const webSocket = useWebSocket();
+
+    // Hooks - API
     const apolloClient = useApolloClient();
     const [taskCreatePortScanMutation] = useMutation(TaskCreatePortScanDocument);
-    const { isConnected, addMessageHandler } = useWebSocket();
+
+    // References - Port Check Form
+    const portCheckFormSubmitButtonReference = React.useRef<ButtonElementType>(null);
+    const portCheckFormRemoteAddressFormInputReference = React.useRef<FormInputReferenceInterface>(null);
+    const portCheckFormRemotePortFormInputReference = React.useRef<FormInputReferenceInterface>(null);
+    const portCheckFormRegionFormInputReference = React.useRef<FormInputReferenceInterface>(null);
 
     // References
-    const buttonReference = React.useRef<ButtonElementType>(null);
-    const remoteAddressFormInputReference = React.useRef<FormInputReferenceInterface>(null);
-    const remotePortFormInputReference = React.useRef<FormInputReferenceInterface>(null);
-    const regionFormInputReference = React.useRef<FormInputReferenceInterface>(null);
     const currentTaskCreatePortScanIdReference = React.useRef<string | undefined>(undefined);
     const currentTaskCreatePortScanGroupIdReference = React.useRef<string | null | undefined>(undefined);
     const websocketTimeoutReference = React.useRef<NodeJS.Timeout>();
@@ -60,11 +64,12 @@ export function PortChecker(properties: PortCheckerInterface) {
         if(websocketTimeoutReference.current) clearInterval(websocketTimeoutReference.current);
         if(fallbackTimeoutReference.current) clearTimeout(fallbackTimeoutReference.current);
         if(totalTimeoutReference.current) clearTimeout(totalTimeoutReference.current);
-        setUsingFallback(false); // Reset fallback state
+        setUsingFallbackPolling(false); // Reset fallback state
     }
 
     // Function to poll task port scan
     async function pollTaskPortScan() {
+        // If we're not checking the port, don't poll
         if(!currentTaskCreatePortScanIdReference.current) {
             console.log('No task ID to poll');
             return;
@@ -73,7 +78,7 @@ export function PortChecker(properties: PortCheckerInterface) {
         console.log('Polling task:', currentTaskCreatePortScanIdReference.current);
 
         try {
-            // Query the task
+            // Query the task from the GraphQL API
             const taskPortScanQueryResult = await apolloClient.query({
                 query: TaskPortScanDocument,
                 variables: {
@@ -87,6 +92,7 @@ export function PortChecker(properties: PortCheckerInterface) {
 
             // Check if we received task data
             if(!task) {
+                // If we didn't receive task data, continue polling
                 console.log('No task data received');
                 if(checkingPort) {
                     fallbackTimeoutReference.current = setTimeout(pollTaskPortScan, 2000);
@@ -96,14 +102,15 @@ export function PortChecker(properties: PortCheckerInterface) {
 
             console.log('Poll result:', task.state, task.results?.[0]?.result[0]);
 
-            // Handle task result
+            // If the task is succeeded or errored, handle the result
             if(task.state === 'Succeeded' || task.results?.[0]?.result[0]?.error) {
                 handleTaskResult(task.results[0] as TaskResultInterface);
                 cleanupTimeouts();
                 setCheckingPort(false);
                 isCheckingPortReference.current = false;
-                setUsingFallback(false);
+                setUsingFallbackPolling(false);
             }
+            // If the task is still running, continue polling
             else if(checkingPort) {
                 // Continue polling if we're still checking
                 fallbackTimeoutReference.current = setTimeout(pollTaskPortScan, 2000);
@@ -120,8 +127,8 @@ export function PortChecker(properties: PortCheckerInterface) {
     // Effect to handle WebSocket messages
     React.useEffect(
         function () {
-            console.log('[WebSocket Effect] Setting up handler');
-            const removeHandler = addMessageHandler((event: WebSocketEvent) => {
+            // Function to add message handler
+            const removeHandler = webSocket.addMessageHandler(function (event: WebSocketEvent) {
                 console.log('[WebSocket] Received message:', event.type);
 
                 // Get taskId based on event type
@@ -141,9 +148,9 @@ export function PortChecker(properties: PortCheckerInterface) {
                 console.log('[WebSocket] Message for task:', taskId);
 
                 // If we get a WebSocket message for our task while polling, stop polling
-                if(taskId === currentTaskCreatePortScanIdReference.current && usingFallback) {
+                if(taskId === currentTaskCreatePortScanIdReference.current && usingFallbackPolling) {
                     console.log('[WebSocket] Received message while polling, stopping polling');
-                    setUsingFallback(false);
+                    setUsingFallbackPolling(false);
                     if(fallbackTimeoutReference.current) {
                         clearTimeout(fallbackTimeoutReference.current);
                     }
@@ -155,6 +162,7 @@ export function PortChecker(properties: PortCheckerInterface) {
                     lastWebSocketMessageTimeReference.current = Date.now();
                 }
 
+                // If we don't have a current task ID, ignore the message
                 if(!currentTaskCreatePortScanIdReference.current) {
                     console.log('[WebSocket] No current task ID, ignoring message');
                     return;
@@ -171,31 +179,37 @@ export function PortChecker(properties: PortCheckerInterface) {
                     console.log('[WebSocket] Message for different task, keeping timeout');
                 }
 
+                // Handle the event based on type
                 switch(event.type) {
+                    // Task assigned
                     case 'taskAssigned':
                         const assignedEvent = event as TaskAssigned;
                         if(assignedEvent.taskId === currentTaskCreatePortScanIdReference.current) {
-                            setPortCheckStatusTextArray((previous) => [
-                                ...previous,
-                                `Server ${getRegionEmoji(assignedEvent.region)} #${alphanumericStringToNumber(
-                                    assignedEvent.nodeId,
-                                )} assigned...`,
-                            ]);
+                            setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
+                                return [
+                                    ...previousPortCheckStatusTextArray,
+                                    `Server ${getRegionEmoji(assignedEvent.region)} #${alphanumericStringToNumber(
+                                        assignedEvent.nodeId,
+                                    )} assigned...`,
+                                ];
+                            });
                         }
                         break;
-
+                    // Task running
                     case 'taskRunning':
                         const runningEvent = event as TaskRunning;
                         if(runningEvent.taskId === currentTaskCreatePortScanIdReference.current) {
-                            setPortCheckStatusTextArray((previous) => [
-                                ...previous,
-                                `Server ${getRegionEmoji(runningEvent.region)} #${alphanumericStringToNumber(
-                                    runningEvent.nodeId,
-                                )} checking port...`,
-                            ]);
+                            setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
+                                return [
+                                    ...previousPortCheckStatusTextArray,
+                                    `Server ${getRegionEmoji(runningEvent.region)} #${alphanumericStringToNumber(
+                                        runningEvent.nodeId,
+                                    )} checking port...`,
+                                ];
+                            });
                         }
                         break;
-
+                    // Task checked in
                     case 'taskCheckedIn':
                         const checkedInEvent = event as TaskCheckedIn;
                         if(checkedInEvent.taskId === currentTaskCreatePortScanIdReference.current) {
@@ -203,94 +217,105 @@ export function PortChecker(properties: PortCheckerInterface) {
                             cleanupTimeouts();
                             setCheckingPort(false);
                             isCheckingPortReference.current = false;
-                            setUsingFallback(false);
+                            setUsingFallbackPolling(false);
                         }
                         break;
                 }
             });
 
+            // On unmount, remove the handler
             return function () {
                 removeHandler();
             };
         },
-        [addMessageHandler, usingFallback], // Add usingFallback to dependencies
+        [webSocket, usingFallbackPolling], // Add usingFallback to dependencies
     );
 
-    // Add helper function to handle task results
+    // Function to handle task results
     function handleTaskResult(result: TaskResultInterface) {
         const portScanResult = result.result[0];
         const port = portScanResult.ports[0]?.port;
         const host = portScanResult.hostName;
 
         if(portScanResult.error?.message === 'Failed to resolve host.') {
-            setPortCheckStatusTextArray((prev) => [...prev, 'Failed to resolve host.']);
+            setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
+                return [...previousPortCheckStatusTextArray, 'Failed to resolve host.'];
+            });
             return;
         }
 
         const isOpen = portScanResult.ports[0]?.state === 'open';
-        setPortCheckStatusTextArray((prev) => [...prev, `Port ${port} is ${isOpen ? 'open' : 'closed'} on ${host}.`]);
+        setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
+            return [...previousPortCheckStatusTextArray, `Port ${port} is ${isOpen ? 'open' : 'closed'} on ${host}.`];
+        });
     }
 
     // Function to check the port
     async function checkPort(
         remoteAddress: string,
         remotePort: number,
-        regionIdentifier: string = 'north-america',
-        regionDisplayName: string = 'North America',
+        regionIdentifier: string = 'north-america', // Default to North America
+        regionDisplayName: string = 'North America', // Default to North America
     ) {
+        // Cleanup any existing timeouts and reset fallback state
         cleanupTimeouts();
-        setUsingFallback(false);
+        setUsingFallbackPolling(false);
         currentTaskCreatePortScanIdReference.current = undefined;
         lastWebSocketMessageTimeReference.current = Date.now();
 
-        // Update both state and ref
+        // Set checking port state
         setCheckingPort(true);
         isCheckingPortReference.current = true;
 
-        console.log('[checkPort] Starting with:', { remoteAddress, remotePort, regionIdentifier });
+        console.log('Checking port:', { remoteAddress, remotePort, regionIdentifier });
 
+        // Initialize status text
         setPortCheckStatusTextArray([`Checking port ${remotePort} on ${remoteAddress} from ${regionDisplayName}...`]);
 
         // Set up timeouts
-        const checkWebSocketTimeout = setInterval(() => {
+        const checkWebSocketTimeout = setInterval(function () {
             const now = Date.now();
             const timeSinceLastMessage = now - lastWebSocketMessageTimeReference.current;
 
-            console.log('[WebSocket Check] Time since last message:', timeSinceLastMessage, {
+            console.log('Time since last message:', timeSinceLastMessage, {
                 checkingPort: isCheckingPortReference.current,
                 taskId: currentTaskCreatePortScanIdReference.current,
-                usingFallback: usingFallback,
+                usingFallback: usingFallbackPolling,
             });
 
+            // If we haven't received a message in 5 seconds, start polling every second
             if(
                 timeSinceLastMessage >= 5000 &&
                 isCheckingPortReference.current &&
                 currentTaskCreatePortScanIdReference.current &&
-                !usingFallback
+                !usingFallbackPolling
             ) {
-                console.log('[WebSocket Timeout] Starting fallback polling after 5s of no messages');
+                console.log('Starting fallback polling after 5s of no messages');
                 clearInterval(checkWebSocketTimeout);
-                setUsingFallback(true);
+                setUsingFallbackPolling(true);
                 pollTaskPortScan();
             }
         }, 1000);
 
         websocketTimeoutReference.current = checkWebSocketTimeout;
 
-        // Total timeout
-        totalTimeoutReference.current = setTimeout(() => {
-            console.log('Total timeout reached');
+        // Timeout after 20 seconds
+        totalTimeoutReference.current = setTimeout(function () {
+            console.log('Total timeout reached.');
+            // If we're still checking the port, stop checking
             if(isCheckingPortReference.current) {
-                setPortCheckStatusTextArray((prev) => [...prev, 'Port check timed out after 20 seconds.']);
+                setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
+                    return [...previousPortCheckStatusTextArray, 'Port check timed out after 20 seconds.'];
+                });
                 setCheckingPort(false);
                 isCheckingPortReference.current = false;
-                setUsingFallback(false);
+                setUsingFallbackPolling(false);
                 cleanupTimeouts();
             }
         }, 20000);
 
-        // Perform the mutation
         try {
+            // Create the task to check the port with the GraphQL API
             const result = await taskCreatePortScanMutation({
                 variables: {
                     input: {
@@ -301,25 +326,30 @@ export function PortChecker(properties: PortCheckerInterface) {
                 },
             });
 
-            console.log('[Mutation] Completed:', result.data);
-            console.log('[Mutation] Setting taskId to:', result.data?.taskCreatePortScan[0]?.id);
+            console.log('Task created:', result.data);
+            console.log('Setting taskId to:', result.data?.taskCreatePortScan[0]?.id);
 
             // Set the task ID and start polling if WebSocket isn't working
             currentTaskCreatePortScanIdReference.current = result.data?.taskCreatePortScan[0]?.id;
             currentTaskCreatePortScanGroupIdReference.current = result.data?.taskCreatePortScan[0]?.groupdId;
 
+            // If we don't have a task ID, stop checking
             if(!currentTaskCreatePortScanIdReference.current) {
                 console.error('No task ID received from mutation');
-                setPortCheckStatusTextArray((prev) => [...prev, 'Failed to start port check.']);
+                setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
+                    return [...previousPortCheckStatusTextArray, 'Failed to start port check.'];
+                });
                 setCheckingPort(false);
                 cleanupTimeouts();
-                return; // Add early return
+
+                // If we don't have a task ID, start polling immediately
+                return;
             }
 
-            if(!isConnected) {
+            if(!webSocket.isConnected) {
                 // If WebSocket isn't connected, start polling immediately
                 console.log('WebSocket not connected, starting polling immediately');
-                setUsingFallback(true);
+                setUsingFallbackPolling(true);
                 setPortCheckStatusTextArray((prev) => [...prev, 'Using backup method...']);
                 pollTaskPortScan();
             }
@@ -343,10 +373,11 @@ export function PortChecker(properties: PortCheckerInterface) {
                 <YourPublicIpAddress publicIpAddress={properties.publicIpAddress ?? ''} />
 
                 <PortCheckForm
-                    remoteAddressFormInputReference={remoteAddressFormInputReference}
-                    remotePortFormInputReference={remotePortFormInputReference}
-                    regionFormInputReference={regionFormInputReference}
-                    buttonReference={buttonReference}
+                    publicIpAddress={properties.publicIpAddress ?? ''}
+                    remoteAddressFormInputReference={portCheckFormRemoteAddressFormInputReference}
+                    remotePortFormInputReference={portCheckFormRemotePortFormInputReference}
+                    regionFormInputReference={portCheckFormRegionFormInputReference}
+                    buttonReference={portCheckFormSubmitButtonReference}
                     checkingPort={checkingPort}
                     checkPort={checkPort}
                 />
@@ -359,11 +390,11 @@ export function PortChecker(properties: PortCheckerInterface) {
             <CommonPorts
                 portSelected={function (port) {
                     // Set the port in the form input
-                    remotePortFormInputReference.current?.setValue(port.toString());
+                    portCheckFormRemotePortFormInputReference.current?.setValue(port.toString());
 
                     // Immediately check the port if not already checking
                     if(!checkingPort) {
-                        buttonReference.current?.click();
+                        portCheckFormSubmitButtonReference.current?.click();
                     }
                 }}
             />

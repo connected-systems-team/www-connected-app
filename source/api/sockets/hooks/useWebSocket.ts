@@ -15,12 +15,12 @@ export function useWebSocket() {
     // References
     const webSocketReference = React.useRef<WebSocket | null>(null);
     const messageHandlersReference = React.useRef<WebSocketMessageHandler[]>([]);
-    const reconnectAttempts = React.useRef(0);
+    const reconnectAttemptsCount = React.useRef(0);
     const reconnectTimerReference = React.useRef<NodeJS.Timeout>();
     const isCleaningUpReference = React.useRef(false);
 
     // Function to create and configure a new WebSocket connection
-    const connectWebSocket = React.useCallback(function () {
+    const connect = React.useCallback(function () {
         // Don't create new connections during cleanup
         if(isCleaningUpReference.current) {
             return;
@@ -54,7 +54,7 @@ export function useWebSocket() {
             if(!isCleaningUpReference.current) {
                 console.log('WebSocket connected to api.connected.app');
                 setIsConnected(true);
-                reconnectAttempts.current = 0;
+                reconnectAttemptsCount.current = 0;
             }
             else {
                 // If we're cleaning up, close the connection immediately
@@ -69,13 +69,13 @@ export function useWebSocket() {
 
             // Calculate reconnection delay using exponential backoff
             // Starts at 1s, doubles each attempt (1s, 2s, 4s, 8s...), caps at 30s
-            const backoffDelay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 30000);
+            const backoffDelay = Math.min(1000 * Math.pow(2, reconnectAttemptsCount.current), 30000);
             // console.log(`Attempting to reconnect in ${backoffDelay}ms`);
 
             // Schedule reconnection attempt
             reconnectTimerReference.current = setTimeout(function () {
-                reconnectAttempts.current += 1;
-                connectWebSocket();
+                reconnectAttemptsCount.current += 1;
+                connect();
             }, backoffDelay);
         };
 
@@ -96,7 +96,7 @@ export function useWebSocket() {
     React.useEffect(
         function () {
             isCleaningUpReference.current = false;
-            connectWebSocket();
+            connect();
 
             // On unmount
             return function () {
@@ -115,18 +115,18 @@ export function useWebSocket() {
                 setIsConnected(false);
             };
         },
-        [connectWebSocket],
+        [connect],
     );
 
     // Function to add message handlers with cleanup
-    function addMessageHandler(handler: WebSocketMessageHandler) {
+    function addMessageHandler(newMessageHandler: WebSocketMessageHandler) {
         // Add the handler to the list
-        messageHandlersReference.current.push(handler);
+        messageHandlersReference.current.push(newMessageHandler);
 
         // Return cleanup function to remove the handler
         return function () {
-            messageHandlersReference.current = messageHandlersReference.current.filter(function (h) {
-                return h !== handler;
+            messageHandlersReference.current = messageHandlersReference.current.filter(function (handler) {
+                return handler !== newMessageHandler;
             });
         };
     }

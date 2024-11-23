@@ -20,11 +20,11 @@ import { getRegionEmoji, getRegionDisplayName } from '@project/app/(main-layout)
 
 // Component - PortCheckForm
 export interface PortCheckFormInterface {
+    publicIpAddress: string;
     remoteAddressFormInputReference: React.RefObject<FormInputReferenceInterface>;
     remotePortFormInputReference: React.RefObject<FormInputReferenceInterface>;
     regionFormInputReference: React.RefObject<FormInputReferenceInterface>;
     buttonReference: React.RefObject<ButtonElementType>;
-    publicIpAddress?: string;
     checkingPort: boolean;
     checkPort: (remoteAddress: string, remotePort: number, regionIdentifier: string, regionDisplayName: string) => void;
 }
