@@ -260,25 +260,21 @@ export function PortChecker(properties: PortCheckerInterface) {
     return (
         <div className="flex flex-col md:flex-row">
             <div>
-                {/* Your Public IP Address */}
                 <YourPublicIpAddress publicIpAddress={properties.publicIpAddress ?? ''} />
 
-                <div className="mt-8">
-                    <PortCheckForm
-                        remoteAddressFormInputReference={remoteAddressFormInputReference}
-                        remotePortFormInputReference={remotePortFormInputReference}
-                        regionFormInputReference={regionFormInputReference}
-                        checkingPort={checkingPort}
-                        checkPort={checkPort}
-                    />
+                <PortCheckForm
+                    remoteAddressFormInputReference={remoteAddressFormInputReference}
+                    remotePortFormInputReference={remotePortFormInputReference}
+                    regionFormInputReference={regionFormInputReference}
+                    checkingPort={checkingPort}
+                    checkPort={checkPort}
+                />
 
-                    <PortCheckStatusAnimatedList portCheckStatusTextArray={portCheckStatusTextArray} />
+                <PortCheckStatusAnimatedList portCheckStatusTextArray={portCheckStatusTextArray} />
 
-                    <About />
-                </div>
+                <About />
             </div>
 
-            {/* Common ports */}
             <CommonPorts
                 portSelected={function (port) {
                     remotePortFormInputReference.current?.setValue(port.toString());

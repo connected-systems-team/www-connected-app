@@ -33,7 +33,7 @@ export function PortCheckForm(properties: PortCheckFormInterface) {
 
     // Render the component
     return (
-        <div className="flex flex-col md:flex-row">
+        <div className="mt-8 flex flex-col md:flex-row">
             {/* Remote Address */}
             <FormInputText
                 ref={properties.remoteAddressFormInputReference}
