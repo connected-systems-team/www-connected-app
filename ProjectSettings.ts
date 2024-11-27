@@ -22,7 +22,7 @@ export const ProjectSettings: StructureSettingsInterface = {
         commerce: true,
     },
     theme: {
-        defaultClassName: 'light',
+        defaultClassName: 'dark',
     },
     assets: {
         url: 'https://assets.connected.app/',
