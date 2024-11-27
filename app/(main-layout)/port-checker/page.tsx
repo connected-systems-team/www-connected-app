@@ -4,7 +4,7 @@ import { headers } from 'next/headers';
 
 // Dependencies - Main Components
 import { AuthorizationLayout } from '@structure/source/layouts/AuthorizationLayout';
-import { PortChecker } from '@project/app/(main-layout)/port-checker/PortChecker';
+import { PortCheckerPage } from '@project/app/(main-layout)/port-checker/PortCheckerPage';
 
 // Component - HomePage
 export function HomePage() {
@@ -14,9 +14,7 @@ export function HomePage() {
     // Render the component
     return (
         <AuthorizationLayout>
-            <div className="container flex w-full items-center justify-center pt-8">
-                <PortChecker publicIpAddress={publicIpAddress ?? undefined} />
-            </div>
+            <PortCheckerPage publicIpAddress={publicIpAddress ?? undefined} />
         </AuthorizationLayout>
     );
 }

@@ -31,6 +31,7 @@ export interface PortCheckFormInterface {
 export function PortCheckForm(properties: PortCheckFormInterface) {
     // Hooks
     const gridRegionsQueryState = useQuery(GridRegionsDocument);
+    // console.log('gridRegionsQueryState', gridRegionsQueryState);
 
     // Function to check the port
     function checkPort() {
@@ -112,7 +113,8 @@ export function PortCheckForm(properties: PortCheckFormInterface) {
                         }) || []
                     }
                     placeholder="Loading regions..."
-                    defaultValue={gridRegionsQueryState.data?.gridRegions[0]?.name}
+                    defaultValue={'north-america'}
+                    // defaultValue={gridRegionsQueryState.data?.gridRegions[0]?.name}
                 />
             </div>
 

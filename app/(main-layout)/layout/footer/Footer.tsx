@@ -47,9 +47,9 @@ export function Footer() {
 
     const footerLinkGroups: FooterLinkGroup[] = [
         {
-            title: 'Products',
+            title: 'Services',
             links: [
-                { title: 'Port Forwarding Tester', url: '/home' },
+                { title: 'Port Forwarding Tester', url: '/port-checker' },
                 // { title: 'Connected App', url: '/app' },
                 // { title: 'Shop', url: '/shop' },
             ],

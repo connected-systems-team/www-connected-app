@@ -135,6 +135,69 @@ query GridRegions {
     }
 }
 
+# Task History Query
+query TaskHistory($input: PaginationInputWithFilters, $orderBy: OrderBy) {
+    taskHistory(input: $input, orderBy: $orderBy) {
+        id
+        # groupdId
+        # regionId
+        # lastResultId
+        # state
+        # priority
+        # procedureType
+        # procedureArguments
+        runAt
+        # attempts
+        # maxAttempts
+        # assignments {
+        #     id
+        #     attempt
+        #     gridNode {
+        #         id
+        #         updatedAt
+        #         createdAt
+        #     }
+        #     region {
+        #         name
+        #     }
+        #     updatedAt
+        #     createdAt
+        # }
+        # meta
+        # results {
+        #     id
+        #     taskId
+        #     regionId
+        #     region {
+        #         id
+        #         name
+        #         displayName
+        #         updatedAt
+        #         createdAt
+        #     }
+        #     clusterId
+        #     cluster {
+        #         id
+        #         name
+        #         updatedAt
+        #         createdAt
+        #     }
+        #     gridNodeId
+        #     type
+        #     ranAt
+        #     attempt
+        #     duration
+        #     result
+        #     meta
+        #     error
+        #     createdAt
+        #     updatedAt
+        # }
+        # createdAt
+        # updatedAt
+    }
+}
+
 # query whois($input: String!) {
 #     whois(input: $input) {
 #         id

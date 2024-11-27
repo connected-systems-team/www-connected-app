@@ -20,6 +20,31 @@ type Cluster {
     updatedAt: DateTimeISO!
 }
 
+input ColumnFilter {
+    caseSensitive: Boolean
+    column: String!
+    operator: ColumnFilterConditionOperator!
+    value: JSON!
+}
+
+"""
+The operator of a field filter
+"""
+enum ColumnFilterConditionOperator {
+    Equal
+    GreaterThan
+    GreaterThanOrEqual
+    In
+    IsNotNull
+    IsNull
+    LessThan
+    LessThanOrEqual
+    Like
+    NotEqual
+    NotIn
+    NotLike
+}
+
 """
 A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.This scalar is serialized to a string in ISO 8601 format and parsed from a string in ISO 8601 format.
 """
@@ -108,6 +133,25 @@ type Mutation {
     taskCreatePortScan(input: TaskPortScanInput!): [Task!]!
 }
 
+input OrderBy {
+    direction: OrderByDirection
+    key: String!
+}
+
+"""
+The order direction of a query
+"""
+enum OrderByDirection {
+    Ascending
+    Descending
+}
+
+input PaginationInputWithFilters {
+    filters: [ColumnFilter!]
+    itemIndex: Int
+    itemsPerPage: Int!
+}
+
 type Query {
     """
     Get a node.
@@ -123,6 +167,7 @@ type Query {
     gridRegions: [Region!]!
     task(input: TaskInput!): Task
     taskGroup(input: TaskGroupInput!): [Task!]!
+    taskHistory(input: PaginationInputWithFilters, orderBy: OrderBy): Task
 }
 
 type Region {

@@ -1,2 +1,2 @@
 // Shim the default export from Structure
-export { default, generateMetadata } from '@structure/source/layouts/RootLayout';
+export { generateMetadata, default } from '@structure/source/layouts/RootLayout';
