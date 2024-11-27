@@ -34,6 +34,7 @@ type Account {
     currentSession: AccountSession
     defaultProfile: Profile
     defaultProfileId: String
+    enrolledChallenges: [String!]!
     primaryAccountEmail: AccountEmail
     roles: [String!]!
 }
@@ -80,7 +81,7 @@ input AccountEncryptionConfiguration {
     transitKeyId: String!
 }
 
-input AccountPasswordCreateInput {
+input AccountPasswordUpdateInput {
     newPassword: String!
 }
 
@@ -241,7 +242,7 @@ type Mutation {
     accountEmailVerificationComplete(input: AccountEmailVerificationCompleteInput!): AccountEmail!
     accountEmailVerificationSend(input: AccountEmailVerificationSendInput!): EmailVerification!
     accountMaintenanceSessionCreate: AuthenticationSession!
-    accountPasswordCreate(input: AccountPasswordCreateInput!): OperationResult!
+    accountPasswordUpdate(input: AccountPasswordUpdateInput!): OperationResult!
     accountPasswordVerify(input: AccountPasswordVerifyInput!): AuthenticationOperationResult!
     accountProfileImageRemove: Profile!
     accountProfileUpdate(input: AccountProfileUpdateInput!): Profile!

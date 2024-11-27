@@ -369,9 +369,9 @@
                     }
                 ]
             },
-            "AccountPasswordCreateInput": {
+            "AccountPasswordUpdateInput": {
                 "kind": "object",
-                "type": "AccountPasswordCreateInput",
+                "type": "AccountPasswordUpdateInput",
                 "fields": [
                     {
                         "kind": "scalar",
