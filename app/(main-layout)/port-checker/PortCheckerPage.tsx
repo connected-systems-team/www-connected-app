@@ -2,12 +2,20 @@
 
 // Dependencies - React and Next.js
 import React from 'react';
+import { Metadata } from 'next';
 import Link from 'next/link';
 
 // Dependencies - Main Components
 import { AuthorizationLayout } from '@structure/source/layouts/AuthorizationLayout';
 import { Button } from '@structure/source/common/buttons/Button';
 import { PortChecker } from '@project/app/(main-layout)/port-checker/PortChecker';
+
+// Next.js Metadata
+export async function generateMetadata(): Promise<Metadata> {
+    return {
+        title: 'Port Checker',
+    };
+}
 
 // Component - PortCheckerPage
 export interface PortCheckerPageInterface {

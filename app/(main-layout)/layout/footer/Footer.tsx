@@ -155,6 +155,7 @@ export function Footer() {
                                             <Link
                                                 href={link.url}
                                                 className="text-sm transition-opacity ease-out hover:opacity-60"
+                                                prefetch={false}
                                             >
                                                 {link.title}
                                             </Link>
