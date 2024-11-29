@@ -139,14 +139,35 @@ export function PortChecker(properties: PortCheckerInterface) {
             const portScanResult = result.result[0];
             if(!portScanResult) return;
 
-            const port = portScanResult.ports[0]?.port ?? '';
-            const host = portScanResult.hostName ?? '';
             const regionId = result.regionId ?? '';
 
-            if(portScanResult.error?.message === 'Failed to resolve host.') {
+            // Handle error case
+            if(portScanResult.error) {
+                const errorMessage = `Port ${portScanResult.error.port} on ${portScanResult.error.host}: ${portScanResult.error.message}`;
                 setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
-                    return [...previousPortCheckStatusTextArray, 'Failed to resolve host.'];
+                    return [...previousPortCheckStatusTextArray, errorMessage];
                 });
+
+                // Add this region to completed regions even in error case
+                setCompletedRegions((prev) => new Set(prev).add(regionId));
+
+                // Only cleanup and disable checking when all regions are done
+                if(completedRegions.size >= 2) {
+                    cleanupTimeouts();
+                    setCheckingPort(false);
+                    isCheckingPortReference.current = false;
+                    setUsingFallbackPolling(false);
+                    setCompletedRegions(new Set()); // Reset for next check
+                }
+                return;
+            }
+
+            // Handle success case
+            const port = portScanResult.ports[0]?.port;
+            const host = portScanResult.hostName;
+
+            if(!port || !host) {
+                console.error('Missing port or host in result:', portScanResult);
                 return;
             }
 
@@ -154,7 +175,7 @@ export function PortChecker(properties: PortCheckerInterface) {
             setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
                 return [
                     ...previousPortCheckStatusTextArray,
-                    `Port ${port} is ${isOpen ? 'open' : 'closed'} on ${host}.`,
+                    `Port ${port} is ${isOpen ? 'open' : 'closed'} on ${host}`,
                 ];
             });
 
@@ -162,9 +183,7 @@ export function PortChecker(properties: PortCheckerInterface) {
             setCompletedRegions((prev) => new Set(prev).add(regionId));
 
             // Only cleanup and disable checking when all regions are done
-            // We expect 3 regions: north-america, asia, and europe
             if(completedRegions.size >= 2) {
-                // Check for 2 because the current region hasn't been added to state yet
                 cleanupTimeouts();
                 setCheckingPort(false);
                 isCheckingPortReference.current = false;
