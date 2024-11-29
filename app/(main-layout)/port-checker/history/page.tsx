@@ -1,2 +1,12 @@
+// Dependencies - React and Next.js
+import { Metadata } from 'next';
+
+// Next.js Metadata
+export async function generateMetadata(): Promise<Metadata> {
+    return {
+        title: 'History • Port Checker',
+    };
+}
+
 // Page - Home
-export { generateMetadata, default } from '@project/app/(main-layout)/port-checker/history/TaskHistoryPage';
+export { default } from '@project/app/(main-layout)/port-checker/history/TaskHistoryPage';
