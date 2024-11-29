@@ -55,7 +55,6 @@ export function PortChecker(properties: PortCheckerInterface) {
     const currentTaskCreatePortScanGroupIdReference = React.useRef<string | null | undefined>(undefined);
     const websocketTimeoutReference = React.useRef<NodeJS.Timeout>();
     const fallbackTimeoutReference = React.useRef<NodeJS.Timeout>();
-    const totalTimeoutReference = React.useRef<NodeJS.Timeout>();
     const lastWebSocketMessageTimeReference = React.useRef<number>(0);
     const isCheckingPortReference = React.useRef<boolean>(false);
     const mutationCompletedReference = React.useRef<boolean>(false);
@@ -65,7 +64,6 @@ export function PortChecker(properties: PortCheckerInterface) {
     function cleanupTimeouts() {
         if(websocketTimeoutReference.current) clearInterval(websocketTimeoutReference.current);
         if(fallbackTimeoutReference.current) clearTimeout(fallbackTimeoutReference.current);
-        if(totalTimeoutReference.current) clearTimeout(totalTimeoutReference.current);
         setUsingFallbackPolling(false); // Reset fallback state
     }
 
@@ -321,21 +319,6 @@ export function PortChecker(properties: PortCheckerInterface) {
         }, 1000);
 
         websocketTimeoutReference.current = checkWebSocketTimeout;
-
-        // Timeout after 20 seconds
-        totalTimeoutReference.current = setTimeout(function () {
-            console.log('Total timeout reached.');
-            // If we're still checking the port, stop checking
-            if(isCheckingPortReference.current) {
-                setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
-                    return [...previousPortCheckStatusTextArray, 'Port check timed out after 20 seconds.'];
-                });
-                setCheckingPort(false);
-                isCheckingPortReference.current = false;
-                setUsingFallbackPolling(false);
-                cleanupTimeouts();
-            }
-        }, 20000);
 
         try {
             // Create the task to check the port with the GraphQL API
