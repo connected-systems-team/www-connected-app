@@ -36,6 +36,7 @@ export function PortChecker(properties: PortCheckerInterface) {
     const [checkingPort, setCheckingPort] = React.useState<boolean>(false);
     const [portCheckStatusTextArray, setPortCheckStatusTextArray] = React.useState<string[]>([]);
     const [usingFallbackPolling, setUsingFallbackPolling] = React.useState<boolean>(false);
+    const [completedRegions, setCompletedRegions] = React.useState<Set<string>>(new Set());
 
     // Hooks
     const webSocket = useWebSocket();
@@ -132,140 +133,146 @@ export function PortChecker(properties: PortCheckerInterface) {
         }
     }
 
-    // Function to handle WebSocket message
-    function handleWebSocketMessage(event: WebSocketEvent) {
-        console.log('[WebSocket] Received message:', event.type);
+    // Function to handle task results
+    const handleTaskResult = React.useCallback(
+        function (result: TaskResultInterface) {
+            const portScanResult = result.result[0];
+            if(!portScanResult) return;
 
-        // Get taskId based on event type
-        let taskId: string | undefined;
-        switch(event.type) {
-            case 'taskAssigned':
-                taskId = (event as TaskAssigned).taskId;
-                break;
-            case 'taskRunning':
-                taskId = (event as TaskRunning).taskId;
-                break;
-            case 'taskCheckedIn':
-                taskId = (event as TaskCheckedIn).taskId;
-                break;
-        }
+            const port = portScanResult.ports[0]?.port ?? '';
+            const host = portScanResult.hostName ?? '';
+            const regionId = result.regionId ?? '';
 
-        console.log('[WebSocket] Message for task:', taskId);
-
-        // If we get a WebSocket message for our task while polling, stop polling
-        if(taskId === currentTaskCreatePortScanIdReference.current && usingFallbackPolling) {
-            console.log('[WebSocket] Received message while polling, stopping polling');
-            setUsingFallbackPolling(false);
-            if(fallbackTimeoutReference.current) {
-                clearTimeout(fallbackTimeoutReference.current);
+            if(portScanResult.error?.message === 'Failed to resolve host.') {
+                setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
+                    return [...previousPortCheckStatusTextArray, 'Failed to resolve host.'];
+                });
+                return;
             }
-        }
 
-        // Update last message time for our task
-        if(taskId === currentTaskCreatePortScanIdReference.current) {
-            console.log('[WebSocket] Updating last message time for our task');
-            lastWebSocketMessageTimeReference.current = Date.now();
-        }
-
-        // If we don't have a current task ID, ignore the message
-        if(!currentTaskCreatePortScanIdReference.current) {
-            console.log('[WebSocket] No current task ID, ignoring message');
-            return;
-        }
-
-        // Only clear timeout if the message is for our current task
-        if(taskId === currentTaskCreatePortScanIdReference.current) {
-            if(websocketTimeoutReference.current) {
-                console.log('[WebSocket] Clearing timeout for matching task ID');
-                clearTimeout(websocketTimeoutReference.current);
-            }
-        }
-        else {
-            console.log('[WebSocket] Message for different task, keeping timeout');
-        }
-
-        // Handle the event based on type
-        switch(event.type) {
-            // Task assigned
-            case 'taskAssigned':
-                const assignedEvent = event as TaskAssigned;
-                if(assignedEvent.taskId === currentTaskCreatePortScanIdReference.current) {
-                    setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
-                        return [
-                            ...previousPortCheckStatusTextArray,
-                            `Server ${getRegionEmoji(assignedEvent.region)} #${alphanumericStringToNumber(
-                                assignedEvent.nodeId,
-                            )} assigned...`,
-                        ];
-                    });
-                }
-                break;
-            // Task running
-            case 'taskRunning':
-                const runningEvent = event as TaskRunning;
-                if(runningEvent.taskId === currentTaskCreatePortScanIdReference.current) {
-                    setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
-                        return [
-                            ...previousPortCheckStatusTextArray,
-                            `Server ${getRegionEmoji(runningEvent.region)} #${alphanumericStringToNumber(
-                                runningEvent.nodeId,
-                            )} checking port...`,
-                        ];
-                    });
-                }
-                break;
-            // Task checked in
-            case 'taskCheckedIn':
-                const checkedInEvent = event as TaskCheckedIn;
-                if(checkedInEvent.taskId === currentTaskCreatePortScanIdReference.current) {
-                    handleTaskResult(checkedInEvent.result);
-                    cleanupTimeouts();
-                    setCheckingPort(false);
-                    isCheckingPortReference.current = false;
-                    setUsingFallbackPolling(false);
-                }
-                break;
-        }
-    }
-
-    // Effect to handle WebSocket messages
-    React.useEffect(
-        function () {
-            // Function to add message handler
-            const removeHandler = webSocket.addMessageHandler(function (event: WebSocketEvent) {
-                if(!mutationCompletedReference.current) {
-                    queuedMessagesReference.current.push(event);
-                    return;
-                }
-                handleWebSocketMessage(event);
+            const isOpen = portScanResult.ports[0]?.state === 'open';
+            setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
+                return [
+                    ...previousPortCheckStatusTextArray,
+                    `Port ${port} is ${isOpen ? 'open' : 'closed'} on ${host}.`,
+                ];
             });
 
-            // On unmount, remove the handler
-            return function () {
-                removeHandler();
-            };
+            // Add this region to completed regions
+            setCompletedRegions((prev) => new Set(prev).add(regionId));
+
+            // Only cleanup and disable checking when all regions are done
+            // We expect 3 regions: north-america, asia, and europe
+            if(completedRegions.size >= 2) {
+                // Check for 2 because the current region hasn't been added to state yet
+                cleanupTimeouts();
+                setCheckingPort(false);
+                isCheckingPortReference.current = false;
+                setUsingFallbackPolling(false);
+                setCompletedRegions(new Set()); // Reset for next check
+            }
         },
-        [webSocket, usingFallbackPolling], // Add usingFallback to dependencies
+        [completedRegions.size],
     );
 
-    // Function to handle task results
-    function handleTaskResult(result: TaskResultInterface) {
-        const portScanResult = result.result[0];
-        const port = portScanResult.ports[0]?.port;
-        const host = portScanResult.hostName;
+    // Function to handle WebSocket message
+    const handleWebSocketMessage = React.useCallback(
+        function (event: WebSocketEvent) {
+            console.log('[WebSocket] Received message:', event.type);
 
-        if(portScanResult.error?.message === 'Failed to resolve host.') {
-            setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
-                return [...previousPortCheckStatusTextArray, 'Failed to resolve host.'];
-            });
-            return;
-        }
+            // Get taskId based on event type
+            let taskId: string | undefined;
+            switch(event.type) {
+                case 'taskAssigned':
+                    taskId = (event as TaskAssigned).taskId;
+                    break;
+                case 'taskRunning':
+                    taskId = (event as TaskRunning).taskId;
+                    break;
+                case 'taskCheckedIn':
+                    taskId = (event as TaskCheckedIn).taskId;
+                    break;
+            }
 
-        const isOpen = portScanResult.ports[0]?.state === 'open';
-        setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
-            return [...previousPortCheckStatusTextArray, `Port ${port} is ${isOpen ? 'open' : 'closed'} on ${host}.`];
-        });
-    }
+            console.log('[WebSocket] Message for task:', taskId);
+
+            // If we get a WebSocket message for our task while polling, stop polling
+            if(taskId === currentTaskCreatePortScanIdReference.current && usingFallbackPolling) {
+                console.log('[WebSocket] Received message while polling, stopping polling');
+                setUsingFallbackPolling(false);
+                if(fallbackTimeoutReference.current) {
+                    clearTimeout(fallbackTimeoutReference.current);
+                }
+            }
+
+            // Update last message time for our task
+            if(taskId === currentTaskCreatePortScanIdReference.current) {
+                console.log('[WebSocket] Updating last message time for our task');
+                lastWebSocketMessageTimeReference.current = Date.now();
+            }
+
+            // If we don't have a current task ID, ignore the message
+            if(!currentTaskCreatePortScanIdReference.current) {
+                console.log('[WebSocket] No current task ID, ignoring message');
+                return;
+            }
+
+            // Only clear timeout if the message is for our current task
+            if(taskId === currentTaskCreatePortScanIdReference.current) {
+                if(websocketTimeoutReference.current) {
+                    console.log('[WebSocket] Clearing timeout for matching task ID');
+                    clearTimeout(websocketTimeoutReference.current);
+                }
+            }
+            else {
+                console.log('[WebSocket] Message for different task, keeping timeout');
+            }
+
+            // Handle the event based on type
+            switch(event.type) {
+                // Task assigned
+                case 'taskAssigned':
+                    const assignedEvent = event as TaskAssigned;
+                    if(assignedEvent.taskId === currentTaskCreatePortScanIdReference.current) {
+                        setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
+                            return [
+                                ...previousPortCheckStatusTextArray,
+                                `Server ${getRegionEmoji(assignedEvent.region)} #${alphanumericStringToNumber(
+                                    assignedEvent.nodeId,
+                                )} assigned...`,
+                            ];
+                        });
+                    }
+                    break;
+                // Task running
+                case 'taskRunning':
+                    const runningEvent = event as TaskRunning;
+                    if(runningEvent.taskId === currentTaskCreatePortScanIdReference.current) {
+                        setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
+                            return [
+                                ...previousPortCheckStatusTextArray,
+                                `Server ${getRegionEmoji(runningEvent.region)} #${alphanumericStringToNumber(
+                                    runningEvent.nodeId,
+                                )} checking port...`,
+                            ];
+                        });
+                    }
+                    break;
+                // Task checked in
+                case 'taskCheckedIn':
+                    const checkedInEvent = event as TaskCheckedIn;
+                    if(checkedInEvent.taskId === currentTaskCreatePortScanIdReference.current) {
+                        handleTaskResult(checkedInEvent.result);
+                        cleanupTimeouts();
+                        setCheckingPort(false);
+                        isCheckingPortReference.current = false;
+                        setUsingFallbackPolling(false);
+                    }
+                    break;
+            }
+        },
+        [handleTaskResult, usingFallbackPolling],
+    );
 
     // Function to check the port
     async function checkPort(
@@ -287,6 +294,9 @@ export function PortChecker(properties: PortCheckerInterface) {
         // Set checking port state
         setCheckingPort(true);
         isCheckingPortReference.current = true;
+
+        // Reset completed regions
+        setCompletedRegions(new Set());
 
         console.log('Checking port:', { remoteAddress, remotePort, regionIdentifier });
 
@@ -375,6 +385,26 @@ export function PortChecker(properties: PortCheckerInterface) {
             cleanupTimeouts();
         }
     }
+
+    // Effect to handle WebSocket messages
+    React.useEffect(
+        function () {
+            // Function to add message handler
+            const removeHandler = webSocket.addMessageHandler(function (event: WebSocketEvent) {
+                if(!mutationCompletedReference.current) {
+                    queuedMessagesReference.current.push(event);
+                    return;
+                }
+                handleWebSocketMessage(event);
+            });
+
+            // On unmount, remove the handler
+            return function () {
+                removeHandler();
+            };
+        },
+        [webSocket, usingFallbackPolling, handleWebSocketMessage],
+    );
 
     // Render the component
     return (
