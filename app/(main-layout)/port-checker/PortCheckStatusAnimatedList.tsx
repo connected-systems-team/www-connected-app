@@ -28,7 +28,7 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
         <AnimatedList
             className="ml-[8px] mt-4"
             items={properties.portCheckStatusTextArray.map(function (text) {
-                const isFinal = text.includes('is open') || text.includes('is closed');
+                const isFinal = text.includes('open') || text.includes('filtered') || text.includes('closed');
 
                 let content = <span>{text}</span>;
 
@@ -53,14 +53,15 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
                 return {
                     content: content,
                     isFinal: isFinal,
-                    finalDiscIcon: text.includes('is closed')
-                        ? themeClassName == 'light'
-                            ? ErrorCircledRedBorderIcon
-                            : ErrorCircledIcon
-                        : themeClassName == 'light'
-                          ? CheckCircledGreenBorderIcon
-                          : CheckCircledIcon,
-                    finalDiscClassName: text.includes('is closed') ? 'bg-red-500' : undefined,
+                    finalDiscIcon:
+                        text.includes('closed') || text.includes('filtered')
+                            ? themeClassName == 'light'
+                                ? ErrorCircledRedBorderIcon
+                                : ErrorCircledIcon
+                            : themeClassName == 'light'
+                              ? CheckCircledGreenBorderIcon
+                              : CheckCircledIcon,
+                    finalDiscClassName: text.includes('closed') || text.includes('filtered') ? 'bg-red-500' : undefined,
                 };
             })}
         />

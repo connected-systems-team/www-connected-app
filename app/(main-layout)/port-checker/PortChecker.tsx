@@ -139,20 +139,30 @@ export function PortChecker(properties: PortCheckerInterface) {
             const portScanResult = result.result[0];
             if(!portScanResult) return;
 
+            const host = portScanResult.error?.host ?? portScanResult.hostName;
+            const port = portScanResult.error?.port ?? portScanResult.ports[0]?.port;
             const regionId = result.regionId ?? '';
+            const gridNodeId = result.gridNodeId ?? '';
 
             // Handle error case
             if(portScanResult.error) {
-                const errorMessage = `Port ${portScanResult.error.port} on ${portScanResult.error.host}: ${portScanResult.error.message}`;
                 setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
-                    return [...previousPortCheckStatusTextArray, errorMessage];
+                    return [
+                        ...previousPortCheckStatusTextArray,
+                        `Server ${getRegionEmoji(regionId)} #${alphanumericStringToNumber(gridNodeId)} reports: ${
+                            portScanResult.error.message
+                        }`,
+                    ];
                 });
 
-                // Add this region to completed regions even in error case
+                // Add this region to completed regions
                 setCompletedRegions((prev) => new Set(prev).add(regionId));
 
-                // Only cleanup and disable checking when all regions are done
+                // Add final summary if this was the last region
                 if(completedRegions.size >= 2) {
+                    setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
+                        return [...previousPortCheckStatusTextArray, `Port ${port} is closed on ${host}`];
+                    });
                     cleanupTimeouts();
                     setCheckingPort(false);
                     isCheckingPortReference.current = false;
@@ -163,26 +173,34 @@ export function PortChecker(properties: PortCheckerInterface) {
             }
 
             // Handle success case
-            const port = portScanResult.ports[0]?.port;
-            const host = portScanResult.hostName;
-
             if(!port || !host) {
                 console.error('Missing port or host in result:', portScanResult);
                 return;
             }
 
-            const isOpen = portScanResult.ports[0]?.state === 'open';
-            setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
-                return [
-                    ...previousPortCheckStatusTextArray,
-                    `Port ${port} is ${isOpen ? 'open' : 'closed'} on ${host}`,
-                ];
-            });
+            if(portScanResult.ports[0]?.state === 'open') {
+                setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
+                    return [...previousPortCheckStatusTextArray, `Port ${port} is open on ${host}.`];
+                });
+            }
+            else if(portScanResult.ports[0]?.state === 'filtered') {
+                setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
+                    return [...previousPortCheckStatusTextArray, `Port ${port} is closed on ${host}.`];
+                });
+            }
+            else {
+                console.log(`Port ${port} is closed on ${host}`);
+                if(completedRegions.size >= 2) {
+                    setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
+                        return [...previousPortCheckStatusTextArray, `Port ${port} is closed on ${host}.`];
+                    });
+                }
+            }
 
             // Add this region to completed regions
             setCompletedRegions((prev) => new Set(prev).add(regionId));
 
-            // Only cleanup and disable checking when all regions are done
+            // Cleanup if this was the last region
             if(completedRegions.size >= 2) {
                 cleanupTimeouts();
                 setCheckingPort(false);
