@@ -16,7 +16,10 @@ import { GridRegionsDocument } from '@project/source/api/GraphQlGeneratedCode';
 import ArrowUpIcon from '@structure/assets/icons/interface/ArrowUpIcon.svg';
 
 // Dependencies - Utilities
-import { getRegionEmoji, getRegionDisplayName } from '@project/app/(main-layout)/port-checker/Region';
+import {
+    getRegionEmojiUsingRegionIdentifier,
+    getRegionDisplayName,
+} from '@project/app/(main-layout)/port-checker/Region';
 
 // Component - PortCheckForm
 export interface PortCheckFormInterface {
@@ -118,7 +121,8 @@ export function PortCheckForm(properties: PortCheckFormInterface) {
                         gridRegionsQueryState.data?.gridRegions.map(function (gridRegion) {
                             return {
                                 value: gridRegion.name,
-                                content: getRegionEmoji(gridRegion.name) + ' ' + gridRegion.displayName,
+                                content:
+                                    getRegionEmojiUsingRegionIdentifier(gridRegion.name) + ' ' + gridRegion.displayName,
                             };
                         }) || []
                     }

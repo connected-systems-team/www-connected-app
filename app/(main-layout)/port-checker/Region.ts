@@ -5,7 +5,7 @@ import { GridRegionsQuery } from '@project/source/api/GraphQlGeneratedCode';
 export type GridRegion = GridRegionsQuery['gridRegions'][0];
 
 // Function to get an emoji from a region identifier
-export function getRegionEmoji(regionIdentifier?: string) {
+export function getRegionEmojiUsingRegionIdentifier(regionIdentifier?: string) {
     switch(regionIdentifier) {
         case 'north-america':
             return '🇺🇸';
@@ -35,7 +35,7 @@ export function getRegionDisplayName(regionName: string, gridRegions: GridRegion
         return gridRegion.name === regionName;
     });
 
-    return getRegionEmoji(gridRegion?.name) + ' ' + (gridRegion?.displayName || 'Unknown');
+    return getRegionEmojiUsingRegionIdentifier(gridRegion?.name) + ' ' + (gridRegion?.displayName || 'Unknown');
 }
 
 // Function to convert an alphanumeric string (e.g., e98ba714) to a number

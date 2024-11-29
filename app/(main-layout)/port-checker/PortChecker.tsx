@@ -25,7 +25,10 @@ import { useMutation, useApolloClient } from '@apollo/client';
 import { TaskCreatePortScanDocument, TaskPortScanDocument } from '@project/source/api/GraphQlGeneratedCode';
 
 // Dependencies - Utilities
-import { getRegionEmoji, alphanumericStringToNumber } from '@project/app/(main-layout)/port-checker/Region';
+import {
+    getRegionEmojiUsingRegionIdentifier,
+    alphanumericStringToNumber,
+} from '@project/app/(main-layout)/port-checker/Region';
 
 // Component - PortChecker
 export interface PortCheckerInterface {
@@ -105,7 +108,7 @@ export function PortChecker(properties: PortCheckerInterface) {
 
             // If the task is succeeded or errored, handle the result
             if(task.state === 'Succeeded' || task.results?.[0]?.result[0]?.error) {
-                handleTaskResult(task.results[0] as TaskResultInterface);
+                handleTaskCheckedIn(task.results[0] as TaskResultInterface);
                 cleanupTimeouts();
                 setCheckingPort(false);
                 isCheckingPortReference.current = false;
@@ -133,75 +136,71 @@ export function PortChecker(properties: PortCheckerInterface) {
         }
     }
 
-    // Function to handle task results
-    const handleTaskResult = React.useCallback(
+    // Function to handle task checked in
+    const handleTaskCheckedIn = React.useCallback(
         function (result: TaskResultInterface) {
+            console.log('result', result);
+
+            let isFinal = false;
+
             const portScanResult = result.result[0];
-            if(!portScanResult) return;
+            if(!portScanResult) {
+                console.error('Missing port scan result:', result);
+                return;
+            }
 
             const host = portScanResult.error?.host ?? portScanResult.hostName;
             const port = portScanResult.error?.port ?? portScanResult.ports[0]?.port;
-            const regionId = result.regionId ?? '';
+            const regionIdentifier = result.region?.name ?? '';
             const gridNodeId = result.gridNodeId ?? '';
+
+            // Sanity check
+            if(!port || !host) {
+                console.error('Missing port or host in result:', portScanResult);
+                return;
+            }
 
             // Handle error case
             if(portScanResult.error) {
                 setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
                     return [
                         ...previousPortCheckStatusTextArray,
-                        `Server ${getRegionEmoji(regionId)} #${alphanumericStringToNumber(gridNodeId)} reports: ${
-                            portScanResult.error.message
-                        }`,
+                        `Server ${getRegionEmojiUsingRegionIdentifier(regionIdentifier)} #${alphanumericStringToNumber(
+                            gridNodeId,
+                        )} reports: ${portScanResult.error.message}`,
                     ];
                 });
 
-                // Add this region to completed regions
-                setCompletedRegions((prev) => new Set(prev).add(regionId));
-
                 // Add final summary if this was the last region
                 if(completedRegions.size >= 2) {
-                    setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
-                        return [...previousPortCheckStatusTextArray, `Port ${port} is closed on ${host}`];
-                    });
-                    cleanupTimeouts();
-                    setCheckingPort(false);
-                    isCheckingPortReference.current = false;
-                    setUsingFallbackPolling(false);
-                    setCompletedRegions(new Set()); // Reset for next check
-                }
-                return;
-            }
-
-            // Handle success case
-            if(!port || !host) {
-                console.error('Missing port or host in result:', portScanResult);
-                return;
-            }
-
-            if(portScanResult.ports[0]?.state === 'open') {
-                setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
-                    return [...previousPortCheckStatusTextArray, `Port ${port} is open on ${host}.`];
-                });
-            }
-            else if(portScanResult.ports[0]?.state === 'filtered') {
-                setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
-                    return [...previousPortCheckStatusTextArray, `Port ${port} is closed on ${host}.`];
-                });
-            }
-            else {
-                console.log(`Port ${port} is closed on ${host}`);
-                if(completedRegions.size >= 2) {
+                    isFinal = true;
                     setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
                         return [...previousPortCheckStatusTextArray, `Port ${port} is closed on ${host}.`];
                     });
                 }
             }
+            // Port is open
+            else if(portScanResult.ports[0]?.state === 'open') {
+                isFinal = true;
+                setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
+                    return [...previousPortCheckStatusTextArray, `Port ${port} is open on ${host}.`];
+                });
+            }
+            // Port is filtered
+            else if(portScanResult.ports[0]?.state === 'filtered') {
+                isFinal = true;
+                setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
+                    return [...previousPortCheckStatusTextArray, `Port ${port} is closed on ${host}.`];
+                });
+            }
 
             // Add this region to completed regions
-            setCompletedRegions((prev) => new Set(prev).add(regionId));
+            setCompletedRegions(function (previousCompletedRegions) {
+                return new Set(previousCompletedRegions).add(regionIdentifier);
+            });
 
             // Cleanup if this was the last region
-            if(completedRegions.size >= 2) {
+            if(isFinal) {
                 cleanupTimeouts();
                 setCheckingPort(false);
                 isCheckingPortReference.current = false;
@@ -274,9 +273,9 @@ export function PortChecker(properties: PortCheckerInterface) {
                         setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
                             return [
                                 ...previousPortCheckStatusTextArray,
-                                `Server ${getRegionEmoji(assignedEvent.region)} #${alphanumericStringToNumber(
-                                    assignedEvent.nodeId,
-                                )} assigned...`,
+                                `Server ${getRegionEmojiUsingRegionIdentifier(
+                                    assignedEvent.region,
+                                )} #${alphanumericStringToNumber(assignedEvent.nodeId)} assigned...`,
                             ];
                         });
                     }
@@ -288,9 +287,9 @@ export function PortChecker(properties: PortCheckerInterface) {
                         setPortCheckStatusTextArray(function (previousPortCheckStatusTextArray) {
                             return [
                                 ...previousPortCheckStatusTextArray,
-                                `Server ${getRegionEmoji(runningEvent.region)} #${alphanumericStringToNumber(
-                                    runningEvent.nodeId,
-                                )} checking port...`,
+                                `Server ${getRegionEmojiUsingRegionIdentifier(
+                                    runningEvent.region,
+                                )} #${alphanumericStringToNumber(runningEvent.nodeId)} checking port...`,
                             ];
                         });
                     }
@@ -299,16 +298,12 @@ export function PortChecker(properties: PortCheckerInterface) {
                 case 'taskCheckedIn':
                     const checkedInEvent = event as TaskCheckedIn;
                     if(checkedInEvent.taskId === currentTaskCreatePortScanIdReference.current) {
-                        handleTaskResult(checkedInEvent.result);
-                        cleanupTimeouts();
-                        setCheckingPort(false);
-                        isCheckingPortReference.current = false;
-                        setUsingFallbackPolling(false);
+                        handleTaskCheckedIn(checkedInEvent.result);
                     }
                     break;
             }
         },
-        [handleTaskResult, usingFallbackPolling],
+        [handleTaskCheckedIn, usingFallbackPolling],
     );
 
     // Function to check the port

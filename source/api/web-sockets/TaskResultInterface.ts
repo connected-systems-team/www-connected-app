@@ -1,4 +1,4 @@
-import { TaskResultType } from '@project/source/api/GraphQlGeneratedCode';
+import { TaskResultType, Region } from '@project/source/api/GraphQlGeneratedCode';
 
 export interface TaskResultInterface {
     /**
@@ -21,6 +21,10 @@ export interface TaskResultInterface {
      * The id of the region that this task was ran in.
      */
     regionId: string | null;
+    /**
+     * The region that this task was ran in.
+     */
+    region: Region | null;
     /**
      * The attempt number of this result.
      */
