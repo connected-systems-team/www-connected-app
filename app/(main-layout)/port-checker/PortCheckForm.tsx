@@ -76,6 +76,11 @@ export function PortCheckForm(properties: PortCheckFormInterface) {
                     </div>
                 }
                 selectOnFocus={true}
+                onKeyDown={function (event) {
+                    if(event.key === 'Enter' && !properties.checkingPort) {
+                        checkPort();
+                    }
+                }}
             />
 
             <div className="flex">
@@ -91,6 +96,11 @@ export function PortCheckForm(properties: PortCheckFormInterface) {
                     }}
                     defaultValue={'80'}
                     selectOnFocus={true}
+                    onKeyDown={function (event) {
+                        if(event.key === 'Enter' && !properties.checkingPort) {
+                            checkPort();
+                        }
+                    }}
                 />
 
                 {/* Region */}
