@@ -7,10 +7,10 @@ type AccessRole {
     createdAt: DateTimeISO!
     createdByAccountId: String!
     createdByProfileId: String!
+    emailAddress: String
     expiresAt: DateTimeISO
     id: String!
-    primaryAccountEmailAddress: String
-    profile: PublicProfile
+    profile: Profile!
     status: AccessRoleStatus!
     type: String!
     updatedAt: DateTimeISO!
@@ -28,20 +28,38 @@ enum AccessRoleStatus {
 }
 
 type Account {
-    accountEmails: [AccountEmail!]!
+    accessRoles: [String!]!
     createdAt: DateTimeISO!
-    currentProfile: Profile
-    currentSession: AccountSession
-    defaultProfile: Profile
-    defaultProfileId: String
+    defaultProfile: Profile!
+    defaultProfileId: String!
+    emailAddress: String!
+    emails: [AccountEmail!]!
     enrolledChallenges: [String!]!
-    primaryAccountEmail: AccountEmail
-    roles: [String!]!
+    profile: Profile!
+    profiles: [Profile!]!
+    status: AccountStatus!
+    updatedAt: DateTimeISO!
 }
 
-type AccountAdminQueryObject {
+input AccountAccessRoleGrantInput {
     emailAddress: String!
-    profiles: [PublicProfile!]!
+    expiresAt: DateTimeISO
+    type: String!
+    username: String!
+}
+
+input AccountAccessRoleRevokeInput {
+    accessRoleId: String!
+}
+
+input AccountAccessRoleUpdateInput {
+    expiresAt: DateTimeISO
+    roleId: String!
+}
+
+input AccountDeleteInput {
+    emailAddress: String!
+    reason: String
 }
 
 type AccountEmail {
@@ -76,9 +94,17 @@ input AccountEmailVerificationSendInput {
     emailAddress: String!
 }
 
+input AccountEmailVerificationVerifyInput {
+    code: String!
+}
+
 input AccountEncryptionConfiguration {
     publicKey: String!
     transitKeyId: String!
+}
+
+input AccountInput {
+    emailAddress: String!
 }
 
 input AccountPasswordUpdateInput {
@@ -117,10 +143,10 @@ input AccountRegistrationOrSignInCreateInput {
 
 type AccountSession {
     createdAt: DateTimeISO!
-    currentProfile: Profile
-    currentProfileId: String!
     id: String!
     lastUsed: DateTimeISO
+    profile: Profile!
+    profileId: String!
     status: AccountSessionStatus!
     statusChangedAt: DateTimeISO
     updatedAt: DateTimeISO!
@@ -137,6 +163,15 @@ enum AccountSessionStatus {
     Active
     Expired
     Revoked
+}
+
+"""
+The status of an account
+"""
+enum AccountStatus {
+    Active
+    Archived
+    Locked
 }
 
 type AuthenticationChallenge {
@@ -237,17 +272,6 @@ enum EmailVerificationStatus {
     Verified
 }
 
-input EmailVerificationVerifyInput {
-    code: String!
-}
-
-input GrantAccessRoleInput {
-    emailAddress: String!
-    expiresAt: DateTimeISO
-    type: String!
-    username: String!
-}
-
 type ImageObject {
     type: MediaObjectType!
     url: String!
@@ -266,28 +290,32 @@ enum MediaObjectType {
 }
 
 type Mutation {
-    accountDeleteAdmin(emailAddress: String!, reason: String): OperationResult!
+    accountAccessRoleGrantPrivileged(input: AccountAccessRoleGrantInput!): AccessRole!
+    accountAccessRoleRevokePrivileged(input: AccountAccessRoleRevokeInput!): OperationResult!
+    accountAccessRoleUpdatePrivileged(input: AccountAccessRoleUpdateInput!): OperationResult!
+    accountAdministratorSessionCreate: AuthenticationSession!
+    accountAuthenticationEmailVerificationSend: AuthenticationEmailVerification!
+    accountAuthenticationEmailVerificationVerify(
+        input: AccountEmailVerificationVerifyInput!
+    ): AuthenticationEmailVerification!
+    accountAuthenticationPasswordVerify(input: AccountPasswordVerifyInput!): AuthenticationOperationResult!
+    accountAuthenticationRegistrationOrSignInCreate(
+        input: AccountRegistrationOrSignInCreateInput!
+    ): AuthenticationRegistrationOrSignIn!
+    accountDelete(reason: String): OperationResult!
+    accountDeletePrivileged(input: AccountDeleteInput!): OperationResult!
     accountEmailDelete(accountEmailId: String!): OperationResult!
     accountEmailMakePrimary(accountEmailId: String!): AccountEmail!
     accountEmailVerificationComplete(input: AccountEmailVerificationCompleteInput!): AccountEmail!
     accountEmailVerificationSend(input: AccountEmailVerificationSendInput!): EmailVerification!
     accountMaintenanceSessionCreate: AuthenticationSession!
     accountPasswordUpdate(input: AccountPasswordUpdateInput!): OperationResult!
-    accountPasswordVerify(input: AccountPasswordVerifyInput!): AuthenticationOperationResult!
     accountProfileImageRemove: Profile!
     accountProfileUpdate(input: AccountProfileUpdateInput!): Profile!
     accountRegistrationComplete(input: AccountRegistrationCompleteInput!): AuthenticationOperationResult!
-    accountRegistrationOrSignInCreate(
-        input: AccountRegistrationOrSignInCreateInput!
-    ): AuthenticationRegistrationOrSignIn!
-    accountRoleGrant(input: GrantAccessRoleInput!): AccessRole!
-    accountRoleRevoke(roleId: String!): OperationResult!
-    accountRoleSetExpiration(expiresAt: DateTimeISO, roleId: String!): OperationResult!
     accountSessionDelete(input: AccountSessionDeleteInput!): OperationResult!
     accountSignInComplete: AuthenticationOperationResult!
     accountSignOut: OperationResult!
-    emailVerificationSend: AuthenticationEmailVerification!
-    emailVerificationVerify(input: EmailVerificationVerifyInput!): AuthenticationEmailVerification!
 }
 
 type OperationResult {
@@ -307,8 +335,13 @@ enum OrderByDirection {
     Descending
 }
 
-type PagedAccountAdminQueryObject {
-    items: [AccountAdminQueryObject!]!
+type PagedAccessRoles {
+    items: [AccessRole!]!
+    pagination: Pagination
+}
+
+type PagedAccounts {
+    items: [Account!]!
     pagination: Pagination
 }
 
@@ -330,6 +363,7 @@ input PaginationInputWithFilters {
 
 type Profile {
     birthday: DateTimeISO
+    countryCode: String
     createdAt: DateTimeISO!
     displayName: String
     familyName: String
@@ -339,9 +373,8 @@ type Profile {
     """
     Profile asset URL
     """
-    imageUrls: [ImageObject!]
+    images: [ImageObject!]
     middleName: String
-    phoneNumber: String
     preferredName: String
     updatedAt: DateTimeISO!
     username: String!
@@ -350,23 +383,27 @@ type Profile {
 type PublicProfile {
     createdAt: DateTimeISO
     displayName: String
-    imageUrls: [ImageObject!]
+    images: [ImageObject!]
     username: String!
 }
 
 type Query {
-    accountAssignableRoles: [String!]!
-    accountByEmailAddressAdmin(emailAddress: String!): AccountAdminQueryObject!
-    accountCurrent: Account!
+    account: Account!
+    accountAssignedAccessRolesPrivileged(
+        input: PaginationInputWithFilters
+        orderBy: OrderBy
+        statuses: [AccessRoleStatus!]
+    ): PagedAccessRoles!
+    accountAuthentication: AuthenticationSession
+    accountAuthenticationEmailVerification: AuthenticationEmailVerification
+    accountAvailableAccessRolesPrivileged: [String!]!
     accountEmailAddresses: AccountEmailAddressesResult!
     accountEmailVerification: EmailVerification!
+    accountPrivileged(input: AccountInput!): Account
+    accountProfilePublic(username: String!): PublicProfile
     accountProfileUsernameValidate(username: String!): UniqueFieldValidationResult!
-    accountRoles(orderBy: OrderBy, statuses: [String!]): [AccessRole!]!
     accountSessions: [AccountSession!]!
-    accountsAdmin(input: PaginationInputWithFilters, orderBy: OrderBy): PagedAccountAdminQueryObject!
-    authenticationCurrent: AuthenticationSession
-    emailVerification: AuthenticationEmailVerification
-    profilePublic(username: String!): PublicProfile
+    accountsPrivileged(input: PaginationInputWithFilters, orderBy: OrderBy): PagedAccounts!
 }
 
 enum UniqueFieldValidationResult {

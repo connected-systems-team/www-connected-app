@@ -29,10 +29,10 @@ export type AccessRole = {
   createdAt: Scalars['DateTimeISO']['output'];
   createdByAccountId: Scalars['String']['output'];
   createdByProfileId: Scalars['String']['output'];
+  emailAddress?: Maybe<Scalars['String']['output']>;
   expiresAt?: Maybe<Scalars['DateTimeISO']['output']>;
   id: Scalars['String']['output'];
-  primaryAccountEmailAddress?: Maybe<Scalars['String']['output']>;
-  profile?: Maybe<PublicProfile>;
+  profile: Profile;
   status: AccessRoleStatus;
   type: Scalars['String']['output'];
   updatedAt: Scalars['DateTimeISO']['output'];
@@ -49,21 +49,38 @@ export enum AccessRoleStatus {
 
 export type Account = {
   __typename?: 'Account';
-  accountEmails: Array<AccountEmail>;
+  accessRoles: Array<Scalars['String']['output']>;
   createdAt: Scalars['DateTimeISO']['output'];
-  currentProfile?: Maybe<Profile>;
-  currentSession?: Maybe<AccountSession>;
-  defaultProfile?: Maybe<Profile>;
-  defaultProfileId?: Maybe<Scalars['String']['output']>;
+  defaultProfile: Profile;
+  defaultProfileId: Scalars['String']['output'];
+  emailAddress: Scalars['String']['output'];
+  emails: Array<AccountEmail>;
   enrolledChallenges: Array<Scalars['String']['output']>;
-  primaryAccountEmail?: Maybe<AccountEmail>;
-  roles: Array<Scalars['String']['output']>;
+  profile: Profile;
+  profiles: Array<Profile>;
+  status: AccountStatus;
+  updatedAt: Scalars['DateTimeISO']['output'];
 };
 
-export type AccountAdminQueryObject = {
-  __typename?: 'AccountAdminQueryObject';
-  emailAddress: Scalars['String']['output'];
-  profiles: Array<PublicProfile>;
+export type AccountAccessRoleGrantInput = {
+  emailAddress: Scalars['String']['input'];
+  expiresAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
+  type: Scalars['String']['input'];
+  username: Scalars['String']['input'];
+};
+
+export type AccountAccessRoleRevokeInput = {
+  accessRoleId: Scalars['String']['input'];
+};
+
+export type AccountAccessRoleUpdateInput = {
+  expiresAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
+  roleId: Scalars['String']['input'];
+};
+
+export type AccountDeleteInput = {
+  emailAddress: Scalars['String']['input'];
+  reason?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type AccountEmail = {
@@ -98,9 +115,17 @@ export type AccountEmailVerificationSendInput = {
   emailAddress: Scalars['String']['input'];
 };
 
+export type AccountEmailVerificationVerifyInput = {
+  code: Scalars['String']['input'];
+};
+
 export type AccountEncryptionConfiguration = {
   publicKey: Scalars['String']['input'];
   transitKeyId: Scalars['String']['input'];
+};
+
+export type AccountInput = {
+  emailAddress: Scalars['String']['input'];
 };
 
 export type AccountPasswordUpdateInput = {
@@ -140,10 +165,10 @@ export type AccountRegistrationOrSignInCreateInput = {
 export type AccountSession = {
   __typename?: 'AccountSession';
   createdAt: Scalars['DateTimeISO']['output'];
-  currentProfile?: Maybe<Profile>;
-  currentProfileId: Scalars['String']['output'];
   id: Scalars['String']['output'];
   lastUsed?: Maybe<Scalars['DateTimeISO']['output']>;
+  profile: Profile;
+  profileId: Scalars['String']['output'];
   status: AccountSessionStatus;
   statusChangedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   updatedAt: Scalars['DateTimeISO']['output'];
@@ -158,6 +183,13 @@ export enum AccountSessionStatus {
   Active = 'Active',
   Expired = 'Expired',
   Revoked = 'Revoked'
+}
+
+/** The status of an account */
+export enum AccountStatus {
+  Active = 'Active',
+  Archived = 'Archived',
+  Locked = 'Locked'
 }
 
 export type AddressBookEntry = {
@@ -1304,10 +1336,6 @@ export enum EmailVerificationStatus {
   Verified = 'Verified'
 }
 
-export type EmailVerificationVerifyInput = {
-  code: Scalars['String']['input'];
-};
-
 export type EngagementEvent = {
   __typename?: 'EngagementEvent';
   createdAt: Scalars['DateTimeISO']['output'];
@@ -1390,13 +1418,6 @@ export type FulfillmentProductVariant = {
   id: Scalars['String']['output'];
   name: Scalars['String']['output'];
   sku?: Maybe<Scalars['String']['output']>;
-};
-
-export type GrantAccessRoleInput = {
-  emailAddress: Scalars['String']['input'];
-  expiresAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
-  type: Scalars['String']['input'];
-  username: Scalars['String']['input'];
 };
 
 export type GridClusterUpdateInput = {
@@ -1494,21 +1515,25 @@ export enum MediaObjectType {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  accountDeleteAdmin: OperationResult;
+  accountAccessRoleGrantPrivileged: AccessRole;
+  accountAccessRoleRevokePrivileged: OperationResult;
+  accountAccessRoleUpdatePrivileged: OperationResult;
+  accountAdministratorSessionCreate: AuthenticationSession;
+  accountAuthenticationEmailVerificationSend: AuthenticationEmailVerification;
+  accountAuthenticationEmailVerificationVerify: AuthenticationEmailVerification;
+  accountAuthenticationPasswordVerify: AuthenticationOperationResult;
+  accountAuthenticationRegistrationOrSignInCreate: AuthenticationRegistrationOrSignIn;
+  accountDelete: OperationResult;
+  accountDeletePrivileged: OperationResult;
   accountEmailDelete: OperationResult;
   accountEmailMakePrimary: AccountEmail;
   accountEmailVerificationComplete: AccountEmail;
   accountEmailVerificationSend: EmailVerification;
   accountMaintenanceSessionCreate: AuthenticationSession;
   accountPasswordUpdate: OperationResult;
-  accountPasswordVerify: AuthenticationOperationResult;
   accountProfileImageRemove: Profile;
   accountProfileUpdate: Profile;
   accountRegistrationComplete: AuthenticationOperationResult;
-  accountRegistrationOrSignInCreate: AuthenticationRegistrationOrSignIn;
-  accountRoleGrant: AccessRole;
-  accountRoleRevoke: OperationResult;
-  accountRoleSetExpiration: OperationResult;
   accountSessionDelete: OperationResult;
   accountSignInComplete: AuthenticationOperationResult;
   accountSignOut: OperationResult;
@@ -1565,8 +1590,6 @@ export type Mutation = {
   emailTemplateImageAssetSetDescription: EmailTemplateImageAsset;
   emailTemplatePreview: Scalars['String']['output'];
   emailTemplateUpdate: EmailTemplate;
-  emailVerificationSend: AuthenticationEmailVerification;
-  emailVerificationVerify: AuthenticationEmailVerification;
   engagementEventCreate: OperationResult;
   engagementEventsCreate: OperationResult;
   /** Update a cluster. */
@@ -1623,9 +1646,43 @@ export type Mutation = {
 };
 
 
-export type MutationAccountDeleteAdminArgs = {
-  emailAddress: Scalars['String']['input'];
+export type MutationAccountAccessRoleGrantPrivilegedArgs = {
+  input: AccountAccessRoleGrantInput;
+};
+
+
+export type MutationAccountAccessRoleRevokePrivilegedArgs = {
+  input: AccountAccessRoleRevokeInput;
+};
+
+
+export type MutationAccountAccessRoleUpdatePrivilegedArgs = {
+  input: AccountAccessRoleUpdateInput;
+};
+
+
+export type MutationAccountAuthenticationEmailVerificationVerifyArgs = {
+  input: AccountEmailVerificationVerifyInput;
+};
+
+
+export type MutationAccountAuthenticationPasswordVerifyArgs = {
+  input: AccountPasswordVerifyInput;
+};
+
+
+export type MutationAccountAuthenticationRegistrationOrSignInCreateArgs = {
+  input: AccountRegistrationOrSignInCreateInput;
+};
+
+
+export type MutationAccountDeleteArgs = {
   reason?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationAccountDeletePrivilegedArgs = {
+  input: AccountDeleteInput;
 };
 
 
@@ -1654,11 +1711,6 @@ export type MutationAccountPasswordUpdateArgs = {
 };
 
 
-export type MutationAccountPasswordVerifyArgs = {
-  input: AccountPasswordVerifyInput;
-};
-
-
 export type MutationAccountProfileUpdateArgs = {
   input: AccountProfileUpdateInput;
 };
@@ -1666,27 +1718,6 @@ export type MutationAccountProfileUpdateArgs = {
 
 export type MutationAccountRegistrationCompleteArgs = {
   input: AccountRegistrationCompleteInput;
-};
-
-
-export type MutationAccountRegistrationOrSignInCreateArgs = {
-  input: AccountRegistrationOrSignInCreateInput;
-};
-
-
-export type MutationAccountRoleGrantArgs = {
-  input: GrantAccessRoleInput;
-};
-
-
-export type MutationAccountRoleRevokeArgs = {
-  roleId: Scalars['String']['input'];
-};
-
-
-export type MutationAccountRoleSetExpirationArgs = {
-  expiresAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
-  roleId: Scalars['String']['input'];
 };
 
 
@@ -1971,11 +2002,6 @@ export type MutationEmailTemplatePreviewArgs = {
 
 export type MutationEmailTemplateUpdateArgs = {
   data: UpdateEmailTemplateInput;
-};
-
-
-export type MutationEmailVerificationVerifyArgs = {
-  input: EmailVerificationVerifyInput;
 };
 
 
@@ -2265,9 +2291,15 @@ export type OrderLineItemInput = {
   quantity: Scalars['Int']['input'];
 };
 
-export type PagedAccountAdminQueryObject = {
-  __typename?: 'PagedAccountAdminQueryObject';
-  items: Array<AccountAdminQueryObject>;
+export type PagedAccessRoles = {
+  __typename?: 'PagedAccessRoles';
+  items: Array<AccessRole>;
+  pagination?: Maybe<Pagination>;
+};
+
+export type PagedAccounts = {
+  __typename?: 'PagedAccounts';
+  items: Array<Account>;
   pagination?: Maybe<Pagination>;
 };
 
@@ -2875,6 +2907,7 @@ export type ProductsPaginationResult = {
 export type Profile = {
   __typename?: 'Profile';
   birthday?: Maybe<Scalars['DateTimeISO']['output']>;
+  countryCode?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTimeISO']['output'];
   displayName?: Maybe<Scalars['String']['output']>;
   familyName?: Maybe<Scalars['String']['output']>;
@@ -2882,9 +2915,8 @@ export type Profile = {
   givenName?: Maybe<Scalars['String']['output']>;
   id: Scalars['String']['output'];
   /** Profile asset URL */
-  imageUrls?: Maybe<Array<ImageObject>>;
+  images?: Maybe<Array<ImageObject>>;
   middleName?: Maybe<Scalars['String']['output']>;
-  phoneNumber?: Maybe<Scalars['String']['output']>;
   preferredName?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTimeISO']['output'];
   username: Scalars['String']['output'];
@@ -2918,6 +2950,7 @@ export type PublicProfile = {
   createdAt?: Maybe<Scalars['DateTimeISO']['output']>;
   displayName?: Maybe<Scalars['String']['output']>;
   imageUrls?: Maybe<Array<ImageObject>>;
+  images?: Maybe<Array<ImageObject>>;
   username: Scalars['String']['output'];
 };
 
@@ -2927,17 +2960,19 @@ export type PurchaseOrderLabelsInput = {
 
 export type Query = {
   __typename?: 'Query';
-  accountAssignableRoles: Array<Scalars['String']['output']>;
-  accountByEmailAddressAdmin: AccountAdminQueryObject;
-  accountCurrent: Account;
+  account: Account;
+  accountAssignedAccessRolesPrivileged: PagedAccessRoles;
+  accountAuthentication?: Maybe<AuthenticationSession>;
+  accountAuthenticationEmailVerification?: Maybe<AuthenticationEmailVerification>;
+  accountAvailableAccessRolesPrivileged: Array<Scalars['String']['output']>;
   accountEmailAddresses: AccountEmailAddressesResult;
   accountEmailVerification: EmailVerification;
+  accountPrivileged?: Maybe<Account>;
+  accountProfilePublic?: Maybe<PublicProfile>;
   accountProfileUsernameValidate: UniqueFieldValidationResult;
-  accountRoles: Array<AccessRole>;
   accountSessions: Array<AccountSession>;
-  accountsAdmin: PagedAccountAdminQueryObject;
+  accountsPrivileged: PagedAccounts;
   appleStoreTransactionWithOrderInfo?: Maybe<AppleStoreTransactionOrderMapping>;
-  authenticationCurrent?: Maybe<AuthenticationSession>;
   commerceAddressBookEntries: Array<AddressBookEntry>;
   commerceCart: ShoppingBag;
   commerceCheckoutSession: CommerceCheckoutSession;
@@ -2990,7 +3025,6 @@ export type Query = {
   emailTemplateContentEngagementMetrics: EmailTemplateContentEngagementMetrics;
   emailTemplateImageAssets: EmailTemplateImageAssetsResult;
   emailTemplates: EmailTemplatesResult;
-  emailVerification?: Maybe<AuthenticationEmailVerification>;
   engagementEvents: Array<EngagementEvent>;
   engagementOverview: EngagementOverview;
   /** Get a node. */
@@ -3011,7 +3045,6 @@ export type Query = {
   postsAdmin: PagedPosts;
   postsByTopic: PagedPosts;
   postsMine: PagedPosts;
-  profilePublic?: Maybe<PublicProfile>;
   supportAllSupportProfiles: Array<PublicProfile>;
   supportTickets: PaginationSupportTicketResult;
   supportTicketsAdmin: PaginationSupportTicketResult;
@@ -3025,8 +3058,20 @@ export type Query = {
 };
 
 
-export type QueryAccountByEmailAddressAdminArgs = {
-  emailAddress: Scalars['String']['input'];
+export type QueryAccountAssignedAccessRolesPrivilegedArgs = {
+  input?: InputMaybe<PaginationInputWithFilters>;
+  orderBy?: InputMaybe<OrderBy>;
+  statuses?: InputMaybe<Array<AccessRoleStatus>>;
+};
+
+
+export type QueryAccountPrivilegedArgs = {
+  input: AccountInput;
+};
+
+
+export type QueryAccountProfilePublicArgs = {
+  username: Scalars['String']['input'];
 };
 
 
@@ -3035,13 +3080,7 @@ export type QueryAccountProfileUsernameValidateArgs = {
 };
 
 
-export type QueryAccountRolesArgs = {
-  orderBy?: InputMaybe<OrderBy>;
-  statuses?: InputMaybe<Array<Scalars['String']['input']>>;
-};
-
-
-export type QueryAccountsAdminArgs = {
+export type QueryAccountsPrivilegedArgs = {
   input?: InputMaybe<PaginationInputWithFilters>;
   orderBy?: InputMaybe<OrderBy>;
 };
@@ -3390,11 +3429,6 @@ export type QueryPostsByTopicArgs = {
 export type QueryPostsMineArgs = {
   input?: InputMaybe<PaginationInputWithFilters>;
   orderBy?: InputMaybe<OrderBy>;
-};
-
-
-export type QueryProfilePublicArgs = {
-  username: Scalars['String']['input'];
 };
 
 
@@ -4162,12 +4196,41 @@ export enum WeightUnit {
   Pounds = 'Pounds'
 }
 
-export type AccountRegistrationOrSignInCreateMutationVariables = Exact<{
+export type AccountAuthenticationRegistrationOrSignInCreateMutationVariables = Exact<{
   input: AccountRegistrationOrSignInCreateInput;
 }>;
 
 
-export type AccountRegistrationOrSignInCreateMutation = { __typename?: 'Mutation', accountRegistrationOrSignInCreate: { __typename?: 'AuthenticationRegistrationOrSignIn', emailAddress: string, authentication: { __typename?: 'AuthenticationSession', status: AuthenticationSessionStatus, scopeType: string, updatedAt: any, createdAt: any, currentChallenge?: { __typename?: 'AuthenticationChallenge', challengeType: string, status: AuthenticationChallengeStatus } | null } } };
+export type AccountAuthenticationRegistrationOrSignInCreateMutation = { __typename?: 'Mutation', accountAuthenticationRegistrationOrSignInCreate: { __typename?: 'AuthenticationRegistrationOrSignIn', emailAddress: string, authentication: { __typename?: 'AuthenticationSession', status: AuthenticationSessionStatus, scopeType: string, updatedAt: any, createdAt: any, currentChallenge?: { __typename?: 'AuthenticationChallenge', challengeType: string, status: AuthenticationChallengeStatus } | null } } };
+
+export type AccountAuthenticationQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AccountAuthenticationQuery = { __typename?: 'Query', accountAuthentication?: { __typename?: 'AuthenticationSession', status: AuthenticationSessionStatus, scopeType: string, updatedAt: any, createdAt: any, currentChallenge?: { __typename?: 'AuthenticationChallenge', challengeType: string, status: AuthenticationChallengeStatus } | null } | null };
+
+export type AccountAuthenticationEmailVerificationQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AccountAuthenticationEmailVerificationQuery = { __typename?: 'Query', accountAuthenticationEmailVerification?: { __typename?: 'AuthenticationEmailVerification', verification: { __typename?: 'EmailVerification', status: EmailVerificationStatus, emailAddress: string, lastEmailSentAt?: any | null }, authentication: { __typename?: 'AuthenticationSession', status: AuthenticationSessionStatus, scopeType: string, updatedAt: any, createdAt: any, currentChallenge?: { __typename?: 'AuthenticationChallenge', challengeType: string, status: AuthenticationChallengeStatus } | null } } | null };
+
+export type AccountAuthenticationEmailVerificationSendMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AccountAuthenticationEmailVerificationSendMutation = { __typename?: 'Mutation', accountAuthenticationEmailVerificationSend: { __typename?: 'AuthenticationEmailVerification', verification: { __typename?: 'EmailVerification', status: EmailVerificationStatus, emailAddress: string, lastEmailSentAt?: any | null }, authentication: { __typename?: 'AuthenticationSession', status: AuthenticationSessionStatus, scopeType: string, updatedAt: any, createdAt: any, currentChallenge?: { __typename?: 'AuthenticationChallenge', challengeType: string, status: AuthenticationChallengeStatus } | null } } };
+
+export type AccountAuthenticationEmailVerificationVerifyMutationVariables = Exact<{
+  input: AccountEmailVerificationVerifyInput;
+}>;
+
+
+export type AccountAuthenticationEmailVerificationVerifyMutation = { __typename?: 'Mutation', accountAuthenticationEmailVerificationVerify: { __typename?: 'AuthenticationEmailVerification', verification: { __typename?: 'EmailVerification', status: EmailVerificationStatus, emailAddress: string, lastEmailSentAt?: any | null }, authentication: { __typename?: 'AuthenticationSession', status: AuthenticationSessionStatus, scopeType: string, updatedAt: any, createdAt: any, currentChallenge?: { __typename?: 'AuthenticationChallenge', challengeType: string, status: AuthenticationChallengeStatus } | null } } };
+
+export type AccountAuthenticationPasswordVerifyMutationVariables = Exact<{
+  input: AccountPasswordVerifyInput;
+}>;
+
+
+export type AccountAuthenticationPasswordVerifyMutation = { __typename?: 'Mutation', accountAuthenticationPasswordVerify: { __typename?: 'AuthenticationOperationResult', success: boolean, authentication: { __typename?: 'AuthenticationSession', status: AuthenticationSessionStatus, scopeType: string, updatedAt: any, createdAt: any, currentChallenge?: { __typename?: 'AuthenticationChallenge', challengeType: string, status: AuthenticationChallengeStatus } | null } } };
 
 export type AccountMaintenanceSessionCreateMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -4186,35 +4249,6 @@ export type AccountSignInCompleteMutationVariables = Exact<{ [key: string]: neve
 
 export type AccountSignInCompleteMutation = { __typename?: 'Mutation', accountSignInComplete: { __typename?: 'AuthenticationOperationResult', success: boolean } };
 
-export type AuthenticationCurrentQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type AuthenticationCurrentQuery = { __typename?: 'Query', authenticationCurrent?: { __typename?: 'AuthenticationSession', status: AuthenticationSessionStatus, scopeType: string, updatedAt: any, createdAt: any, currentChallenge?: { __typename?: 'AuthenticationChallenge', challengeType: string, status: AuthenticationChallengeStatus } | null } | null };
-
-export type EmailVerificationQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type EmailVerificationQuery = { __typename?: 'Query', emailVerification?: { __typename?: 'AuthenticationEmailVerification', verification: { __typename?: 'EmailVerification', status: EmailVerificationStatus, emailAddress: string, lastEmailSentAt?: any | null }, authentication: { __typename?: 'AuthenticationSession', status: AuthenticationSessionStatus, scopeType: string, updatedAt: any, createdAt: any, currentChallenge?: { __typename?: 'AuthenticationChallenge', challengeType: string, status: AuthenticationChallengeStatus } | null } } | null };
-
-export type EmailVerificationSendMutationVariables = Exact<{ [key: string]: never; }>;
-
-
-export type EmailVerificationSendMutation = { __typename?: 'Mutation', emailVerificationSend: { __typename?: 'AuthenticationEmailVerification', verification: { __typename?: 'EmailVerification', status: EmailVerificationStatus, emailAddress: string, lastEmailSentAt?: any | null }, authentication: { __typename?: 'AuthenticationSession', status: AuthenticationSessionStatus, scopeType: string, updatedAt: any, createdAt: any, currentChallenge?: { __typename?: 'AuthenticationChallenge', challengeType: string, status: AuthenticationChallengeStatus } | null } } };
-
-export type EmailVerificationVerifyMutationVariables = Exact<{
-  input: EmailVerificationVerifyInput;
-}>;
-
-
-export type EmailVerificationVerifyMutation = { __typename?: 'Mutation', emailVerificationVerify: { __typename?: 'AuthenticationEmailVerification', verification: { __typename?: 'EmailVerification', status: EmailVerificationStatus, emailAddress: string, lastEmailSentAt?: any | null }, authentication: { __typename?: 'AuthenticationSession', status: AuthenticationSessionStatus, scopeType: string, updatedAt: any, createdAt: any, currentChallenge?: { __typename?: 'AuthenticationChallenge', challengeType: string, status: AuthenticationChallengeStatus } | null } } };
-
-export type AccountPasswordVerifyMutationVariables = Exact<{
-  input: AccountPasswordVerifyInput;
-}>;
-
-
-export type AccountPasswordVerifyMutation = { __typename?: 'Mutation', accountPasswordVerify: { __typename?: 'AuthenticationOperationResult', success: boolean, authentication: { __typename?: 'AuthenticationSession', status: AuthenticationSessionStatus, scopeType: string, updatedAt: any, createdAt: any, currentChallenge?: { __typename?: 'AuthenticationChallenge', challengeType: string, status: AuthenticationChallengeStatus } | null } } };
-
 export type AccountPasswordUpdateMutationVariables = Exact<{
   input: AccountPasswordUpdateInput;
 }>;
@@ -4227,10 +4261,24 @@ export type AccountSignOutMutationVariables = Exact<{ [key: string]: never; }>;
 
 export type AccountSignOutMutation = { __typename?: 'Mutation', accountSignOut: { __typename?: 'OperationResult', success: boolean } };
 
-export type AccountCurrentQueryVariables = Exact<{ [key: string]: never; }>;
+export type AccountQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AccountCurrentQuery = { __typename?: 'Query', accountCurrent: { __typename?: 'Account', roles: Array<string>, createdAt: any, currentProfile?: { __typename?: 'Profile', id: string, createdAt: any, updatedAt: any, username: string, displayName?: string | null, givenName?: string | null, familyName?: string | null, phoneNumber?: string | null, imageUrls?: Array<{ __typename?: 'ImageObject', url: string, variant?: string | null }> | null } | null, primaryAccountEmail?: { __typename?: 'AccountEmail', id: string, type: AccountEmailType, isVerified: boolean, emailAddress: string, source: string, updatedAt: any, createdAt: any } | null, currentSession?: { __typename?: 'AccountSession', currentProfileId: string, status: AccountSessionStatus, statusChangedAt?: any | null, updatedAt: any, createdAt: any } | null } };
+export type AccountQuery = { __typename?: 'Query', account: { __typename?: 'Account', emailAddress: string, accessRoles: Array<string>, createdAt: any, profile: { __typename?: 'Profile', id: string, username: string, displayName?: string | null, givenName?: string | null, familyName?: string | null, updatedAt: any, createdAt: any, images?: Array<{ __typename?: 'ImageObject', url: string, variant?: string | null }> | null } } };
+
+export type AccountPrivilegedQueryVariables = Exact<{
+  input: AccountInput;
+}>;
+
+
+export type AccountPrivilegedQuery = { __typename?: 'Query', accountPrivileged?: { __typename?: 'Account', emailAddress: string, accessRoles: Array<string>, createdAt: any, profiles: Array<{ __typename?: 'Profile', username: string, displayName?: string | null, givenName?: string | null, familyName?: string | null, updatedAt: any, createdAt: any, images?: Array<{ __typename?: 'ImageObject', url: string, variant?: string | null }> | null }> } | null };
+
+export type AccountsPrivilegedQueryVariables = Exact<{
+  input?: InputMaybe<PaginationInputWithFilters>;
+}>;
+
+
+export type AccountsPrivilegedQuery = { __typename?: 'Query', accountsPrivileged: { __typename?: 'PagedAccounts', items: Array<{ __typename?: 'Account', emailAddress: string, profiles: Array<{ __typename?: 'Profile', username: string, displayName?: string | null, givenName?: string | null, familyName?: string | null, updatedAt: any, createdAt: any, images?: Array<{ __typename?: 'ImageObject', url: string, variant?: string | null }> | null }> }>, pagination?: { __typename?: 'Pagination', itemsTotal: number, itemsPerPage: number, page: number, pagesTotal: number, itemIndex: number, itemIndexForNextPage?: number | null, itemIndexForPreviousPage?: number | null } | null } };
 
 export type AccountProfileUsernameValidateQueryVariables = Exact<{
   username: Scalars['String']['input'];
@@ -4242,70 +4290,61 @@ export type AccountProfileUsernameValidateQuery = { __typename?: 'Query', accoun
 export type AccountEnrolledChallengesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AccountEnrolledChallengesQuery = { __typename?: 'Query', accountCurrent: { __typename?: 'Account', enrolledChallenges: Array<string> } };
+export type AccountEnrolledChallengesQuery = { __typename?: 'Query', account: { __typename?: 'Account', enrolledChallenges: Array<string> } };
 
 export type AccountProfileUpdateMutationVariables = Exact<{
   input: AccountProfileUpdateInput;
 }>;
 
 
-export type AccountProfileUpdateMutation = { __typename?: 'Mutation', accountProfileUpdate: { __typename?: 'Profile', id: string, username: string, givenName?: string | null, preferredName?: string | null, middleName?: string | null, familyName?: string | null, displayName?: string | null, phoneNumber?: string | null, updatedAt: any, createdAt: any, imageUrls?: Array<{ __typename?: 'ImageObject', url: string, variant?: string | null }> | null } };
+export type AccountProfileUpdateMutation = { __typename?: 'Mutation', accountProfileUpdate: { __typename?: 'Profile', username: string, displayName?: string | null, givenName?: string | null, familyName?: string | null, updatedAt: any, createdAt: any, images?: Array<{ __typename?: 'ImageObject', url: string, variant?: string | null }> | null } };
 
-export type ProfilePublicQueryVariables = Exact<{
+export type AccountProfilePublicQueryVariables = Exact<{
   username: Scalars['String']['input'];
 }>;
 
 
-export type ProfilePublicQuery = { __typename?: 'Query', profilePublic?: { __typename?: 'PublicProfile', username: string, displayName?: string | null, createdAt?: any | null, imageUrls?: Array<{ __typename?: 'ImageObject', url: string, variant?: string | null }> | null } | null };
+export type AccountProfilePublicQuery = { __typename?: 'Query', accountProfilePublic?: { __typename?: 'PublicProfile', username: string, displayName?: string | null, createdAt?: any | null, images?: Array<{ __typename?: 'ImageObject', url: string, variant?: string | null }> | null } | null };
 
-export type AccountAssignableRolesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type AccountAssignableRolesQuery = { __typename?: 'Query', accountAssignableRoles: Array<string> };
-
-export type AccountRolesQueryVariables = Exact<{
-  statuses?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
-  orderBy?: InputMaybe<OrderBy>;
-}>;
+export type AccountAvailableAccessRolesPrivilegedQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AccountRolesQuery = { __typename?: 'Query', accountRoles: Array<{ __typename?: 'AccessRole', id: string, type: string, status: AccessRoleStatus, primaryAccountEmailAddress?: string | null, expiresAt?: any | null, createdAt: any, updatedAt: any, profile?: { __typename?: 'PublicProfile', username: string, displayName?: string | null, createdAt?: any | null, imageUrls?: Array<{ __typename?: 'ImageObject', type: MediaObjectType, url: string, variant?: string | null }> | null } | null }> };
+export type AccountAvailableAccessRolesPrivilegedQuery = { __typename?: 'Query', accountAvailableAccessRolesPrivileged: Array<string> };
 
-export type AccountRoleRevokeMutationVariables = Exact<{
-  roleId: Scalars['String']['input'];
-}>;
-
-
-export type AccountRoleRevokeMutation = { __typename?: 'Mutation', accountRoleRevoke: { __typename?: 'OperationResult', success: boolean } };
-
-export type AccountRoleGrantMutationVariables = Exact<{
-  input: GrantAccessRoleInput;
-}>;
-
-
-export type AccountRoleGrantMutation = { __typename?: 'Mutation', accountRoleGrant: { __typename?: 'AccessRole', id: string, type: string, status: AccessRoleStatus, expiresAt?: any | null, createdAt: any, updatedAt: any, profile?: { __typename?: 'PublicProfile', username: string, displayName?: string | null, createdAt?: any | null, imageUrls?: Array<{ __typename?: 'ImageObject', type: MediaObjectType, url: string, variant?: string | null }> | null } | null } };
-
-export type AccountsAdminQueryVariables = Exact<{
+export type AccountAssignedAccessRolesPrivilegedQueryVariables = Exact<{
   input?: InputMaybe<PaginationInputWithFilters>;
-  orderBy?: InputMaybe<OrderBy>;
 }>;
 
 
-export type AccountsAdminQuery = { __typename?: 'Query', accountsAdmin: { __typename?: 'PagedAccountAdminQueryObject', items: Array<{ __typename?: 'AccountAdminQueryObject', emailAddress: string, profiles: Array<{ __typename?: 'PublicProfile', username: string, displayName?: string | null, createdAt?: any | null, imageUrls?: Array<{ __typename?: 'ImageObject', url: string, variant?: string | null }> | null }> }>, pagination?: { __typename?: 'Pagination', itemsTotal: number, itemsPerPage: number, page: number, pagesTotal: number, itemIndex: number, itemIndexForNextPage?: number | null, itemIndexForPreviousPage?: number | null } | null } };
+export type AccountAssignedAccessRolesPrivilegedQuery = { __typename?: 'Query', accountAssignedAccessRolesPrivileged: { __typename?: 'PagedAccessRoles', items: Array<{ __typename?: 'AccessRole', id: string, type: string, status: AccessRoleStatus, emailAddress?: string | null, expiresAt?: any | null, createdAt: any, updatedAt: any, profile: { __typename?: 'Profile', username: string, displayName?: string | null, createdAt: any, images?: Array<{ __typename?: 'ImageObject', url: string, variant?: string | null }> | null } }>, pagination?: { __typename?: 'Pagination', itemsTotal: number, itemsPerPage: number, page: number, pagesTotal: number, itemIndex: number, itemIndexForNextPage?: number | null, itemIndexForPreviousPage?: number | null } | null } };
 
-export type AccountByEmailAddressAdminQueryVariables = Exact<{
-  emailAddress: Scalars['String']['input'];
+export type AccountAccessRoleRevokePrivilegedMutationVariables = Exact<{
+  input: AccountAccessRoleRevokeInput;
 }>;
 
 
-export type AccountByEmailAddressAdminQuery = { __typename?: 'Query', accountByEmailAddressAdmin: { __typename?: 'AccountAdminQueryObject', emailAddress: string, profiles: Array<{ __typename?: 'PublicProfile', username: string, displayName?: string | null, createdAt?: any | null, imageUrls?: Array<{ __typename?: 'ImageObject', url: string, variant?: string | null }> | null }> } };
+export type AccountAccessRoleRevokePrivilegedMutation = { __typename?: 'Mutation', accountAccessRoleRevokePrivileged: { __typename?: 'OperationResult', success: boolean } };
 
-export type AccountDeleteAdminMutationVariables = Exact<{
-  emailAddress: Scalars['String']['input'];
+export type AccountAccessRoleGrantPrivilegedMutationVariables = Exact<{
+  input: AccountAccessRoleGrantInput;
 }>;
 
 
-export type AccountDeleteAdminMutation = { __typename?: 'Mutation', accountDeleteAdmin: { __typename?: 'OperationResult', success: boolean } };
+export type AccountAccessRoleGrantPrivilegedMutation = { __typename?: 'Mutation', accountAccessRoleGrantPrivileged: { __typename?: 'AccessRole', id: string, type: string, status: AccessRoleStatus, expiresAt?: any | null, createdAt: any, updatedAt: any, profile: { __typename?: 'Profile', username: string, displayName?: string | null, createdAt: any, images?: Array<{ __typename?: 'ImageObject', type: MediaObjectType, url: string, variant?: string | null }> | null } } };
+
+export type AccountDeleteMutationVariables = Exact<{
+  reason?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type AccountDeleteMutation = { __typename?: 'Mutation', accountDelete: { __typename?: 'OperationResult', success: boolean } };
+
+export type AccountDeletePrivilegedMutationVariables = Exact<{
+  input: AccountDeleteInput;
+}>;
+
+
+export type AccountDeletePrivilegedMutation = { __typename?: 'Mutation', accountDeletePrivileged: { __typename?: 'OperationResult', success: boolean } };
 
 export type CommerceOrdersAdminQueryVariables = Exact<{
   pagination?: InputMaybe<PaginationInputWithFilters>;
@@ -4724,29 +4763,30 @@ export type TaskHistoryQueryVariables = Exact<{
 export type TaskHistoryQuery = { __typename?: 'Query', taskHistory: { __typename?: 'PaginationTaskResult', items: Array<{ __typename?: 'Task', id: string, state: TaskState, procedureType: AtlasProcedureType, procedureArguments: any, createdAt: any, results: Array<{ __typename?: 'TaskResult', result?: any | null, createdAt: any }> }>, pagination?: { __typename?: 'Pagination', itemIndex: number, itemIndexForPreviousPage?: number | null, itemIndexForNextPage?: number | null, itemsPerPage: number, itemsTotal: number, pagesTotal: number, page: number } | null } };
 
 
-export const AccountRegistrationOrSignInCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountRegistrationOrSignInCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AccountRegistrationOrSignInCreateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountRegistrationOrSignInCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"authentication"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"scopeType"}},{"kind":"Field","name":{"kind":"Name","value":"currentChallenge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"challengeType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<AccountRegistrationOrSignInCreateMutation, AccountRegistrationOrSignInCreateMutationVariables>;
+export const AccountAuthenticationRegistrationOrSignInCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountAuthenticationRegistrationOrSignInCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AccountRegistrationOrSignInCreateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountAuthenticationRegistrationOrSignInCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"authentication"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"scopeType"}},{"kind":"Field","name":{"kind":"Name","value":"currentChallenge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"challengeType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<AccountAuthenticationRegistrationOrSignInCreateMutation, AccountAuthenticationRegistrationOrSignInCreateMutationVariables>;
+export const AccountAuthenticationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AccountAuthentication"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountAuthentication"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"scopeType"}},{"kind":"Field","name":{"kind":"Name","value":"currentChallenge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"challengeType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<AccountAuthenticationQuery, AccountAuthenticationQueryVariables>;
+export const AccountAuthenticationEmailVerificationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AccountAuthenticationEmailVerification"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountAuthenticationEmailVerification"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"verification"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"lastEmailSentAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"authentication"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"scopeType"}},{"kind":"Field","name":{"kind":"Name","value":"currentChallenge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"challengeType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<AccountAuthenticationEmailVerificationQuery, AccountAuthenticationEmailVerificationQueryVariables>;
+export const AccountAuthenticationEmailVerificationSendDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountAuthenticationEmailVerificationSend"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountAuthenticationEmailVerificationSend"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"verification"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"lastEmailSentAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"authentication"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"scopeType"}},{"kind":"Field","name":{"kind":"Name","value":"currentChallenge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"challengeType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<AccountAuthenticationEmailVerificationSendMutation, AccountAuthenticationEmailVerificationSendMutationVariables>;
+export const AccountAuthenticationEmailVerificationVerifyDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountAuthenticationEmailVerificationVerify"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AccountEmailVerificationVerifyInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountAuthenticationEmailVerificationVerify"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"verification"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"lastEmailSentAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"authentication"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"scopeType"}},{"kind":"Field","name":{"kind":"Name","value":"currentChallenge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"challengeType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<AccountAuthenticationEmailVerificationVerifyMutation, AccountAuthenticationEmailVerificationVerifyMutationVariables>;
+export const AccountAuthenticationPasswordVerifyDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountAuthenticationPasswordVerify"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AccountPasswordVerifyInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountAuthenticationPasswordVerify"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"authentication"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"scopeType"}},{"kind":"Field","name":{"kind":"Name","value":"currentChallenge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"challengeType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<AccountAuthenticationPasswordVerifyMutation, AccountAuthenticationPasswordVerifyMutationVariables>;
 export const AccountMaintenanceSessionCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountMaintenanceSessionCreate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountMaintenanceSessionCreate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"scopeType"}},{"kind":"Field","name":{"kind":"Name","value":"currentChallenge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"challengeType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<AccountMaintenanceSessionCreateMutation, AccountMaintenanceSessionCreateMutationVariables>;
 export const AccountRegistrationCompleteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountRegistrationComplete"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AccountRegistrationCompleteInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountRegistrationComplete"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}}]}}]}}]} as unknown as DocumentNode<AccountRegistrationCompleteMutation, AccountRegistrationCompleteMutationVariables>;
 export const AccountSignInCompleteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountSignInComplete"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountSignInComplete"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}}]}}]}}]} as unknown as DocumentNode<AccountSignInCompleteMutation, AccountSignInCompleteMutationVariables>;
-export const AuthenticationCurrentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AuthenticationCurrent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authenticationCurrent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"scopeType"}},{"kind":"Field","name":{"kind":"Name","value":"currentChallenge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"challengeType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<AuthenticationCurrentQuery, AuthenticationCurrentQueryVariables>;
-export const EmailVerificationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"EmailVerification"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"emailVerification"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"verification"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"lastEmailSentAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"authentication"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"scopeType"}},{"kind":"Field","name":{"kind":"Name","value":"currentChallenge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"challengeType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<EmailVerificationQuery, EmailVerificationQueryVariables>;
-export const EmailVerificationSendDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"EmailVerificationSend"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"emailVerificationSend"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"verification"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"lastEmailSentAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"authentication"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"scopeType"}},{"kind":"Field","name":{"kind":"Name","value":"currentChallenge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"challengeType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<EmailVerificationSendMutation, EmailVerificationSendMutationVariables>;
-export const EmailVerificationVerifyDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"EmailVerificationVerify"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"EmailVerificationVerifyInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"emailVerificationVerify"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"verification"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"lastEmailSentAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"authentication"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"scopeType"}},{"kind":"Field","name":{"kind":"Name","value":"currentChallenge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"challengeType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<EmailVerificationVerifyMutation, EmailVerificationVerifyMutationVariables>;
-export const AccountPasswordVerifyDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountPasswordVerify"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AccountPasswordVerifyInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountPasswordVerify"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"authentication"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"scopeType"}},{"kind":"Field","name":{"kind":"Name","value":"currentChallenge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"challengeType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<AccountPasswordVerifyMutation, AccountPasswordVerifyMutationVariables>;
 export const AccountPasswordUpdateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountPasswordUpdate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AccountPasswordUpdateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountPasswordUpdate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}}]}}]}}]} as unknown as DocumentNode<AccountPasswordUpdateMutation, AccountPasswordUpdateMutationVariables>;
 export const AccountSignOutDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountSignOut"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountSignOut"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}}]}}]}}]} as unknown as DocumentNode<AccountSignOutMutation, AccountSignOutMutationVariables>;
-export const AccountCurrentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AccountCurrent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountCurrent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"currentProfile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"givenName"}},{"kind":"Field","name":{"kind":"Name","value":"familyName"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"primaryAccountEmail"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"isVerified"}},{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"source"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"roles"}},{"kind":"Field","name":{"kind":"Name","value":"currentSession"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"currentProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"statusChangedAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<AccountCurrentQuery, AccountCurrentQueryVariables>;
+export const AccountDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Account"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"account"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"profile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"givenName"}},{"kind":"Field","name":{"kind":"Name","value":"familyName"}},{"kind":"Field","name":{"kind":"Name","value":"images"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"accessRoles"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<AccountQuery, AccountQueryVariables>;
+export const AccountPrivilegedDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AccountPrivileged"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AccountInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountPrivileged"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"profiles"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"givenName"}},{"kind":"Field","name":{"kind":"Name","value":"familyName"}},{"kind":"Field","name":{"kind":"Name","value":"images"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"accessRoles"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<AccountPrivilegedQuery, AccountPrivilegedQueryVariables>;
+export const AccountsPrivilegedDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AccountsPrivileged"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInputWithFilters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountsPrivileged"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"profiles"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"givenName"}},{"kind":"Field","name":{"kind":"Name","value":"familyName"}},{"kind":"Field","name":{"kind":"Name","value":"images"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}}]}}]}}]}}]} as unknown as DocumentNode<AccountsPrivilegedQuery, AccountsPrivilegedQueryVariables>;
 export const AccountProfileUsernameValidateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AccountProfileUsernameValidate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"username"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountProfileUsernameValidate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"username"},"value":{"kind":"Variable","name":{"kind":"Name","value":"username"}}}]}]}}]} as unknown as DocumentNode<AccountProfileUsernameValidateQuery, AccountProfileUsernameValidateQueryVariables>;
-export const AccountEnrolledChallengesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AccountEnrolledChallenges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountCurrent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"enrolledChallenges"}}]}}]}}]} as unknown as DocumentNode<AccountEnrolledChallengesQuery, AccountEnrolledChallengesQueryVariables>;
-export const AccountProfileUpdateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountProfileUpdate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AccountProfileUpdateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountProfileUpdate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"givenName"}},{"kind":"Field","name":{"kind":"Name","value":"preferredName"}},{"kind":"Field","name":{"kind":"Name","value":"middleName"}},{"kind":"Field","name":{"kind":"Name","value":"familyName"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<AccountProfileUpdateMutation, AccountProfileUpdateMutationVariables>;
-export const ProfilePublicDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ProfilePublic"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"username"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"profilePublic"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"username"},"value":{"kind":"Variable","name":{"kind":"Name","value":"username"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<ProfilePublicQuery, ProfilePublicQueryVariables>;
-export const AccountAssignableRolesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AccountAssignableRoles"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountAssignableRoles"}}]}}]} as unknown as DocumentNode<AccountAssignableRolesQuery, AccountAssignableRolesQueryVariables>;
-export const AccountRolesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AccountRoles"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"statuses"}},"type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"OrderBy"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountRoles"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"statuses"},"value":{"kind":"Variable","name":{"kind":"Name","value":"statuses"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"primaryAccountEmailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"profile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"expiresAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<AccountRolesQuery, AccountRolesQueryVariables>;
-export const AccountRoleRevokeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountRoleRevoke"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"roleId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountRoleRevoke"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"roleId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"roleId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}}]}}]}}]} as unknown as DocumentNode<AccountRoleRevokeMutation, AccountRoleRevokeMutationVariables>;
-export const AccountRoleGrantDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountRoleGrant"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"GrantAccessRoleInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountRoleGrant"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"profile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"expiresAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<AccountRoleGrantMutation, AccountRoleGrantMutationVariables>;
-export const AccountsAdminDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AccountsAdmin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInputWithFilters"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"OrderBy"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountsAdmin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"profiles"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}}]}}]}}]}}]} as unknown as DocumentNode<AccountsAdminQuery, AccountsAdminQueryVariables>;
-export const AccountByEmailAddressAdminDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AccountByEmailAddressAdmin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"emailAddress"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountByEmailAddressAdmin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"emailAddress"},"value":{"kind":"Variable","name":{"kind":"Name","value":"emailAddress"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"profiles"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrls"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<AccountByEmailAddressAdminQuery, AccountByEmailAddressAdminQueryVariables>;
-export const AccountDeleteAdminDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountDeleteAdmin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"emailAddress"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountDeleteAdmin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"emailAddress"},"value":{"kind":"Variable","name":{"kind":"Name","value":"emailAddress"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}}]}}]}}]} as unknown as DocumentNode<AccountDeleteAdminMutation, AccountDeleteAdminMutationVariables>;
+export const AccountEnrolledChallengesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AccountEnrolledChallenges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"account"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"enrolledChallenges"}}]}}]}}]} as unknown as DocumentNode<AccountEnrolledChallengesQuery, AccountEnrolledChallengesQueryVariables>;
+export const AccountProfileUpdateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountProfileUpdate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AccountProfileUpdateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountProfileUpdate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"givenName"}},{"kind":"Field","name":{"kind":"Name","value":"familyName"}},{"kind":"Field","name":{"kind":"Name","value":"images"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<AccountProfileUpdateMutation, AccountProfileUpdateMutationVariables>;
+export const AccountProfilePublicDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AccountProfilePublic"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"username"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountProfilePublic"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"username"},"value":{"kind":"Variable","name":{"kind":"Name","value":"username"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"images"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<AccountProfilePublicQuery, AccountProfilePublicQueryVariables>;
+export const AccountAvailableAccessRolesPrivilegedDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AccountAvailableAccessRolesPrivileged"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountAvailableAccessRolesPrivileged"}}]}}]} as unknown as DocumentNode<AccountAvailableAccessRolesPrivilegedQuery, AccountAvailableAccessRolesPrivilegedQueryVariables>;
+export const AccountAssignedAccessRolesPrivilegedDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AccountAssignedAccessRolesPrivileged"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInputWithFilters"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountAssignedAccessRolesPrivileged"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"profile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"images"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"expiresAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}}]}}]}}]}}]} as unknown as DocumentNode<AccountAssignedAccessRolesPrivilegedQuery, AccountAssignedAccessRolesPrivilegedQueryVariables>;
+export const AccountAccessRoleRevokePrivilegedDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountAccessRoleRevokePrivileged"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AccountAccessRoleRevokeInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountAccessRoleRevokePrivileged"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}}]}}]}}]} as unknown as DocumentNode<AccountAccessRoleRevokePrivilegedMutation, AccountAccessRoleRevokePrivilegedMutationVariables>;
+export const AccountAccessRoleGrantPrivilegedDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountAccessRoleGrantPrivileged"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AccountAccessRoleGrantInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountAccessRoleGrantPrivileged"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"profile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"images"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"variant"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"expiresAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<AccountAccessRoleGrantPrivilegedMutation, AccountAccessRoleGrantPrivilegedMutationVariables>;
+export const AccountDeleteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountDelete"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"reason"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountDelete"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"reason"},"value":{"kind":"Variable","name":{"kind":"Name","value":"reason"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}}]}}]}}]} as unknown as DocumentNode<AccountDeleteMutation, AccountDeleteMutationVariables>;
+export const AccountDeletePrivilegedDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountDeletePrivileged"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AccountDeleteInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountDeletePrivileged"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}}]}}]}}]} as unknown as DocumentNode<AccountDeletePrivilegedMutation, AccountDeletePrivilegedMutationVariables>;
 export const CommerceOrdersAdminDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CommerceOrdersAdmin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInputWithFilters"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"OrderBy"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"commerceOrdersAdmin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"batchIdentifier"}},{"kind":"Field","name":{"kind":"Name","value":"beneficiaryEmailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"fulfillmentSource"}},{"kind":"Field","name":{"kind":"Name","value":"fulfillmentStatus"}},{"kind":"Field","name":{"kind":"Name","value":"holdOnShipping"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"identifier"}},{"kind":"Field","name":{"kind":"Name","value":"lineItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"commerceOrderId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"fulfilledQuantity"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"indexId"}},{"kind":"Field","name":{"kind":"Name","value":"productVariantId"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"shippedQuantity"}},{"kind":"Field","name":{"kind":"Name","value":"statusDescription"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}},{"kind":"Field","name":{"kind":"Name","value":"orderLogs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"commerceOrderId"}},{"kind":"Field","name":{"kind":"Name","value":"content"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"source"}},{"kind":"Field","name":{"kind":"Name","value":"visibility"}}]}},{"kind":"Field","name":{"kind":"Name","value":"payment"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"authorizedAt"}},{"kind":"Field","name":{"kind":"Name","value":"cancelledAt"}},{"kind":"Field","name":{"kind":"Name","value":"capturedAt"}},{"kind":"Field","name":{"kind":"Name","value":"confirmedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}},{"kind":"Field","name":{"kind":"Name","value":"externalReferenceId"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethod"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"externalResourceId"}},{"kind":"Field","name":{"kind":"Name","value":"paymentProcessorType"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PaymentMethodCreditCard"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"externalResourceId"}},{"kind":"Field","name":{"kind":"Name","value":"billingAddress"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"city"}},{"kind":"Field","name":{"kind":"Name","value":"company"}},{"kind":"Field","name":{"kind":"Name","value":"country"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"line1"}},{"kind":"Field","name":{"kind":"Name","value":"line2"}},{"kind":"Field","name":{"kind":"Name","value":"postalCode"}},{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}}]}},{"kind":"Field","name":{"kind":"Name","value":"cardType"}},{"kind":"Field","name":{"kind":"Name","value":"expirationMonth"}},{"kind":"Field","name":{"kind":"Name","value":"expirationYear"}},{"kind":"Field","name":{"kind":"Name","value":"last4"}},{"kind":"Field","name":{"kind":"Name","value":"paymentProcessorType"}},{"kind":"Field","name":{"kind":"Name","value":"type"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"PaymentMethodAppleInAppPurchase"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"externalResourceId"}},{"kind":"Field","name":{"kind":"Name","value":"paymentProcessorType"}},{"kind":"Field","name":{"kind":"Name","value":"type"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"paymentProcessorType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"statusDescription"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"walletEntryId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"paymentId"}},{"kind":"Field","name":{"kind":"Name","value":"paymentStatus"}},{"kind":"Field","name":{"kind":"Name","value":"priceInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}},{"kind":"Field","name":{"kind":"Name","value":"lineItemPrices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"indexId"}},{"kind":"Field","name":{"kind":"Name","value":"originalSubtotal"}},{"kind":"Field","name":{"kind":"Name","value":"subtotal"}},{"kind":"Field","name":{"kind":"Name","value":"tax"}}]}},{"kind":"Field","name":{"kind":"Name","value":"originalSubtotal"}},{"kind":"Field","name":{"kind":"Name","value":"shippingRate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"breakdown"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"freeShipping"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"indexId"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}}]}},{"kind":"Field","name":{"kind":"Name","value":"originalShippingRate"}},{"kind":"Field","name":{"kind":"Name","value":"packageIndexId"}},{"kind":"Field","name":{"kind":"Name","value":"shippingRate"}}]}},{"kind":"Field","name":{"kind":"Name","value":"originalAmount"}}]}},{"kind":"Field","name":{"kind":"Name","value":"subtotal"}},{"kind":"Field","name":{"kind":"Name","value":"tax"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"shipping"}},{"kind":"Field","name":{"kind":"Name","value":"total"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"shipments"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cancelledAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdByAccountId"}},{"kind":"Field","name":{"kind":"Name","value":"createdByProfileId"}},{"kind":"Field","name":{"kind":"Name","value":"deliveredAt"}},{"kind":"Field","name":{"kind":"Name","value":"deliveryStatus"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"orderIndexId"}},{"kind":"Field","name":{"kind":"Name","value":"label"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"carrier"}},{"kind":"Field","name":{"kind":"Name","value":"labelId"}},{"kind":"Field","name":{"kind":"Name","value":"serviceType"}},{"kind":"Field","name":{"kind":"Name","value":"source"}},{"kind":"Field","name":{"kind":"Name","value":"trackingNumber"}},{"kind":"Field","name":{"kind":"Name","value":"trackingUrl"}}]}},{"kind":"Field","name":{"kind":"Name","value":"orderSlip"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"storedObjectUrl"}}]}},{"kind":"Field","name":{"kind":"Name","value":"shippedAt"}},{"kind":"Field","name":{"kind":"Name","value":"source"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"statusDescription"}},{"kind":"Field","name":{"kind":"Name","value":"toAddress"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"city"}},{"kind":"Field","name":{"kind":"Name","value":"company"}},{"kind":"Field","name":{"kind":"Name","value":"country"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"line1"}},{"kind":"Field","name":{"kind":"Name","value":"line2"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}},{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"postalCode"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedByAccountId"}},{"kind":"Field","name":{"kind":"Name","value":"updatedByProfileId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"shippingInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"shippingAddress"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"city"}},{"kind":"Field","name":{"kind":"Name","value":"country"}},{"kind":"Field","name":{"kind":"Name","value":"company"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"line1"}},{"kind":"Field","name":{"kind":"Name","value":"line2"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}},{"kind":"Field","name":{"kind":"Name","value":"postalCode"}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"source"}},{"kind":"Field","name":{"kind":"Name","value":"statusDescription"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}}]}}]}}]}}]} as unknown as DocumentNode<CommerceOrdersAdminQuery, CommerceOrdersAdminQueryVariables>;
 export const GetBagItemsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetBagItems"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"commerceCart"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"identifier"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"relationship"}},{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"productBundle"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"productVariant"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"price"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}}]}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"shippingAddress"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"company"}},{"kind":"Field","name":{"kind":"Name","value":"line1"}},{"kind":"Field","name":{"kind":"Name","value":"line2"}},{"kind":"Field","name":{"kind":"Name","value":"city"}},{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"postalCode"}},{"kind":"Field","name":{"kind":"Name","value":"country"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetBagItemsQuery, GetBagItemsQueryVariables>;
 export const UpdateBagWithItemsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateBagWithItems"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ShoppingBagItemInput"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"commerceCartUpdate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"items"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"identifier"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"relationship"}},{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"productBundle"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"productVariant"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"price"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"currencyCode"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}}]}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"shippingAddress"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"company"}},{"kind":"Field","name":{"kind":"Name","value":"line1"}},{"kind":"Field","name":{"kind":"Name","value":"line2"}},{"kind":"Field","name":{"kind":"Name","value":"city"}},{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"postalCode"}},{"kind":"Field","name":{"kind":"Name","value":"country"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"phoneNumber"}}]}}]}}]}}]}}]} as unknown as DocumentNode<UpdateBagWithItemsMutation, UpdateBagWithItemsMutationVariables>;
@@ -6635,84 +6675,72 @@ export namespace GraphQLInputTypes {
     ],
   }
 
-  export const ColumnFilterConditionOperator: GraphQLInputEnumTypeMetadata = {
+  export const OrderByDirection: GraphQLInputEnumTypeMetadata = {
     kind: 'enum',
-    type: 'ColumnFilterConditionOperator',
+    type: 'OrderByDirection',
     values: [
-      'Equal',
-      'NotEqual',
-      'GreaterThan',
-      'GreaterThanOrEqual',
-      'LessThan',
-      'LessThanOrEqual',
-      'Like',
-      'NotLike',
-      'In',
-      'NotIn',
-      'IsNull',
-      'IsNotNull'
+      'Ascending',
+      'Descending'
     ],
   }
 
-  export const ColumnFilter: GraphQLInputObjectTypeMetadata = {
+  export const OrderBy: GraphQLInputObjectTypeMetadata = {
     kind: 'object',
-    type: 'ColumnFilter',
+    type: 'OrderBy',
     fields: [
       {
-        name: 'operator',
-        kind: 'enum',
-        type: GraphQLInputTypes.ColumnFilterConditionOperator,
-        required: true,
-      },
-      {
-        name: 'caseSensitive',
-        kind: 'scalar',
-        type: 'Boolean',
-        required: false,
-      },
-      {
-        name: 'column',
+        name: 'key',
         kind: 'scalar',
         type: 'String',
         required: true,
       },
       {
-        name: 'value',
-        kind: 'scalar',
-        type: 'JSON',
-        required: true,
+        name: 'direction',
+        kind: 'enum',
+        type: GraphQLInputTypes.OrderByDirection,
+        required: false,
       }
     ],
   }
 
-  export const PaginationInputWithFilters: GraphQLInputObjectTypeMetadata = {
+  export const AccountDeleteInput: GraphQLInputObjectTypeMetadata = {
     kind: 'object',
-    type: 'PaginationInputWithFilters',
+    type: 'AccountDeleteInput',
     fields: [
       {
-        name: 'itemsPerPage',
+        name: 'emailAddress',
         kind: 'scalar',
-        type: 'Int',
+        type: 'String',
         required: true,
+        validation: [
+          {
+            type: 'isEmail',
+          }
+        ],
       },
       {
-        name: 'itemIndex',
+        name: 'reason',
         kind: 'scalar',
-        type: 'Int',
+        type: 'String',
         required: false,
-      },
-      {
-        name: 'filters',
-        kind: 'object',
-        type: GraphQLInputTypes.ColumnFilter,
-        required: true,
+        validation: [
+          {
+            type: 'isNotEmpty',
+          },
+          {
+            type: 'maxLength',
+            constraints: [
+              128
+            ],
+          }
+        ],
       }
     ],
   }
 
-  export const GrantAccessRoleInput: GraphQLInputObjectTypeMetadata = {
+  export const AccountAccessRoleGrantInput: GraphQLInputObjectTypeMetadata = {
     kind: 'object',
-    type: 'GrantAccessRoleInput',
+    type: 'AccountAccessRoleGrantInput',
     fields: [
       {
         name: 'expiresAt',
@@ -6746,30 +6774,20 @@ export namespace GraphQLInputTypes {
     ],
   }
 
-  export const OrderByDirection: GraphQLInputEnumTypeMetadata = {
-    kind: 'enum',
-    type: 'OrderByDirection',
-    values: [
-      'Ascending',
-      'Descending'
-    ],
-  }
-
-  export const OrderBy: GraphQLInputObjectTypeMetadata = {
+  export const AccountAccessRoleRevokeInput: GraphQLInputObjectTypeMetadata = {
     kind: 'object',
-    type: 'OrderBy',
+    type: 'AccountAccessRoleRevokeInput',
     fields: [
       {
-        name: 'key',
+        name: 'accessRoleId',
         kind: 'scalar',
         type: 'String',
         required: true,
-      },
-      {
-        name: 'direction',
-        kind: 'enum',
-        type: GraphQLInputTypes.OrderByDirection,
-        required: false,
+        validation: [
+          {
+            type: 'isUuid',
+          }
+        ],
       }
     ],
   }
@@ -6905,48 +6923,105 @@ export namespace GraphQLInputTypes {
     ],
   }
 
+  export const ColumnFilterConditionOperator: GraphQLInputEnumTypeMetadata = {
+    kind: 'enum',
+    type: 'ColumnFilterConditionOperator',
+    values: [
+      'Equal',
+      'NotEqual',
+      'GreaterThan',
+      'GreaterThanOrEqual',
+      'LessThan',
+      'LessThanOrEqual',
+      'Like',
+      'NotLike',
+      'In',
+      'NotIn',
+      'IsNull',
+      'IsNotNull'
+    ],
+  }
+
+  export const ColumnFilter: GraphQLInputObjectTypeMetadata = {
+    kind: 'object',
+    type: 'ColumnFilter',
+    fields: [
+      {
+        name: 'operator',
+        kind: 'enum',
+        type: GraphQLInputTypes.ColumnFilterConditionOperator,
+        required: true,
+      },
+      {
+        name: 'caseSensitive',
+        kind: 'scalar',
+        type: 'Boolean',
+        required: false,
+      },
+      {
+        name: 'column',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+      },
+      {
+        name: 'value',
+        kind: 'scalar',
+        type: 'JSON',
+        required: true,
+      }
+    ],
+  }
+
+  export const PaginationInputWithFilters: GraphQLInputObjectTypeMetadata = {
+    kind: 'object',
+    type: 'PaginationInputWithFilters',
+    fields: [
+      {
+        name: 'itemsPerPage',
+        kind: 'scalar',
+        type: 'Int',
+        required: true,
+      },
+      {
+        name: 'itemIndex',
+        kind: 'scalar',
+        type: 'Int',
+        required: false,
+      },
+      {
+        name: 'filters',
+        kind: 'object',
+        type: GraphQLInputTypes.ColumnFilter,
+        required: true,
+      }
+    ],
+  }
+
+  export const AccountInput: GraphQLInputObjectTypeMetadata = {
+    kind: 'object',
+    type: 'AccountInput',
+    fields: [
+      {
+        name: 'emailAddress',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'isEmail',
+          }
+        ],
+      }
+    ],
+  }
+
   export const AccountPasswordUpdateInput: GraphQLInputObjectTypeMetadata = {
     kind: 'object',
     type: 'AccountPasswordUpdateInput',
     fields: [
       {
         name: 'newPassword',
-        kind: 'scalar',
-        type: 'String',
-        required: true,
-        validation: [
-          {
-            type: 'isNotEmpty',
-          }
-        ],
-      }
-    ],
-  }
-
-  export const AccountPasswordVerifyInput: GraphQLInputObjectTypeMetadata = {
-    kind: 'object',
-    type: 'AccountPasswordVerifyInput',
-    fields: [
-      {
-        name: 'password',
-        kind: 'scalar',
-        type: 'String',
-        required: true,
-        validation: [
-          {
-            type: 'isNotEmpty',
-          }
-        ],
-      }
-    ],
-  }
-
-  export const EmailVerificationVerifyInput: GraphQLInputObjectTypeMetadata = {
-    kind: 'object',
-    type: 'EmailVerificationVerifyInput',
-    fields: [
-      {
-        name: 'code',
         kind: 'scalar',
         type: 'String',
         required: true,
@@ -7064,6 +7139,42 @@ export namespace GraphQLInputTypes {
     ],
   }
 
+  export const AccountPasswordVerifyInput: GraphQLInputObjectTypeMetadata = {
+    kind: 'object',
+    type: 'AccountPasswordVerifyInput',
+    fields: [
+      {
+        name: 'password',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'isNotEmpty',
+          }
+        ],
+      }
+    ],
+  }
+
+  export const AccountEmailVerificationVerifyInput: GraphQLInputObjectTypeMetadata = {
+    kind: 'object',
+    type: 'AccountEmailVerificationVerifyInput',
+    fields: [
+      {
+        name: 'code',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'isNotEmpty',
+          }
+        ],
+      }
+    ],
+  }
+
   export const AccountRegistrationOrSignInCreateInput: GraphQLInputObjectTypeMetadata = {
     kind: 'object',
     type: 'AccountRegistrationOrSignInCreateInput',
@@ -7126,16 +7237,44 @@ export interface GraphQLOperationScalarListParameterMetadata extends BaseGraphQL
   readonly type: string;
 }
 
-export const AccountRegistrationOrSignInCreateOperation: GraphQLOperationMetadata<typeof AccountRegistrationOrSignInCreateDocument> = {
-  operation: 'AccountRegistrationOrSignInCreate',
+export const AccountAuthenticationRegistrationOrSignInCreateOperation: GraphQLOperationMetadata<typeof AccountAuthenticationRegistrationOrSignInCreateDocument> = {
+  operation: 'AccountAuthenticationRegistrationOrSignInCreate',
   operationType: 'mutation',
-  document: AccountRegistrationOrSignInCreateDocument,
+  document: AccountAuthenticationRegistrationOrSignInCreateDocument,
   parameters: [
     {
       parameter: 'input',
       required: true,
       kind: 'object',
       type: GraphQLInputTypes.AccountRegistrationOrSignInCreateInput,
+    },
+  ],
+}
+  
+export const AccountAuthenticationEmailVerificationVerifyOperation: GraphQLOperationMetadata<typeof AccountAuthenticationEmailVerificationVerifyDocument> = {
+  operation: 'AccountAuthenticationEmailVerificationVerify',
+  operationType: 'mutation',
+  document: AccountAuthenticationEmailVerificationVerifyDocument,
+  parameters: [
+    {
+      parameter: 'input',
+      required: true,
+      kind: 'object',
+      type: GraphQLInputTypes.AccountEmailVerificationVerifyInput,
+    },
+  ],
+}
+  
+export const AccountAuthenticationPasswordVerifyOperation: GraphQLOperationMetadata<typeof AccountAuthenticationPasswordVerifyDocument> = {
+  operation: 'AccountAuthenticationPasswordVerify',
+  operationType: 'mutation',
+  document: AccountAuthenticationPasswordVerifyDocument,
+  parameters: [
+    {
+      parameter: 'input',
+      required: true,
+      kind: 'object',
+      type: GraphQLInputTypes.AccountPasswordVerifyInput,
     },
   ],
 }
@@ -7154,34 +7293,6 @@ export const AccountRegistrationCompleteOperation: GraphQLOperationMetadata<type
   ],
 }
   
-export const EmailVerificationVerifyOperation: GraphQLOperationMetadata<typeof EmailVerificationVerifyDocument> = {
-  operation: 'EmailVerificationVerify',
-  operationType: 'mutation',
-  document: EmailVerificationVerifyDocument,
-  parameters: [
-    {
-      parameter: 'input',
-      required: true,
-      kind: 'object',
-      type: GraphQLInputTypes.EmailVerificationVerifyInput,
-    },
-  ],
-}
-  
-export const AccountPasswordVerifyOperation: GraphQLOperationMetadata<typeof AccountPasswordVerifyDocument> = {
-  operation: 'AccountPasswordVerify',
-  operationType: 'mutation',
-  document: AccountPasswordVerifyDocument,
-  parameters: [
-    {
-      parameter: 'input',
-      required: true,
-      kind: 'object',
-      type: GraphQLInputTypes.AccountPasswordVerifyInput,
-    },
-  ],
-}
-  
 export const AccountPasswordUpdateOperation: GraphQLOperationMetadata<typeof AccountPasswordUpdateDocument> = {
   operation: 'AccountPasswordUpdate',
   operationType: 'mutation',
@@ -7192,6 +7303,34 @@ export const AccountPasswordUpdateOperation: GraphQLOperationMetadata<typeof Acc
       required: true,
       kind: 'object',
       type: GraphQLInputTypes.AccountPasswordUpdateInput,
+    },
+  ],
+}
+  
+export const AccountPrivilegedOperation: GraphQLOperationMetadata<typeof AccountPrivilegedDocument> = {
+  operation: 'AccountPrivileged',
+  operationType: 'query',
+  document: AccountPrivilegedDocument,
+  parameters: [
+    {
+      parameter: 'input',
+      required: true,
+      kind: 'object',
+      type: GraphQLInputTypes.AccountInput,
+    },
+  ],
+}
+  
+export const AccountsPrivilegedOperation: GraphQLOperationMetadata<typeof AccountsPrivilegedDocument> = {
+  operation: 'AccountsPrivileged',
+  operationType: 'query',
+  document: AccountsPrivilegedDocument,
+  parameters: [
+    {
+      parameter: 'input',
+      required: false,
+      kind: 'object',
+      type: GraphQLInputTypes.PaginationInputWithFilters,
     },
   ],
 }
@@ -7224,10 +7363,10 @@ export const AccountProfileUpdateOperation: GraphQLOperationMetadata<typeof Acco
   ],
 }
   
-export const ProfilePublicOperation: GraphQLOperationMetadata<typeof ProfilePublicDocument> = {
-  operation: 'ProfilePublic',
+export const AccountProfilePublicOperation: GraphQLOperationMetadata<typeof AccountProfilePublicDocument> = {
+  operation: 'AccountProfilePublic',
   operationType: 'query',
-  document: ProfilePublicDocument,
+  document: AccountProfilePublicDocument,
   parameters: [
     {
       parameter: 'username',
@@ -7238,60 +7377,10 @@ export const ProfilePublicOperation: GraphQLOperationMetadata<typeof ProfilePubl
   ],
 }
   
-export const AccountRolesOperation: GraphQLOperationMetadata<typeof AccountRolesDocument> = {
-  operation: 'AccountRoles',
+export const AccountAssignedAccessRolesPrivilegedOperation: GraphQLOperationMetadata<typeof AccountAssignedAccessRolesPrivilegedDocument> = {
+  operation: 'AccountAssignedAccessRolesPrivileged',
   operationType: 'query',
-  document: AccountRolesDocument,
-  parameters: [
-    {
-      parameter: 'statuses',
-      required: false,
-      kind: 'list',
-      itemKind: 'scalar',
-      type: 'String',
-      allowsEmpty: false,
-    },
-    {
-      parameter: 'orderBy',
-      required: false,
-      kind: 'object',
-      type: GraphQLInputTypes.OrderBy,
-    },
-  ],
-}
-  
-export const AccountRoleRevokeOperation: GraphQLOperationMetadata<typeof AccountRoleRevokeDocument> = {
-  operation: 'AccountRoleRevoke',
-  operationType: 'mutation',
-  document: AccountRoleRevokeDocument,
-  parameters: [
-    {
-      parameter: 'roleId',
-      required: true,
-      kind: 'scalar',
-      type: 'String',
-    },
-  ],
-}
-  
-export const AccountRoleGrantOperation: GraphQLOperationMetadata<typeof AccountRoleGrantDocument> = {
-  operation: 'AccountRoleGrant',
-  operationType: 'mutation',
-  document: AccountRoleGrantDocument,
-  parameters: [
-    {
-      parameter: 'input',
-      required: true,
-      kind: 'object',
-      type: GraphQLInputTypes.GrantAccessRoleInput,
-    },
-  ],
-}
-  
-export const AccountsAdminOperation: GraphQLOperationMetadata<typeof AccountsAdminDocument> = {
-  operation: 'AccountsAdmin',
-  operationType: 'query',
-  document: AccountsAdminDocument,
+  document: AccountAssignedAccessRolesPrivilegedDocument,
   parameters: [
     {
       parameter: 'input',
@@ -7299,39 +7388,61 @@ export const AccountsAdminOperation: GraphQLOperationMetadata<typeof AccountsAdm
       kind: 'object',
       type: GraphQLInputTypes.PaginationInputWithFilters,
     },
-    {
-      parameter: 'orderBy',
-      required: false,
-      kind: 'object',
-      type: GraphQLInputTypes.OrderBy,
-    },
   ],
 }
   
-export const AccountByEmailAddressAdminOperation: GraphQLOperationMetadata<typeof AccountByEmailAddressAdminDocument> = {
-  operation: 'AccountByEmailAddressAdmin',
-  operationType: 'query',
-  document: AccountByEmailAddressAdminDocument,
-  parameters: [
-    {
-      parameter: 'emailAddress',
-      required: true,
-      kind: 'scalar',
-      type: 'String',
-    },
-  ],
-}
-  
-export const AccountDeleteAdminOperation: GraphQLOperationMetadata<typeof AccountDeleteAdminDocument> = {
-  operation: 'AccountDeleteAdmin',
+export const AccountAccessRoleRevokePrivilegedOperation: GraphQLOperationMetadata<typeof AccountAccessRoleRevokePrivilegedDocument> = {
+  operation: 'AccountAccessRoleRevokePrivileged',
   operationType: 'mutation',
-  document: AccountDeleteAdminDocument,
+  document: AccountAccessRoleRevokePrivilegedDocument,
   parameters: [
     {
-      parameter: 'emailAddress',
+      parameter: 'input',
       required: true,
+      kind: 'object',
+      type: GraphQLInputTypes.AccountAccessRoleRevokeInput,
+    },
+  ],
+}
+  
+export const AccountAccessRoleGrantPrivilegedOperation: GraphQLOperationMetadata<typeof AccountAccessRoleGrantPrivilegedDocument> = {
+  operation: 'AccountAccessRoleGrantPrivileged',
+  operationType: 'mutation',
+  document: AccountAccessRoleGrantPrivilegedDocument,
+  parameters: [
+    {
+      parameter: 'input',
+      required: true,
+      kind: 'object',
+      type: GraphQLInputTypes.AccountAccessRoleGrantInput,
+    },
+  ],
+}
+  
+export const AccountDeleteOperation: GraphQLOperationMetadata<typeof AccountDeleteDocument> = {
+  operation: 'AccountDelete',
+  operationType: 'mutation',
+  document: AccountDeleteDocument,
+  parameters: [
+    {
+      parameter: 'reason',
+      required: false,
       kind: 'scalar',
       type: 'String',
+    },
+  ],
+}
+  
+export const AccountDeletePrivilegedOperation: GraphQLOperationMetadata<typeof AccountDeletePrivilegedDocument> = {
+  operation: 'AccountDeletePrivileged',
+  operationType: 'mutation',
+  document: AccountDeletePrivilegedDocument,
+  parameters: [
+    {
+      parameter: 'input',
+      required: true,
+      kind: 'object',
+      type: GraphQLInputTypes.AccountDeleteInput,
     },
   ],
 }
