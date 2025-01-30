@@ -56,7 +56,6 @@ export function PortChecker(properties: PortCheckerInterface) {
 
     // References
     const currentTaskCreatePortScanIdReference = React.useRef<string | undefined>(undefined);
-    const currentTaskCreatePortScanGroupIdReference = React.useRef<string | null | undefined>(undefined);
     const websocketTimeoutReference = React.useRef<NodeJS.Timeout>();
     const fallbackTimeoutReference = React.useRef<NodeJS.Timeout>();
     const lastWebSocketMessageTimeReference = React.useRef<number>(0);
@@ -383,7 +382,6 @@ export function PortChecker(properties: PortCheckerInterface) {
 
             // Set the task ID and start polling if WebSocket isn't working
             currentTaskCreatePortScanIdReference.current = result.data?.taskCreatePortScan[0]?.id;
-            currentTaskCreatePortScanGroupIdReference.current = result.data?.taskCreatePortScan[0]?.groupdId;
 
             // If we don't have a task ID, stop checking
             if(!currentTaskCreatePortScanIdReference.current) {

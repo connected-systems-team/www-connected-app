@@ -4,9 +4,39 @@ schema {
 }
 
 """
+The operator of a field filter
+"""
+enum ColumnFilterConditionOperator {
+    Equal
+    GreaterThan
+    GreaterThanOrEqual
+    In
+    IsNotNull
+    IsNull
+    LessThan
+    LessThanOrEqual
+    Like
+    NotEqual
+    NotIn
+    NotLike
+}
+
+input ColumnFilterInput {
+    caseSensitive: Boolean
+    column: String!
+    operator: ColumnFilterConditionOperator!
+    value: JSON!
+}
+
+"""
 A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.This scalar is serialized to a string in ISO 8601 format and parsed from a string in ISO 8601 format.
 """
 scalar DateTimeISO
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
 
 type Mutation {
     waitListCreate(data: WaitListCreationInput!): WaitList!
@@ -20,6 +50,19 @@ type OperationResult {
     success: Boolean!
 }
 
+"""
+The order direction of a query
+"""
+enum OrderByDirection {
+    Ascending
+    Descending
+}
+
+input OrderByInput {
+    direction: OrderByDirection
+    key: String!
+}
+
 type Pagination {
     itemIndex: Int!
     itemIndexForNextPage: Int
@@ -31,23 +74,19 @@ type Pagination {
 }
 
 input PaginationInput {
+    filters: [ColumnFilterInput!]
     itemIndex: Int
     itemsPerPage: Int!
+    orderBy: [OrderByInput!]
 }
 
 type Query {
-    waitListEntries(input: QueryWaitListEntriesInput): WaitListEntriesResult!
-    waitLists(input: PaginationInput): WaitListResult!
-}
-
-input QueryWaitListEntriesInput {
-    dateColumn: String
-    endDate: DateTimeISO
-    itemIndex: Int
-    itemsPerPage: Int!
-    startDate: DateTimeISO
-    waitListId: String
-    waitListIdentifier: String
+    waitListEntries(
+        pagination: PaginationInput!
+        waitListId: String
+        waitListIdentifier: String
+    ): WaitListEntriesResult!
+    waitLists(pagination: PaginationInput!): WaitListResult!
 }
 
 type WaitList {
@@ -72,7 +111,7 @@ input WaitListCreationInput {
 
 type WaitListEntriesResult {
     items: [WaitListEntry!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type WaitListEntry {
@@ -96,7 +135,7 @@ type WaitListEntry {
 
 type WaitListResult {
     items: [WaitList!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 input WaitListUpdateInput {

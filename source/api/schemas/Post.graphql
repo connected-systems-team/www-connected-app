@@ -3,13 +3,6 @@ schema {
     mutation: Mutation
 }
 
-input ColumnFilter {
-    caseSensitive: Boolean
-    column: String!
-    operator: ColumnFilterConditionOperator!
-    value: JSON!
-}
-
 """
 The operator of a field filter
 """
@@ -26,6 +19,13 @@ enum ColumnFilterConditionOperator {
     NotEqual
     NotIn
     NotLike
+}
+
+input ColumnFilterInput {
+    caseSensitive: Boolean
+    column: String!
+    operator: ColumnFilterConditionOperator!
+    value: JSON!
 }
 
 """
@@ -53,12 +53,12 @@ enum MediaObjectType {
 type Mutation {
     postCommentCreate(input: PostCommentCreateInput!): PostComment!
     postCommentDelete(id: String!): Boolean!
-    postCreateAdmin(input: PostCreateInput!): Post!
+    postCreatePrivileged(input: PostCreateInput!): Post!
     postDelete(id: String!, note: String): String!
-    postDeleteAdmin(id: String!, note: String): String!
+    postDeletePrivileged(id: String!, note: String): String!
     postDraft(id: String!): Post!
     postPublish(id: String!): Post!
-    postPublishAdmin(id: String!): Post!
+    postPublishPrivileged(id: String!): Post!
     postReactionCreate(commentId: String, content: String!, postId: String): OperationResult!
     postReactionDelete(commentId: String, content: String!, postId: String): OperationResult!
     postReportCreate(input: PostReportInput!): PostReport!
@@ -70,17 +70,12 @@ type Mutation {
     postTopicUpdatePosition(id: String!, input: PostTopicUpdatePositionInput!): PostTopic!
     postUnvote(commentId: String, postId: String, type: PostVoteType): OperationResult!
     postUpdate(id: String!, input: PostUpdateInput!): Post!
-    postUpdateAdmin(id: String!, input: PostUpdateInput!): Post!
+    postUpdatePrivileged(id: String!, input: PostUpdateInput!): Post!
     postVote(commentId: String, postId: String, type: PostVoteType): OperationResult!
 }
 
 type OperationResult {
     success: Boolean!
-}
-
-input OrderBy {
-    direction: OrderByDirection
-    key: String!
 }
 
 """
@@ -91,29 +86,34 @@ enum OrderByDirection {
     Descending
 }
 
+input OrderByInput {
+    direction: OrderByDirection
+    key: String!
+}
+
 type PagedPostComments {
     items: [PostComment!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type PagedPostReactionProfile {
     items: [PostReactionProfile!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type PagedPostReports {
     items: [PostReport!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type PagedPostRevisions {
     items: [PostRevision!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type PagedPosts {
     items: [Post!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type Pagination {
@@ -127,14 +127,10 @@ type Pagination {
 }
 
 input PaginationInput {
+    filters: [ColumnFilterInput!]
     itemIndex: Int
     itemsPerPage: Int!
-}
-
-input PaginationInputWithFilters {
-    filters: [ColumnFilter!]
-    itemIndex: Int
-    itemsPerPage: Int!
+    orderBy: [OrderByInput!]
 }
 
 type Post {
@@ -156,7 +152,7 @@ type Post {
     reactions: [PostReaction!]
     reportStatus: PostReportStatus
     reportedCount: Int!
-    revisionsPaged(input: PaginationInput!): PagedPostRevisions
+    revisionsPaged(pagination: PaginationInput!): PagedPostRevisions
     settings: JSON
     slug: String!
     status: PostStatus!
@@ -340,23 +336,23 @@ enum PostVoteType {
 type PublicProfile {
     createdAt: DateTimeISO
     displayName: String
-    imageUrls: [ImageObject!]
+    images: [ImageObject!]
     username: String!
 }
 
 type Query {
     post(id: String, identifier: String, slug: String): Post!
-    postAdmin(id: String, identifier: String): Post!
-    postComments(input: PaginationInput, orderBy: OrderBy, postId: String!, threadId: String): PagedPostComments!
+    postComments(pagination: PaginationInput!, postId: String!, threadId: String): PagedPostComments!
+    postPrivileged(id: String, identifier: String): Post!
     postReactionProfiles(
         commentId: String
         content: String!
-        pagination: PaginationInput
+        pagination: PaginationInput!
         postId: String
     ): PagedPostReactionProfile!
-    postReports(commentId: String, pagination: PaginationInput, postId: String): PagedPostReports!
+    postReports(commentId: String, pagination: PaginationInput!, postId: String): PagedPostReports!
     postTopic(
-        pagination: PaginationInput
+        pagination: PaginationInput!
         """
         path should be in format of: /'slug1'/'slug2'/'slug3'/.../'targetSlug'
         """
@@ -371,10 +367,10 @@ type Query {
         """
         ids: [String!]
     ): [PostTopic!]!
-    posts(input: PaginationInputWithFilters, orderBy: OrderBy): PagedPosts!
-    postsAdmin(input: PaginationInputWithFilters, orderBy: OrderBy): PagedPosts!
-    postsByTopic(id: String!, orderBy: OrderBy, pagination: PaginationInput): PagedPosts!
-    postsMine(input: PaginationInputWithFilters, orderBy: OrderBy): PagedPosts!
+    posts(pagination: PaginationInput!): PagedPosts!
+    postsByTopic(id: String!, pagination: PaginationInput!): PagedPosts!
+    postsMine(pagination: PaginationInput!): PagedPosts!
+    postsPrivileged(pagination: PaginationInput!): PagedPosts!
 }
 
 """

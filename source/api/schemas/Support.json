@@ -48,33 +48,9 @@
                 "type": "Boolean",
                 "description": "The `Boolean` scalar type represents `true` or `false`."
             },
-            "OrderBy": {
+            "PaginationInput": {
                 "kind": "object",
-                "type": "OrderBy",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "key"
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "OrderByDirection",
-                        "required": false,
-                        "name": "direction"
-                    }
-                ]
-            },
-            "OrderByDirection": {
-                "kind": "enum",
-                "type": "OrderByDirection",
-                "description": "The order direction of a query",
-                "values": ["Ascending", "Descending"]
-            },
-            "PaginationInputWithFilters": {
-                "kind": "object",
-                "type": "PaginationInputWithFilters",
+                "type": "PaginationInput",
                 "fields": [
                     {
                         "kind": "scalar",
@@ -90,15 +66,21 @@
                     },
                     {
                         "kind": "object",
-                        "type": "ColumnFilter",
+                        "type": "ColumnFilterInput",
                         "required": true,
                         "name": "filters"
+                    },
+                    {
+                        "kind": "object",
+                        "type": "OrderByInput",
+                        "required": true,
+                        "name": "orderBy"
                     }
                 ]
             },
-            "ColumnFilter": {
+            "ColumnFilterInput": {
                 "kind": "object",
-                "type": "ColumnFilter",
+                "type": "ColumnFilterInput",
                 "fields": [
                     {
                         "kind": "enum",
@@ -150,104 +132,29 @@
                 "type": "JSON",
                 "description": "The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf)."
             },
-            "PaginationInput": {
+            "OrderByInput": {
                 "kind": "object",
-                "type": "PaginationInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": true,
-                        "name": "itemsPerPage"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": false,
-                        "name": "itemIndex"
-                    }
-                ]
-            },
-            "SupportTicketUpdateInput": {
-                "kind": "object",
-                "type": "SupportTicketUpdateInput",
+                "type": "OrderByInput",
                 "fields": [
                     {
                         "kind": "scalar",
                         "type": "String",
                         "required": true,
-                        "name": "id",
-                        "validation": [
-                            {
-                                "type": "isUuid"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "title",
-                        "validation": [
-                            {
-                                "type": "maxLength",
-                                "constraints": [256]
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "description"
-                    }
-                ]
-            },
-            "SupportTicketCommentCreateInput": {
-                "kind": "object",
-                "type": "SupportTicketCommentCreateInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "ticketId",
-                        "validation": [
-                            {
-                                "type": "isUuid"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "content"
+                        "name": "key"
                     },
                     {
                         "kind": "enum",
-                        "type": "RichContentFormat",
+                        "type": "OrderByDirection",
                         "required": false,
-                        "name": "contentType"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "replyToCommentId",
-                        "validation": [
-                            {
-                                "type": "isUuid"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "SupportTicketCommentVisibility",
-                        "required": false,
-                        "name": "visibility"
+                        "name": "direction"
                     }
                 ]
+            },
+            "OrderByDirection": {
+                "kind": "enum",
+                "type": "OrderByDirection",
+                "description": "The order direction of a query",
+                "values": ["Ascending", "Descending"]
             },
             "SupportTicketCreateInput": {
                 "kind": "object",
@@ -303,6 +210,87 @@
                         "type": "SupportTicketCommentCreateInput",
                         "required": false,
                         "name": "initialComment"
+                    }
+                ]
+            },
+            "SupportTicketCommentCreateInput": {
+                "kind": "object",
+                "type": "SupportTicketCommentCreateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "ticketId",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "content"
+                    },
+                    {
+                        "kind": "enum",
+                        "type": "RichContentFormat",
+                        "required": false,
+                        "name": "contentType"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "replyToCommentId",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "enum",
+                        "type": "SupportTicketCommentVisibility",
+                        "required": false,
+                        "name": "visibility"
+                    }
+                ]
+            },
+            "SupportTicketUpdateInput": {
+                "kind": "object",
+                "type": "SupportTicketUpdateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "id",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "title",
+                        "validation": [
+                            {
+                                "type": "maxLength",
+                                "constraints": [256]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "description"
                     }
                 ]
             },

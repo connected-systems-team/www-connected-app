@@ -2,7 +2,6 @@
 mutation TaskCreatePortScan($input: TaskPortScanInput!) {
     taskCreatePortScan(input: $input) {
         id
-        groupdId
         regionId
         lastResultId
         state
@@ -65,7 +64,6 @@ mutation TaskCreatePortScan($input: TaskPortScanInput!) {
 query TaskPortScan($input: TaskInput!) {
     task(input: $input) {
         id
-        groupdId
         regionId
         lastResultId
         state
@@ -136,8 +134,8 @@ query GridRegions {
 }
 
 # Task History Query
-query TaskHistory($input: PaginationInputWithFilters, $orderBy: OrderBy) {
-    taskHistory(input: $input, orderBy: $orderBy) {
+query TaskHistory($pagination: PaginationInput!) {
+    taskHistory(pagination: $pagination) {
         items {
             id
             # groupdId

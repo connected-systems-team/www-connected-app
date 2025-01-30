@@ -20,13 +20,6 @@ type Cluster {
     updatedAt: DateTimeISO!
 }
 
-input ColumnFilter {
-    caseSensitive: Boolean
-    column: String!
-    operator: ColumnFilterConditionOperator!
-    value: JSON!
-}
-
 """
 The operator of a field filter
 """
@@ -43,6 +36,13 @@ enum ColumnFilterConditionOperator {
     NotEqual
     NotIn
     NotLike
+}
+
+input ColumnFilterInput {
+    caseSensitive: Boolean
+    column: String!
+    operator: ColumnFilterConditionOperator!
+    value: JSON!
 }
 
 """
@@ -133,17 +133,17 @@ type Mutation {
     taskCreatePortScan(input: TaskPortScanInput!): [Task!]!
 }
 
-input OrderBy {
-    direction: OrderByDirection
-    key: String!
-}
-
 """
 The order direction of a query
 """
 enum OrderByDirection {
     Ascending
     Descending
+}
+
+input OrderByInput {
+    direction: OrderByDirection
+    key: String!
 }
 
 type Pagination {
@@ -156,15 +156,16 @@ type Pagination {
     pagesTotal: Int!
 }
 
-input PaginationInputWithFilters {
-    filters: [ColumnFilter!]
+input PaginationInput {
+    filters: [ColumnFilterInput!]
     itemIndex: Int
     itemsPerPage: Int!
+    orderBy: [OrderByInput!]
 }
 
 type PaginationTaskResult {
     items: [Task!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type Query {
@@ -182,7 +183,7 @@ type Query {
     gridRegions: [Region!]!
     task(input: TaskInput!): Task
     taskGroup(input: TaskGroupInput!): [Task!]!
-    taskHistory(input: PaginationInputWithFilters, orderBy: OrderBy): PaginationTaskResult!
+    taskHistory(pagination: PaginationInput!): PaginationTaskResult!
 }
 
 type Region {
@@ -199,7 +200,6 @@ type Task {
     createdAt: DateTimeISO!
     createdByAccountId: String
     createdByProfileId: String
-    groupdId: String
     id: String!
     lastResultId: String
     maxAttempts: Float!

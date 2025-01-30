@@ -37,6 +37,7 @@ type Account {
     enrolledChallenges: [String!]!
     profile: Profile!
     profiles: [Profile!]!
+    session: AccountSession
     status: AccountStatus!
     updatedAt: DateTimeISO!
 }
@@ -227,13 +228,6 @@ enum AuthenticationSessionStatus {
     openStatuses
 }
 
-input ColumnFilter {
-    caseSensitive: Boolean
-    column: String!
-    operator: ColumnFilterConditionOperator!
-    value: JSON!
-}
-
 """
 The operator of a field filter
 """
@@ -250,6 +244,13 @@ enum ColumnFilterConditionOperator {
     NotEqual
     NotIn
     NotLike
+}
+
+input ColumnFilterInput {
+    caseSensitive: Boolean
+    column: String!
+    operator: ColumnFilterConditionOperator!
+    value: JSON!
 }
 
 """
@@ -299,9 +300,11 @@ type Mutation {
         input: AccountEmailVerificationVerifyInput!
     ): AuthenticationEmailVerification!
     accountAuthenticationPasswordVerify(input: AccountPasswordVerifyInput!): AuthenticationOperationResult!
+    accountAuthenticationRegistrationComplete(input: AccountRegistrationCompleteInput!): AuthenticationOperationResult!
     accountAuthenticationRegistrationOrSignInCreate(
         input: AccountRegistrationOrSignInCreateInput!
     ): AuthenticationRegistrationOrSignIn!
+    accountAuthenticationSignInComplete: AuthenticationOperationResult!
     accountDelete(reason: String): OperationResult!
     accountDeletePrivileged(input: AccountDeleteInput!): OperationResult!
     accountEmailDelete(accountEmailId: String!): OperationResult!
@@ -312,19 +315,12 @@ type Mutation {
     accountPasswordUpdate(input: AccountPasswordUpdateInput!): OperationResult!
     accountProfileImageRemove: Profile!
     accountProfileUpdate(input: AccountProfileUpdateInput!): Profile!
-    accountRegistrationComplete(input: AccountRegistrationCompleteInput!): AuthenticationOperationResult!
     accountSessionDelete(input: AccountSessionDeleteInput!): OperationResult!
-    accountSignInComplete: AuthenticationOperationResult!
     accountSignOut: OperationResult!
 }
 
 type OperationResult {
     success: Boolean!
-}
-
-input OrderBy {
-    direction: OrderByDirection
-    key: String!
 }
 
 """
@@ -335,14 +331,19 @@ enum OrderByDirection {
     Descending
 }
 
+input OrderByInput {
+    direction: OrderByDirection
+    key: String!
+}
+
 type PagedAccessRoles {
     items: [AccessRole!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type PagedAccounts {
     items: [Account!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type Pagination {
@@ -355,10 +356,11 @@ type Pagination {
     pagesTotal: Int!
 }
 
-input PaginationInputWithFilters {
-    filters: [ColumnFilter!]
+input PaginationInput {
+    filters: [ColumnFilterInput!]
     itemIndex: Int
     itemsPerPage: Int!
+    orderBy: [OrderByInput!]
 }
 
 type Profile {
@@ -389,11 +391,7 @@ type PublicProfile {
 
 type Query {
     account: Account!
-    accountAssignedAccessRolesPrivileged(
-        input: PaginationInputWithFilters
-        orderBy: OrderBy
-        statuses: [AccessRoleStatus!]
-    ): PagedAccessRoles!
+    accountAssignedAccessRolesPrivileged(pagination: PaginationInput!, statuses: [AccessRoleStatus!]): PagedAccessRoles!
     accountAuthentication: AuthenticationSession
     accountAuthenticationEmailVerification: AuthenticationEmailVerification
     accountAvailableAccessRolesPrivileged: [String!]!
@@ -403,7 +401,7 @@ type Query {
     accountProfilePublic(username: String!): PublicProfile
     accountProfileUsernameValidate(username: String!): UniqueFieldValidationResult!
     accountSessions: [AccountSession!]!
-    accountsPrivileged(input: PaginationInputWithFilters, orderBy: OrderBy): PagedAccounts!
+    accountsPrivileged(pagination: PaginationInput!): PagedAccounts!
 }
 
 enum UniqueFieldValidationResult {

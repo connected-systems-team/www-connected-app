@@ -8,7 +8,7 @@ import Image from 'next/image';
 
 // Dependencies - Main Components
 import { Tip } from '@structure/source/common/popovers/Tip';
-import LocaleControl from '@structure/source/common/navigation/LocaleControl';
+import LocaleControl from '@structure/source/common/navigation/locale/LocaleControl';
 
 // Dependencies - Assets
 import FacebookIcon from '@structure/assets/icons/platforms/FacebookIcon.svg';

@@ -3,13 +3,6 @@ schema {
     mutation: Mutation
 }
 
-input ColumnFilter {
-    caseSensitive: Boolean
-    column: String!
-    operator: ColumnFilterConditionOperator!
-    value: JSON!
-}
-
 """
 The operator of a field filter
 """
@@ -28,15 +21,22 @@ enum ColumnFilterConditionOperator {
     NotLike
 }
 
-input ColumnFilterGroup {
-    conditions: [ColumnFilter!]
-    filters: [ColumnFilterGroup!]
+input ColumnFilterGroupInput {
+    conditions: [ColumnFilterInput!]
+    filters: [ColumnFilterGroupInput!]
     operator: ColumnFilterGroupOperator
 }
 
 enum ColumnFilterGroupOperator {
     And
     Or
+}
+
+input ColumnFilterInput {
+    caseSensitive: Boolean
+    column: String!
+    operator: ColumnFilterConditionOperator!
+    value: JSON!
 }
 
 type DataInteractionDatabaseMetrics {
@@ -93,8 +93,17 @@ type DatabaseTableColumn {
 type DatabaseTableMetadata {
     columns: [DatabaseTableColumn!]
     databaseName: String!
-    items: [JSON!]
-    pagination: Pagination
+    pagination: Pagination!
+    relations: [DatabaseTableRelation!]
+    rowCount: Int!
+    tableName: String!
+}
+
+type DatabaseTableMetadataWithRows {
+    columns: [DatabaseTableColumn!]
+    databaseName: String!
+    items: [JSON!]!
+    pagination: Pagination!
     relations: [DatabaseTableRelation!]
     rowCount: Int!
     tableName: String!
@@ -120,7 +129,7 @@ type DatabaseTableRowData {
 
 type DatabaseTablesResult {
     items: [DatabaseTableMetadata!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 """
@@ -158,11 +167,6 @@ type OperationResult {
     success: Boolean!
 }
 
-input OrderBy {
-    direction: OrderByDirection
-    key: String!
-}
-
 """
 The order direction of a query
 """
@@ -171,9 +175,14 @@ enum OrderByDirection {
     Descending
 }
 
+input OrderByInput {
+    direction: OrderByDirection
+    key: String!
+}
+
 type PagedDatabasesResult {
     items: [DatebaseMetadata!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type Pagination {
@@ -187,8 +196,10 @@ type Pagination {
 }
 
 input PaginationInput {
+    filters: [ColumnFilterInput!]
     itemIndex: Int
     itemsPerPage: Int!
+    orderBy: [OrderByInput!]
 }
 
 type Query {
@@ -199,13 +210,12 @@ type Query {
     dataInteractionDatabaseTableRow(databaseName: String!, id: String!, tableName: String!): DatabaseTableRowData!
     dataInteractionDatabaseTableRows(
         databaseName: String!
-        filters: ColumnFilterGroup
-        orderBy: OrderBy
-        pagination: PaginationInput
+        filters: ColumnFilterGroupInput
+        pagination: PaginationInput!
         tableName: String!
-    ): DatabaseTableMetadata!
-    dataInteractionDatabaseTables(databaseName: String, pagination: PaginationInput): DatabaseTablesResult!
-    dataInteractionDatabases(pagination: PaginationInput): PagedDatabasesResult!
+    ): DatabaseTableMetadataWithRows!
+    dataInteractionDatabaseTables(databaseName: String, pagination: PaginationInput!): DatabaseTablesResult!
+    dataInteractionDatabases(pagination: PaginationInput!): PagedDatabasesResult!
 }
 
 """

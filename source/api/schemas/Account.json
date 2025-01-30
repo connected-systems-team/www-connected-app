@@ -55,33 +55,9 @@
                 "description": "The status of an access role for an account/profile",
                 "values": ["Active", "Expired", "Revoked"]
             },
-            "OrderBy": {
+            "PaginationInput": {
                 "kind": "object",
-                "type": "OrderBy",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "key"
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "OrderByDirection",
-                        "required": false,
-                        "name": "direction"
-                    }
-                ]
-            },
-            "OrderByDirection": {
-                "kind": "enum",
-                "type": "OrderByDirection",
-                "description": "The order direction of a query",
-                "values": ["Ascending", "Descending"]
-            },
-            "PaginationInputWithFilters": {
-                "kind": "object",
-                "type": "PaginationInputWithFilters",
+                "type": "PaginationInput",
                 "fields": [
                     {
                         "kind": "scalar",
@@ -97,15 +73,21 @@
                     },
                     {
                         "kind": "object",
-                        "type": "ColumnFilter",
+                        "type": "ColumnFilterInput",
                         "required": true,
                         "name": "filters"
+                    },
+                    {
+                        "kind": "object",
+                        "type": "OrderByInput",
+                        "required": true,
+                        "name": "orderBy"
                     }
                 ]
             },
-            "ColumnFilter": {
+            "ColumnFilterInput": {
                 "kind": "object",
-                "type": "ColumnFilter",
+                "type": "ColumnFilterInput",
                 "fields": [
                     {
                         "kind": "enum",
@@ -162,6 +144,30 @@
                 "type": "JSON",
                 "description": "The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf)."
             },
+            "OrderByInput": {
+                "kind": "object",
+                "type": "OrderByInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "key"
+                    },
+                    {
+                        "kind": "enum",
+                        "type": "OrderByDirection",
+                        "required": false,
+                        "name": "direction"
+                    }
+                ]
+            },
+            "OrderByDirection": {
+                "kind": "enum",
+                "type": "OrderByDirection",
+                "description": "The order direction of a query",
+                "values": ["Ascending", "Descending"]
+            },
             "EmailVerificationStatus": {
                 "kind": "enum",
                 "type": "EmailVerificationStatus",
@@ -185,6 +191,12 @@
                 "description": "The status of an account",
                 "values": ["Active", "Locked", "Archived"]
             },
+            "AccountSessionStatus": {
+                "kind": "enum",
+                "type": "AccountSessionStatus",
+                "description": "The status of an account session",
+                "values": ["Active", "Revoked", "Expired"]
+            },
             "AccountInput": {
                 "kind": "object",
                 "type": "AccountInput",
@@ -201,12 +213,6 @@
                         ]
                     }
                 ]
-            },
-            "AccountSessionStatus": {
-                "kind": "enum",
-                "type": "AccountSessionStatus",
-                "description": "The status of an account session",
-                "values": ["Active", "Revoked", "Expired"]
             },
             "AccountProfileUpdateInput": {
                 "kind": "object",

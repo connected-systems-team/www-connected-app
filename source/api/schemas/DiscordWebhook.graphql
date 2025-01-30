@@ -8,7 +8,7 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `dat
 """
 scalar DateTimeISO
 
-input DiscordWebhookMessageCreateEmbed {
+input DiscordWebhookMessageCreateEmbedInput {
     authorName: String
     color: Int
     description: String
@@ -19,16 +19,20 @@ input DiscordWebhookMessageCreateEmbed {
 
 input DiscordWebhookMessageCreateInput {
     content: String
-    embeds: [DiscordWebhookMessageCreateEmbed!]
+    embeds: [DiscordWebhookMessageCreateEmbedInput!]
     token: String!
     username: String
     webhookId: String!
 }
 
 type Mutation {
-    discordWebhookMessageCreate(input: DiscordWebhookMessageCreateInput!): Boolean!
+    discordWebhookMessageCreate(input: DiscordWebhookMessageCreateInput!): OperationResult!
+}
+
+type OperationResult {
+    success: Boolean!
 }
 
 type Query {
-    discordWebhookQuery: Boolean!
+    discordWebhookQuery: OperationResult!
 }

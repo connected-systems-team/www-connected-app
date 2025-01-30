@@ -80,7 +80,7 @@
                     },
                     {
                         "kind": "object",
-                        "type": "DeviceProperties",
+                        "type": "DevicePropertiesInput",
                         "required": false,
                         "name": "deviceProperties",
                         "validation": [
@@ -91,7 +91,7 @@
                     },
                     {
                         "kind": "object",
-                        "type": "ClientProperties",
+                        "type": "ClientPropertiesInput",
                         "required": false,
                         "name": "clientProperties",
                         "validation": [
@@ -102,7 +102,7 @@
                     },
                     {
                         "kind": "object",
-                        "type": "EngagementEventContext",
+                        "type": "EngagementEventContextInput",
                         "required": false,
                         "name": "eventContext",
                         "validation": [
@@ -113,9 +113,9 @@
                     }
                 ]
             },
-            "DeviceProperties": {
+            "DevicePropertiesInput": {
                 "kind": "object",
-                "type": "DeviceProperties",
+                "type": "DevicePropertiesInput",
                 "fields": [
                     {
                         "kind": "enum",
@@ -143,9 +143,9 @@
                 "type": "DeviceOrientation",
                 "values": ["Portrait", "Landscape", "NotAvailable"]
             },
-            "ClientProperties": {
+            "ClientPropertiesInput": {
                 "kind": "object",
-                "type": "ClientProperties",
+                "type": "ClientPropertiesInput",
                 "fields": [
                     {
                         "kind": "scalar",
@@ -164,9 +164,9 @@
                     }
                 ]
             },
-            "EngagementEventContext": {
+            "EngagementEventContextInput": {
                 "kind": "object",
-                "type": "EngagementEventContext",
+                "type": "EngagementEventContextInput",
                 "fields": [
                     {
                         "kind": "scalar",
@@ -318,6 +318,17 @@
                             },
                             {
                                 "type": "isInt"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "DateTimeISO",
+                        "required": false,
+                        "name": "loggedAt",
+                        "validation": [
+                            {
+                                "type": "isDate"
                             }
                         ]
                     }

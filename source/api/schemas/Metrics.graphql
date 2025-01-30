@@ -3,15 +3,15 @@ schema {
     mutation: Mutation
 }
 
-input ClientProperties {
+input ClientPropertiesInput {
     environment: String
 }
 
 input CreateEngagementEventInput {
     category: String
-    clientProperties: ClientProperties
-    deviceProperties: DeviceProperties
-    eventContext: EngagementEventContext
+    clientProperties: ClientPropertiesInput
+    deviceProperties: DevicePropertiesInput
+    eventContext: EngagementEventContextInput
     name: String!
 }
 
@@ -26,18 +26,20 @@ enum DeviceOrientation {
     Portrait
 }
 
-input DeviceProperties {
+input DevicePropertiesInput {
     orientation: DeviceOrientation
 }
 
 type EngagementEvent {
     createdAt: DateTimeISO!
     id: String!
+    loggedAt: DateTimeISO!
     name: String!
 }
 
-input EngagementEventContext {
+input EngagementEventContextInput {
     loadDurationInMilliseconds: Int
+    loggedAt: DateTimeISO
     previousViewDurationInMilliseconds: Int
     previousViewIdentifier: String
     previousViewTitle: String

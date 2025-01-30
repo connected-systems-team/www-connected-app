@@ -7,7 +7,7 @@ import { useUrlSearchParameters } from '@structure/source/utilities/next/NextNav
 // Dependencies - Main Components
 import { AuthorizationLayout } from '@structure/source/layouts/AuthorizationLayout';
 import { Button } from '@structure/source/common/buttons/Button';
-import { Pagination } from '@structure/source/common/navigation/Pagination';
+import { Pagination } from '@structure/source/common/navigation/pagination/Pagination';
 import { PlaceholderAnimation } from '@structure/source/common/animations/PlaceholderAnimation';
 
 // Dependencies - API
@@ -60,13 +60,13 @@ export function TaskHistoryPage() {
     // Query
     const taskHistoryQuery = useQuery(TaskHistoryDocument, {
         variables: {
-            input: {
+            pagination: {
                 itemsPerPage: itemsPerPage,
                 itemIndex: (page - 1) * itemsPerPage,
-            },
-            orderBy: {
-                key: 'createdAt',
-                direction: OrderByDirection.Descending,
+                // orderBy: {
+                //     key: 'createdAt',
+                //     direction: OrderByDirection.Descending,
+                // },
             },
         },
     });

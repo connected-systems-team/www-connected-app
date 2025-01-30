@@ -27,13 +27,6 @@ enum AddressBookEntryTier {
     Secondary
 }
 
-input ColumnFilter {
-    caseSensitive: Boolean
-    column: String!
-    operator: ColumnFilterConditionOperator!
-    value: JSON!
-}
-
 """
 The operator of a field filter
 """
@@ -52,6 +45,13 @@ enum ColumnFilterConditionOperator {
     NotLike
 }
 
+input ColumnFilterInput {
+    caseSensitive: Boolean
+    column: String!
+    operator: ColumnFilterConditionOperator!
+    value: JSON!
+}
+
 type CommerceCheckoutSession {
     closedAt: DateTimeISO
     completedAt: DateTimeISO
@@ -62,6 +62,7 @@ type CommerceCheckoutSession {
     failedCount: Float!
     id: String!
     orders: [CommerceOrder!]
+    paymentProcessorType: PaymentProcessorType!
     status: CommerceCheckoutSessionStatus!
 }
 
@@ -69,6 +70,7 @@ input CommerceCheckoutSessionCreateInput {
     emailAddress: String!
     itemIds: [String!]!
     paymentProcessorType: PaymentProcessorType! = StripeProxy
+    returnBaseUrl: String!
 }
 
 enum CommerceCheckoutSessionStatus {
@@ -305,6 +307,15 @@ input CreateVendorInput {
     description: String
     identifier: String
     name: String!
+}
+
+input CreditCardInput {
+    billingAddress: StreetAddressInput!
+    cardNumber: String!
+    cardholderName: String!
+    cvc: String!
+    expirationMonth: Int!
+    expirationYear: Int!
 }
 
 enum CreditCardType {
@@ -572,17 +583,17 @@ type OperationResult {
     success: Boolean!
 }
 
-input OrderBy {
-    direction: OrderByDirection
-    key: String!
-}
-
 """
 The order direction of a query
 """
 enum OrderByDirection {
     Ascending
     Descending
+}
+
+input OrderByInput {
+    direction: OrderByDirection
+    key: String!
 }
 
 input OrderLineItemInput {
@@ -603,38 +614,34 @@ type Pagination {
 
 type PaginationDiscountResult {
     items: [Discount!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type PaginationDiscountRuleResult {
     items: [DiscountRule!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type PaginationFulfillmentOrderResult {
     items: [FulfillmentOrder!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 input PaginationInput {
+    filters: [ColumnFilterInput!]
     itemIndex: Int
     itemsPerPage: Int!
-}
-
-input PaginationInputWithFilters {
-    filters: [ColumnFilter!]
-    itemIndex: Int
-    itemsPerPage: Int!
+    orderBy: [OrderByInput!]
 }
 
 type PaginationOrderResult {
     items: [CommerceOrder!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type PaginationShipmentBatchResult {
     items: [ShipmentBatch!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type Payment {
@@ -679,18 +686,9 @@ type PaymentMethodCreditCard implements PaymentMethod {
 }
 
 input PaymentMethodInput {
-    creditCard: PaymentMethodInputCreditCard
+    creditCard: CreditCardInput
     paymentProcessorType: PaymentProcessorType!
     type: PaymentMethodType!
-}
-
-input PaymentMethodInputCreditCard {
-    billingAddress: StreetAddressInput!
-    cardNumber: String!
-    cardholderName: String!
-    cvc: String!
-    expirationMonth: Int!
-    expirationYear: Int!
 }
 
 enum PaymentMethodType {
@@ -700,6 +698,7 @@ enum PaymentMethodType {
 
 enum PaymentProcessorType {
     AppleInAppPurchase
+    ShopPay
     StripeEmbedded
     StripeProxy
 }
@@ -763,7 +762,7 @@ enum ProductBundleVisibility {
 
 type ProductBundlesPaginationResult {
     items: [ProductBundle!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 enum ProductStatus {
@@ -876,7 +875,7 @@ type ProductVariantUnitInfoObject {
 
 type ProductsPaginationResult {
     items: [Product!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type PublicCommerceOrder {
@@ -909,31 +908,31 @@ type Query {
     commerceCart: ShoppingBag!
     commerceCheckoutSession(id: String!): CommerceCheckoutSession!
     commerceCheckoutSessionLatest: CommerceCheckoutSession!
-    commerceDiscountRules(input: PaginationInputWithFilters): PaginationDiscountRuleResult!
-    commerceDiscounts(input: PaginationInputWithFilters): PaginationDiscountResult!
+    commerceDiscountRules(pagination: PaginationInput!): PaginationDiscountRuleResult!
+    commerceDiscounts(pagination: PaginationInput!): PaginationDiscountResult!
     commerceOrder(emailAddress: String, identifier: String!): CommerceOrderResult!
-    commerceOrderAdmin(id: String!): CommerceOrder!
     commerceOrderPriceEstimate(input: EstimateOrderPriceInput!): CommerceOrderPrice!
-    commerceOrders(input: PaginationInputWithFilters): PaginationOrderResult!
-    commerceOrdersAdmin(input: PaginationInputWithFilters, orderBy: OrderBy): PaginationOrderResult!
+    commerceOrderPrivileged(id: String!): CommerceOrder!
+    commerceOrders(pagination: PaginationInput!): PaginationOrderResult!
     commerceOrdersByGroupIdentifier(emailAddress: String, identifier: String!): [CommerceOrderResult!]!
-    commerceOrdersReadyToFulfill(input: PaginationInput): PaginationFulfillmentOrderResult!
-    commerceOrdersReadyToShip(input: PaginationInput): PaginationFulfillmentOrderResult!
+    commerceOrdersPrivileged(pagination: PaginationInput!): PaginationOrderResult!
+    commerceOrdersReadyToFulfill(pagination: PaginationInput!): PaginationFulfillmentOrderResult!
+    commerceOrdersReadyToShip(pagination: PaginationInput!): PaginationFulfillmentOrderResult!
     commerceProduct(id: String, identifier: String, name: String): Product!
-    commerceProductAdmin(id: String, identifier: String, name: String): Product!
     commerceProductBundle(id: String, identifier: String): ProductBundle!
-    commerceProductBundles(input: PaginationInputWithFilters): ProductBundlesPaginationResult!
-    commerceProducts(input: PaginationInputWithFilters): ProductsPaginationResult!
-    commerceProductsAdmin(input: PaginationInputWithFilters): ProductsPaginationResult!
+    commerceProductBundles(pagination: PaginationInput!): ProductBundlesPaginationResult!
+    commerceProductPrivileged(id: String, identifier: String, name: String): Product!
+    commerceProducts(pagination: PaginationInput!): ProductsPaginationResult!
+    commerceProductsPrivileged(pagination: PaginationInput!): ProductsPaginationResult!
     commerceSavedItems: ShoppingBag!
     commerceShipmentBatches(input: QueryShipmentBatchInput!): PaginationShipmentBatchResult!
     commerceShoppingBag(createIfNotExists: Boolean, identifier: String!): ShoppingBag!
     commerceShoppingBagPriceEstimate(itemIds: [String!]!): [CommerceOrderPrice!]!
     commerceStreetAddressValidate(address: StreetAddressInput!): ValidateAddressResult!
     commerceTaxRate(postalCode: String!, syncRemote: Boolean): TaxRate!
-    commerceTaxRates(pagination: PaginationInput): TaxRatesResult!
+    commerceTaxRates(pagination: PaginationInput!): TaxRatesResult!
     commerceVendor(id: String, identifier: String): Vendor!
-    commerceVendors(input: PaginationInputWithFilters): VendorsResult!
+    commerceVendors(pagination: PaginationInput!): VendorsResult!
     commerceWalletEntries: [WalletEntry!]!
     warehouse(id: String!): Warehouse!
     warehouses: [Warehouse!]!
@@ -941,8 +940,10 @@ type Query {
 
 input QueryShipmentBatchInput {
     endAt: DateTimeISO
+    filters: [ColumnFilterInput!]
     itemIndex: Int
     itemsPerPage: Int!
+    orderBy: [OrderByInput!]
     startAt: DateTimeISO
     status: String
 }
@@ -1120,7 +1121,7 @@ type TaxRate {
 
 type TaxRatesResult {
     items: [TaxRate!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type TransformShoppingBagResult {
@@ -1222,7 +1223,7 @@ type Vendor {
     identifier: String!
     name: String!
     pagedProducts: ProductsPaginationResult
-    products(input: PaginationInput): ProductsPaginationResult!
+    products(pagination: PaginationInput!): ProductsPaginationResult!
     status: VendorStatus!
     updatedAt: DateTimeISO!
     updatedByAccountId: String
@@ -1237,7 +1238,7 @@ enum VendorStatus {
 
 type VendorsResult {
     items: [Vendor!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type WalletEntry {

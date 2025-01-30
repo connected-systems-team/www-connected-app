@@ -3,13 +3,6 @@ schema {
     mutation: Mutation
 }
 
-input ColumnFilter {
-    caseSensitive: Boolean
-    column: String!
-    operator: ColumnFilterConditionOperator!
-    value: JSON!
-}
-
 """
 The operator of a field filter
 """
@@ -26,6 +19,13 @@ enum ColumnFilterConditionOperator {
     NotEqual
     NotIn
     NotLike
+}
+
+input ColumnFilterInput {
+    caseSensitive: Boolean
+    column: String!
+    operator: ColumnFilterConditionOperator!
+    value: JSON!
 }
 
 """
@@ -58,15 +58,10 @@ enum MediaObjectType {
 
 type Mutation {
     supportTicketAssign(ticketId: String!, username: String): SupportTicket!
-    supportTicketCommentCreateAdmin(input: SupportTicketCommentCreateInput!): SupportTicketComment!
+    supportTicketCommentCreatePrivileged(input: SupportTicketCommentCreateInput!): SupportTicketComment!
     supportTicketCreate(input: SupportTicketCreateInput!): SupportTicket!
-    supportTicketUpdateAdmin(input: SupportTicketUpdateInput!): SupportTicket!
-    supportTicketUpdateStatusAdmin(id: String!, status: SupportTicketStatus!): SupportTicket!
-}
-
-input OrderBy {
-    direction: OrderByDirection
-    key: String!
+    supportTicketUpdatePrivileged(input: SupportTicketUpdateInput!): SupportTicket!
+    supportTicketUpdateStatusPrivileged(id: String!, status: SupportTicketStatus!): SupportTicket!
 }
 
 """
@@ -75,6 +70,11 @@ The order direction of a query
 enum OrderByDirection {
     Ascending
     Descending
+}
+
+input OrderByInput {
+    direction: OrderByDirection
+    key: String!
 }
 
 type Pagination {
@@ -88,32 +88,28 @@ type Pagination {
 }
 
 input PaginationInput {
+    filters: [ColumnFilterInput!]
     itemIndex: Int
     itemsPerPage: Int!
-}
-
-input PaginationInputWithFilters {
-    filters: [ColumnFilter!]
-    itemIndex: Int
-    itemsPerPage: Int!
+    orderBy: [OrderByInput!]
 }
 
 type PaginationSupportTicketResult {
     items: [SupportTicket!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type PublicProfile {
     createdAt: DateTimeISO
     displayName: String
-    imageUrls: [ImageObject!]
+    images: [ImageObject!]
     username: String!
 }
 
 type Query {
     supportAllSupportProfiles: [PublicProfile!]!
-    supportTickets(pagination: PaginationInput): PaginationSupportTicketResult!
-    supportTicketsAdmin(orderBy: OrderBy, pagination: PaginationInputWithFilters): PaginationSupportTicketResult!
+    supportTickets(pagination: PaginationInput!): PaginationSupportTicketResult!
+    supportTicketsPrivileged(pagination: PaginationInput!): PaginationSupportTicketResult!
 }
 
 """
