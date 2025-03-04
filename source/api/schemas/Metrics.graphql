@@ -33,7 +33,7 @@ input DevicePropertiesInput {
 type EngagementEvent {
     createdAt: DateTimeISO!
     id: String!
-    loggedAt: DateTimeISO!
+    loggedAt: DateTimeISO
     name: String!
 }
 

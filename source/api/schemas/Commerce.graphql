@@ -27,6 +27,11 @@ enum AddressBookEntryTier {
     Secondary
 }
 
+input CheckoutSessionCreateDirectItemInput {
+    productVariantId: String!
+    quantity: Int!
+}
+
 """
 The operator of a field filter
 """
@@ -56,8 +61,6 @@ type CommerceCheckoutSession {
     closedAt: DateTimeISO
     completedAt: DateTimeISO
     createdAt: DateTimeISO!
-    createdByAccountId: String!
-    createdByProfileId: String!
     externalMetadata: JSON
     failedCount: Float!
     id: String!
@@ -66,8 +69,15 @@ type CommerceCheckoutSession {
     status: CommerceCheckoutSessionStatus!
 }
 
+input CommerceCheckoutSessionCreateDirectInput {
+    emailAddress: String
+    items: [CheckoutSessionCreateDirectItemInput!]!
+    paymentProcessorType: PaymentProcessorType! = StripeEmbedded
+    returnBaseUrl: String!
+}
+
 input CommerceCheckoutSessionCreateInput {
-    emailAddress: String!
+    emailAddress: String
     itemIds: [String!]!
     paymentProcessorType: PaymentProcessorType! = StripeProxy
     returnBaseUrl: String!
@@ -84,27 +94,22 @@ enum CommerceCheckoutSessionStatus {
 type CommerceOrder {
     batchIdentifier: String!
     beneficiaryEmailAddress: String
-    checkoutSessionId: String!
     createdAt: DateTimeISO!
-    discounts: [Discount!]
     emailAddress: String!
     fulfillmentSource: String
     fulfillmentStatus: CommerceOrderFulfillmentStatus!
-    holdOnShipping: Boolean!
     id: String!
     identifier: String!
     lineItems: [CommerceOrderLineItem!]
     metadata: JSON
-    orderLogs: [CommerceOrderLog!]
     payment: Payment
-    paymentId: String
     paymentStatus: PaymentStatus
     priceInfo: CommerceOrderPrice!
     shipments: [Shipment!]
     shippingInfo: CommerceOrderShippingInfo
     source: String!
     status: CommerceOrderStatus!
-    statusDescription: String
+    statusRecords: [CommerceOrderStatusRecord!]
     updatedAt: DateTimeISO!
 }
 
@@ -121,16 +126,12 @@ enum CommerceOrderFulfillmentStatus {
 }
 
 type CommerceOrderLineItem {
-    commerceOrderId: String!
     createdAt: DateTimeISO!
-    fulfilledQuantity: Int!
     id: String!
     indexId: Int!
     productVariantId: String!
     quantity: Int!
-    shippedQuantity: Int!
     status: CommerceOrderLineItemStatus!
-    statusDescription: String
     updatedAt: DateTimeISO!
 }
 
@@ -149,33 +150,6 @@ enum CommerceOrderLineItemStatus {
     Cancelled
     Pending
     Shipped
-}
-
-type CommerceOrderLog {
-    commerceOrderId: String!
-    content: JSON
-    createdAt: DateTimeISO!
-    description: String
-    id: String!
-    source: CommerceOrderLogSource!
-    visibility: CommerceOrderLogVisibility!
-}
-
-"""
-The source of the order log.
-"""
-enum CommerceOrderLogSource {
-    CustomerSupport
-    System
-    User
-}
-
-"""
-The visibility of the order log.
-"""
-enum CommerceOrderLogVisibility {
-    Internal
-    Public
 }
 
 type CommerceOrderPrice {
@@ -227,6 +201,12 @@ enum CommerceOrderStatus {
     WaitPayment
 }
 
+type CommerceOrderStatusRecord {
+    description: String
+    status: String!
+    timestamp: DateTimeISO!
+}
+
 type CommerceOrderTax {
     shipping: MonetaryDecimal!
     total: MonetaryDecimal!
@@ -250,12 +230,14 @@ input CreateDiscountRuleInput {
 }
 
 input CreateOrderInput {
+    baseUrl: String
     beneficiaryEmailAddress: String
     emailAddress: String!
     lineItems: [OrderLineItemInput!]!
     metadata: JSON
     paymentMethod: CreateOrderPaymentMethodInput
     shippingAddress: StreetAddressInput
+    source: String
 }
 
 input CreateOrderPaymentMethodInput {
@@ -266,6 +248,7 @@ input CreateOrderPaymentMethodInput {
 
 input CreateProductBundleInput {
     description: String
+    id: String
     identifier: String!
     items: [CreateProductBundleItemInput!]!
     name: String!
@@ -279,8 +262,10 @@ input CreateProductBundleItemInput {
 
 input CreateProductInput {
     description: String
+    id: String
     identifier: String
     name: String!
+    status: ProductStatus
     variants: [CreateProductVariantInput!]!
     vendorId: String!
 }
@@ -290,14 +275,16 @@ input CreateProductVariantInput {
     barcode: String
     description: String
     gtin: String
-    inventoryPolicy: ProductVariantInventoryPolicy!
+    id: String
+    inventoryPolicy: ProductVariantInventoryPolicy
     isVirtual: Boolean
     name: String!
     position: Float
-    price: ProductVariantPriceInput
+    price: ProductVariantPriceInput!
     productId: String
     setDefault: Boolean
     sku: String
+    status: ProductVariantStatus
     taxCode: String
     unitInfo: ProductVariantUnitInfoInput
 }
@@ -542,13 +529,12 @@ type Mutation {
         tier: AddressBookEntryTier
     ): AddressBookEntry!
     commerceCartUpdate(items: [ShoppingBagItemInput!]!): ShoppingBag!
-    commerceCheckoutSessionCancel(id: String!): OperationResult!
     commerceCheckoutSessionCreate(input: CommerceCheckoutSessionCreateInput!): CommerceCheckoutSession!
-    commerceCheckoutSessionRefreshStatus(id: String!): CommerceCheckoutSession!
+    commerceCheckoutSessionCreateDirect(input: CommerceCheckoutSessionCreateDirectInput!): CommerceCheckoutSession!
     commerceDiscountCreate(input: CreateDiscountInput!): Discount!
     commerceDiscountRuleCreate(input: CreateDiscountRuleInput!): DiscountRule!
     commerceGenerateManifest(shipmentIds: [String!]!): ShipmentManifest!
-    commerceMarkOrdersAsShipped(orderIdentifiers: [String!]!): [CommerceOrder!]!
+    commerceMarkOrdersAsShipped(baseUrl: String!, orderIdentifiers: [String!]!): [CommerceOrder!]!
     commerceMarkShipmentBatchPrinted(id: String!): ShipmentBatch!
     commerceMarkShipmentBatchReadyToProcess(id: String!): ShipmentBatch!
     commerceOrderCancel(orderId: String!): CommerceOrder!
@@ -572,9 +558,9 @@ type Mutation {
     productVariantRemoveGalleryAsset(assetId: String!, id: String!): ProductVariant!
     productVariantReorderGallery(assetIds: [String!]!, id: String!): ProductVariant!
     warehouseCreate(input: WarehouseCreateInput!): Warehouse!
-    warehouseDelete(id: String!): String!
+    warehouseDelete(id: String!): OperationResult!
     warehouseInventoryCreate(input: WarehouseInventoryCreateInput!): WarehouseInventory!
-    warehouseInventoryDelete(id: String!): String!
+    warehouseInventoryDelete(id: String!): OperationResult!
     warehouseInventoryUpdate(input: WarehouseInventoryUpdateInput!): WarehouseInventory!
     warehouseUpdate(input: WarehouseUpdateInput!): Warehouse!
 }
@@ -657,7 +643,6 @@ type Payment {
     paymentMethod: PaymentMethod
     paymentProcessorType: PaymentProcessorType!
     status: PaymentStatus!
-    statusDescription: String
     updatedAt: DateTimeISO!
     walletEntryId: String
 }
@@ -885,6 +870,8 @@ type PublicCommerceOrder {
     identifier: String!
     lineItems: [PublicCommerceOrderLineItem!]
     paymentStatus: PaymentStatus
+    priceInfo: CommerceOrderPrice!
+    shipments: [PublicShipment!]
     source: String!
     status: CommerceOrderStatus!
 }
@@ -897,6 +884,18 @@ type PublicCommerceOrderLineItem {
     quantity: Int!
     shippedQuantity: Int!
     status: CommerceOrderLineItemStatus!
+}
+
+type PublicShipment {
+    cancelledAt: DateTimeISO
+    createdAt: DateTimeISO!
+    deliveredAt: DateTimeISO
+    deliveryStatus: DeliveryStatus!
+    label: ShippingLabel
+    orderIndexId: Int!
+    packageInfo: ShippingPackageInfo!
+    shippedAt: DateTimeISO
+    status: ShipmentStatus!
 }
 
 input PurchaseOrderLabelsInput {
@@ -914,6 +913,7 @@ type Query {
     commerceOrderPriceEstimate(input: EstimateOrderPriceInput!): CommerceOrderPrice!
     commerceOrderPrivileged(id: String!): CommerceOrder!
     commerceOrders(pagination: PaginationInput!): PaginationOrderResult!
+    commerceOrdersByCheckoutSession(checkoutSessionId: String!): [CommerceOrderResult!]!
     commerceOrdersByGroupIdentifier(emailAddress: String, identifier: String!): [CommerceOrderResult!]!
     commerceOrdersPrivileged(pagination: PaginationInput!): PaginationOrderResult!
     commerceOrdersReadyToFulfill(pagination: PaginationInput!): PaginationFulfillmentOrderResult!
@@ -959,6 +959,7 @@ type Shipment {
     label: ShippingLabel
     orderIndexId: Int!
     orderSlip: ShippingOrderSlip
+    packageInfo: ShippingPackageInfo!
     shippedAt: DateTimeISO
     source: String!
     status: ShipmentStatus!
@@ -1001,23 +1002,28 @@ enum ShipmentStatus {
 
 type ShippingLabel {
     carrier: String!
-    labelId: String!
     serviceType: ShippingServiceType!
-    source: ShippingLabelSource!
     trackingNumber: String!
     trackingUrl: String
-}
-
-enum ShippingLabelSource {
-    Others
-    Stamps
 }
 
 type ShippingOrderSlip {
     storedObjectUrl: String
 }
 
+type ShippingPackageInfo {
+    items: [ShippingPackageItem!]!
+    packageIndexId: Float!
+    packageType: String!
+}
+
+type ShippingPackageItem {
+    indexId: Float!
+    quantity: Float!
+}
+
 enum ShippingServiceType {
+    UPSGround
     USPSFirstClassMail
     USPSMediaMail
     USPSParcelSelect
@@ -1277,6 +1283,7 @@ type Warehouse {
 
 input WarehouseCreateInput {
     address: StreetAddressInput!
+    id: String
     name: String!
 }
 

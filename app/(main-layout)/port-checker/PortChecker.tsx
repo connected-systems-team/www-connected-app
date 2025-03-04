@@ -103,11 +103,12 @@ export function PortChecker(properties: PortCheckerInterface) {
                 return;
             }
 
-            console.log('Poll result:', task.state, task.results?.[0]?.result[0]);
+            console.log('Task', task);
+            console.log('Poll result:', task.state, task.results);
 
             // If the task is succeeded or errored, handle the result
-            if(task.state === 'Succeeded' || task.results?.[0]?.result[0]?.error) {
-                handleTaskCheckedIn(task.results[0] as TaskResultInterface);
+            if(task.state === 'Succeeded' || task.results?.[0]?.result.results[0]?.error) {
+                handleTaskCheckedIn(task.results?.[0] as TaskResultInterface);
                 cleanupTimeouts();
                 setCheckingPort(false);
                 isCheckingPortReference.current = false;
@@ -142,7 +143,7 @@ export function PortChecker(properties: PortCheckerInterface) {
 
             let isFinal = false;
 
-            const portScanResult = result.result[0];
+            const portScanResult = result.result.results[0];
             if(!portScanResult) {
                 console.error('Missing port scan result:', result);
                 return;

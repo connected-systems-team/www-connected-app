@@ -295,17 +295,39 @@
                 "description": "The status of the order line item",
                 "values": ["Pending", "Shipped", "Cancelled"]
             },
-            "CommerceOrderLogVisibility": {
+            "ShipmentStatus": {
                 "kind": "enum",
-                "type": "CommerceOrderLogVisibility",
-                "description": "The visibility of the order log.",
-                "values": ["Public", "Internal"]
+                "type": "ShipmentStatus",
+                "description": "The status of the shipping",
+                "values": ["Pending", "LabelPurchased", "LabelPrinted", "Shipped", "Delivered", "Cancelled"]
             },
-            "CommerceOrderLogSource": {
+            "DeliveryStatus": {
                 "kind": "enum",
-                "type": "CommerceOrderLogSource",
-                "description": "The source of the order log.",
-                "values": ["System", "User", "CustomerSupport"]
+                "type": "DeliveryStatus",
+                "description": "The status of the delivery",
+                "values": ["AttemptedDelivery", "ReadyForPickup", "InTransit", "OutForDelivery", "Delivered"]
+            },
+            "ShippingServiceType": {
+                "kind": "enum",
+                "type": "ShippingServiceType",
+                "values": [
+                    "USPSFirstClassMail",
+                    "USPSPriorityMail",
+                    "USPSPriorityMailExpress",
+                    "USPSParcelSelect",
+                    "USPSMediaMail",
+                    "UPSGround"
+                ]
+            },
+            "Float": {
+                "kind": "scalar",
+                "type": "Float",
+                "description": "The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point)."
+            },
+            "CommerceCheckoutSessionStatus": {
+                "kind": "enum",
+                "type": "CommerceCheckoutSessionStatus",
+                "values": ["Pending", "Complete", "Failed", "Closed", "Expired"]
             },
             "DiscountType": {
                 "kind": "enum",
@@ -317,11 +339,6 @@
                 "kind": "enum",
                 "type": "DiscountAllocationTarget",
                 "values": ["Each", "Across", "ShippingAmount", "ShippingBreakdown"]
-            },
-            "Float": {
-                "kind": "scalar",
-                "type": "Float",
-                "description": "The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point)."
             },
             "DiscountValueType": {
                 "kind": "enum",
@@ -342,39 +359,6 @@
                 "kind": "enum",
                 "type": "DiscountConditionTarget",
                 "values": ["EntireOrder", "LineItem"]
-            },
-            "ShipmentStatus": {
-                "kind": "enum",
-                "type": "ShipmentStatus",
-                "description": "The status of the shipping",
-                "values": ["Pending", "LabelPurchased", "LabelPrinted", "Shipped", "Delivered", "Cancelled"]
-            },
-            "DeliveryStatus": {
-                "kind": "enum",
-                "type": "DeliveryStatus",
-                "description": "The status of the delivery",
-                "values": ["AttemptedDelivery", "ReadyForPickup", "InTransit", "OutForDelivery", "Delivered"]
-            },
-            "ShippingLabelSource": {
-                "kind": "enum",
-                "type": "ShippingLabelSource",
-                "values": ["Stamps", "Others"]
-            },
-            "ShippingServiceType": {
-                "kind": "enum",
-                "type": "ShippingServiceType",
-                "values": [
-                    "USPSFirstClassMail",
-                    "USPSPriorityMail",
-                    "USPSPriorityMailExpress",
-                    "USPSParcelSelect",
-                    "USPSMediaMail"
-                ]
-            },
-            "CommerceCheckoutSessionStatus": {
-                "kind": "enum",
-                "type": "CommerceCheckoutSessionStatus",
-                "values": ["Pending", "Complete", "Failed", "Closed", "Expired"]
             },
             "WalletEntryStatus": {
                 "kind": "enum",
@@ -526,6 +510,18 @@
                         "type": "String",
                         "required": false,
                         "name": "beneficiaryEmailAddress"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "source"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "baseUrl"
                     }
                 ]
             },
@@ -658,7 +654,7 @@
                     {
                         "kind": "scalar",
                         "type": "String",
-                        "required": true,
+                        "required": false,
                         "name": "emailAddress"
                     },
                     {
@@ -675,6 +671,74 @@
                         "validation": [
                             {
                                 "type": "isUrl"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "CommerceCheckoutSessionCreateDirectInput": {
+                "kind": "object",
+                "type": "CommerceCheckoutSessionCreateDirectInput",
+                "fields": [
+                    {
+                        "kind": "object",
+                        "type": "CheckoutSessionCreateDirectItemInput",
+                        "required": true,
+                        "name": "items",
+                        "validation": [
+                            {
+                                "type": "arrayNotEmpty"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "emailAddress"
+                    },
+                    {
+                        "kind": "enum",
+                        "type": "PaymentProcessorType",
+                        "required": true,
+                        "name": "paymentProcessorType"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "returnBaseUrl",
+                        "validation": [
+                            {
+                                "type": "isUrl"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "CheckoutSessionCreateDirectItemInput": {
+                "kind": "object",
+                "type": "CheckoutSessionCreateDirectItemInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "productVariantId",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Int",
+                        "required": true,
+                        "name": "quantity",
+                        "validation": [
+                            {
+                                "type": "isPositive"
                             }
                         ]
                     }
@@ -949,6 +1013,17 @@
                     {
                         "kind": "scalar",
                         "type": "String",
+                        "required": false,
+                        "name": "id",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
                         "required": true,
                         "name": "name",
                         "validation": [
@@ -1147,6 +1222,17 @@
                         "kind": "scalar",
                         "type": "String",
                         "required": false,
+                        "name": "id",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
                         "name": "identifier",
                         "validation": [
                             {
@@ -1194,7 +1280,31 @@
                         "kind": "scalar",
                         "type": "String",
                         "required": true,
-                        "name": "vendorId"
+                        "name": "vendorId",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "enum",
+                        "type": "ProductStatus",
+                        "required": false,
+                        "name": "status",
+                        "validation": [
+                            {
+                                "type": "isEnum",
+                                "constraints": [
+                                    {
+                                        "Active": "Active",
+                                        "Archived": "Archived",
+                                        "Draft": "Draft"
+                                    },
+                                    ["Active", "Archived", "Draft"]
+                                ]
+                            }
+                        ]
                     }
                 ]
             },
@@ -1202,6 +1312,17 @@
                 "kind": "object",
                 "type": "CreateProductVariantInput",
                 "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "id",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
+                    },
                     {
                         "kind": "scalar",
                         "type": "String",
@@ -1246,7 +1367,7 @@
                     {
                         "kind": "object",
                         "type": "ProductVariantPriceInput",
-                        "required": false,
+                        "required": true,
                         "name": "price"
                     },
                     {
@@ -1264,7 +1385,7 @@
                     {
                         "kind": "enum",
                         "type": "ProductVariantInventoryPolicy",
-                        "required": true,
+                        "required": false,
                         "name": "inventoryPolicy",
                         "validation": [
                             {
@@ -1288,7 +1409,7 @@
                         "validation": [
                             {
                                 "type": "isLength",
-                                "constraints": [16, 128]
+                                "constraints": [8, 128]
                             }
                         ]
                     },
@@ -1300,7 +1421,7 @@
                         "validation": [
                             {
                                 "type": "isLength",
-                                "constraints": [16, 128]
+                                "constraints": [8, 128]
                             }
                         ]
                     },
@@ -1312,7 +1433,26 @@
                         "validation": [
                             {
                                 "type": "isLength",
-                                "constraints": [16, 128]
+                                "constraints": [8, 128]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "enum",
+                        "type": "ProductVariantStatus",
+                        "required": false,
+                        "name": "status",
+                        "validation": [
+                            {
+                                "type": "isEnum",
+                                "constraints": [
+                                    {
+                                        "Active": "Active",
+                                        "Archived": "Archived",
+                                        "Draft": "Draft"
+                                    },
+                                    ["Active", "Archived", "Draft"]
+                                ]
                             }
                         ]
                     },
@@ -1337,7 +1477,12 @@
                         "kind": "scalar",
                         "type": "String",
                         "required": false,
-                        "name": "productId"
+                        "name": "productId",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
                     }
                 ]
             },
@@ -1946,6 +2091,17 @@
                 "kind": "object",
                 "type": "WarehouseCreateInput",
                 "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "id",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
+                    },
                     {
                         "kind": "scalar",
                         "type": "String",

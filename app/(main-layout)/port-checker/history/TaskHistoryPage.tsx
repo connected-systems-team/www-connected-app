@@ -63,10 +63,12 @@ export function TaskHistoryPage() {
             pagination: {
                 itemsPerPage: itemsPerPage,
                 itemIndex: (page - 1) * itemsPerPage,
-                // orderBy: {
-                //     key: 'createdAt',
-                //     direction: OrderByDirection.Descending,
-                // },
+                orderBy: [
+                    {
+                        key: 'createdAt',
+                        direction: OrderByDirection.Descending,
+                    },
+                ],
             },
         },
     });
