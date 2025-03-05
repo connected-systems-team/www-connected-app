@@ -39,6 +39,11 @@ export const NextConfiguration = {
                 test: /\.md$/,
                 type: 'asset/source',
             },
+            // Add support for importing code files as strings
+            {
+                test: /\.code\.(js|ts)$/,
+                type: 'asset/source',
+            },
         );
 
         // Modify the file loader rule to ignore *.svg, since we have it handled now.
