@@ -7,6 +7,7 @@
     },
     "scripts": {
         "dev": "next dev --experimental-https --port 2666 --hostname localhost.connected.app",
+        "dev:kam": "next dev --experimental-https --port 2666 --hostname localhost.kamsdev.workers.dev",
         "dev:wrangler": "wrangler dev --port 2666",
         "build": "cloudflare",
         "preview": "cloudflare && wrangler dev --port 2666",
