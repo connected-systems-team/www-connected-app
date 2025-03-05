@@ -1,3 +1,5 @@
+I LOVE WHEN CLAUDE USES EMOJIS WHEN TALKING TO ME! 😜
+
 # Connected App - Claude Coding Guidelines
 
 This document provides guidelines and preferences for Claude when assisting with the Connected App project. It helps maintain consistency and follows the project's established patterns.
