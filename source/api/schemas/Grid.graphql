@@ -1,0 +1,127 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.This scalar is serialized to a string in ISO 8601 format and parsed from a string in ISO 8601 format.
+"""
+scalar DateTimeISO
+
+type GridCluster {
+    createdAt: DateTimeISO!
+    displayName: String
+    enabled: Boolean!
+    id: String!
+    name: String!
+    updatedAt: DateTimeISO!
+}
+
+input GridClusterUpdateInput {
+    clusterId: String
+    clusterName: String
+    displayName: String
+    enabled: Boolean
+}
+
+type GridNode {
+    createdAt: DateTimeISO!
+    id: String!
+    name: String!
+    region: GridRegion!
+    regionId: String!
+    type: String!
+    updatedAt: DateTimeISO!
+}
+
+input GridNodeCreateInput {
+    clusterName: String!
+    displayName: String
+    enabled: Boolean
+    ipAddress: String!
+    meta: JSON
+    name: String!
+    regionName: String!
+    settings: JSON
+    type: String!
+}
+
+input GridNodeInput {
+    id: String
+    name: String
+}
+
+input GridNodeUpdateInput {
+    cluster: String
+    displayName: String
+    enabled: Boolean
+    id: String
+    ipAddress: String
+    meta: JSON
+    name: String
+    settings: JSON
+}
+
+type GridRegion {
+    createdAt: DateTimeISO!
+    displayName: String!
+    id: String!
+    name: String!
+    updatedAt: DateTimeISO!
+}
+
+input GridRegionCreateInput {
+    displayName: String!
+    enabled: Boolean
+    regionName: String!
+}
+
+input GridRegionUpdateInput {
+    displayName: String
+    enabled: Boolean
+    regionId: String
+    regionName: String
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+type Mutation {
+    """
+    Update a cluster.
+    """
+    gridClusterUpdate(input: GridClusterUpdateInput!): GridCluster
+    """
+    Create a new node.
+    """
+    gridNodeCreate(input: GridNodeCreateInput!): GridNode!
+    """
+    Update a node.
+    """
+    gridNodeUpdate(input: GridNodeUpdateInput!): GridNode!
+    """
+    Create a new region.
+    """
+    gridRegionCreate(input: GridRegionCreateInput!): GridRegion!
+    """
+    Update a region.
+    """
+    gridRegionUpdate(input: GridRegionUpdateInput!): GridRegion
+}
+
+type Query {
+    """
+    Get a node.
+    """
+    gridNode(input: GridNodeInput!): GridNode
+    """
+    Generate a new key for a node.
+    """
+    gridNodeGenerateKey(input: GridNodeInput!): String!
+    """
+    Get all active regions.
+    """
+    gridRegions: [GridRegion!]!
+}

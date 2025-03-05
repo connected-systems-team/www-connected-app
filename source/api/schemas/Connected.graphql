@@ -4,23 +4,6 @@ schema {
 }
 
 """
-The type of procedure.
-"""
-enum AtlasProcedureType {
-    NorpCheck
-    PortScan
-}
-
-type Cluster {
-    createdAt: DateTimeISO!
-    displayName: String
-    enabled: Boolean!
-    id: String!
-    name: String!
-    updatedAt: DateTimeISO!
-}
-
-"""
 The operator of a field filter
 """
 enum ColumnFilterConditionOperator {
@@ -50,58 +33,60 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `dat
 """
 scalar DateTimeISO
 
-input GridClusterUpdateInput {
-    clusterId: String
-    clusterName: String
-    displayName: String
-    enabled: Boolean
-}
-
-type GridNode {
+type FlowExecution {
+    completedAt: DateTimeISO
     createdAt: DateTimeISO!
+    createdByAccountId: String!
+    createdByProfileId: String!
+    elapsedTimeMs: Float
+    errors: [JSON!]
+    flowVersionId: String
     id: String!
-    name: String!
-    region: Region!
-    regionId: String!
+    startedAt: DateTimeISO!
+    status: FlowExecutionStatus!
+    stepExecutions: [FlowStepExecution!]!
+    triggerId: String
+    triggerType: FlowTriggerType!
     updatedAt: DateTimeISO!
 }
 
-input GridNodeCreateInput {
-    clusterName: String!
-    displayName: String
-    enabled: Boolean
-    ipAddress: String!
-    meta: JSON
-    name: String!
-    regionName: String!
+enum FlowExecutionStatus {
+    Canceled
+    Failed
+    NotStarted
+    Running
+    Success
 }
 
-input GridNodeInput {
-    id: String
-    name: String
+type FlowStepExecution {
+    actionType: String!
+    attempt: Float!
+    completedAt: DateTimeISO
+    createdAt: DateTimeISO!
+    elapsedTimeMs: Float
+    errors: JSON
+    flowExecution: FlowExecution!
+    flowExecutionId: String!
+    id: String!
+    input: JSON
+    output: JSON
+    startedAt: DateTimeISO
+    status: FlowStepExecutionStatus!
+    stepId: String!
+    updatedAt: DateTimeISO!
 }
 
-input GridNodeUpdateInput {
-    cluster: String
-    displayName: String
-    enabled: Boolean
-    id: String
-    ipAddress: String
-    meta: JSON
-    name: String
+enum FlowStepExecutionStatus {
+    Failed
+    NotStarted
+    Running
+    Success
 }
 
-input GridRegionCreateInput {
-    displayName: String!
-    enabled: Boolean
-    regionName: String!
-}
-
-input GridRegionUpdateInput {
-    displayName: String
-    enabled: Boolean
-    regionId: String
-    regionName: String
+enum FlowTriggerType {
+    Manual
+    Scheduled
+    Webhook
 }
 
 """
@@ -110,27 +95,14 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 scalar JSON
 
 type Mutation {
-    """
-    Update a cluster.
-    """
-    gridClusterUpdate(input: GridClusterUpdateInput!): Cluster
-    """
-    Create a new node.
-    """
-    gridNodeCreate(input: GridNodeCreateInput!): GridNode!
-    """
-    Update a node.
-    """
-    gridNodeUpdate(input: GridNodeUpdateInput!): GridNode!
-    """
-    Create a new region.
-    """
-    gridRegionCreate(input: GridRegionCreateInput!): Region!
-    """
-    Update a region.
-    """
-    gridRegionUpdate(input: GridRegionUpdateInput!): Region
-    taskCreatePortScan(input: TaskPortScanInput!): [Task!]!
+    flowCancel(objectId: String!): OperationResult!
+    flowPurge(objectId: String!): OperationResult!
+    portScanCreate(input: PortScanCreateInput!): String!
+    portScanSchedule(input: PortScanScheduleInput!): String!
+}
+
+type OperationResult {
+    success: Boolean!
 }
 
 """
@@ -163,129 +135,30 @@ input PaginationInput {
     orderBy: [OrderByInput!]
 }
 
-type PaginationTaskResult {
-    items: [Task!]!
+type PaginationPortScanResult {
+    items: [FlowExecution!]!
     pagination: Pagination!
 }
 
-type Query {
-    """
-    Get a node.
-    """
-    gridNode(input: GridNodeInput!): GridNode
-    """
-    Generate a new key for a node.
-    """
-    gridNodeGenerateKey(input: GridNodeInput!): String!
-    """
-    Get all active regions.
-    """
-    gridRegions: [Region!]!
-    task(input: TaskInput!): Task
-    taskGroup(input: TaskGroupInput!): [Task!]!
-    taskHistory(pagination: PaginationInput!): PaginationTaskResult!
-}
-
-type Region {
-    createdAt: DateTimeISO!
-    displayName: String!
-    id: String!
-    name: String!
-    updatedAt: DateTimeISO!
-}
-
-type Task {
-    assignments: [TaskAssignment!]!
-    attempts: Float!
-    createdAt: DateTimeISO!
-    createdByAccountId: String
-    createdByProfileId: String
-    id: String!
-    lastResultId: String
-    maxAttempts: Float!
-    meta: JSON
-    origin: TaskOrigin!
-    priority: Float!
-    procedureArguments: JSON!
-    procedureType: AtlasProcedureType!
-    regionId: String!
-    results: [TaskResult!]!
-    runAt: DateTimeISO
-    state: TaskState!
-    updatedAt: DateTimeISO!
-}
-
-type TaskAssignment {
-    active: Boolean!
-    attempt: Float!
-    createdAt: DateTimeISO!
-    gridNode: GridNode!
-    id: String!
-    region: Region!
-    regionId: String!
-    updatedAt: DateTimeISO!
-}
-
-input TaskGroupInput {
-    groupdId: String!
-}
-
-input TaskInput {
-    taskId: String!
-}
-
-"""
-Where the task originated from.
-"""
-enum TaskOrigin {
-    System
-    User
-}
-
-input TaskPortScanInput {
+input PortScanCreateInput {
     host: String!
     ports: [String!]!
-    regions: [String!]
+    region: String
 }
 
-type TaskResult {
-    attempt: Float!
-    cluster: Cluster
-    clusterId: String
-    createdAt: DateTimeISO!
-    duration: Float!
-    error: JSON
-    gridNodeId: String
-    id: String!
-    meta: JSON
-    ranAt: DateTimeISO
-    region: Region
-    regionId: String
-    result: JSON
-    taskId: String!
-    type: TaskResultType!
-    updatedAt: DateTimeISO!
+input PortScanInput {
+    executionId: String!
 }
 
-"""
-Task result type.
-"""
-enum TaskResultType {
-    Error
-    Failure
-    Success
+input PortScanScheduleInput {
+    cron: String!
+    emailAddress: String!
+    host: String!
+    ports: [String!]!
+    region: String
 }
 
-"""
-The possible states of a task.
-"""
-enum TaskState {
-    Assigned
-    Cancelled
-    CheckedOut
-    Failed
-    Pending
-    Retry
-    Running
-    Succeeded
+type Query {
+    portScan(input: PortScanInput!): FlowExecution
+    portScanHistory(pagination: PaginationInput!): PaginationPortScanResult!
 }

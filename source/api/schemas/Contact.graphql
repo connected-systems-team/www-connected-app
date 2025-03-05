@@ -3,13 +3,6 @@ schema {
     mutation: Mutation
 }
 
-input ColumnFilter {
-    caseSensitive: Boolean
-    column: String!
-    operator: ColumnFilterConditionOperator!
-    value: JSON!
-}
-
 """
 The operator of a field filter
 """
@@ -26,6 +19,13 @@ enum ColumnFilterConditionOperator {
     NotEqual
     NotIn
     NotLike
+}
+
+input ColumnFilterInput {
+    caseSensitive: Boolean
+    column: String!
+    operator: ColumnFilterConditionOperator!
+    value: JSON!
 }
 
 type Contact {
@@ -132,9 +132,22 @@ type OperationResult {
     success: Boolean!
 }
 
+"""
+The order direction of a query
+"""
+enum OrderByDirection {
+    Ascending
+    Descending
+}
+
+input OrderByInput {
+    direction: OrderByDirection
+    key: String!
+}
+
 type PagedContactResult {
     items: [Contact!]!
-    pagination: Pagination
+    pagination: Pagination!
 }
 
 type Pagination {
@@ -147,13 +160,14 @@ type Pagination {
     pagesTotal: Int!
 }
 
-input PaginationInputWithFilters {
-    filters: [ColumnFilter!]
+input PaginationInput {
+    filters: [ColumnFilterInput!]
     itemIndex: Int
     itemsPerPage: Int!
+    orderBy: [OrderByInput!]
 }
 
 type Query {
     contact(id: String!): Contact!
-    contacts(input: PaginationInputWithFilters): PagedContactResult!
+    contacts(pagination: PaginationInput!): PagedContactResult!
 }
