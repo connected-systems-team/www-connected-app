@@ -81,9 +81,69 @@ query PortScanHistory($pagination: PaginationInput!) {
             itemIndexForNextPage
             itemsPerPage
             itemsTotal
-            pagesTotal
             page
+            pagesTotal
         }
+    }
+}
+
+# Port Monitor Query
+query PortMonitor($pagination: PaginationInput!) {
+    portMonitor(pagination: $pagination) {
+        items {
+            id
+            flowId
+            durableObjectId
+            host
+            ports {
+                port
+                state
+            }
+            region
+            hour
+            minute
+            state
+            emailDeliveryPreference
+            updatedAt
+            createdAt
+        }
+        pagination {
+            itemIndex
+            itemIndexForPreviousPage
+            itemIndexForNextPage
+            itemsPerPage
+            itemsTotal
+            page
+            pagesTotal
+        }
+    }
+}
+
+# Port Monitor Create Mutation
+mutation PortMonitorCreate($input: PortMonitorCreateInput!) {
+    portMonitorCreate(input: $input) {
+        id
+        flowId
+        durableObjectId
+        host
+        ports {
+            port
+            state
+        }
+        region
+        hour
+        minute
+        state
+        emailDeliveryPreference
+        updatedAt
+        createdAt
+    }
+}
+
+# Port Monitor Delete Mutation
+mutation PortMonitorDelete($input: PortMonitorDeleteInput!) {
+    portMonitorDelete(input: $input) {
+        success
     }
 }
 

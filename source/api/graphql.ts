@@ -4869,7 +4869,28 @@ export type PortScanHistoryQueryVariables = Exact<{
 }>;
 
 
-export type PortScanHistoryQuery = { __typename?: 'Query', portScanHistory: { __typename?: 'PaginationPortScanResult', items: Array<{ __typename?: 'FlowExecution', id: string, triggerId?: string | null, triggerType: FlowTriggerType, status: FlowExecutionStatus, flowVersionId?: string | null, elapsedTimeMs?: number | null, startedAt: any, completedAt?: any | null, updatedAt: any, createdAt: any, errors?: Array<any> | null, stepExecutions: Array<{ __typename?: 'FlowStepExecution', stepId: string, status: FlowStepExecutionStatus, actionType: string, attempt: number, input?: any | null, output?: any | null, updatedAt: any, elapsedTimeMs?: number | null, startedAt?: any | null, completedAt?: any | null, createdAt: any, errors?: any | null }> }>, pagination: { __typename?: 'Pagination', itemIndex: number, itemIndexForPreviousPage?: number | null, itemIndexForNextPage?: number | null, itemsPerPage: number, itemsTotal: number, pagesTotal: number, page: number } } };
+export type PortScanHistoryQuery = { __typename?: 'Query', portScanHistory: { __typename?: 'PaginationPortScanResult', items: Array<{ __typename?: 'FlowExecution', id: string, triggerId?: string | null, triggerType: FlowTriggerType, status: FlowExecutionStatus, flowVersionId?: string | null, elapsedTimeMs?: number | null, startedAt: any, completedAt?: any | null, updatedAt: any, createdAt: any, errors?: Array<any> | null, stepExecutions: Array<{ __typename?: 'FlowStepExecution', stepId: string, status: FlowStepExecutionStatus, actionType: string, attempt: number, input?: any | null, output?: any | null, updatedAt: any, elapsedTimeMs?: number | null, startedAt?: any | null, completedAt?: any | null, createdAt: any, errors?: any | null }> }>, pagination: { __typename?: 'Pagination', itemIndex: number, itemIndexForPreviousPage?: number | null, itemIndexForNextPage?: number | null, itemsPerPage: number, itemsTotal: number, page: number, pagesTotal: number } } };
+
+export type PortMonitorQueryVariables = Exact<{
+  pagination: PaginationInput;
+}>;
+
+
+export type PortMonitorQuery = { __typename?: 'Query', portMonitor: { __typename?: 'PaginationPortMonitor', items: Array<{ __typename?: 'PortMonitor', id: string, flowId: string, durableObjectId?: string | null, host: string, region: string, hour: number, minute: number, state: PortMonitorState, emailDeliveryPreference: Array<PortScanFlowNodeResultStatus>, updatedAt: any, createdAt: any, ports: Array<{ __typename?: 'PortMonitorStateCheck', port: string, state: PortStateValue }> }>, pagination: { __typename?: 'Pagination', itemIndex: number, itemIndexForPreviousPage?: number | null, itemIndexForNextPage?: number | null, itemsPerPage: number, itemsTotal: number, page: number, pagesTotal: number } } };
+
+export type PortMonitorCreateMutationVariables = Exact<{
+  input: PortMonitorCreateInput;
+}>;
+
+
+export type PortMonitorCreateMutation = { __typename?: 'Mutation', portMonitorCreate: { __typename?: 'PortMonitor', id: string, flowId: string, durableObjectId?: string | null, host: string, region: string, hour: number, minute: number, state: PortMonitorState, emailDeliveryPreference: Array<PortScanFlowNodeResultStatus>, updatedAt: any, createdAt: any, ports: Array<{ __typename?: 'PortMonitorStateCheck', port: string, state: PortStateValue }> } };
+
+export type PortMonitorDeleteMutationVariables = Exact<{
+  input: PortMonitorDeleteInput;
+}>;
+
+
+export type PortMonitorDeleteMutation = { __typename?: 'Mutation', portMonitorDelete: { __typename?: 'OperationResult', success: boolean } };
 
 
 export const AccountAuthenticationRegistrationOrSignInCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AccountAuthenticationRegistrationOrSignInCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AccountRegistrationOrSignInCreateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accountAuthenticationRegistrationOrSignInCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"emailAddress"}},{"kind":"Field","name":{"kind":"Name","value":"authentication"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"scopeType"}},{"kind":"Field","name":{"kind":"Name","value":"currentChallenge"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"challengeType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}}]}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<AccountAuthenticationRegistrationOrSignInCreateMutation, AccountAuthenticationRegistrationOrSignInCreateMutationVariables>;
@@ -4950,7 +4971,10 @@ export const WaitListEntryCreateDocument = {"kind":"Document","definitions":[{"k
 export const GridRegionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GridRegions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"gridRegions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<GridRegionsQuery, GridRegionsQueryVariables>;
 export const PortScanCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PortScanCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PortScanCreateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portScanCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}]}]}}]} as unknown as DocumentNode<PortScanCreateMutation, PortScanCreateMutationVariables>;
 export const PortScanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PortScan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PortScanInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portScan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"triggerId"}},{"kind":"Field","name":{"kind":"Name","value":"triggerType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"stepExecutions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stepId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"actionType"}},{"kind":"Field","name":{"kind":"Name","value":"attempt"}},{"kind":"Field","name":{"kind":"Name","value":"input"}},{"kind":"Field","name":{"kind":"Name","value":"output"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}},{"kind":"Field","name":{"kind":"Name","value":"flowVersionId"}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}}]}}]} as unknown as DocumentNode<PortScanQuery, PortScanQueryVariables>;
-export const PortScanHistoryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PortScanHistory"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portScanHistory"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"triggerId"}},{"kind":"Field","name":{"kind":"Name","value":"triggerType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"stepExecutions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stepId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"actionType"}},{"kind":"Field","name":{"kind":"Name","value":"attempt"}},{"kind":"Field","name":{"kind":"Name","value":"input"}},{"kind":"Field","name":{"kind":"Name","value":"output"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}},{"kind":"Field","name":{"kind":"Name","value":"flowVersionId"}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}}]}}]}}]}}]} as unknown as DocumentNode<PortScanHistoryQuery, PortScanHistoryQueryVariables>;
+export const PortScanHistoryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PortScanHistory"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portScanHistory"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"triggerId"}},{"kind":"Field","name":{"kind":"Name","value":"triggerType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"stepExecutions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stepId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"actionType"}},{"kind":"Field","name":{"kind":"Name","value":"attempt"}},{"kind":"Field","name":{"kind":"Name","value":"input"}},{"kind":"Field","name":{"kind":"Name","value":"output"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}},{"kind":"Field","name":{"kind":"Name","value":"flowVersionId"}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}}]}}]}}]}}]} as unknown as DocumentNode<PortScanHistoryQuery, PortScanHistoryQueryVariables>;
+export const PortMonitorDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PortMonitor"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portMonitor"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"flowId"}},{"kind":"Field","name":{"kind":"Name","value":"durableObjectId"}},{"kind":"Field","name":{"kind":"Name","value":"host"}},{"kind":"Field","name":{"kind":"Name","value":"ports"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"port"}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}},{"kind":"Field","name":{"kind":"Name","value":"region"}},{"kind":"Field","name":{"kind":"Name","value":"hour"}},{"kind":"Field","name":{"kind":"Name","value":"minute"}},{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"emailDeliveryPreference"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}}]}}]}}]}}]} as unknown as DocumentNode<PortMonitorQuery, PortMonitorQueryVariables>;
+export const PortMonitorCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PortMonitorCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PortMonitorCreateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portMonitorCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"flowId"}},{"kind":"Field","name":{"kind":"Name","value":"durableObjectId"}},{"kind":"Field","name":{"kind":"Name","value":"host"}},{"kind":"Field","name":{"kind":"Name","value":"ports"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"port"}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}},{"kind":"Field","name":{"kind":"Name","value":"region"}},{"kind":"Field","name":{"kind":"Name","value":"hour"}},{"kind":"Field","name":{"kind":"Name","value":"minute"}},{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"emailDeliveryPreference"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<PortMonitorCreateMutation, PortMonitorCreateMutationVariables>;
+export const PortMonitorDeleteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PortMonitorDelete"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PortMonitorDeleteInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portMonitorDelete"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}}]}}]}}]} as unknown as DocumentNode<PortMonitorDeleteMutation, PortMonitorDeleteMutationVariables>;
 export type GraphQLInputTypeMetadata =
   GraphQLInputScalarTypeMetadata |
   GraphQLInputEnumTypeMetadata |
@@ -5027,6 +5051,209 @@ export interface GraphQLInputObjectFieldValidationMetadata {
 }
 
 export namespace GraphQLInputTypes {
+
+  export const PortMonitorDeleteInput: GraphQLInputObjectTypeMetadata = {
+    kind: 'object',
+    type: 'PortMonitorDeleteInput',
+    fields: [
+      {
+        name: 'monitorId',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'isNotEmpty',
+          },
+          {
+            type: 'isString',
+          }
+        ],
+      }
+    ],
+  }
+
+  export const PortScanFlowNodeResultStatus: GraphQLInputEnumTypeMetadata = {
+    kind: 'enum',
+    type: 'PortScanFlowNodeResultStatus',
+    values: [
+      'Success',
+      'Failure',
+      'Mismatch'
+    ],
+  }
+
+  export const PortStateValue: GraphQLInputEnumTypeMetadata = {
+    kind: 'enum',
+    type: 'PortStateValue',
+    values: [
+      'Open',
+      'Closed',
+      'Filtered',
+      'Unfiltered',
+      'OpenFiltered',
+      'ClosedFiltered'
+    ],
+  }
+
+  export const PortMonitorStateCheckInput: GraphQLInputObjectTypeMetadata = {
+    kind: 'object',
+    type: 'PortMonitorStateCheckInput',
+    fields: [
+      {
+        name: 'port',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+      },
+      {
+        name: 'state',
+        kind: 'enum',
+        type: GraphQLInputTypes.PortStateValue,
+        required: true,
+      }
+    ],
+  }
+
+  export const PortMonitorCreateInput: GraphQLInputObjectTypeMetadata = {
+    kind: 'object',
+    type: 'PortMonitorCreateInput',
+    fields: [
+      {
+        name: 'host',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'isNotEmpty',
+          },
+          {
+            type: 'isString',
+          }
+        ],
+      },
+      {
+        name: 'ports',
+        kind: 'object',
+        type: GraphQLInputTypes.PortMonitorStateCheckInput,
+        required: true,
+        validation: [
+          {
+            type: 'arrayMaxSize',
+            constraints: [
+              1
+            ],
+          },
+          {
+            type: 'arrayMinSize',
+            constraints: [
+              1
+            ],
+          },
+          {
+            type: 'isArray',
+          }
+        ],
+      },
+      {
+        name: 'region',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'isNotEmpty',
+          },
+          {
+            type: 'isString',
+          }
+        ],
+      },
+      {
+        name: 'hour',
+        kind: 'scalar',
+        type: 'Float',
+        required: true,
+        validation: [
+          {
+            type: 'max',
+            constraints: [
+              23
+            ],
+          },
+          {
+            type: 'min',
+            constraints: [
+              0
+            ],
+          },
+          {
+            type: 'isNumber',
+            constraints: [
+              {"maxDecimalPlaces":0}
+            ],
+          }
+        ],
+      },
+      {
+        name: 'minute',
+        kind: 'scalar',
+        type: 'Float',
+        required: true,
+        validation: [
+          {
+            type: 'max',
+            constraints: [
+              59
+            ],
+          },
+          {
+            type: 'min',
+            constraints: [
+              0
+            ],
+          },
+          {
+            type: 'isNumber',
+            constraints: [
+              {"maxDecimalPlaces":0}
+            ],
+          }
+        ],
+      },
+      {
+        name: 'emailDeliveryPreference',
+        kind: 'enum',
+        type: GraphQLInputTypes.PortScanFlowNodeResultStatus,
+        required: true,
+        validation: [
+          {
+            type: 'isEnum',
+            constraints: [
+              {"Success":"success","Failure":"failure","Mismatch":"mismatch"},
+              ["success","failure","mismatch"]
+            ],
+          },
+          {
+            type: 'arrayMaxSize',
+            constraints: [
+              3
+            ],
+          },
+          {
+            type: 'arrayMinSize',
+            constraints: [
+              1
+            ],
+          },
+          {
+            type: 'isArray',
+          }
+        ],
+      }
+    ],
+  }
 
   export const PortScanInput: GraphQLInputObjectTypeMetadata = {
     kind: 'object',
@@ -8167,6 +8394,48 @@ export const PortScanHistoryOperation: GraphQLOperationMetadata<typeof PortScanH
       required: true,
       kind: 'object',
       type: GraphQLInputTypes.PaginationInput,
+    },
+  ],
+}
+  
+export const PortMonitorOperation: GraphQLOperationMetadata<typeof PortMonitorDocument> = {
+  operation: 'PortMonitor',
+  operationType: 'query',
+  document: PortMonitorDocument,
+  parameters: [
+    {
+      parameter: 'pagination',
+      required: true,
+      kind: 'object',
+      type: GraphQLInputTypes.PaginationInput,
+    },
+  ],
+}
+  
+export const PortMonitorCreateOperation: GraphQLOperationMetadata<typeof PortMonitorCreateDocument> = {
+  operation: 'PortMonitorCreate',
+  operationType: 'mutation',
+  document: PortMonitorCreateDocument,
+  parameters: [
+    {
+      parameter: 'input',
+      required: true,
+      kind: 'object',
+      type: GraphQLInputTypes.PortMonitorCreateInput,
+    },
+  ],
+}
+  
+export const PortMonitorDeleteOperation: GraphQLOperationMetadata<typeof PortMonitorDeleteDocument> = {
+  operation: 'PortMonitorDelete',
+  operationType: 'mutation',
+  document: PortMonitorDeleteDocument,
+  parameters: [
+    {
+      parameter: 'input',
+      required: true,
+      kind: 'object',
+      type: GraphQLInputTypes.PortMonitorDeleteInput,
     },
   ],
 }
