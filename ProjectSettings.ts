@@ -11,7 +11,10 @@ export const ProjectSettings: StructureSettingsInterface = {
     url: 'https://www.connected.app/',
     apis: {
         base: {
-            url: 'https://api.connected.app/', // This needs to be an absolute url, as relative urls cannot be used in SSR
+            host: 'api.connected.app',
+            // host: 'api.kamsdev.workers.dev',
+            graphQlPath: '/graphql',
+            webSocketPath: '/web-socket/user/connect',
         },
     },
     modules: {
