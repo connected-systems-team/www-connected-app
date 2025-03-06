@@ -100,13 +100,38 @@ function getPortStateInformation(
                 };
             }
 
+            // Special handling for "Host is down" error
+            if(errorMessage.includes('Host is down')) {
+                return {
+                    title: 'Host Down Error',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>The service returned the following error:</p>
+                            <div className="">
+                                <code>{errorMessage}</code>
+                            </div>
+                            <p>What this means:</p>
+                            <ul className="list-disc space-y-1 pl-5">
+                                <li>The host you&apos;re trying to reach did not respond.</li>
+                                <li>The host might be offline or unreachable from our network.</li>
+                                <li>The host might be configured to block or ignore packets.</li>
+                            </ul>
+                            <p>
+                                You can try again later, try using a different region, or verify that the host is
+                                actually online.
+                            </p>
+                        </div>
+                    ),
+                };
+            }
+
             // Regular error handling for other cases
             return {
                 title: 'Error Information',
                 content: (
                     <div className="space-y-4 text-sm">
                         <p>The port check service returned the following error:</p>
-                        <div className="rounded bg-gray-100 p-2 dark:bg-gray-800">
+                        <div className="">
                             <code>{errorMessage}</code>
                         </div>
                         <p>What this means:</p>

@@ -65,18 +65,23 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
         if((item.port == 80 || item.port == 443) && item.host && item.host.length > 0) {
             const url = item.port == 80 ? `http://${item.host}` : `https://${item.host}`;
 
-            const textBeforeHost = displayText.substring(0, displayText.indexOf(item.host));
-            const textAfterHost = displayText.substring(displayText.indexOf(item.host) + item.host.length);
+            // Use a more precise approach to find host in the text - exact word boundary matching
+            const hostIndex = displayText.indexOf(item.host);
+            if(hostIndex !== -1) {
+                // Only include the exact host (not any following characters)
+                const textBeforeHost = displayText.substring(0, hostIndex);
+                const textAfterHost = displayText.substring(hostIndex + item.host.length);
 
-            content = (
-                <>
-                    {textBeforeHost}
-                    <Link href={url} target="_blank" rel="noreferrer" className="hover:underline">
-                        {item.host}
-                    </Link>
-                    {textAfterHost}
-                </>
-            );
+                content = (
+                    <>
+                        {textBeforeHost}
+                        <Link href={url} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">
+                            {item.host}
+                        </Link>
+                        {textAfterHost}
+                    </>
+                );
+            }
         }
 
         return content;
