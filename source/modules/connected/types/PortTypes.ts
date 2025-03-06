@@ -26,7 +26,7 @@ export interface PortStateDescription {
 export const PortStateDescriptions: Record<PortState, string> = {
     open: 'open',
     closed: 'closed',
-    filtered: 'filtered (firewall may be blocking)',
+    filtered: 'filtered (firewall may be blocking)', // We'll strip the parentheses part in the UI
     unfiltered: 'unfiltered (but not open)',
     'open|filtered': 'either open or filtered (cannot determine precisely)',
     'closed|filtered': 'either closed or filtered (cannot determine precisely)',
@@ -43,7 +43,7 @@ export interface PortScanStatusUpdate {
 }
 
 // Specific input/output types for port scan steps
-export interface PortScanStepInput {
+export interface PortScanStepInput extends Record<string, unknown> {
     host: string;
     ports?: Array<string | { port: string }>;
     region?: string;
@@ -56,7 +56,7 @@ export interface PortScanStepResult {
     latency?: string;
 }
 
-export interface PortScanStepOutput {
+export interface PortScanStepOutput extends Record<string, unknown> {
     results?: PortScanStepResult[];
     ip?: string;
     status?: 'success' | 'error' | string;

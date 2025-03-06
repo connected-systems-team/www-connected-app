@@ -8,7 +8,10 @@ import { PortScanStepInput, PortScanStepOutput, PortState } from '../types/PortT
 import { extractPortFromStepInput, extractPortStateFromStepOutput } from './PortUtilities';
 
 /**
- * Helper function to convert GraphQL response to our internal type
+ * Convert GraphQL step execution response to our internal FlowStepExecution type
+ * @param step The GraphQL step execution response
+ * @param executionId The flow execution ID
+ * @returns A formatted FlowStepExecution object
  */
 export function convertGraphQlStepToFlowStepExecution(
     step: GraphQlFlowStepExecutionResponse,
@@ -19,42 +22,70 @@ export function convertGraphQlStepToFlowStepExecution(
         executionId: step.flowExecutionId || executionId,
         status: step.status,
         actionType: step.actionType,
-        input: typeof step.input === 'string' ? JSON.parse(step.input) : step.input || undefined,
-        output: typeof step.output === 'string' ? JSON.parse(step.output) : step.output || undefined,
+        input: parseStepInput(step.input),
+        output: parseStepOutput(step.output),
         errors: step.errors || undefined,
     };
 }
 
 /**
- * Extract data from a step execution input
+ * Step execution input can be a string (serialized JSON) or an object
  */
-export function parseStepInput(input: any): any {
+export type StepInputType = string | Record<string, unknown> | null | undefined;
+
+/**
+ * Step execution output can be a string (serialized JSON) or an object
+ */
+export type StepOutputType = string | Record<string, unknown> | null | undefined;
+
+/**
+ * Parse step execution input into a structured object
+ * @param input The input to parse (string or object)
+ * @returns Parsed object or empty object if parsing fails
+ */
+export function parseStepInput<T = Record<string, unknown>>(input: StepInputType): T {
     if(typeof input === 'string') {
         try {
-            return JSON.parse(input);
+            return JSON.parse(input) as T;
         }
         catch(error) {
             console.error('Error parsing step input:', error);
-            return {};
+            return {} as T;
         }
     }
-    return input || {};
+    
+    if (!input) {
+        return {} as T;
+    }
+    
+    // Cast to T as it's an object and should match the expected structure
+    return input as unknown as T;
 }
 
 /**
- * Extract data from a step execution output
+ * Parse step execution output into a structured object
+ * @param output The output to parse (string or object)
+ * @returns Parsed object or empty object if parsing fails
  */
-export function parseStepOutput(output: any): any {
+export function parseStepOutput<T = Record<string, unknown>>(
+    output: StepOutputType,
+): T {
     if(typeof output === 'string') {
         try {
-            return JSON.parse(output);
+            return JSON.parse(output) as T;
         }
         catch(error) {
             console.error('Error parsing step output:', error);
-            return {};
+            return {} as T;
         }
     }
-    return output || {};
+    
+    if (!output) {
+        return {} as T;
+    }
+    
+    // Cast to T as it's an object and should match the expected structure
+    return output as unknown as T;
 }
 
 /**
@@ -94,11 +125,11 @@ export function extractPortScanHistoryData(flowExecution: {
                 if(step.input) {
                     try {
                         // Parse the input
-                        const inputData = parseStepInput(step.input) as PortScanStepInput;
-                        
+                        const inputData = parseStepInput<PortScanStepInput>(step.input);
+
                         hostName = inputData.host || hostName;
                         regionName = inputData.region || regionName;
-                        
+
                         // Extract port from input
                         const extractedPort = extractPortFromStepInput(inputData);
                         if(extractedPort) {
@@ -114,13 +145,13 @@ export function extractPortScanHistoryData(flowExecution: {
                 if(step.output) {
                     try {
                         // Parse the output
-                        const outputData = parseStepOutput(step.output) as PortScanStepOutput;
-                        
+                        const outputData = parseStepOutput<PortScanStepOutput>(step.output);
+
                         // Try to extract IP address if available
                         if(outputData.ip) {
                             hostIp = outputData.ip;
                         }
-                        
+
                         // Extract port state
                         const extractedPortState = extractPortStateFromStepOutput(outputData);
                         if(extractedPortState !== 'unknown') {

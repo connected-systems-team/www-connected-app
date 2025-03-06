@@ -150,8 +150,8 @@ export class FlowProcessor {
                 });
             }
         }
-        // Emit result if we have enough info
-        else if(host && port && portState) {
+        // Emit result if we have enough info and region hasn't been processed yet
+        else if(host && port && portState && regionIdentifier && this.pendingResults.has(regionIdentifier)) {
             this.onResult({
                 host,
                 port,
@@ -161,8 +161,14 @@ export class FlowProcessor {
                 executionId: this.currentExecutionId,
             });
         }
-        // Handle case where we have host/port but not state (assume success means open)
-        else if(host && port && flowExecution.status === FlowExecutionStatus.Success) {
+        // Handle case where we have host/port but not state (assume success means open) and region hasn't been processed yet
+        else if(
+            host &&
+            port &&
+            flowExecution.status === FlowExecutionStatus.Success &&
+            regionIdentifier &&
+            this.pendingResults.has(regionIdentifier)
+        ) {
             this.onResult({
                 host,
                 port,
@@ -172,8 +178,8 @@ export class FlowProcessor {
                 executionId: this.currentExecutionId,
             });
         }
-        // Handle case where we're really missing data
-        else {
+        // Handle case where we're missing data and haven't already processed this region
+        else if(regionIdentifier && this.pendingResults.has(regionIdentifier)) {
             this.onStatusUpdate({
                 message: "Port scan completed but couldn't determine exact status",
                 isFinal: true,
@@ -182,6 +188,7 @@ export class FlowProcessor {
                 type: 'warning',
             });
         }
+        // Otherwise silently complete the flow without additional messages
 
         // Remove this region from pending
         if(regionIdentifier) {

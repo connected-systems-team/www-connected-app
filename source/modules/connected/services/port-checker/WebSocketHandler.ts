@@ -68,7 +68,7 @@ export class WebSocketHandler {
                 flowExecution.status === FlowExecutionStatus.Failed
             ) {
                 this.onStatusUpdate({
-                    message: 'Port scan completed, retrieving results...',
+                    message: 'Scan completed, retrieving results...',
                     isFinal: false,
                     timestamp: new Date(),
                     type: 'info',
@@ -79,7 +79,7 @@ export class WebSocketHandler {
             else {
                 // Update with flow execution progress
                 this.onStatusUpdate({
-                    message: `Port scan ${String(flowExecution.status).toLowerCase()}...`,
+                    message: `Port check ${String(flowExecution.status).toLowerCase()}...`,
                     isFinal: false,
                     timestamp: new Date(),
                     type: 'info',

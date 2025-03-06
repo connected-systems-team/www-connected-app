@@ -46,21 +46,34 @@ export function PortChecker(properties: PortCheckerInterface) {
     const portCheckerServiceReference = React.useRef<PortCheckerService | null>(null);
 
     // Function to handle status updates
-    function handleStatusUpdate(update: PortScanStatusUpdate): void {
-        const regionMetadata = update.region ? getRegionMetadata(update.region) : null;
-        const prefix = regionMetadata ? `Server ${regionMetadata.emoji} reports: ` : '';
-
-        setStatusUpdates((previousStatusUpdates) => [...previousStatusUpdates, `${prefix}${update.message}`]);
+    function handleStatusUpdate(_update: PortScanStatusUpdate): void {
+        // Skip intermediate status updates - we only want to show the initial and final results
+        // The initial message is set in the checkPort function
+        // The final result is set in handlePortScanResult
+        return;
     }
 
     // Function to handle port scan results
     function handlePortScanResult(result: PortScanResult): void {
         const stateDescription = PortCheckerService.getPortStateDescription(result.state);
+        const resultMessage = `Port ${result.port} is ${stateDescription} on ${result.host}.`;
 
-        setStatusUpdates((previousStatusUpdates) => [
-            ...previousStatusUpdates,
-            `Port ${result.port} is ${stateDescription} on ${result.host}.`,
-        ]);
+        // Get the current initial message and add the result
+        // This ensures we only have two lines: the initial message and the result
+        setStatusUpdates((previousStatusUpdates) => {
+            // Keep only the initial message (first item) and add the result
+            if(previousStatusUpdates.length > 0) {
+                // Check if this exact message already exists
+                if(previousStatusUpdates.includes(resultMessage)) {
+                    return previousStatusUpdates;
+                }
+                
+                // Ensure the first item exists and is a string
+                const firstMessage = previousStatusUpdates[0] || '';
+                return [firstMessage, resultMessage];
+            }
+            return [resultMessage]; // Just in case there's no initial message
+        });
 
         // Finish the port checking
         setCheckingPort(false);
@@ -91,6 +104,14 @@ export function PortChecker(properties: PortCheckerInterface) {
         const portCheckerService = initializePortCheckerService();
 
         try {
+            // Get region metadata for the display name
+            const regionMetadata = getRegionMetadata(regionIdentifier);
+
+            // Set initial message
+            setStatusUpdates([
+                `Checking port ${remotePort} on ${remoteAddress} from ${regionMetadata.emoji} ${regionMetadata.displayName}...`,
+            ]);
+
             await portCheckerService.checkPort({
                 host: remoteAddress,
                 port: remotePort,
@@ -99,7 +120,7 @@ export function PortChecker(properties: PortCheckerInterface) {
         }
         catch(error) {
             console.error('Error starting port check:', error);
-            setStatusUpdates((previousStatusUpdates) => [...previousStatusUpdates, 'Failed to start port check.']);
+            setStatusUpdates(['Failed to start port check.']);
             setCheckingPort(false);
         }
     }

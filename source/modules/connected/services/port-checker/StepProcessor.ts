@@ -49,7 +49,7 @@ export class StepProcessor {
             stepExecution.input
         ) {
             try {
-                // Parse input and output if they're strings
+                // Parse input and output
                 const input = parseStepInput(stepExecution.input) as PortScanStepInput;
                 const output = parseStepOutput(stepExecution.output) as PortScanStepOutput;
 
@@ -73,25 +73,28 @@ export class StepProcessor {
                 if(portState && portNumber && host) {
                     // Notify region completion
                     this.onStatusUpdate({
-                        message: `Server scan complete`,
+                        message: `Scan complete`,
                         isFinal: false,
                         timestamp: new Date(),
                         region: region,
                         type: 'info',
                     });
 
-                    // Emit the result
-                    this.onResult({
-                        host,
-                        port: portNumber,
-                        state: portState,
-                        region,
-                        timestamp: new Date(),
-                        executionId: this.currentExecutionId,
-                    });
+                    // Only emit result if this region hasn't been processed yet
+                    if (this.pendingResults.has(region)) {
+                        // Emit the result
+                        this.onResult({
+                            host,
+                            port: portNumber,
+                            state: portState,
+                            region,
+                            timestamp: new Date(),
+                            executionId: this.currentExecutionId,
+                        });
 
-                    // Remove this region from pending
-                    this.pendingResults.delete(region);
+                        // Remove this region from pending
+                        this.pendingResults.delete(region);
+                    }
 
                     // Return true if all regions processed
                     return this.pendingResults.size === 0;

@@ -172,14 +172,7 @@ export class PortCheckerService {
         this.stepProcessor.setExecutionId(undefined);
         this.flowProcessor.setExecutionId(undefined);
 
-        // Send initial status update
-        this.onStatusUpdate({
-            message: `Checking port ${input.port} on ${input.host}...`,
-            isFinal: false,
-            timestamp: new Date(),
-            region: input.region,
-            type: 'info',
-        });
+        // No need for initial status update as we now set it in the PortChecker component
 
         try {
             // Create port scan via GraphQL
@@ -211,12 +204,8 @@ export class PortCheckerService {
             // Start polling immediately if WebSocket is not connected
             if(!this.webSocket.isConnected) {
                 this.usingFallbackPolling = true;
-                this.onStatusUpdate({
-                    message: 'Using backup connection method...',
-                    isFinal: false,
-                    timestamp: new Date(),
-                    type: 'info',
-                });
+                // Skip status update for backup connection method
+                // We want to keep the UI clean with just initial message and final result
                 this.pollPortScan();
             }
 
@@ -224,7 +213,7 @@ export class PortCheckerService {
             this.lastWebSocketMessageTime = Date.now();
         }
         catch(error) {
-            // Handle error
+            // Handle critical errors
             this.onStatusUpdate({
                 message: 'Failed to start port check',
                 isFinal: true,
