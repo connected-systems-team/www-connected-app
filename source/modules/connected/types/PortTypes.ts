@@ -29,11 +29,11 @@ export interface PortStateDescription {
 export const PortStateDescriptions: Record<PortState, string> = {
     open: 'open',
     closed: 'closed',
-    filtered: 'filtered (firewall may be blocking)', // We'll strip the parentheses part in the UI
-    unfiltered: 'unfiltered (but not open)',
-    'open|filtered': 'either open or filtered (cannot determine precisely)',
-    'closed|filtered': 'either closed or filtered (cannot determine precisely)',
-    unknown: 'in an unknown state (scan may have failed)',
+    filtered: 'filtered',
+    unfiltered: 'unfiltered',
+    'open|filtered': 'either open or filtered',
+    'closed|filtered': 'either closed or filtered',
+    unknown: 'in an unknown state',
 };
 
 // Status updates for port scanning process
