@@ -97,8 +97,9 @@ scalar JSON
 type Mutation {
     flowCancel(objectId: String!): OperationResult!
     flowPurge(objectId: String!): OperationResult!
+    portMonitorCreate(input: PortMonitorCreateInput!): PortMonitor!
+    portMonitorDelete(input: PortMonitorDeleteInput!): OperationResult!
     portScanCreate(input: PortScanCreateInput!): String!
-    portScanSchedule(input: PortScanScheduleInput!): String!
 }
 
 type OperationResult {
@@ -135,30 +136,91 @@ input PaginationInput {
     orderBy: [OrderByInput!]
 }
 
+type PaginationPortMonitor {
+    items: [PortMonitor!]!
+    pagination: Pagination!
+}
+
 type PaginationPortScanResult {
     items: [FlowExecution!]!
     pagination: Pagination!
 }
 
+type PortMonitor {
+    createdAt: DateTimeISO!
+    createdByAccountId: String!
+    createdByProfileId: String!
+    durableObjectId: String
+    emailDeliveryPreference: [PortScanFlowNodeResultStatus!]!
+    flowId: String!
+    host: String!
+    hour: Float!
+    id: String!
+    minute: Float!
+    ports: [PortMonitorStateCheck!]!
+    region: String!
+    state: PortMonitorState!
+    updatedAt: DateTimeISO!
+    updatedByAccountId: String
+    updatedByProfileId: String
+}
+
+input PortMonitorCreateInput {
+    emailDeliveryPreference: [PortScanFlowNodeResultStatus!]!
+    host: String!
+    hour: Float!
+    minute: Float!
+    ports: [PortMonitorStateCheckInput!]!
+    region: String!
+}
+
+input PortMonitorDeleteInput {
+    monitorId: String!
+}
+
+enum PortMonitorState {
+    Active
+    Deleted
+    Inactive
+}
+
+type PortMonitorStateCheck {
+    port: String!
+    state: PortStateValue!
+}
+
+input PortMonitorStateCheckInput {
+    port: String!
+    state: PortStateValue!
+}
+
 input PortScanCreateInput {
     host: String!
     ports: [String!]!
-    region: String
+    region: String!
+}
+
+enum PortScanFlowNodeResultStatus {
+    Failure
+    Mismatch
+    Success
 }
 
 input PortScanInput {
     executionId: String!
 }
 
-input PortScanScheduleInput {
-    cron: String!
-    emailAddress: String!
-    host: String!
-    ports: [String!]!
-    region: String
+enum PortStateValue {
+    Closed
+    ClosedFiltered
+    Filtered
+    Open
+    OpenFiltered
+    Unfiltered
 }
 
 type Query {
+    portMonitor(pagination: PaginationInput!): PaginationPortMonitor!
     portScan(input: PortScanInput!): FlowExecution
     portScanHistory(pagination: PaginationInput!): PaginationPortScanResult!
 }

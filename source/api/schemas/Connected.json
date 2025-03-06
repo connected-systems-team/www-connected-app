@@ -169,6 +169,21 @@
                 "description": "The order direction of a query",
                 "values": ["Ascending", "Descending"]
             },
+            "PortStateValue": {
+                "kind": "enum",
+                "type": "PortStateValue",
+                "values": ["Open", "Closed", "Filtered", "Unfiltered", "OpenFiltered", "ClosedFiltered"]
+            },
+            "PortScanFlowNodeResultStatus": {
+                "kind": "enum",
+                "type": "PortScanFlowNodeResultStatus",
+                "values": ["Success", "Failure", "Mismatch"]
+            },
+            "PortMonitorState": {
+                "kind": "enum",
+                "type": "PortMonitorState",
+                "values": ["Inactive", "Active", "Deleted"]
+            },
             "PortScanCreateInput": {
                 "kind": "object",
                 "type": "PortScanCreateInput",
@@ -194,7 +209,8 @@
                         "name": "ports",
                         "validation": [
                             {
-                                "type": "isNotEmpty"
+                                "type": "arrayMaxSize",
+                                "constraints": [1]
                             },
                             {
                                 "type": "arrayMinSize",
@@ -208,14 +224,22 @@
                     {
                         "kind": "scalar",
                         "type": "String",
-                        "required": false,
-                        "name": "region"
+                        "required": true,
+                        "name": "region",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            },
+                            {
+                                "type": "isString"
+                            }
+                        ]
                     }
                 ]
             },
-            "PortScanScheduleInput": {
+            "PortMonitorCreateInput": {
                 "kind": "object",
-                "type": "PortScanScheduleInput",
+                "type": "PortMonitorCreateInput",
                 "fields": [
                     {
                         "kind": "scalar",
@@ -232,13 +256,14 @@
                         ]
                     },
                     {
-                        "kind": "scalar",
-                        "type": "String",
+                        "kind": "object",
+                        "type": "PortMonitorStateCheckInput",
                         "required": true,
                         "name": "ports",
                         "validation": [
                             {
-                                "type": "isNotEmpty"
+                                "type": "arrayMaxSize",
+                                "constraints": [1]
                             },
                             {
                                 "type": "arrayMinSize",
@@ -252,25 +277,124 @@
                     {
                         "kind": "scalar",
                         "type": "String",
-                        "required": false,
-                        "name": "region"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
                         "required": true,
-                        "name": "emailAddress",
+                        "name": "region",
                         "validation": [
                             {
-                                "type": "isEmail"
+                                "type": "isNotEmpty"
+                            },
+                            {
+                                "type": "isString"
                             }
                         ]
                     },
                     {
                         "kind": "scalar",
+                        "type": "Float",
+                        "required": true,
+                        "name": "hour",
+                        "validation": [
+                            {
+                                "type": "max",
+                                "constraints": [23]
+                            },
+                            {
+                                "type": "min",
+                                "constraints": [0]
+                            },
+                            {
+                                "type": "isNumber",
+                                "constraints": [
+                                    {
+                                        "maxDecimalPlaces": 0
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Float",
+                        "required": true,
+                        "name": "minute",
+                        "validation": [
+                            {
+                                "type": "max",
+                                "constraints": [59]
+                            },
+                            {
+                                "type": "min",
+                                "constraints": [0]
+                            },
+                            {
+                                "type": "isNumber",
+                                "constraints": [
+                                    {
+                                        "maxDecimalPlaces": 0
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "enum",
+                        "type": "PortScanFlowNodeResultStatus",
+                        "required": true,
+                        "name": "emailDeliveryPreference",
+                        "validation": [
+                            {
+                                "type": "isEnum",
+                                "constraints": [
+                                    {
+                                        "Success": "success",
+                                        "Failure": "failure",
+                                        "Mismatch": "mismatch"
+                                    },
+                                    ["success", "failure", "mismatch"]
+                                ]
+                            },
+                            {
+                                "type": "arrayMaxSize",
+                                "constraints": [3]
+                            },
+                            {
+                                "type": "arrayMinSize",
+                                "constraints": [1]
+                            },
+                            {
+                                "type": "isArray"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "PortMonitorStateCheckInput": {
+                "kind": "object",
+                "type": "PortMonitorStateCheckInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
                         "type": "String",
                         "required": true,
-                        "name": "cron",
+                        "name": "port"
+                    },
+                    {
+                        "kind": "enum",
+                        "type": "PortStateValue",
+                        "required": true,
+                        "name": "state"
+                    }
+                ]
+            },
+            "PortMonitorDeleteInput": {
+                "kind": "object",
+                "type": "PortMonitorDeleteInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "monitorId",
                         "validation": [
                             {
                                 "type": "isNotEmpty"

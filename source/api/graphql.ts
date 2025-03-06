@@ -1724,8 +1724,9 @@ export type Mutation = {
   gridRegionCreate: GridRegion;
   /** Update a region. */
   gridRegionUpdate?: Maybe<GridRegion>;
+  portMonitorCreate: PortMonitor;
+  portMonitorDelete: OperationResult;
   portScanCreate: Scalars['String']['output'];
-  portScanSchedule: Scalars['String']['output'];
   postCommentCreate: PostComment;
   postCommentDelete: Scalars['Boolean']['output'];
   postCreatePrivileged: Post;
@@ -2169,13 +2170,18 @@ export type MutationGridRegionUpdateArgs = {
 };
 
 
-export type MutationPortScanCreateArgs = {
-  input: PortScanCreateInput;
+export type MutationPortMonitorCreateArgs = {
+  input: PortMonitorCreateInput;
 };
 
 
-export type MutationPortScanScheduleArgs = {
-  input: PortScanScheduleInput;
+export type MutationPortMonitorDeleteArgs = {
+  input: PortMonitorDeleteInput;
+};
+
+
+export type MutationPortScanCreateArgs = {
+  input: PortScanCreateInput;
 };
 
 
@@ -2551,6 +2557,12 @@ export type PaginationOrderResult = {
   pagination: Pagination;
 };
 
+export type PaginationPortMonitor = {
+  __typename?: 'PaginationPortMonitor';
+  items: Array<PortMonitor>;
+  pagination: Pagination;
+};
+
 export type PaginationPortScanResult = {
   __typename?: 'PaginationPortScanResult';
   items: Array<FlowExecution>;
@@ -2641,23 +2653,80 @@ export enum PaymentStatus {
   Pending = 'Pending'
 }
 
+export type PortMonitor = {
+  __typename?: 'PortMonitor';
+  createdAt: Scalars['DateTimeISO']['output'];
+  createdByAccountId: Scalars['String']['output'];
+  createdByProfileId: Scalars['String']['output'];
+  durableObjectId?: Maybe<Scalars['String']['output']>;
+  emailDeliveryPreference: Array<PortScanFlowNodeResultStatus>;
+  flowId: Scalars['String']['output'];
+  host: Scalars['String']['output'];
+  hour: Scalars['Float']['output'];
+  id: Scalars['String']['output'];
+  minute: Scalars['Float']['output'];
+  ports: Array<PortMonitorStateCheck>;
+  region: Scalars['String']['output'];
+  state: PortMonitorState;
+  updatedAt: Scalars['DateTimeISO']['output'];
+  updatedByAccountId?: Maybe<Scalars['String']['output']>;
+  updatedByProfileId?: Maybe<Scalars['String']['output']>;
+};
+
+export type PortMonitorCreateInput = {
+  emailDeliveryPreference: Array<PortScanFlowNodeResultStatus>;
+  host: Scalars['String']['input'];
+  hour: Scalars['Float']['input'];
+  minute: Scalars['Float']['input'];
+  ports: Array<PortMonitorStateCheckInput>;
+  region: Scalars['String']['input'];
+};
+
+export type PortMonitorDeleteInput = {
+  monitorId: Scalars['String']['input'];
+};
+
+export enum PortMonitorState {
+  Active = 'Active',
+  Deleted = 'Deleted',
+  Inactive = 'Inactive'
+}
+
+export type PortMonitorStateCheck = {
+  __typename?: 'PortMonitorStateCheck';
+  port: Scalars['String']['output'];
+  state: PortStateValue;
+};
+
+export type PortMonitorStateCheckInput = {
+  port: Scalars['String']['input'];
+  state: PortStateValue;
+};
+
 export type PortScanCreateInput = {
   host: Scalars['String']['input'];
   ports: Array<Scalars['String']['input']>;
-  region?: InputMaybe<Scalars['String']['input']>;
+  region: Scalars['String']['input'];
 };
+
+export enum PortScanFlowNodeResultStatus {
+  Failure = 'Failure',
+  Mismatch = 'Mismatch',
+  Success = 'Success'
+}
 
 export type PortScanInput = {
   executionId: Scalars['String']['input'];
 };
 
-export type PortScanScheduleInput = {
-  cron: Scalars['String']['input'];
-  emailAddress: Scalars['String']['input'];
-  host: Scalars['String']['input'];
-  ports: Array<Scalars['String']['input']>;
-  region?: InputMaybe<Scalars['String']['input']>;
-};
+export enum PortStateValue {
+  Closed = 'Closed',
+  ClosedFiltered = 'ClosedFiltered',
+  Filtered = 'Filtered',
+  Open = 'Open',
+  OpenFiltered = 'OpenFiltered',
+  Unfiltered = 'Unfiltered'
+}
 
 export type Post = {
   __typename?: 'Post';
@@ -3194,6 +3263,7 @@ export type Query = {
   gridNodeGenerateKey: Scalars['String']['output'];
   /** Get all active regions. */
   gridRegions: Array<GridRegion>;
+  portMonitor: PaginationPortMonitor;
   portScan?: Maybe<FlowExecution>;
   portScanHistory: PaginationPortScanResult;
   post: Post;
@@ -3511,6 +3581,11 @@ export type QueryGridNodeArgs = {
 
 export type QueryGridNodeGenerateKeyArgs = {
   input: GridNodeInput;
+};
+
+
+export type QueryPortMonitorArgs = {
+  pagination: PaginationInput;
 };
 
 
@@ -4999,7 +5074,10 @@ export namespace GraphQLInputTypes {
         required: true,
         validation: [
           {
-            type: 'isNotEmpty',
+            type: 'arrayMaxSize',
+            constraints: [
+              1
+            ],
           },
           {
             type: 'arrayMinSize',
@@ -5016,7 +5094,15 @@ export namespace GraphQLInputTypes {
         name: 'region',
         kind: 'scalar',
         type: 'String',
-        required: false,
+        required: true,
+        validation: [
+          {
+            type: 'isNotEmpty',
+          },
+          {
+            type: 'isString',
+          }
+        ],
       }
     ],
   }
