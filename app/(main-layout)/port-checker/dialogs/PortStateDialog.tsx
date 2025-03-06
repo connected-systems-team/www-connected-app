@@ -100,6 +100,51 @@ function getPortStateInformation(
                 };
             }
 
+            // Special handling for private IP addresses
+            if(errorMessage === 'Private IP Address') {
+                return {
+                    title: 'Private IP Address',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>The IP address you entered is a private/internal network address.</p>
+
+                            <p>Private IP addresses include:</p>
+                            <ul className="list-disc space-y-1 pl-5">
+                                <li>
+                                    <code>10.0.0.0</code> to <code>10.255.255.255</code> (10.0.0.0/8)
+                                </li>
+                                <li>
+                                    <code>172.16.0.0</code> to <code>172.31.255.255</code> (172.16.0.0/12)
+                                </li>
+                                <li>
+                                    <code>192.168.0.0</code> to <code>192.168.255.255</code> (192.168.0.0/16)
+                                </li>
+                                <li>
+                                    <code>127.0.0.0</code> to <code>127.255.255.255</code> (localhost)
+                                </li>
+                            </ul>
+
+                            <p>Why can&apos;t we scan these addresses?</p>
+                            <ul className="list-disc space-y-1 pl-5">
+                                <li>Private IP addresses are only accessible within your local network.</li>
+                                <li>Our servers are on the public Internet and cannot reach your internal network.</li>
+                                <li>
+                                    This is by design&mdash;private networks are isolated from the internet for security
+                                    reasons.
+                                </li>
+                            </ul>
+
+                            <p>What you can do instead:</p>
+                            <ul className="list-disc space-y-1 pl-5">
+                                <li>Use a local port scanning tool from within your network, such as nmap.</li>
+                                <li>Check your firewall or router settings to see port configurations.</li>
+                                <li>Use our tool to check public IP addresses or domains instead.</li>
+                            </ul>
+                        </div>
+                    ),
+                };
+            }
+
             // Special handling for "Host is down" error
             if(errorMessage.includes('Host is down')) {
                 return {

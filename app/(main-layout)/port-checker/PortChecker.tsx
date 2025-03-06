@@ -22,6 +22,7 @@ import { PortCheckerService } from '@project/source/modules/connected/services/p
 
 // Dependencies - Utilities
 import { getRegionMetadata } from '@project/source/modules/connected/utilities/GridUtilities';
+import { isIpV4Address, isPrivateIpAddress } from '@structure/source/utilities/network/IpAddress';
 
 // Component - PortChecker
 export interface PortCheckerInterface {
@@ -173,6 +174,24 @@ export function PortChecker(properties: PortCheckerInterface) {
         const portCheckerService = initializePortCheckerService();
 
         try {
+            // Check if the address is a private IP address
+            if(isIpV4Address(remoteAddress) && isPrivateIpAddress(remoteAddress)) {
+                // Handle private IP address - show message in animated list
+                setStatusItems([
+                    {
+                        text: `${remoteAddress} is a private IP address.`,
+                        state: 'unknown' as PortState,
+                        isLoading: false,
+                        systemError: true,
+                        errorMessage: 'Private IP Address',
+                        host: remoteAddress,
+                        port: remotePort,
+                    },
+                ]);
+                setCheckingPort(false);
+                return;
+            }
+
             // Special handling for invalid domain names to provide immediate feedback
             // This is a simple client-side check before sending to the server
             if(
