@@ -210,11 +210,14 @@ export function PortChecker(properties: PortCheckerInterface) {
 
             // Set initial message
             const initialMessage = `Checking port ${remotePort} on ${remoteAddress} from ${regionMetadata.emoji} ${regionMetadata.displayName}...`;
+
             setStatusItems([
                 {
                     text: initialMessage,
                     state: 'unknown' as PortState,
                     isLoading: true,
+                    host: remoteAddress,
+                    port: remotePort,
                 },
             ]);
 

@@ -2,6 +2,9 @@
 import React from 'react';
 import Link from 'next/link';
 
+// Dependencies - Types
+import { PortState } from '@project/source/modules/connected/types/PortTypes';
+
 // Dependencies - Main Components
 import { AnimatedList } from '@project/source/common/animations/AnimatedList';
 import { CopyButton } from '@structure/source/common/buttons/CopyButton';
@@ -10,12 +13,6 @@ import { PortStateDialog } from '@project/app/(main-layout)/port-checker/dialogs
 
 // Dependencies - Hooks
 import { useTheme } from '@structure/source/theme/ThemeProvider';
-
-// Dependencies - Types
-import { PortState } from '@project/source/modules/connected/types/PortTypes';
-
-// Dependencies - Utilities
-import { getHostLinkData } from '@project/source/modules/connected/utilities/PortUtilities';
 
 // Dependencies - Assets
 import ErrorCircledIcon from '@structure/assets/icons/status/ErrorCircledIcon.svg';
@@ -60,38 +57,29 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
         setIsDialogOpen(true);
     }
 
-    // Function to clean port status text
-    function cleanPortStatusText(text: string): string {
-        // Remove the explanation in parentheses
-        return text.replace(/\s*\([^)]*\)/g, '');
-    }
-
     // Function to render host link if applicable
     function renderHostLink(item: PortCheckStatusItem, displayText: string): React.ReactNode {
-        // Get link data if this can be linked
-        const linkData = getHostLinkData(
-            item.host,
-            item.port,
-            item.state,
-            displayText,
-            Boolean(item.systemError || item.timeout),
-        );
+        let content: React.ReactNode = displayText;
 
-        // If we can't create a link, return the original text
-        if(!linkData) {
-            return displayText;
+        // If the port is 80 or 443 and there is a host, render a link
+        if((item.port == 80 || item.port == 443) && item.host && item.host.length > 0) {
+            const url = item.port == 80 ? `http://${item.host}` : `https://${item.host}`;
+
+            const textBeforeHost = displayText.substring(0, displayText.indexOf(item.host));
+            const textAfterHost = displayText.substring(displayText.indexOf(item.host) + item.host.length);
+
+            content = (
+                <>
+                    {textBeforeHost}
+                    <Link href={url} target="_blank" rel="noreferrer" className="hover:underline">
+                        {item.host}
+                    </Link>
+                    {textAfterHost}
+                </>
+            );
         }
 
-        // Create a linked version of the text
-        return (
-            <>
-                {linkData.beforeText}
-                <Link href={linkData.url} target="_blank" rel="noopener noreferrer" className="underline">
-                    {linkData.hostText}
-                </Link>
-                {linkData.afterText}
-            </>
-        );
+        return content;
     }
 
     // Render the component
@@ -111,7 +99,7 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
                             item.state === 'unknown');
 
                     // Clean the text for display by removing explanations in parentheses
-                    const displayText = isFinal ? cleanPortStatusText(item.text) : item.text;
+                    const displayText = item.text;
 
                     let content;
 
@@ -153,7 +141,8 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
                         );
                     }
                     else {
-                        content = <span>{displayText}</span>;
+                        // For all loading states, still try to render host link
+                        content = <span>{renderHostLink(item, displayText)}</span>;
                     }
 
                     const isNegativeState =
