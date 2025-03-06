@@ -16,10 +16,7 @@ import { GridRegionsDocument } from '@project/source/api/GraphQlGeneratedCode';
 import ArrowUpIcon from '@structure/assets/icons/interface/ArrowUpIcon.svg';
 
 // Dependencies - Utilities
-import {
-    getRegionEmojiUsingRegionIdentifier,
-    getRegionDisplayName,
-} from '@project/app/(main-layout)/port-checker/Region';
+import { getRegionMetadata } from '@project/source/modules/connected/utilities/GridUtilities';
 
 // Component - PortCheckForm
 export interface PortCheckFormInterface {
@@ -29,7 +26,7 @@ export interface PortCheckFormInterface {
     regionFormInputReference: React.RefObject<FormInputReferenceInterface>;
     buttonReference: React.RefObject<ButtonElementType>;
     checkingPort: boolean;
-    checkPort: (remoteAddress: string, remotePort: number, regionIdentifier: string, regionDisplayName: string) => void;
+    checkPort: (remoteAddress: string, remotePort: number, regionIdentifier: string) => void;
 }
 export function PortCheckForm(properties: PortCheckFormInterface) {
     // Hooks
@@ -42,10 +39,6 @@ export function PortCheckForm(properties: PortCheckFormInterface) {
             properties.remoteAddressFormInputReference.current?.getValue() || '',
             properties.remotePortFormInputReference.current?.getValue(),
             properties.regionFormInputReference.current?.getValue() || '',
-            getRegionDisplayName(
-                properties.regionFormInputReference.current?.getValue() || '',
-                gridRegionsQueryState.data?.gridRegions || [],
-            ),
         );
     }
 
@@ -121,14 +114,17 @@ export function PortCheckForm(properties: PortCheckFormInterface) {
                         gridRegionsQueryState.data?.gridRegions.map(function (gridRegion) {
                             return {
                                 value: gridRegion.name,
-                                content:
-                                    getRegionEmojiUsingRegionIdentifier(gridRegion.name) + ' ' + gridRegion.displayName,
+                                content: getRegionMetadata(gridRegion.name).emoji + ' ' + gridRegion.displayName,
                             };
-                        }) || []
+                        }) || [
+                            {
+                                value: 'north-america',
+                                content: '🇺🇸 North America',
+                            },
+                        ]
                     }
                     placeholder="Loading regions..."
                     defaultValue={'north-america'}
-                    // defaultValue={gridRegionsQueryState.data?.gridRegions[0]?.name}
                 />
             </div>
 

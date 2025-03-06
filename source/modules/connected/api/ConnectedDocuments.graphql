@@ -1,0 +1,96 @@
+# Grid Regions Query
+query GridRegions {
+    gridRegions {
+        id
+        name
+        displayName
+        updatedAt
+        createdAt
+    }
+}
+
+# Port Scan Create Mutation
+mutation PortScanCreate($input: PortScanCreateInput!) {
+    portScanCreate(input: $input)
+}
+
+# Port Scan Query
+query PortScan($input: PortScanInput!) {
+    portScan(input: $input) {
+        id
+        triggerId
+        triggerType
+        status
+        stepExecutions {
+            stepId
+            status
+            actionType
+            attempt
+            input
+            output
+            updatedAt
+            elapsedTimeMs
+            startedAt
+            completedAt
+            createdAt
+            errors
+        }
+        flowVersionId
+        elapsedTimeMs
+        startedAt
+        completedAt
+        updatedAt
+        createdAt
+        errors
+    }
+}
+
+# Port Scan History Query
+query PortScanHistory($pagination: PaginationInput!) {
+    portScanHistory(pagination: $pagination) {
+        items {
+            id
+            triggerId
+            triggerType
+            status
+            stepExecutions {
+                stepId
+                status
+                actionType
+                attempt
+                input
+                output
+                updatedAt
+                elapsedTimeMs
+                startedAt
+                completedAt
+                createdAt
+                errors
+            }
+            flowVersionId
+            elapsedTimeMs
+            startedAt
+            completedAt
+            updatedAt
+            createdAt
+            errors
+        }
+        pagination {
+            itemIndex
+            itemIndexForPreviousPage
+            itemIndexForNextPage
+            itemsPerPage
+            itemsTotal
+            pagesTotal
+            page
+        }
+    }
+}
+
+# query whois($input: String!) {
+#     whois(input: $input) {
+#         id
+#         result
+#         createdAt
+#     }
+# }

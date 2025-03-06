@@ -12,7 +12,7 @@ import { PlaceholderAnimation } from '@structure/source/common/animations/Placeh
 
 // Dependencies - API
 import { useQuery } from '@apollo/client';
-import { TaskHistoryDocument, OrderByDirection } from '@project/source/api/GraphQlGeneratedCode';
+import { PortScanHistoryDocument, OrderByDirection } from '@project/source/api/GraphQlGeneratedCode';
 
 // Dependencies - Assets
 import ArrowLeftIcon from '@structure/assets/icons/interface/ArrowLeftIcon.svg';
@@ -20,37 +20,14 @@ import CheckCircledGreenBorderIcon from '@project/assets/icons/status/CheckCircl
 import ErrorCircledRedBorderIcon from '@project/assets/icons/status/ErrorCircledRedBorderIcon.svg';
 
 // Dependencies - Utilities
-// import { getRegionEmoji } from '@project/app/(main-layout)/port-checker/Region';
+import { getRegionMetadata } from '@project/source/modules/connected/utilities/GridUtilities';
 import { iso8601Date, timeAgo } from '@structure/source/utilities/Time';
 import { uppercaseFirstCharacter } from '@structure/source/utilities/String';
+import { extractPortScanHistoryData } from '@project/source/modules/connected/utilities/FlowUtilities';
+import { getPortStateDescription } from '@project/source/modules/connected/utilities/PortUtilities';
 
-export interface PortScanResult {
-    ports: {
-        port: number;
-        state: string;
-        service: string;
-    }[];
-    hostIp: string;
-    latency: string;
-    hostName: string;
-    scanTime: string;
-    nmapVersion: string;
-}
-
-export interface TaskHistoryItem {
-    id: string;
-    createdAt: string;
-    results: {
-        region: {
-            name: string;
-            displayName: string;
-        };
-        result: PortScanResult[];
-    }[];
-}
-
-// Component - TaskHistoryPage
-export function TaskHistoryPage() {
+// Component - PortCheckerHistoryPage
+export function PortCheckerHistoryPage() {
     // Hooks
     const urlSearchParameters = useUrlSearchParameters();
     const page = parseInt(urlSearchParameters.get('page') as string) || 1;
@@ -58,7 +35,7 @@ export function TaskHistoryPage() {
     const [totalScans, setTotalScans] = React.useState<number>(0);
 
     // Query
-    const taskHistoryQuery = useQuery(TaskHistoryDocument, {
+    const portScanHistoryQuery = useQuery(PortScanHistoryDocument, {
         variables: {
             pagination: {
                 itemsPerPage: itemsPerPage,
@@ -72,20 +49,22 @@ export function TaskHistoryPage() {
             },
         },
     });
-    // console.log('taskHistoryQuery', taskHistoryQuery);
+
+    // Debugging
+    // console.log('portScanHistoryQuery', portScanHistoryQuery);
 
     // Effects
     React.useEffect(
         function () {
-            if(taskHistoryQuery.data?.taskHistory.pagination?.itemsTotal) {
-                setTotalScans(taskHistoryQuery.data.taskHistory.pagination.itemsTotal);
+            if(portScanHistoryQuery.data?.portScanHistory.pagination?.itemsTotal) {
+                setTotalScans(portScanHistoryQuery.data.portScanHistory.pagination.itemsTotal);
             }
         },
-        [taskHistoryQuery.data?.taskHistory.pagination?.itemsTotal],
+        [portScanHistoryQuery.data?.portScanHistory.pagination?.itemsTotal],
     );
 
     // Data
-    const tasks = taskHistoryQuery.data?.taskHistory.items || [];
+    const flowExecutions = portScanHistoryQuery.data?.portScanHistory.items || [];
 
     // Render the component
     return (
@@ -104,28 +83,30 @@ export function TaskHistoryPage() {
                 <h1 className="mb-6 mt-4 text-2xl font-medium">Port Checker History</h1>
 
                 <div>
-                    {taskHistoryQuery.error ? (
-                        <div className="text-red-500">Error: {taskHistoryQuery.error.message}</div>
-                    ) : taskHistoryQuery.loading ? (
+                    {portScanHistoryQuery.error ? (
+                        <div className="text-red-500">Error: {portScanHistoryQuery.error.message}</div>
+                    ) : portScanHistoryQuery.loading ? (
                         <div className="divide-y divide-neutral/10">
-                            <div className="grid grid-cols-[1fr] items-center gap-3 py-4 md:grid-cols-[180px_180px_72px_110px_100px_200px]">
+                            <div className="grid grid-cols-[1fr] items-center gap-3 py-4 md:grid-cols-[160px_160px_72px_110px_100px_110px_160px]">
                                 <div className="font-medium">Host</div>
                                 <div className="font-medium">IP</div>
                                 <div className="font-medium">Port</div>
                                 <div className="font-medium">Status</div>
                                 <div className="font-medium">Latency</div>
+                                <div className="font-medium">Region</div>
                                 <div className="font-medium">Time</div>
                             </div>
                             {[...Array(itemsPerPage)].map((_, index) => (
                                 <div
                                     key={index}
-                                    className="grid grid-cols-[1fr] gap-3 py-4 md:grid-cols-[180px_180px_72px_110px_100px_200px]"
+                                    className="grid grid-cols-[1fr] gap-3 py-4 md:grid-cols-[160px_160px_72px_110px_100px_110px_160px]"
                                 >
                                     <PlaceholderAnimation className="h-5 w-32" />
                                     <PlaceholderAnimation className="h-5 w-32" />
                                     <PlaceholderAnimation className="h-5 w-8" />
                                     <PlaceholderAnimation className="h-5 w-16" />
                                     <PlaceholderAnimation className="h-5 w-10" />
+                                    <PlaceholderAnimation className="h-5 w-16" />
                                     <PlaceholderAnimation className="h-5 w-32" />
                                 </div>
                             ))}
@@ -133,87 +114,41 @@ export function TaskHistoryPage() {
                     ) : (
                         <>
                             <div className="divide-y divide-neutral/10">
-                                <div className="grid grid-cols-[1fr] items-center gap-3 py-4 pl-2 md:grid-cols-[180px_180px_72px_110px_100px_200px]">
+                                <div className="grid grid-cols-[1fr] items-center gap-3 py-4 pl-2 md:grid-cols-[160px_160px_72px_110px_100px_110px_160px]">
                                     <div className="font-medium">Host</div>
                                     <div className="font-medium">IP</div>
                                     <div className="font-medium">Port</div>
                                     <div className="font-medium">Status</div>
                                     <div className="font-medium">Latency</div>
+                                    <div className="font-medium">Region</div>
                                     <div className="font-medium">Time</div>
                                 </div>
 
-                                {tasks.map(function (task) {
-                                    // {
-                                    //     "id": "",
-                                    //     "state": "",
-                                    //     "procedureType": "PortScan",
-                                    //     "procedureArguments": {
-                                    //         "host": "google.com",
-                                    //         "ports": ["80"]
-                                    //     },
-                                    //     "results": [
-                                    //         {
-                                    //             "result": [
-                                    //                 {
-                                    //                     "ports": [
-                                    //                         {
-                                    //                             "port": 80,
-                                    //                             "state": "open",
-                                    //                             "service": "http"
-                                    //                         }
-                                    //                     ],
-                                    //                     "hostIp": "142.250.190.78",
-                                    //                     "latency": "0.00054s",
-                                    //                     "hostName": "google.com",
-                                    //                     "scanTime": "0.11 seconds",
-                                    //                     "nmapVersion": "7.93"
-                                    //                 }
-                                    //             ],
-                                    //             "createdAt": "2024-11-29T21:13:38.340Z"
-                                    //         }
-                                    //     ],
-                                    //     "createdAt": "2024-11-29T21:13:36.159Z"
-                                    // }
+                                {flowExecutions.map(function (flowExecution) {
+                                    // Extract data from the flow execution using our utility
+                                    const {
+                                        hostName,
+                                        hostIp,
+                                        port,
+                                        portState,
+                                        portIsOpen,
+                                        latencyInMilliseconds,
+                                        regionName,
+                                    } = extractPortScanHistoryData(flowExecution);
 
-                                    const firstTaskResult = task.results[0]?.result[0];
-                                    const host = task.procedureArguments.host;
-                                    const hostIsIp = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host);
-
-                                    let hostIp = hostIsIp ? host : '-';
-                                    let port = task.procedureArguments.ports[0];
-                                    let portState = 'closed';
-                                    let portIsOpen = false;
-                                    let latencyInMilliseconds = '-';
-
-                                    if(firstTaskResult) {
-                                        hostIp = firstTaskResult.hostIp;
-
-                                        const firstPort = firstTaskResult.ports[0];
-                                        if(firstPort) {
-                                            port = firstPort.port;
-                                            portState = firstPort.state;
-                                            portIsOpen = portState === 'open';
-                                        }
-
-                                        const latency = firstTaskResult.latency;
-                                        if(latency) {
-                                            latencyInMilliseconds =
-                                                Math.round(parseFloat(latency.replace('s', '')) * 100000) + ' ms';
-                                        }
-                                    }
-
-                                    if(!hostIp) {
-                                        hostIp = '-';
-                                    }
+                                    // Map port states to user-friendly descriptions using our utility
+                                    const fullPortStateDisplay = uppercaseFirstCharacter(
+                                        getPortStateDescription(portState),
+                                    );
 
                                     return (
                                         <div
-                                            key={task.id}
-                                            className="grid grid-cols-[1fr] items-center gap-3 py-4 pl-2 text-sm hover:bg-light-1 md:grid-cols-[180px_180px_72px_110px_100px_200px] dark:hover:bg-dark-2"
+                                            key={flowExecution.id}
+                                            className="grid grid-cols-[1fr] items-center gap-3 py-4 pl-2 text-sm hover:bg-light-1 md:grid-cols-[160px_160px_72px_110px_100px_110px_160px] dark:hover:bg-dark-2"
                                         >
                                             {/* Host Info */}
                                             <div className="space-y-1">
-                                                <div className="font-medium">{host}</div>
+                                                <div className="font-medium">{hostName}</div>
                                             </div>
 
                                             {/* IP */}
@@ -233,25 +168,29 @@ export function TaskHistoryPage() {
                                                 ) : (
                                                     <ErrorCircledRedBorderIcon className="flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-light dark:border-none dark:text-light" />
                                                 )}
-                                                <span>{uppercaseFirstCharacter(portState)}</span>
+                                                <span>{fullPortStateDisplay}</span>
                                             </div>
 
                                             {/* Latency */}
                                             <div className="">{latencyInMilliseconds}</div>
 
-                                            {/* Time */}
-                                            <div className="">
-                                                {iso8601Date(new Date(task.createdAt))} (
-                                                {timeAgo(new Date(task.createdAt).getTime())})
+                                            {/* Region */}
+                                            <div className="flex items-center space-x-1">
+                                                {regionName && (
+                                                    <>
+                                                        <span>{getRegionMetadata(regionName).emoji}</span>
+                                                        <span className="neutral">
+                                                            {getRegionMetadata(regionName).displayName}
+                                                        </span>
+                                                    </>
+                                                )}
                                             </div>
 
-                                            {/* Region */}
-                                            {/* <div className="flex items-center space-x-1">
-                                                <span>{getRegionEmoji(task.results[0]?.region.name)}</span>
-                                                <span className="neutral ">
-                                                    {task.results[0]?.region.displayName}
-                                                </span>
-                                            </div> */}
+                                            {/* Time */}
+                                            <div className="">
+                                                {iso8601Date(new Date(flowExecution.createdAt))} (
+                                                {timeAgo(new Date(flowExecution.createdAt).getTime())})
+                                            </div>
                                         </div>
                                     );
                                 })}
@@ -259,14 +198,14 @@ export function TaskHistoryPage() {
                         </>
                     )}
 
-                    {(taskHistoryQuery.loading || taskHistoryQuery.data) && (
+                    {(portScanHistoryQuery.loading || portScanHistoryQuery.data) && (
                         <div className="flex items-center space-x-4 pt-6">
                             <Pagination
                                 className="justify-start"
                                 page={page}
                                 itemsPerPage={itemsPerPage}
                                 itemsTotal={totalScans}
-                                pagesTotal={taskHistoryQuery.data?.taskHistory.pagination?.pagesTotal ?? 0}
+                                pagesTotal={portScanHistoryQuery.data?.portScanHistory.pagination?.pagesTotal ?? 0}
                                 useLinks={true}
                                 itemsPerPageControl={false}
                                 pageInputControl={false}
@@ -281,4 +220,4 @@ export function TaskHistoryPage() {
 }
 
 // Export - Default
-export default TaskHistoryPage;
+export default PortCheckerHistoryPage;
