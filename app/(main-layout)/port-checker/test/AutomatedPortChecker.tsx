@@ -4,13 +4,14 @@
 import React from 'react';
 
 // Dependencies - Main Components
-import { ButtonElementType } from '@structure/source/common/buttons/Button';
+import { Button } from '@structure/source/common/buttons/Button';
 import { FormInputReferenceInterface } from '@structure/source/common/forms/FormInput';
 import { PortCheckForm } from '@project/app/(main-layout)/port-checker/PortCheckForm';
-import { CommonPorts } from '@project/app/(main-layout)/port-checker/CommonPorts';
-import { YourPublicIpAddress } from '@project/app/(main-layout)/port-checker/YourPublicIpAddress';
-import { PortCheckStatusAnimatedList, PortCheckStatusItem } from './PortCheckStatusAnimatedList';
-import { About } from '@project/app/(main-layout)/port-checker/About';
+import {
+    PortCheckStatusAnimatedList,
+    PortCheckStatusItem,
+} from '@project/app/(main-layout)/port-checker/PortCheckStatusAnimatedList';
+import { ButtonElementType } from '@structure/source/common/buttons/Button';
 
 // Dependencies - Hooks
 import { useWebSocket } from '@structure/source/api/web-sockets/hooks/useWebSocket';
@@ -23,11 +24,20 @@ import { PortCheckerService } from '@project/source/modules/connected/services/p
 // Dependencies - Utilities
 import { getRegionMetadata } from '@project/source/modules/connected/utilities/GridUtilities';
 
-// Component - PortChecker
-export interface PortCheckerInterface {
-    publicIpAddress?: string;
+// Test case interface
+interface PortCheckerTestCase {
+    host: string;
+    port: number;
 }
-export function PortChecker(properties: PortCheckerInterface) {
+
+// Component - AutomatedPortChecker
+export interface AutomatedPortCheckerInterface {
+    testCase: PortCheckerTestCase;
+    onTestComplete?: (result: PortScanResult) => void;
+    autoRun?: boolean;
+}
+
+export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) {
     // State
     const [checkingPort, setCheckingPort] = React.useState<boolean>(false);
     const [statusItems, setStatusItems] = React.useState<PortCheckStatusItem[]>([]);
@@ -52,21 +62,15 @@ export function PortChecker(properties: PortCheckerInterface) {
         // Handle system errors and timeouts differently from actual port states
         if(result.systemError) {
             if(result.errorMessage) {
-                // Check for specific error types
-                if(result.errorMessage.includes('Failed to resolve host')) {
-                    resultMessage = `Failed to resolve host: The hostname could not be found.`;
-                }
-                else {
-                    // Show other specific error messages from the server
-                    resultMessage = `Error: ${result.errorMessage}`;
-                }
+                // Show the specific error message from the server
+                resultMessage = `Error: ${result.errorMessage}`;
             }
             else {
                 resultMessage = `Our system is down and our engineers have been notified.`;
             }
         }
         else if(result.timeout) {
-            resultMessage = `The request timed out. Please try again.`;
+            resultMessage = `The request to check port ${result.port} on ${result.host} timed out. Please try again later.`;
         }
         else {
             const stateDescription = PortCheckerService.getPortStateDescription(result.state);
@@ -81,8 +85,6 @@ export function PortChecker(properties: PortCheckerInterface) {
             systemError: result.systemError,
             timeout: result.timeout,
             errorMessage: result.errorMessage,
-            host: result.host,
-            port: typeof result.port === 'string' ? parseInt(result.port, 10) : result.port,
         };
 
         // Create a function to update the status items with the proper return type
@@ -114,6 +116,11 @@ export function PortChecker(properties: PortCheckerInterface) {
         // Update the status items
         setStatusItems(updateStatusItems);
 
+        // Call the callback if provided
+        if(properties.onTestComplete) {
+            properties.onTestComplete(result);
+        }
+
         // Finish the port checking
         setCheckingPort(false);
     }
@@ -124,37 +131,7 @@ export function PortChecker(properties: PortCheckerInterface) {
             portCheckerServiceReference.current = new PortCheckerService({
                 apolloClient,
                 webSocket,
-                // Handle intermediate status updates to show progress
-                onStatusUpdate: (update) => {
-                    // Process status update
-
-                    // If we get specific error status updates, immediately show them in the UI
-                    if(update.type === 'error' && update.isFinal && update.message) {
-                        // Special handling for host resolution errors
-                        if(
-                            update.message.includes('Failed to resolve host') ||
-                            update.message.includes('hostname could not be found')
-                        ) {
-                            // Handle host resolution error status update
-
-                            // We'll let the onResult handler show the final result
-                            // This is just a backup in case onResult doesn't get called
-                            if(statusItems.length === 1 && statusItems[0] && statusItems[0].isLoading) {
-                                setStatusItems([
-                                    {
-                                        text: 'Failed to resolve host: The hostname could not be found.',
-                                        state: 'unknown' as PortState,
-                                        isLoading: false,
-                                        systemError: true,
-                                        errorMessage: 'Failed to resolve host.',
-                                    },
-                                ]);
-                                setCheckingPort(false);
-                            }
-                        }
-                    }
-                },
-                // Handle port scan results
+                // We don't need to do anything with intermediate status updates
                 onResult: handlePortScanResult,
             });
         }
@@ -173,38 +150,6 @@ export function PortChecker(properties: PortCheckerInterface) {
         const portCheckerService = initializePortCheckerService();
 
         try {
-            // Special handling for invalid domain names to provide immediate feedback
-            // This is a simple client-side check before sending to the server
-            if(
-                !remoteAddress.match(/^[a-zA-Z0-9][-a-zA-Z0-9.]{0,253}[a-zA-Z0-9](\.[a-zA-Z]{2,})+$/) &&
-                !remoteAddress.match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/)
-            ) {
-                const domainPattern = /^[a-zA-Z0-9][-a-zA-Z0-9.]{0,253}[a-zA-Z0-9](\.[a-zA-Z]{2,})+$/;
-                const ipPattern = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
-
-                // This is not a valid domain name or IP pattern - provide immediate feedback
-                if(!domainPattern.test(remoteAddress) && !ipPattern.test(remoteAddress)) {
-                    // Invalid hostname detected, show user-friendly error
-
-                    // Only show this if it's likely to fail host resolution
-                    if(!remoteAddress.includes('.')) {
-                        setStatusItems([
-                            {
-                                text: 'Failed to resolve host: The hostname could not be found.',
-                                state: 'unknown' as PortState,
-                                isLoading: false,
-                                systemError: true,
-                                errorMessage: 'Failed to resolve host.',
-                                host: remoteAddress,
-                                port: remotePort,
-                            },
-                        ]);
-                        setCheckingPort(false);
-                        return;
-                    }
-                }
-            }
-
             // Get region metadata for the display name
             const regionMetadata = getRegionMetadata(regionIdentifier);
 
@@ -226,30 +171,52 @@ export function PortChecker(properties: PortCheckerInterface) {
         }
         catch(error) {
             console.error('Error starting port check:', error);
-
-            // Check if this might be a host resolution issue
-            const isHostResolutionIssue = error instanceof Error && error.message.toLowerCase().includes('resolve');
-
             setStatusItems([
                 {
-                    text: isHostResolutionIssue
-                        ? 'Failed to resolve host: The hostname could not be found.'
-                        : 'Failed to start port check. Our service encountered an internal error.',
+                    text: 'Failed to start port check. Our service encountered an internal error.',
                     state: 'unknown' as PortState,
                     isLoading: false,
                     systemError: true,
-                    errorMessage: isHostResolutionIssue ? 'Failed to resolve host.' : undefined,
-                    host: remoteAddress,
-                    port: remotePort,
                 },
             ]);
             setCheckingPort(false);
         }
     }
 
+    // Function to programmatically run the test
+    function runTest() {
+        if(checkingPort) return;
+
+        // Set the form values
+        if(portCheckFormRemoteAddressFormInputReference.current) {
+            portCheckFormRemoteAddressFormInputReference.current.setValue(properties.testCase.host);
+        }
+
+        if(portCheckFormRemotePortFormInputReference.current) {
+            portCheckFormRemotePortFormInputReference.current.setValue(properties.testCase.port.toString());
+        }
+
+        // Submit the form
+        if(portCheckFormSubmitButtonReference.current) {
+            portCheckFormSubmitButtonReference.current.click();
+        }
+    }
+
+    // Run the test automatically if autoRun is true
+    React.useEffect(() => {
+        if(properties.autoRun) {
+            const timer = setTimeout(() => {
+                runTest();
+            }, 500); // Short delay to ensure form is ready
+
+            return () => clearTimeout(timer);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [properties.testCase, properties.autoRun]);
+
     // Cleanup on component unmount
-    React.useEffect(function () {
-        return function () {
+    React.useEffect(() => {
+        return () => {
             if(portCheckerServiceReference.current) {
                 portCheckerServiceReference.current.dispose();
                 portCheckerServiceReference.current = null;
@@ -259,12 +226,24 @@ export function PortChecker(properties: PortCheckerInterface) {
 
     // Render the component
     return (
-        <div className="flex flex-col md:flex-row">
-            <div>
-                <YourPublicIpAddress publicIpAddress={properties.publicIpAddress ?? ''} />
+        <div className="flex flex-col space-y-4">
+            <div className="flex flex-row items-center gap-4">
+                <Button onClick={runTest} disabled={checkingPort} className="w-32">
+                    {checkingPort ? 'Running...' : 'Run Test'}
+                </Button>
+                <div className="text-sm">
+                    <div>
+                        <span className="font-medium">Host:</span> {properties.testCase.host}
+                    </div>
+                    <div>
+                        <span className="font-medium">Port:</span> {properties.testCase.port}
+                    </div>
+                </div>
+            </div>
 
+            <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
                 <PortCheckForm
-                    publicIpAddress={properties.publicIpAddress ?? ''}
+                    publicIpAddress={''}
                     remoteAddressFormInputReference={portCheckFormRemoteAddressFormInputReference}
                     remotePortFormInputReference={portCheckFormRemotePortFormInputReference}
                     regionFormInputReference={portCheckFormRegionFormInputReference}
@@ -274,24 +253,10 @@ export function PortChecker(properties: PortCheckerInterface) {
                 />
 
                 <PortCheckStatusAnimatedList portCheckStatusItems={statusItems} />
-
-                <About />
             </div>
-
-            <CommonPorts
-                portSelected={function (port) {
-                    // Set the port in the form input
-                    portCheckFormRemotePortFormInputReference.current?.setValue(port.toString());
-
-                    // Immediately check the port if not already checking
-                    if(!checkingPort) {
-                        portCheckFormSubmitButtonReference.current?.click();
-                    }
-                }}
-            />
         </div>
     );
 }
 
 // Export - Default
-export default PortChecker;
+export default AutomatedPortChecker;

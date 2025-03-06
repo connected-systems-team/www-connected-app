@@ -71,6 +71,36 @@ function getPortStateInformation(
     if(isSystemError) {
         // If we have a specific error message, show it
         if(errorMessage) {
+            // Special handling for "Failed to resolve host" error
+            if(errorMessage.includes('Failed to resolve host')) {
+                return {
+                    title: 'Host Resolution Error',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>The port check service returned the following error:</p>
+                            <div className="">
+                                <code>{errorMessage}</code>
+                            </div>
+                            <p>What this means:</p>
+                            <ul className="list-disc space-y-1 pl-5">
+                                <li>The domain name you entered could not be resolved to an IP address.</li>
+                                <li>This may be because the domain does not exist or has been misspelled.</li>
+                                <li>DNS servers may be experiencing issues resolving this domain.</li>
+                                <li>
+                                    If you&apos;re using a private or internal hostname, it may not be publicly
+                                    resolvable.
+                                </li>
+                            </ul>
+                            <p>
+                                Please check the hostname and try again. If using a domain name, verify that it&apos;s
+                                correctly spelled and is a valid, publicly accessible domain.
+                            </p>
+                        </div>
+                    ),
+                };
+            }
+
+            // Regular error handling for other cases
             return {
                 title: 'Error Information',
                 content: (

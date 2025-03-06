@@ -127,10 +127,31 @@ export class FlowProcessor {
         if(flowExecution.errors && flowExecution.errors.length > 0 && flowExecution.errors[0]) {
             errorMessage = flowExecution.errors[0].message || 'An error occurred';
         }
-        
+
+        // Check for host resolution errors specifically
+        let isHostResolutionError = false;
+
+        // Look directly in the steps for host resolution errors
+        if(stepExecutions && stepExecutions.length > 0) {
+            for(const step of stepExecutions) {
+                if(step.status === 'Failed' && step.errors && step.errors.length > 0) {
+                    // Look for host resolution errors
+                    const stepErrorMsg = step.errors[0]?.message;
+
+                    if(stepErrorMsg && stepErrorMsg.includes('Failed to resolve host')) {
+                        // Found host resolution error in step
+
+                        errorMessage = 'Failed to resolve host: The hostname could not be found.';
+                        isHostResolutionError = true;
+                        break;
+                    }
+                }
+            }
+        }
+
         // Check for flow execution failure
         if(flowExecution.status === FlowExecutionStatus.Failed) {
-            if (!errorMessage) {
+            if(!errorMessage) {
                 errorMessage = 'Internal server error: The port check service is currently experiencing issues';
             }
         }
@@ -156,6 +177,8 @@ export class FlowProcessor {
                     timestamp: new Date(),
                     executionId: this.currentExecutionId,
                     systemError: true, // Flag that this is a system error, not a port state
+                    // Include the error message specifically for host resolution errors
+                    errorMessage: isHostResolutionError ? 'Failed to resolve host.' : undefined,
                 });
             }
         }

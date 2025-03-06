@@ -117,6 +117,69 @@ export class StepProcessor {
                 console.error('Error processing step execution:', error);
             }
         }
+        // Check for failed port scan step with error information
+        else if(
+            stepExecution.actionType === 'PortScan' &&
+            stepExecution.status === FlowStepExecutionStatus.Failed &&
+            stepExecution.input &&
+            stepExecution.errors &&
+            stepExecution.errors.length > 0
+        ) {
+            try {
+                // Parse input to get host, port, region
+                const input = parseStepInput(stepExecution.input) as PortScanStepInput;
+                const host = input.host;
+                const portNumber = extractPortFromStepInput(input);
+                const region = input.region || '';
+
+                // Get the error message - we've already checked that errors exist and have at least one item
+                const errorMessage =
+                    stepExecution.errors[0] && stepExecution.errors[0].message
+                        ? stepExecution.errors[0].message
+                        : 'Unknown error';
+
+                // Process failed step execution
+
+                // Special handling for host resolution errors
+                const isHostResolutionError = errorMessage.includes('Failed to resolve host');
+
+                // Emit a status update with the error
+                this.onStatusUpdate({
+                    message: isHostResolutionError
+                        ? 'Failed to resolve host: The hostname could not be found.'
+                        : errorMessage,
+                    isFinal: true,
+                    timestamp: new Date(),
+                    region: region,
+                    type: 'error',
+                });
+
+                // If we have the key information, emit a result with systemError flag
+                if(host && portNumber && this.pendingResults.has(region)) {
+                    // Emit system error result for failed step
+
+                    this.onResult({
+                        host,
+                        port: portNumber,
+                        state: 'unknown',
+                        region,
+                        timestamp: new Date(),
+                        executionId: this.currentExecutionId,
+                        systemError: true,
+                        errorMessage: errorMessage,
+                    });
+
+                    // Remove this region from pending
+                    this.pendingResults.delete(region);
+                }
+
+                // Return true if all regions processed
+                return this.pendingResults.size === 0;
+            }
+            catch(error) {
+                console.error('Error processing failed step execution:', error);
+            }
+        }
         else {
             // Extract region if available for progress updates
             let regionIdentifier = '';
@@ -190,9 +253,17 @@ export class StepProcessor {
             }
         }
 
-        // Get error info if present
-        if(step.errors && step.errors.length > 0 && step.errors[0]) {
-            callbacks.onError(step.errors[0].message || 'An error occurred');
+        // Special handling for failed steps - check both status and errors
+        if(step.status === FlowStepExecutionStatus.Failed && step.errors && step.errors.length > 0) {
+            // Get the error message from the first error
+            const errorMessage =
+                step.errors[0] && step.errors[0].message ? step.errors[0].message : 'An error occurred';
+            callbacks.onError(errorMessage);
+        }
+        // Fallback error handling for any errors that might be present
+        else if(step.errors && step.errors.length > 0 && step.errors[0]) {
+            const errorMessage = step.errors[0].message || 'An error occurred';
+            callbacks.onError(errorMessage);
         }
     }
 }

@@ -1,5 +1,6 @@
 // Dependencies - React and Next.js
 import React from 'react';
+import Link from 'next/link';
 
 // Dependencies - Main Components
 import { AnimatedList } from '@project/source/common/animations/AnimatedList';
@@ -12,6 +13,9 @@ import { useTheme } from '@structure/source/theme/ThemeProvider';
 
 // Dependencies - Types
 import { PortState } from '@project/source/modules/connected/types/PortTypes';
+
+// Dependencies - Utilities
+import { getHostLinkData } from '@project/source/modules/connected/utilities/PortUtilities';
 
 // Dependencies - Assets
 import ErrorCircledIcon from '@structure/assets/icons/status/ErrorCircledIcon.svg';
@@ -28,6 +32,8 @@ export interface PortCheckStatusItem {
     systemError?: boolean;
     timeout?: boolean;
     errorMessage?: string;
+    host?: string;
+    port?: number;
 }
 
 // Component - PortCheckStatusAnimatedList
@@ -60,6 +66,34 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
         return text.replace(/\s*\([^)]*\)/g, '');
     }
 
+    // Function to render host link if applicable
+    function renderHostLink(item: PortCheckStatusItem, displayText: string): React.ReactNode {
+        // Get link data if this can be linked
+        const linkData = getHostLinkData(
+            item.host,
+            item.port,
+            item.state,
+            displayText,
+            Boolean(item.systemError || item.timeout),
+        );
+
+        // If we can't create a link, return the original text
+        if(!linkData) {
+            return displayText;
+        }
+
+        // Create a linked version of the text
+        return (
+            <>
+                {linkData.beforeText}
+                <Link href={linkData.url} target="_blank" rel="noopener noreferrer" className="underline">
+                    {linkData.hostText}
+                </Link>
+                {linkData.afterText}
+            </>
+        );
+    }
+
     // Render the component
     return (
         <>
@@ -84,35 +118,38 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
                     // Allow users to copy the last text and show info button for final results
                     if(isFinal) {
                         content = (
-                            <div className="flex items-center space-x-1.5">
-                                <span>{displayText}</span>{' '}
-                                <Button
-                                    className="inline-flex h-auto p-0"
-                                    variant="unstyled"
-                                    onClick={(event) => {
-                                        event.preventDefault();
-                                        event.stopPropagation();
-                                        openPortStateDialog(
-                                            item.state,
-                                            item.systemError,
-                                            item.timeout,
-                                            item.errorMessage,
-                                        );
-                                    }}
-                                >
-                                    <InformationCircledIcon className="h-3.5 w-3.5" />
-                                </Button>
-                                {!item.systemError && !item.timeout && (
-                                    <CopyButton
-                                        iconClassName="h-3.5 w-3.5"
-                                        value={item.text}
-                                        notice={{
-                                            title: 'Copied to Clipboard',
-                                            content: '"' + item.text + '"',
+                            <span>
+                                <span>
+                                    {renderHostLink(item, displayText)}{' '}
+                                    <Button
+                                        className="inline-flex h-auto p-0"
+                                        variant="unstyled"
+                                        onClick={(event) => {
+                                            event.preventDefault();
+                                            event.stopPropagation();
+                                            openPortStateDialog(
+                                                item.state,
+                                                item.systemError,
+                                                item.timeout,
+                                                item.errorMessage,
+                                            );
                                         }}
-                                    />
-                                )}
-                            </div>
+                                    >
+                                        <InformationCircledIcon className="h-3.5 w-3.5" />
+                                    </Button>
+                                    {!item.systemError && !item.timeout && (
+                                        <CopyButton
+                                            className="ml-1.5"
+                                            iconClassName="h-3.5 w-3.5"
+                                            value={displayText}
+                                            notice={{
+                                                title: 'Copied to Clipboard',
+                                                content: '"' + displayText + '"',
+                                            }}
+                                        />
+                                    )}
+                                </span>
+                            </span>
                         );
                     }
                     else {

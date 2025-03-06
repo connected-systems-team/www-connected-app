@@ -90,6 +90,8 @@ export class PortCheckerService {
 
         this.webSocketHandler = new WebSocketHandler(
             (update) => {
+                // Process status update
+
                 // Check if this is a final error message for recovery
                 if(update.type === 'error' && update.isFinal) {
                     // If we have last scan input, generate a system error result
@@ -100,6 +102,14 @@ export class PortCheckerService {
                             this.globalTimeoutId = undefined;
                         }
 
+                        // Check for host resolution errors
+                        const isHostResolutionError =
+                            update.message &&
+                            (update.message.includes('Failed to resolve host') ||
+                                update.message.includes('hostname could not be found'));
+
+                        // Process final error update
+
                         this.onResult({
                             host: this.lastScanInput.host,
                             port: this.lastScanInput.port,
@@ -108,6 +118,8 @@ export class PortCheckerService {
                             timestamp: new Date(),
                             executionId: this.currentExecutionId,
                             systemError: true,
+                            // Include the error message for host resolution errors
+                            errorMessage: isHostResolutionError ? 'Failed to resolve host.' : undefined,
                         });
                     }
                 }
@@ -247,16 +259,16 @@ export class PortCheckerService {
             });
 
             // Check for GraphQL errors
-            if (result.errors && result.errors.length > 0 && result.errors[0]) {
+            if(result.errors && result.errors.length > 0 && result.errors[0]) {
                 // Extract the error message from the first error
                 const errorMessage = result.errors[0].message || 'Failed to create port scan';
-                
+
                 // Cancel the global timeout to prevent additional messages
                 if(this.globalTimeoutId) {
                     clearTimeout(this.globalTimeoutId);
                     this.globalTimeoutId = undefined;
                 }
-                
+
                 // Send the error as a result
                 this.onResult({
                     host: input.host,
@@ -265,9 +277,9 @@ export class PortCheckerService {
                     region: input.region,
                     timestamp: new Date(),
                     systemError: true,
-                    errorMessage: errorMessage
+                    errorMessage: errorMessage,
                 });
-                
+
                 // Clean up and stop
                 this.stopChecking();
                 return;
@@ -304,7 +316,7 @@ export class PortCheckerService {
                 clearTimeout(this.globalTimeoutId);
                 this.globalTimeoutId = undefined;
             }
-            
+
             // Handle critical errors
             this.onStatusUpdate({
                 message: 'Failed to start port check',
