@@ -63,18 +63,39 @@ export class WebSocketHandler {
         // Process Flow Execution events
         if(event.type === 'FlowExecution' && flowExecution) {
             // If the flow execution completed, query for complete results
-            if(
-                flowExecution.status === FlowExecutionStatus.Success ||
-                flowExecution.status === FlowExecutionStatus.Failed
-            ) {
+            if(flowExecution.status === FlowExecutionStatus.Success) {
                 this.onStatusUpdate({
                     message: 'Scan completed, retrieving results...',
                     isFinal: false,
                     timestamp: new Date(),
                     type: 'info',
                 });
-
+                
                 this.onPollRequest();
+            }
+            else if(flowExecution.status === FlowExecutionStatus.Failed) {
+                // Immediately provide a clear error status to the user
+                this.onStatusUpdate({
+                    message: 'The port check service encountered an error. Please try again.',
+                    isFinal: true,
+                    timestamp: new Date(),
+                    type: 'error',
+                });
+                
+                // Still poll for complete details if available
+                this.onPollRequest();
+                
+                // If the execution doesn't have any input/context information,
+                // we may need to create a synthetic result to update the UI
+                if (!flowExecution.input && !flowExecution.stepExecutions?.length) {
+                    // Create a basic system error response for the UI
+                    this.onStatusUpdate({
+                        message: 'Internal server error: Unable to complete the port check',
+                        isFinal: true,
+                        timestamp: new Date(),
+                        type: 'error',
+                    });
+                }
             }
             else {
                 // Update with flow execution progress

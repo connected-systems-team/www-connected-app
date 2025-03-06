@@ -91,8 +91,8 @@ export class FlowProcessor {
                         try {
                             input = JSON.parse(inputData) as PortScanStepInput;
                         }
-                        catch(e) {
-                            console.error('Error parsing flow input:', e);
+                        catch(error) {
+                            console.error('Error parsing flow input:', error);
                             return;
                         }
                     }
@@ -118,14 +118,21 @@ export class FlowProcessor {
                     regionIdentifier = regionIdentifier || input.region || '';
                 }
             }
-            catch(e) {
-                console.error('Error parsing flow input:', e);
+            catch(error) {
+                console.error('Error parsing flow input:', error);
             }
         }
 
         // Check for global errors
         if(flowExecution.errors && flowExecution.errors.length > 0 && flowExecution.errors[0]) {
             errorMessage = flowExecution.errors[0].message || 'An error occurred';
+        }
+        
+        // Check for flow execution failure
+        if(flowExecution.status === FlowExecutionStatus.Failed) {
+            if (!errorMessage) {
+                errorMessage = 'Internal server error: The port check service is currently experiencing issues';
+            }
         }
 
         // Handle error case
@@ -138,15 +145,17 @@ export class FlowProcessor {
                 type: 'error',
             });
 
-            // Still try to emit a result if we have enough info
+            // For system errors, we'll emit a special system error result
+            // This will help UI differentiate between port states and system errors
             if(host && port) {
                 this.onResult({
                     host,
                     port,
-                    state: 'closed', // Assume closed on error
+                    state: 'unknown',
                     region: regionIdentifier,
                     timestamp: new Date(),
                     executionId: this.currentExecutionId,
+                    systemError: true, // Flag that this is a system error, not a port state
                 });
             }
         }

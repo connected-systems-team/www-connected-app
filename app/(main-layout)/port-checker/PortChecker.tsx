@@ -9,7 +9,7 @@ import { FormInputReferenceInterface } from '@structure/source/common/forms/Form
 import { PortCheckForm } from '@project/app/(main-layout)/port-checker/PortCheckForm';
 import { CommonPorts } from '@project/app/(main-layout)/port-checker/CommonPorts';
 import { YourPublicIpAddress } from '@project/app/(main-layout)/port-checker/YourPublicIpAddress';
-import { PortCheckStatusAnimatedList } from './PortCheckStatusAnimatedList';
+import { PortCheckStatusAnimatedList, PortCheckStatusItem } from './PortCheckStatusAnimatedList';
 import { About } from '@project/app/(main-layout)/port-checker/About';
 
 // Dependencies - Hooks
@@ -17,7 +17,7 @@ import { useWebSocket } from '@structure/source/api/web-sockets/hooks/useWebSock
 
 // Dependencies - API
 import { useApolloClient } from '@apollo/client';
-import { PortScanStatusUpdate, PortScanResult } from '@project/source/modules/connected/types/PortTypes';
+import { PortScanResult, PortState } from '@project/source/modules/connected/types/PortTypes';
 import { PortCheckerService } from '@project/source/modules/connected/services/port-checker/PortCheckerService';
 
 // Dependencies - Utilities
@@ -30,7 +30,7 @@ export interface PortCheckerInterface {
 export function PortChecker(properties: PortCheckerInterface) {
     // State
     const [checkingPort, setCheckingPort] = React.useState<boolean>(false);
-    const [statusUpdates, setStatusUpdates] = React.useState<string[]>([]);
+    const [statusItems, setStatusItems] = React.useState<PortCheckStatusItem[]>([]);
 
     // Hooks
     const webSocket = useWebSocket();
@@ -45,35 +45,66 @@ export function PortChecker(properties: PortCheckerInterface) {
     // References - Port Checker Service
     const portCheckerServiceReference = React.useRef<PortCheckerService | null>(null);
 
-    // Function to handle status updates
-    function handleStatusUpdate(_update: PortScanStatusUpdate): void {
-        // Skip intermediate status updates - we only want to show the initial and final results
-        // The initial message is set in the checkPort function
-        // The final result is set in handlePortScanResult
-        return;
-    }
-
     // Function to handle port scan results
     function handlePortScanResult(result: PortScanResult): void {
-        const stateDescription = PortCheckerService.getPortStateDescription(result.state);
-        const resultMessage = `Port ${result.port} is ${stateDescription} on ${result.host}.`;
+        let resultMessage: string;
 
-        // Get the current initial message and add the result
-        // This ensures we only have two lines: the initial message and the result
-        setStatusUpdates((previousStatusUpdates) => {
-            // Keep only the initial message (first item) and add the result
-            if(previousStatusUpdates.length > 0) {
-                // Check if this exact message already exists
-                if(previousStatusUpdates.includes(resultMessage)) {
-                    return previousStatusUpdates;
-                }
-                
-                // Ensure the first item exists and is a string
-                const firstMessage = previousStatusUpdates[0] || '';
-                return [firstMessage, resultMessage];
+        // Handle system errors and timeouts differently from actual port states
+        if(result.systemError) {
+            if(result.errorMessage) {
+                // Show the specific error message from the server
+                resultMessage = `Error: ${result.errorMessage}`;
             }
-            return [resultMessage]; // Just in case there's no initial message
-        });
+            else {
+                resultMessage = `Our system is down and our engineers have been notified.`;
+            }
+        }
+        else if(result.timeout) {
+            resultMessage = `The request timed out. Please try again.`;
+        }
+        else {
+            const stateDescription = PortCheckerService.getPortStateDescription(result.state);
+            resultMessage = `Port ${result.port} is ${stateDescription} on ${result.host}.`;
+        }
+
+        // Create the new result item
+        const resultItem: PortCheckStatusItem = {
+            text: resultMessage,
+            state: result.state,
+            isLoading: false,
+            systemError: result.systemError,
+            timeout: result.timeout,
+            errorMessage: result.errorMessage,
+        };
+
+        // Create a function to update the status items with the proper return type
+        function updateStatusItems(previousItems: PortCheckStatusItem[]): PortCheckStatusItem[] {
+            // If we have previous items
+            if(previousItems.length > 0) {
+                // Check if this exact message already exists
+                const messageExists = previousItems.some((item) => item.text === resultMessage);
+                if(messageExists) {
+                    return previousItems;
+                }
+
+                // Get the first item (we already checked that length > 0, so it exists)
+                const firstItem = previousItems[0];
+
+                // Extra safety check for TypeScript - make sure it's not undefined
+                if(firstItem) {
+                    return [firstItem, resultItem];
+                }
+
+                // Fallback in case there's somehow an undefined item
+                return [resultItem];
+            }
+
+            // If no previous items, return just the result
+            return [resultItem];
+        }
+
+        // Update the status items
+        setStatusItems(updateStatusItems);
 
         // Finish the port checking
         setCheckingPort(false);
@@ -85,7 +116,7 @@ export function PortChecker(properties: PortCheckerInterface) {
             portCheckerServiceReference.current = new PortCheckerService({
                 apolloClient,
                 webSocket,
-                onStatusUpdate: handleStatusUpdate,
+                // We don't need to do anything with intermediate status updates
                 onResult: handlePortScanResult,
             });
         }
@@ -95,7 +126,7 @@ export function PortChecker(properties: PortCheckerInterface) {
     // Function to check the port
     async function checkPort(remoteAddress: string, remotePort: number, regionIdentifier: string = 'north-america') {
         // Reset status updates
-        setStatusUpdates([]);
+        setStatusItems([]);
 
         // Set checking state
         setCheckingPort(true);
@@ -108,8 +139,13 @@ export function PortChecker(properties: PortCheckerInterface) {
             const regionMetadata = getRegionMetadata(regionIdentifier);
 
             // Set initial message
-            setStatusUpdates([
-                `Checking port ${remotePort} on ${remoteAddress} from ${regionMetadata.emoji} ${regionMetadata.displayName}...`,
+            const initialMessage = `Checking port ${remotePort} on ${remoteAddress} from ${regionMetadata.emoji} ${regionMetadata.displayName}...`;
+            setStatusItems([
+                {
+                    text: initialMessage,
+                    state: 'unknown' as PortState,
+                    isLoading: true,
+                },
             ]);
 
             await portCheckerService.checkPort({
@@ -120,7 +156,14 @@ export function PortChecker(properties: PortCheckerInterface) {
         }
         catch(error) {
             console.error('Error starting port check:', error);
-            setStatusUpdates(['Failed to start port check.']);
+            setStatusItems([
+                {
+                    text: 'Failed to start port check. Our service encountered an internal error.',
+                    state: 'unknown' as PortState,
+                    isLoading: false,
+                    systemError: true,
+                },
+            ]);
             setCheckingPort(false);
         }
     }
@@ -151,7 +194,7 @@ export function PortChecker(properties: PortCheckerInterface) {
                     checkPort={checkPort}
                 />
 
-                <PortCheckStatusAnimatedList portCheckStatusTextArray={statusUpdates} />
+                <PortCheckStatusAnimatedList portCheckStatusItems={statusItems} />
 
                 <About />
             </div>

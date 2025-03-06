@@ -51,6 +51,7 @@ export class PortCheckerService {
 
     // Timeouts and intervals
     private webSocketTimeoutId: NodeJS.Timeout | undefined;
+    private globalTimeoutId: NodeJS.Timeout | undefined; // Global timeout for the entire request
     private messageHandler: (() => void) | undefined;
 
     // Service modules
@@ -58,6 +59,9 @@ export class PortCheckerService {
     private stepProcessor: StepProcessor;
     private flowProcessor: FlowProcessor;
     private pollingService: PollingService;
+
+    // Input data reference for error recovery
+    private lastScanInput: PortScanInput | null = null;
 
     constructor(options: PortCheckerServiceOptions) {
         this.apolloClient = options.apolloClient;
@@ -85,7 +89,32 @@ export class PortCheckerService {
         );
 
         this.webSocketHandler = new WebSocketHandler(
-            this.onStatusUpdate,
+            (update) => {
+                // Check if this is a final error message for recovery
+                if(update.type === 'error' && update.isFinal) {
+                    // If we have last scan input, generate a system error result
+                    if(this.lastScanInput) {
+                        // Cancel the global timeout to prevent additional messages
+                        if(this.globalTimeoutId) {
+                            clearTimeout(this.globalTimeoutId);
+                            this.globalTimeoutId = undefined;
+                        }
+
+                        this.onResult({
+                            host: this.lastScanInput.host,
+                            port: this.lastScanInput.port,
+                            state: 'unknown',
+                            region: this.lastScanInput.region,
+                            timestamp: new Date(),
+                            executionId: this.currentExecutionId,
+                            systemError: true,
+                        });
+                    }
+                }
+
+                // Pass the update to the parent handler
+                this.onStatusUpdate(update);
+            },
             (stepExecution) => {
                 const isComplete = this.stepProcessor.processStepExecution(stepExecution);
                 if(isComplete) {
@@ -151,6 +180,11 @@ export class PortCheckerService {
             this.webSocketTimeoutId = undefined;
         }
 
+        if(this.globalTimeoutId) {
+            clearTimeout(this.globalTimeoutId);
+            this.globalTimeoutId = undefined;
+        }
+
         this.pollingService.cleanup();
         this.usingFallbackPolling = false;
     }
@@ -159,6 +193,9 @@ export class PortCheckerService {
      * Start checking a port
      */
     public async checkPort(input: PortScanInput): Promise<void> {
+        // Store input for error recovery
+        this.lastScanInput = { ...input };
+
         // Reset state
         this.cleanupTimeouts();
         this.currentExecutionId = undefined;
@@ -174,6 +211,28 @@ export class PortCheckerService {
 
         // No need for initial status update as we now set it in the PortChecker component
 
+        // Set up global timeout for the entire request (15 seconds)
+        this.globalTimeoutId = setTimeout(() => {
+            // Only trigger timeout if we're still active and haven't completed the scan
+            if(this.isActive && this.pendingResults.size > 0) {
+                // Send timeout result
+                if(this.lastScanInput) {
+                    this.onResult({
+                        host: this.lastScanInput.host,
+                        port: this.lastScanInput.port,
+                        state: 'unknown',
+                        region: this.lastScanInput.region,
+                        timestamp: new Date(),
+                        executionId: this.currentExecutionId,
+                        timeout: true,
+                    });
+                }
+
+                // Clean up and stop
+                this.stopChecking();
+            }
+        }, 15000); // 15 second timeout
+
         try {
             // Create port scan via GraphQL
             const result = await this.apolloClient.mutate({
@@ -186,6 +245,33 @@ export class PortCheckerService {
                     },
                 },
             });
+
+            // Check for GraphQL errors
+            if (result.errors && result.errors.length > 0 && result.errors[0]) {
+                // Extract the error message from the first error
+                const errorMessage = result.errors[0].message || 'Failed to create port scan';
+                
+                // Cancel the global timeout to prevent additional messages
+                if(this.globalTimeoutId) {
+                    clearTimeout(this.globalTimeoutId);
+                    this.globalTimeoutId = undefined;
+                }
+                
+                // Send the error as a result
+                this.onResult({
+                    host: input.host,
+                    port: input.port,
+                    state: 'unknown',
+                    region: input.region,
+                    timestamp: new Date(),
+                    systemError: true,
+                    errorMessage: errorMessage
+                });
+                
+                // Clean up and stop
+                this.stopChecking();
+                return;
+            }
 
             // Set execution ID
             this.currentExecutionId = result.data?.portScanCreate;
@@ -213,6 +299,12 @@ export class PortCheckerService {
             this.lastWebSocketMessageTime = Date.now();
         }
         catch(error) {
+            // Cancel the global timeout to prevent additional messages
+            if(this.globalTimeoutId) {
+                clearTimeout(this.globalTimeoutId);
+                this.globalTimeoutId = undefined;
+            }
+            
             // Handle critical errors
             this.onStatusUpdate({
                 message: 'Failed to start port check',
@@ -249,6 +341,7 @@ export class PortCheckerService {
         this.isActive = false;
         this.currentExecutionId = undefined;
         this.pendingResults.clear();
+        // Don't clear lastScanInput as we might need it for error recovery
     }
 
     /**
@@ -267,6 +360,9 @@ export class PortCheckerService {
             this.messageHandler();
             this.messageHandler = undefined;
         }
+
+        // Clear scan input when fully disposing the service
+        this.lastScanInput = null;
     }
 }
 

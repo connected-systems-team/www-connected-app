@@ -12,7 +12,10 @@ import {
 
 // Dependencies - Utilities
 import { parseStepInput, parseStepOutput } from '@project/source/modules/connected/utilities/FlowUtilities';
-import { extractPortFromStepInput, extractPortStateFromStepOutput } from '@project/source/modules/connected/utilities/PortUtilities';
+import {
+    extractPortFromStepInput,
+    extractPortStateFromStepOutput,
+} from '@project/source/modules/connected/utilities/PortUtilities';
 
 /**
  * Class for processing step execution data and extracting results
@@ -81,7 +84,7 @@ export class StepProcessor {
                     });
 
                     // Only emit result if this region hasn't been processed yet
-                    if (this.pendingResults.has(region)) {
+                    if(this.pendingResults.has(region)) {
                         // Emit the result
                         this.onResult({
                             host,
@@ -126,8 +129,8 @@ export class StepProcessor {
                     regionIdentifier = input.region || '';
                 }
             }
-            catch(e) {
-                console.error('Error extracting region from step execution:', e);
+            catch(error) {
+                console.error('Error extracting region from step execution:', error);
             }
 
             // Just show progress update
@@ -167,8 +170,8 @@ export class StepProcessor {
                     callbacks.onHostPortRegion({ host, port, region });
                 }
             }
-            catch(e) {
-                console.error('Error parsing step input:', e);
+            catch(error) {
+                console.error('Error parsing step input:', error);
             }
         }
 

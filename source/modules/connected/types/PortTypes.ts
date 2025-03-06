@@ -12,6 +12,9 @@ export interface PortScanResult {
     region: string;
     timestamp: Date;
     executionId?: string;
+    systemError?: boolean; // Flag to indicate this is a system error rather than a port state result
+    timeout?: boolean; // Flag to indicate the request timed out with no response
+    errorMessage?: string; // Specific error message from the server
 }
 
 // Enum of possible port states
@@ -30,7 +33,7 @@ export const PortStateDescriptions: Record<PortState, string> = {
     unfiltered: 'unfiltered (but not open)',
     'open|filtered': 'either open or filtered (cannot determine precisely)',
     'closed|filtered': 'either closed or filtered (cannot determine precisely)',
-    unknown: 'in an unknown state',
+    unknown: 'in an unknown state (scan may have failed)',
 };
 
 // Status updates for port scanning process

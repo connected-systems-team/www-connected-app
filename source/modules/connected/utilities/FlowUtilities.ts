@@ -53,11 +53,11 @@ export function parseStepInput<T = Record<string, unknown>>(input: StepInputType
             return {} as T;
         }
     }
-    
-    if (!input) {
+
+    if(!input) {
         return {} as T;
     }
-    
+
     // Cast to T as it's an object and should match the expected structure
     return input as unknown as T;
 }
@@ -67,9 +67,7 @@ export function parseStepInput<T = Record<string, unknown>>(input: StepInputType
  * @param output The output to parse (string or object)
  * @returns Parsed object or empty object if parsing fails
  */
-export function parseStepOutput<T = Record<string, unknown>>(
-    output: StepOutputType,
-): T {
+export function parseStepOutput<T = Record<string, unknown>>(output: StepOutputType): T {
     if(typeof output === 'string') {
         try {
             return JSON.parse(output) as T;
@@ -79,11 +77,11 @@ export function parseStepOutput<T = Record<string, unknown>>(
             return {} as T;
         }
     }
-    
-    if (!output) {
+
+    if(!output) {
         return {} as T;
     }
-    
+
     // Cast to T as it's an object and should match the expected structure
     return output as unknown as T;
 }
@@ -136,8 +134,8 @@ export function extractPortScanHistoryData(flowExecution: {
                             port = extractedPort;
                         }
                     }
-                    catch(e) {
-                        console.error('Error parsing step input:', e);
+                    catch(error) {
+                        console.error('Error parsing step input:', error);
                     }
                 }
 
@@ -174,8 +172,8 @@ export function extractPortScanHistoryData(flowExecution: {
                                         latencyInMilliseconds =
                                             Math.round(parseFloat(result.latency.replace('s', '')) * 1000) + ' ms';
                                     }
-                                    catch(e) {
-                                        console.error('Error parsing latency:', e);
+                                    catch(error) {
+                                        console.error('Error parsing latency:', error);
                                     }
                                 }
 
@@ -186,8 +184,8 @@ export function extractPortScanHistoryData(flowExecution: {
                             }
                         }
                     }
-                    catch(e) {
-                        console.error('Error parsing step output:', e);
+                    catch(error) {
+                        console.error('Error parsing step output:', error);
                     }
                 }
 

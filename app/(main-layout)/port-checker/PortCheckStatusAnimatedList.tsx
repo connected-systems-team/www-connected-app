@@ -20,9 +20,19 @@ import CheckCircledGreenBorderIcon from '@project/assets/icons/status/CheckCircl
 import ErrorCircledRedBorderIcon from '@project/assets/icons/status/ErrorCircledRedBorderIcon.svg';
 import InformationCircledIcon from '@structure/assets/icons/status/InformationCircledIcon.svg';
 
+// Interface for status item with associated port state
+export interface PortCheckStatusItem {
+    text: string;
+    state: PortState;
+    isLoading?: boolean;
+    systemError?: boolean;
+    timeout?: boolean;
+    errorMessage?: string;
+}
+
 // Component - PortCheckStatusAnimatedList
 export interface PortCheckStatusAnimatedListInterface {
-    portCheckStatusTextArray: string[];
+    portCheckStatusItems: PortCheckStatusItem[];
 }
 export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedListInterface) {
     // Hooks
@@ -31,21 +41,16 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
     // State for dialog
     const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>(false);
     const [currentPortState, setCurrentPortState] = React.useState<PortState>('open');
-
-    // Function to determine the port state from the status text
-    function getPortStateFromText(text: string): PortState {
-        if(text.includes('open|filtered')) return 'open|filtered';
-        if(text.includes('closed|filtered')) return 'closed|filtered';
-        if(text.includes('filtered')) return 'filtered';
-        if(text.includes('unfiltered')) return 'unfiltered';
-        if(text.includes('closed')) return 'closed';
-        if(text.includes('open')) return 'open';
-        return 'unknown';
-    }
+    const [isSystemError, setIsSystemError] = React.useState<boolean>(false);
+    const [isTimeout, setIsTimeout] = React.useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = React.useState<string | undefined>(undefined);
 
     // Function to open port state info dialog
-    function openPortStateDialog(portState: PortState) {
+    function openPortStateDialog(portState: PortState, systemError?: boolean, timeout?: boolean, errorMsg?: string) {
         setCurrentPortState(portState);
+        setIsSystemError(!!systemError);
+        setIsTimeout(!!timeout);
+        setErrorMessage(errorMsg);
         setIsDialogOpen(true);
     }
 
@@ -60,68 +65,90 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
         <>
             <AnimatedList
                 className="ml-[8px] mt-4"
-                items={properties.portCheckStatusTextArray.map(function (text) {
-                    const isFinal = text.includes('open') || text.includes('filtered') || text.includes('closed');
+                items={properties.portCheckStatusItems.map(function (item) {
+                    const isFinal =
+                        !item.isLoading &&
+                        (item.state === 'open' ||
+                            item.state === 'closed' ||
+                            item.state === 'filtered' ||
+                            item.state === 'unfiltered' ||
+                            item.state === 'open|filtered' ||
+                            item.state === 'closed|filtered' ||
+                            item.state === 'unknown');
 
                     // Clean the text for display by removing explanations in parentheses
-                    const displayText = isFinal ? cleanPortStatusText(text) : text;
-
-                    // Determine the port state for this text
-                    const portState = getPortStateFromText(text);
+                    const displayText = isFinal ? cleanPortStatusText(item.text) : item.text;
 
                     let content;
 
                     // Allow users to copy the last text and show info button for final results
                     if(isFinal) {
                         content = (
-                            <>
+                            <div className="flex items-center space-x-1.5">
                                 <span>{displayText}</span>{' '}
                                 <Button
                                     className="inline-flex h-auto p-0"
                                     variant="unstyled"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        openPortStateDialog(portState);
+                                    onClick={(event) => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        openPortStateDialog(
+                                            item.state,
+                                            item.systemError,
+                                            item.timeout,
+                                            item.errorMessage,
+                                        );
                                     }}
                                 >
-                                    <InformationCircledIcon className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 mb-0.5 ml-0.5 inline-block h-3.5 w-3.5" />
-                                </Button>{' '}
-                                <CopyButton
-                                    className="ml-1.5"
-                                    iconClassName="h-3.5 w-3.5"
-                                    value={text}
-                                    notice={{
-                                        title: 'Copied to Clipboard',
-                                        content: '"' + text + '"',
-                                    }}
-                                />
-                            </>
+                                    <InformationCircledIcon className="h-3.5 w-3.5" />
+                                </Button>
+                                {!item.systemError && !item.timeout && (
+                                    <CopyButton
+                                        iconClassName="h-3.5 w-3.5"
+                                        value={item.text}
+                                        notice={{
+                                            title: 'Copied to Clipboard',
+                                            content: '"' + item.text + '"',
+                                        }}
+                                    />
+                                )}
+                            </div>
                         );
                     }
                     else {
                         content = <span>{displayText}</span>;
                     }
 
+                    const isNegativeState =
+                        item.state === 'closed' ||
+                        item.state === 'filtered' ||
+                        item.state === 'closed|filtered' ||
+                        item.state === 'unknown';
+
                     return {
                         content: content,
                         isFinal: isFinal,
-                        finalDiscIcon:
-                            text.includes('closed') || text.includes('filtered')
-                                ? themeClassName == 'light'
-                                    ? ErrorCircledRedBorderIcon
-                                    : ErrorCircledIcon
-                                : themeClassName == 'light'
-                                  ? CheckCircledGreenBorderIcon
-                                  : CheckCircledIcon,
-                        finalDiscClassName:
-                            text.includes('closed') || text.includes('filtered') ? 'bg-red-500' : undefined,
+                        finalDiscIcon: isNegativeState
+                            ? themeClassName == 'light'
+                                ? ErrorCircledRedBorderIcon
+                                : ErrorCircledIcon
+                            : themeClassName == 'light'
+                              ? CheckCircledGreenBorderIcon
+                              : CheckCircledIcon,
+                        finalDiscClassName: isNegativeState ? 'bg-red-500' : undefined,
                     };
                 })}
             />
 
             {/* Port state information dialog */}
-            <PortStateDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} portState={currentPortState} />
+            <PortStateDialog
+                open={isDialogOpen}
+                onOpenChange={setIsDialogOpen}
+                portState={currentPortState}
+                isSystemError={isSystemError}
+                isTimeout={isTimeout}
+                errorMessage={errorMessage}
+            />
         </>
     );
 }
