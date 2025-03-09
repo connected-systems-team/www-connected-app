@@ -16,21 +16,33 @@ export async function generateMetadata(): Promise<Metadata> {
 // Component - PortCheckerRoutePage
 export function PortCheckerRoutePage() {
     const header = headers();
-    const allHeaders = Array.from(header.entries());
-    console.log('All Headers:', JSON.stringify(allHeaders, null, 2));
-    
-    const forwardedFor = header.get('x-forwarded-for');
-    const realIp = header.get('x-real-ip');
+
+    // Get potential IP headers (prioritizing Cloudflare and x-real-ip headers)
     const cfConnectingIp = header.get('cf-connecting-ip');
+    const realIp = header.get('x-real-ip');
     const trueClientIp = header.get('true-client-ip');
-    
-    console.log('x-forwarded-for:', forwardedFor);
-    console.log('x-real-ip:', realIp);
-    console.log('cf-connecting-ip:', cfConnectingIp);
-    console.log('true-client-ip:', trueClientIp);
-    
-    // Try multiple headers that might contain the client IP
-    const publicIpAddress = forwardedFor || realIp || cfConnectingIp || trueClientIp;
+    const forwardedFor = header.get('x-forwarded-for');
+
+    // Prioritize headers that are working correctly in production
+    // Use Cloudflare IPs first, then real-ip, then others
+    let publicIpAddress = cfConnectingIp || realIp || trueClientIp;
+
+    // Only use x-forwarded-for if it doesn't contain ::1 and the other headers are missing
+    if(!publicIpAddress && forwardedFor && forwardedFor !== '::1') {
+        // If there are multiple IPs in x-forwarded-for, take the first one
+        if(forwardedFor.includes(',')) {
+            const firstIp = forwardedFor.split(',')[0];
+            if(firstIp) {
+                publicIpAddress = firstIp.trim();
+            }
+            else {
+                publicIpAddress = forwardedFor;
+            }
+        }
+        else {
+            publicIpAddress = forwardedFor;
+        }
+    }
 
     // Render the component
     return <PortCheckerPage publicIpAddress={publicIpAddress ?? undefined} />;
