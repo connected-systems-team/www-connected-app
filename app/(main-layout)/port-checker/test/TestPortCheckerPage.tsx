@@ -203,7 +203,7 @@ export function TestPortCheckerPage() {
                                 .map((test) => (
                                     <div
                                         key={test.id}
-                                        className={`cursor-pointer rounded-lg border p-4 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                                        className={`cursor-pointer rounded-lg border p-4 hover:bg-gray-100 dark:hover:bg-gray-700 ${
                                             testResults[test.id] === undefined
                                                 ? 'border-gray-300 dark:border-gray-600'
                                                 : testResults[test.id]

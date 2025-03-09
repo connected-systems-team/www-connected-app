@@ -17,7 +17,7 @@ export function MainLayout(properties: MainLayoutInterface) {
     return (
         <>
             {/* Navigation */}
-            <div className="sticky top-0 z-40 border-b bg-light/90 backdrop-blur-3xl transition-colors dark:bg-dark-1/90">
+            <div className="sticky top-0 z-40 border-b bg-light/90 backdrop-blur-3xl dark:bg-dark-1/90">
                 <Navigation />
             </div>
 

@@ -48,7 +48,7 @@ export function CommonPorts(properties: CommonPortsInterface) {
                                     properties.portSelected(commonPort.port);
                                 }}
                             >
-                                <span className="text-theme-light-primary transition-colors hover:text-dark dark:text-theme-dark-primary dark:group-hover:text-light">
+                                <span className="text-theme-light-primary hover:text-dark dark:text-theme-dark-primary dark:group-hover:text-light">
                                     {commonPort.port}
                                 </span>
                                 <span>{commonPort.service}</span>

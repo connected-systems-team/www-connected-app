@@ -37,109 +37,128 @@ export const TailwindConfiguration = {
             ...(StructureTailwindConfiguration.theme?.extend || {}),
 
             colors: {
-                // TOKENIZED OPSIS COLORS -- Use by prefixing with '-opsis', e.g. 'text-opsis-content' or 'bg-opsis-background'
-                // (CSS Variables defined in `/source/styles/opsis.css`)
-                opsis: {
-                    // Generated
-                    action: {
-                        primary: {
-                            DEFAULT: 'var(--action-primary-default)',
-                            hover: 'var(--action-primary-hover)',
-                            pressed: 'var(--action-primary-pressed)',
-                            contrast: {
-                                DEFAULT: 'var(--action-primary-contrast-default)',
-                                hover: 'var(--action-primary-contrast-hover)',
-                                pressed: 'var(--action-primary-contrast-pressed)',
-                            },
-                        },
-                        secondary: {
-                            DEFAULT: 'var(--action-secondary-default)',
-                            hover: 'var(--action-secondary-hover)',
-                            pressed: 'var(--action-secondary-pressed)',
-                        },
-                        ghost: {
-                            DEFAULT: 'var(--action-ghost-default)',
-                            hover: 'var(--action-ghost-hover)',
-                            pressed: 'var(--action-ghost-pressed)',
-                        },
-                        destructive: {
-                            DEFAULT: 'var(--action-destructive-default)',
-                            hover: 'var(--action-destructive-hover)',
-                            pressed: 'var(--action-destructive-pressed)',
-                        },
-                        general: {
-                            light: 'var(--action-general-light)',
-                            dark: 'var(--action-general-dark)',
-                            grey: 'var(--action-general-grey)',
-                            disabled: 'var(--action-general-disabled)',
-                            contrast: {
-                                light: 'var(--action-general-contrast-light)',
-                                dark: 'var(--action-general-contrast-dark)',
-                            },
-                        },
-                    },
-                    content: {
-                        primary: 'var(--content-primary)',
-                        secondary: 'var(--content-secondary)',
-                        tetriary: 'var(--content-tetriary)',
-                        placeholder: 'var(--content-placeholder)',
-                        disabled: 'var(--content-disabled)',
-                    },
-                    background: {
-                        primary: 'var(--background-primary)',
-                        secondary: 'var(--background-secondary)',
-                        tetriary: 'var(--background-tetriary)',
-                        overlay: 'var(--background-overlay)',
-                        quartary: 'var(--background-quartary)',
-                        subtle: { primary: 'var(--background-subtle-primary)' },
-                    },
-                    border: {
-                        primary: 'var(--border-primary)',
-                        secondary: 'var(--border-secondary)',
-                        contrast: 'var(--border-contrast)',
-                        tetriary: 'var(--border-tetriary)',
-                    },
-                    link: {
-                        primary: {
-                            DEFAULT: 'var(--link-primary-default)',
-                            hover: 'var(--link-primary-hover)',
-                            pressed: 'var(--link-primary-pressed)',
-                            contrast: {
-                                DEFAULT: 'var(--link-primary-contrast-default)',
-                                hover: 'var(--link-primary-contrast-hover)',
-                                pressed: 'var(--link-primary-contrast-pressed)',
-                                disabled: 'var(--link-primary-contrast-disabled)',
-                            },
-                            disabled: 'var(--link-primary-disabled)',
-                        },
-                    },
-                    effects: {
-                        shadow: {
-                            DEFAULT: 'var(--effects-shadow-default)',
-                            strong: 'var(--effects-shadow-strong)',
-                            subtle: { dark: 'var(--effects-shadow-subtle-dark)' },
-                            default: { dark: 'var(--effects-shadow-default-dark)' },
-                        },
-                    },
+                // Background colors
+                background: {
+                    DEFAULT: 'var(--background-primary)',
+                    primary: 'var(--background-primary)',
+                    'primary-subtle': 'var(--background-primary-subtle)',
+                    secondary: 'var(--background-secondary)',
+                    tertiary: 'var(--background-tertiary)',
+                    quartary: 'var(--background-quartary)',
+                    overlay: 'var(--background-overlay)',
+                },
 
-                    // Custom (non-generated)
-                    badge: {
-                        success: {
-                            foreground: 'var(--badge-success-foreground)',
-                            background: 'var(--badge-success-background)',
+                // Foreground colors
+                foreground: {
+                    DEFAULT: 'var(--foreground-primary)',
+                    primary: 'var(--foreground-primary)',
+                    secondary: 'var(--foreground-secondary)',
+                    tertiary: 'var(--foreground-tertiary)',
+                    placeholder: 'var(--foreground-placeholder)',
+                    disabled: 'var(--foreground-disabled)',
+                },
+
+                // Border colors
+                border: {
+                    DEFAULT: 'var(--border-primary)',
+                    primary: 'var(--border-primary)',
+                    secondary: 'var(--border-secondary)',
+                    tertiary: 'var(--border-tertiary)',
+                    contrast: 'var(--border-contrast)',
+                },
+
+                link: {
+                    DEFAULT: 'var(--link-primary-default)',
+                    hover: 'var(--link-primary-hover)',
+                    pressed: 'var(--link-primary-pressed)',
+                    secondary: {
+                        DEFAULT: 'var(--link-secondary-default)',
+                        hover: 'var(--link-secondary-hover)',
+                        pressed: 'var(--link-secondary-pressed)',
+                    },
+                    muted: {
+                        DEFAULT: 'var(--link-muted-default)',
+                        hover: 'var(--link-muted-hover)',
+                        pressed: 'var(--link-muted-pressed)',
+                    },
+                    blue: {
+                        DEFAULT: 'var(--link-blue-default)',
+                        hover: 'var(--link-blue-hover)',
+                        pressed: 'var(--link-blue-pressed)',
+                    },
+                    contrast: {
+                        DEFAULT: 'var(--link-primary-contrast-default)',
+                        hover: 'var(--link-primary-contrast-hover)',
+                        pressed: 'var(--link-primary-contrast-pressed)',
+                        disabled: 'var(--link-primary-contrast-disabled)',
+                    },
+                    disabled: 'var(--link-primary-disabled)',
+                },
+                effects: {
+                    shadow: {
+                        DEFAULT: 'var(--effects-shadow-default)',
+                        strong: 'var(--effects-shadow-strong)',
+                        subtle: { dark: 'var(--effects-shadow-subtle-dark)' },
+                        default: { dark: 'var(--effects-shadow-default-dark)' },
+                    },
+                },
+
+                // Action colors
+                action: {
+                    primary: {
+                        DEFAULT: 'var(--action-primary-default)',
+                        hover: 'var(--action-primary-hover)',
+                        pressed: 'var(--action-primary-pressed)',
+                        contrast: {
+                            DEFAULT: 'var(--action-primary-contrast-default)',
+                            hover: 'var(--action-primary-contrast-hover)',
+                            pressed: 'var(--action-primary-contrast-pressed)',
                         },
-                        danger: {
-                            foreground: 'var(--badge-danger-foreground)',
-                            background: 'var(--badge-danger-background)',
+                    },
+                    secondary: {
+                        DEFAULT: 'var(--action-secondary-default)',
+                        hover: 'var(--action-secondary-hover)',
+                        pressed: 'var(--action-secondary-pressed)',
+                    },
+                    ghost: {
+                        DEFAULT: 'var(--action-ghost-default)',
+                        hover: 'var(--action-ghost-hover)',
+                        pressed: 'var(--action-ghost-pressed)',
+                    },
+                    destructive: {
+                        DEFAULT: 'var(--action-destructive-default)',
+                        hover: 'var(--action-destructive-hover)',
+                        pressed: 'var(--action-destructive-pressed)',
+                    },
+                    general: {
+                        light: 'var(--action-general-light)',
+                        dark: 'var(--action-general-dark)',
+                        gray: 'var(--action-general-gray)',
+                        disabled: 'var(--action-general-disabled)',
+                        contrast: {
+                            light: 'var(--action-general-contrast-light)',
+                            dark: 'var(--action-general-contrast-dark)',
                         },
-                        warning: {
-                            foreground: 'var(--badge-warning-foreground)',
-                            background: 'var(--badge-warning-background)',
-                        },
-                        info: {
-                            foreground: 'var(--badge-info-foreground)',
-                            background: 'var(--badge-info-background)',
-                        },
+                    },
+                },
+
+                // Custom (non-generated)
+                badge: {
+                    success: {
+                        foreground: 'var(--badge-success-foreground)',
+                        background: 'var(--badge-success-background)',
+                    },
+                    danger: {
+                        foreground: 'var(--badge-danger-foreground)',
+                        background: 'var(--badge-danger-background)',
+                    },
+                    warning: {
+                        foreground: 'var(--badge-warning-foreground)',
+                        background: 'var(--badge-warning-background)',
+                    },
+                    info: {
+                        foreground: 'var(--badge-info-foreground)',
+                        background: 'var(--badge-info-background)',
                     },
                 },
 
@@ -202,41 +221,6 @@ export const TailwindConfiguration = {
                         },
                     },
                 },
-
-                // @shadcn/ui colors
-                border: 'hsl(var(--border))',
-                input: 'hsl(var(--input))',
-                ring: 'hsl(var(--ring))',
-                background: 'hsl(var(--background))',
-                foreground: 'hsl(var(--foreground))',
-                primary: {
-                    DEFAULT: 'hsl(var(--primary))',
-                    foreground: 'hsl(var(--primary-foreground))',
-                },
-                secondary: {
-                    DEFAULT: 'hsl(var(--secondary))',
-                    foreground: 'hsl(var(--secondary-foreground))',
-                },
-                destructive: {
-                    DEFAULT: 'hsl(var(--destructive))',
-                    foreground: 'hsl(var(--destructive-foreground))',
-                },
-                muted: {
-                    DEFAULT: 'hsl(var(--muted))',
-                    foreground: 'hsl(var(--muted-foreground))',
-                },
-                accent: {
-                    DEFAULT: 'hsl(var(--accent))',
-                    foreground: 'hsl(var(--accent-foreground))',
-                },
-                popover: {
-                    DEFAULT: 'hsl(var(--popover))',
-                    foreground: 'hsl(var(--popover-foreground))',
-                },
-                card: {
-                    DEFAULT: 'hsl(var(--card))',
-                    foreground: 'hsl(var(--card-foreground))',
-                },
             },
             boxShadow: {
                 // These need to be the whole string, can't reference a css variable for some reason.
@@ -296,7 +280,6 @@ export const TailwindConfiguration = {
                 'gradient-bg': '150px',
             },
             borderRadius: {
-                // Opsis
                 none: 'var(--border-radius-none)',
                 'extra-small': 'var(--border-radius-extra-small)',
                 small: 'var(--border-radius-small)',
@@ -304,11 +287,6 @@ export const TailwindConfiguration = {
                 large: 'var(--border-radius-large)',
                 'extra-large': 'var(--border-radius-extra-large)',
                 full: 'var(--border-radius-full)',
-
-                // Keeping for backwards compatability -- eventually will faze out
-                lg: `var(--radius)`,
-                md: `calc(var(--radius) - 2px)`,
-                sm: 'calc(var(--radius) - 4px)',
             },
             // Project-specific keyframes - merge with structure keyframes
             keyframes: {
@@ -340,7 +318,6 @@ export const TailwindConfiguration = {
             },
         },
     },
-
     plugins: [
         // Include structure plugins
         ...(StructureTailwindConfiguration.plugins || []),
@@ -348,6 +325,7 @@ export const TailwindConfiguration = {
         // Project-specific typography plugin
         tailwindPlugin(function (plugin: PluginInterface) {
             plugin.addBase({
+                // Typography settings for heading elements
                 h1: {
                     fontSize: '2em',
                     fontWeight: plugin.theme('fontWeight.base'),
@@ -377,6 +355,67 @@ export const TailwindConfiguration = {
                     fontSize: '1em',
                     fontWeight: plugin.theme('fontWeight.base'),
                     lineHeight: '1.25',
+                },
+
+                // Global element styles - moved from theme.css
+                '*': {
+                    borderColor: 'var(--border-primary)', // equivalent to @apply border-border
+                },
+                body: {
+                    fontFeatureSettings: '"rlig" 1, "calt" 1',
+                },
+            });
+
+            // Add link utilities with hover and active states
+            // This preserves the exact class names like "link-blue" but defines them in Tailwind
+            plugin.addUtilities({
+                '.link-primary': {
+                    color: 'var(--link-primary-default)',
+                    '&:hover': {
+                        color: 'var(--link-primary-hover)',
+                    },
+                    '&:active': {
+                        color: 'var(--link-primary-pressed)',
+                    },
+                },
+                '.link-secondary': {
+                    color: 'var(--link-secondary-default)',
+                    '&:hover': {
+                        color: 'var(--link-secondary-hover)',
+                    },
+                    '&:active': {
+                        color: 'var(--link-secondary-pressed)',
+                    },
+                },
+                '.link-muted': {
+                    color: 'var(--link-muted-default)',
+                    '&:hover': {
+                        color: 'var(--link-muted-hover)',
+                    },
+                    '&:active': {
+                        color: 'var(--link-muted-pressed)',
+                    },
+                },
+                '.link-contrast': {
+                    color: 'var(--link-primary-contrast-default)',
+                    '&:hover': {
+                        color: 'var(--link-primary-contrast-hover)',
+                    },
+                    '&:active': {
+                        color: 'var(--link-primary-contrast-pressed)',
+                    },
+                    '&.disabled': {
+                        color: 'var(--link-primary-contrast-disabled)',
+                    },
+                },
+                '.link-blue': {
+                    color: 'var(--link-blue-default)',
+                    '&:hover': {
+                        color: 'var(--link-blue-hover)',
+                    },
+                    '&:active': {
+                        color: 'var(--link-blue-pressed)',
+                    },
                 },
             });
         }),

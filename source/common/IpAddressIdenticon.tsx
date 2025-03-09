@@ -103,7 +103,7 @@ export function IpAddressIdenticon(properties: IpAddressIdenticonInterface) {
                             transformOrigin: 'center',
                             scale: hoveredIndex === index ? hoverSpring.scale : 1,
                         }}
-                        className="h-full w-2.5 rounded-md"
+                        className="rounded-medium h-full w-2.5"
                         onMouseEnter={() => setHoveredIndex(index)}
                         onMouseLeave={() => setHoveredIndex(null)}
                     />

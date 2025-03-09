@@ -18,7 +18,7 @@ export function ConnectedOutlineIcon(properties: ConnectedOutlineIconInterface) 
     return (
         <ConnectedOutlineIconSvg
             className={mergeClassNames(
-                'dark:text-theme-dark-primary text-theme-dark-primary cursor-pointer transition-colors hover:text-dark dark:hover:text-light',
+                'cursor-pointer text-theme-dark-primary hover:text-dark dark:text-theme-dark-primary dark:hover:text-light',
                 properties.className,
             )}
         />
