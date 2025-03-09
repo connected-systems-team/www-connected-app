@@ -12,7 +12,8 @@ import { Button } from '@structure/source/common/buttons/Button';
 import { PortStateDialog } from '@project/app/(main-layout)/port-checker/dialogs/PortStateDialog';
 
 // Dependencies - Hooks
-import { useTheme } from '@structure/source/theme/ThemeProvider';
+import { Theme } from '@structure/source/theme/ThemeTypes';
+import { useTheme } from '@structure/source/theme/hooks/useTheme';
 
 // Dependencies - Assets
 import ErrorCircledIcon from '@structure/assets/icons/status/ErrorCircledIcon.svg';
@@ -39,7 +40,7 @@ export interface PortCheckStatusAnimatedListInterface {
 }
 export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedListInterface) {
     // Hooks
-    const { themeClassName } = useTheme();
+    const { theme } = useTheme();
 
     // State for dialog
     const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>(false);
@@ -160,10 +161,10 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
                         content: content,
                         isFinal: isFinal,
                         finalDiscIcon: isNegativeState
-                            ? themeClassName == 'light'
+                            ? theme == Theme.Light
                                 ? ErrorCircledRedBorderIcon
                                 : ErrorCircledIcon
-                            : themeClassName == 'light'
+                            : theme == Theme.Light
                               ? CheckCircledGreenBorderIcon
                               : CheckCircledIcon,
                         finalDiscClassName: isNegativeState ? 'bg-red-500' : undefined,

@@ -21,7 +21,7 @@ import {
 } from '@project/source/api/GraphQlGeneratedCode';
 
 // Dependencies - SVGs
-import SearchIcon from '@structure/assets/icons/navigation/SearchIcon.svg';
+// import SearchIcon from '@structure/assets/icons/navigation/SearchIcon.svg';
 
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';
@@ -38,7 +38,7 @@ export function MonitorList(properties: MonitorListInterface) {
     const [pageSize] = React.useState(10);
     const [deleteMonitorId, setDeleteMonitorId] = React.useState<string | null>(null);
     const [search, setSearch] = React.useState('');
-    const [searchInput, setSearchInput] = React.useState('');
+    // const [searchInput, setSearchInput] = React.useState('');
     const notice = useNotice();
 
     // Hooks - GraphQL
@@ -77,11 +77,11 @@ export function MonitorList(properties: MonitorListInterface) {
         setPageIndex((newPage - 1) * pageSize);
     }
 
-    function handleSearch(event: React.FormEvent) {
-        event.preventDefault();
-        setSearch(searchInput);
-        setPageIndex(0); // Reset to first page on new search
-    }
+    // function handleSearch(event: React.FormEvent) {
+    //     event.preventDefault();
+    //     setSearch(searchInput);
+    //     setPageIndex(0); // Reset to first page on new search
+    // }
 
     function handleDelete(monitorId: string) {
         setDeleteMonitorId(monitorId);
@@ -148,7 +148,7 @@ export function MonitorList(properties: MonitorListInterface) {
                         <button
                             onClick={function () {
                                 setSearch('');
-                                setSearchInput('');
+                                // setSearchInput('');
                             }}
                             className="text-blue-600 dark:text-blue-400 font-medium"
                         >

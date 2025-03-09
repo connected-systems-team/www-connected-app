@@ -1,6 +1,9 @@
 // Dependencies - Project
 import { StructureSettingsInterface } from './libraries/structure/StructureSettings';
 
+// Dependencies - Theme
+import { Theme } from './libraries/structure/source/theme/ThemeTypes';
+
 // ProjectSettings
 export const ProjectSettings: StructureSettingsInterface = {
     identifier: 'connected',
@@ -25,7 +28,7 @@ export const ProjectSettings: StructureSettingsInterface = {
         commerce: true,
     },
     theme: {
-        defaultClassName: 'dark',
+        defaultTheme: Theme.Dark,
     },
     assets: {
         url: 'https://assets.connected.app/',

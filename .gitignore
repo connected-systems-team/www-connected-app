@@ -35,6 +35,7 @@ certificates
 .wrangler
 *.secret.toml
 .worker-next
+.open-next
 
 # TypeScript
 *.tsbuildinfo

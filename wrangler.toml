@@ -1,6 +1,6 @@
 #:schema node_modules/wrangler/config-schema.json
 name = "www-connected-app"
-main = ".worker-next/index.mjs"
+main = ".open-next/worker.js"
 
 # Compatiblity dates
 compatibility_date = "2025-03-05"
@@ -10,8 +10,7 @@ compatibility_flags = ["nodejs_compat"]
 minify = true
 
 # Use the new Workers + Assets to host the static frontend files
-assets = { directory = ".worker-next/assets", binding = "ASSETS" }
-
+assets = { directory = ".open-next/assets", binding = "ASSETS" }
 
 # Define custom domains
 routes = [
