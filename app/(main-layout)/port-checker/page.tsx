@@ -16,7 +16,21 @@ export async function generateMetadata(): Promise<Metadata> {
 // Component - PortCheckerRoutePage
 export function PortCheckerRoutePage() {
     const header = headers();
-    const publicIpAddress = header.get('x-forwarded-for') || header.get('x-real-ip');
+    const allHeaders = Array.from(header.entries());
+    console.log('All Headers:', JSON.stringify(allHeaders, null, 2));
+    
+    const forwardedFor = header.get('x-forwarded-for');
+    const realIp = header.get('x-real-ip');
+    const cfConnectingIp = header.get('cf-connecting-ip');
+    const trueClientIp = header.get('true-client-ip');
+    
+    console.log('x-forwarded-for:', forwardedFor);
+    console.log('x-real-ip:', realIp);
+    console.log('cf-connecting-ip:', cfConnectingIp);
+    console.log('true-client-ip:', trueClientIp);
+    
+    // Try multiple headers that might contain the client IP
+    const publicIpAddress = forwardedFor || realIp || cfConnectingIp || trueClientIp;
 
     // Render the component
     return <PortCheckerPage publicIpAddress={publicIpAddress ?? undefined} />;
