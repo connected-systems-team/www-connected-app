@@ -4,9 +4,10 @@
 import ProjectSettings from '@project/ProjectSettings';
 
 // Dependencies - React and Next.js
-import { Link } from '@structure/source/common/navigation/Link';
+import React from 'react';
 
 // Dependencies - Main Components
+import { Link } from '@structure/source/common/navigation/Link';
 import { Button } from '@structure/source/common/buttons/Button';
 import AccountMenuButton from '@structure/source/modules/account/components/AccountMenuButton';
 

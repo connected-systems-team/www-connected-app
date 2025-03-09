@@ -2,12 +2,12 @@
 
 // Dependencies - React and Next.js
 import React from 'react';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 // Dependencies - Main Components
-import NavigationLinks from '@project/app/(main-layout)/layout/navigation/NavigationLinks';
-import NavigationDrawer from '@project/app/(main-layout)/layout/navigation/NavigationDrawer';
+import { Link } from '@structure/source/common/navigation/Link';
+import { NavigationLinks } from '@project/app/(main-layout)/layout/navigation/NavigationLinks';
+import { NavigationDrawer } from '@project/app/(main-layout)/layout/navigation/NavigationDrawer';
 
 // Component - NavigationMobile
 // interface NavigationMobileInterface extends React.HTMLProps<HTMLElement> {}

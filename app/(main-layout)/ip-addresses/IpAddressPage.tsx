@@ -2,10 +2,10 @@
 
 // Dependencies - React and Next.js
 import React from 'react';
-import Link from 'next/link';
 
 // Dependencies - Main Components
-import IpAddressIdenticon from '@project/source/common/IpAddressIdenticon';
+import { Link } from '@structure/source/common/navigation/Link';
+import { IpAddressIdenticon } from '@project/source/common/IpAddressIdenticon';
 
 // Dependencies - Utilities
 import { useUrlParameters } from '@structure/source/utilities/next/NextNavigation';

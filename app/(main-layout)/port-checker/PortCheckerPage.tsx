@@ -3,9 +3,9 @@
 // Dependencies - React and Next.js
 import React from 'react';
 import { Metadata } from 'next';
-import Link from 'next/link';
 
 // Dependencies - Main Components
+import { Link } from '@structure/source/common/navigation/Link';
 import { AuthorizationLayout } from '@structure/source/layouts/AuthorizationLayout';
 import { Button } from '@structure/source/common/buttons/Button';
 import { PortChecker } from '@project/app/(main-layout)/port-checker/PortChecker';

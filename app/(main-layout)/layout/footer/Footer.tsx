@@ -3,12 +3,12 @@ import ProjectSettings from '@project/ProjectSettings';
 
 // Dependencies - React and Next.js
 import React from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 
 // Dependencies - Main Components
+import { Link } from '@structure/source/common/navigation/Link';
 import { Tip } from '@structure/source/common/popovers/Tip';
-import LocaleControl from '@structure/source/common/navigation/locale/LocaleControl';
+import { LocaleControl } from '@structure/source/common/navigation/locale/LocaleControl';
 
 // Dependencies - Assets
 import FacebookIcon from '@structure/assets/icons/platforms/FacebookIcon.svg';

@@ -2,9 +2,9 @@
 
 // Dependencies - React and Next.js
 import React from 'react';
-import Link from 'next/link';
 
 // Dependencies - Main Components
+import { Link } from '@structure/source/common/navigation/Link';
 import { Button } from '@structure/source/common/buttons/Button';
 import { AutomatedPortChecker } from './AutomatedPortChecker';
 

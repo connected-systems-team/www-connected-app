@@ -1,8 +1,8 @@
 // Dependencies - React and Next.js
 import React from 'react';
-import Link from 'next/link';
 
 // Dependencies - Main Components
+import { Link } from '@structure/source/common/navigation/Link';
 // import { ConnectedOutlineIcon } from '@project/source/common/ConnectedOutlineIcon';
 
 // Common ports
@@ -65,7 +65,7 @@ export function CommonPorts(properties: CommonPortsInterface) {
                 })}
             </ul>
 
-            <Link className="primary mt-4 block text-sm" href="/port-checker/history" prefetch={false}>
+            <Link className="link-blue mt-4 block text-sm" href="/port-checker/history" prefetch={false}>
                 History
             </Link>
         </div>

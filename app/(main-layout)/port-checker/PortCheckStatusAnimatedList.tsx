@@ -1,11 +1,11 @@
 // Dependencies - React and Next.js
 import React from 'react';
-import Link from 'next/link';
 
 // Dependencies - Types
 import { PortState } from '@project/source/modules/connected/types/PortTypes';
 
 // Dependencies - Main Components
+import { Link } from '@structure/source/common/navigation/Link';
 import { AnimatedList } from '@project/source/common/animations/AnimatedList';
 import { CopyButton } from '@structure/source/common/buttons/CopyButton';
 import { Button } from '@structure/source/common/buttons/Button';

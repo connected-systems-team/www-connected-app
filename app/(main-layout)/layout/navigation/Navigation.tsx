@@ -3,12 +3,12 @@
 // Dependencies - React and Next.js
 import React from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 
 // Dependencies - Main Components
-import AccountMenuButton from '@structure/source/modules/account/components/AccountMenuButton';
-import NavigationLinks from '@project/app/(main-layout)/layout/navigation/NavigationLinks';
-import NavigationMobile from '@project/app/(main-layout)/layout/navigation/NavigationMobile';
+import { Link } from '@structure/source/common/navigation/Link';
+import { AccountMenuButton } from '@structure/source/modules/account/components/AccountMenuButton';
+import { NavigationLinks } from '@project/app/(main-layout)/layout/navigation/NavigationLinks';
+import { NavigationMobile } from '@project/app/(main-layout)/layout/navigation/NavigationMobile';
 // import { Dialog as SearchDialog } from './NavigationSearch';
 
 // Dependencies - Utilities
