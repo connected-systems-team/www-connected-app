@@ -90,7 +90,7 @@ export function IpAddressIdenticon(properties: IpAddressIdenticonInterface) {
         >
             <div
                 className={mergeClassNames(
-                    'flex h-14 w-28 cursor-pointer items-end justify-between overflow-hidden rounded-sm border bg-dark+6 px-4 py-3 hover:bg-dark+3',
+                    'rounded-extra-small flex h-14 w-28 cursor-pointer items-end justify-between overflow-hidden border bg-dark+6 px-4 py-3 hover:bg-dark+3',
                     properties.className,
                 )}
             >
