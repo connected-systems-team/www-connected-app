@@ -35,7 +35,7 @@ export interface FooterLinkGroup {
 // Component - Footer
 export function Footer() {
     const socialLinks = Object.keys(ProjectSettings.platforms)
-        .map((platform) => {
+        .map(function (platform) {
             const platformData = ProjectSettings.platforms[platform];
             if(!platformData) return;
 
@@ -85,7 +85,7 @@ export function Footer() {
     // Render the component
     return (
         <footer className="mt-32 w-full">
-            <div className="border-b border-t bg-light-1 dark:bg-dark-1">
+            <div className="bg-border-secondary border-b border-t">
                 <div className="container flex items-center justify-between py-phi-base-0.75">
                     {/* Logo and Socials */}
                     <Link href="/" className="transition-opacity hover:opacity-70">

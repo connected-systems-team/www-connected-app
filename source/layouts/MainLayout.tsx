@@ -44,7 +44,7 @@ export function MainLayout(properties: MainLayoutInterface) {
             <div ref={scrollTargetReference} className="absolute top-[-100px] h-4 w-4 opacity-0" />
 
             {/* Navigation */}
-            <div className="sticky top-0 z-40 border-b bg-light/90 backdrop-blur-3xl dark:bg-dark-1/90">
+            <div className="bg-background-secondary sticky top-0 z-40 border-b">
                 <Navigation />
             </div>
 
@@ -61,9 +61,7 @@ export function MainLayout(properties: MainLayoutInterface) {
             </React.Suspense>
 
             {/* Footer */}
-            <div className="">
-                <Footer />
-            </div>
+            <Footer />
         </>
     );
 }
