@@ -1,5 +1,8 @@
+'use client'; // This component uses client-only features
+
 // Dependencies - React and Next.js
 import React from 'react';
+import { useUrlPath } from '@structure/source/utilities/next/NextNavigation';
 
 // Dependencies - Main Components
 import Navigation from '@project/app/(main-layout)/layout/navigation/Navigation';
@@ -13,9 +16,33 @@ export interface MainLayoutInterface {
     children: React.ReactNode;
 }
 export function MainLayout(properties: MainLayoutInterface) {
+    // Hooks
+    const urlPath = useUrlPath();
+
+    // References
+    const scrollTargetReference = React.useRef<HTMLDivElement>(null);
+
+    // Effect to scroll to the top of the page when the path changes
+    // This is to address a Next bug where the page does not scroll to the top
+    // when there is a header that is sticky
+    // https://github.com/vercel/next.js/discussions/64435
+    // When this is fixed we should remove this hack and remove 'use client'
+    // from the top of this file
+    React.useEffect(
+        function () {
+            // Scroll to the top of the page
+            scrollTargetReference.current?.scrollIntoView({
+                behavior: 'instant',
+            });
+        },
+        [urlPath],
+    );
+
     // Render the component
     return (
         <>
+            <div ref={scrollTargetReference} className="absolute top-[-100px] h-4 w-4 opacity-0" />
+
             {/* Navigation */}
             <div className="sticky top-0 z-40 border-b bg-light/90 backdrop-blur-3xl dark:bg-dark-1/90">
                 <Navigation />
