@@ -1,6 +1,9 @@
 // Dependencies - React and Next.js
 import React from 'react';
 
+// Dependencies - Main Components
+import { Link } from '@structure/source/common/navigation/Link';
+
 // Component - AboutPage
 export function AboutPage() {
     // Render the component
@@ -8,7 +11,9 @@ export function AboutPage() {
         <div className="container pt-8">
             <h2 className="mb-2">About Connected</h2>
 
-            <h4 className="mb-3 mt-6">Mission and Vision</h4>
+            <hr className="my-6" />
+
+            <h4 className="mb-3">Mission and Vision</h4>
             <p>
                 At Connected Systems, LLC, our mission is to provide foundational network and Internet services that
                 enhance connectivity and improve the digital experience for users worldwide. Through our flagship
@@ -19,10 +24,13 @@ export function AboutPage() {
             <h4 className="mb-3 mt-6">Our Story</h4>
             <p>
                 Connected Systems, LLC was founded by Kirk Ouimet and Kameron Sheffield, who both have passion for
-                technology and network solutions. The journey began over 15 years ago with Kirk&apos;s creation of
-                YouGetSignal, a popular network tool website. Building on the success and experience gained from
-                YouGetSignal, Kirk and Kam envisioned a more advanced and comprehensive solution, leading to the
-                development of connected.app.
+                technology and network solutions. The journey began over 15 years ago with Kirk&apos;s creation of{' '}
+                <Link href="https://www.yougetsignal.com/" target="_blank" className="link-blue">
+                    YouGetSignal
+                </Link>
+                , a popular network tool website. Building on the success and experience gained from YouGetSignal, Kirk
+                and Kam envisioned a more advanced and comprehensive solution, leading to the development of
+                connected.app.
             </p>
             <p className="mt-2">
                 Connected.app is designed to be the successor to YouGetSignal, incorporating advanced features such as

@@ -67,6 +67,7 @@ export const TailwindConfiguration = {
                     contrast: 'var(--border-contrast)',
                 },
 
+                // Links
                 link: {
                     DEFAULT: 'var(--link-primary-default)',
                     hover: 'var(--link-primary-hover)',
