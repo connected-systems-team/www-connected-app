@@ -1,6 +1,11 @@
 {
     "types": {
         "input": {
+            "JSON": {
+                "kind": "scalar",
+                "type": "JSON",
+                "description": "The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf)."
+            },
             "String": {
                 "kind": "scalar",
                 "type": "String",
@@ -20,11 +25,6 @@
                 "kind": "enum",
                 "type": "FlowStepExecutionStatus",
                 "values": ["NotStarted", "Running", "Success", "Failed"]
-            },
-            "JSON": {
-                "kind": "scalar",
-                "type": "JSON",
-                "description": "The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf)."
             },
             "FlowExecutionStatus": {
                 "kind": "enum",
@@ -183,6 +183,26 @@
                 "kind": "enum",
                 "type": "PortMonitorState",
                 "values": ["Inactive", "Active", "Deleted"]
+            },
+            "PortMonitorInput": {
+                "kind": "object",
+                "type": "PortMonitorInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "monitorId",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            },
+                            {
+                                "type": "isString"
+                            }
+                        ]
+                    }
+                ]
             },
             "PortScanCreateInput": {
                 "kind": "object",
@@ -383,26 +403,6 @@
                         "type": "PortStateValue",
                         "required": true,
                         "name": "state"
-                    }
-                ]
-            },
-            "PortMonitorDeleteInput": {
-                "kind": "object",
-                "type": "PortMonitorDeleteInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "monitorId",
-                        "validation": [
-                            {
-                                "type": "isNotEmpty"
-                            },
-                            {
-                                "type": "isString"
-                            }
-                        ]
                     }
                 ]
             },

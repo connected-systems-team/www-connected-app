@@ -70,17 +70,6 @@
                         "kind": "scalar",
                         "type": "String",
                         "required": true,
-                        "name": "clusterName",
-                        "validation": [
-                            {
-                                "type": "isNotEmpty"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
                         "name": "regionName",
                         "validation": [
                             {
@@ -216,73 +205,12 @@
                     },
                     {
                         "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "cluster",
-                        "validation": [
-                            {
-                                "type": "isNotEmpty"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
                         "type": "JSON",
                         "required": false,
                         "name": "settings",
                         "validation": [
                             {
                                 "type": "isNotEmpty"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "GridClusterUpdateInput": {
-                "kind": "object",
-                "type": "GridClusterUpdateInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "clusterId",
-                        "validation": [
-                            {
-                                "type": "isNotEmpty"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "clusterName",
-                        "validation": [
-                            {
-                                "type": "isNotEmpty"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "displayName",
-                        "validation": [
-                            {
-                                "type": "isNotEmpty"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Boolean",
-                        "required": false,
-                        "name": "enabled",
-                        "validation": [
-                            {
-                                "type": "isBoolean"
                             }
                         ]
                     }
