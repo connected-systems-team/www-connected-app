@@ -237,15 +237,11 @@ function getPortStateInformation(
                 title: 'What is an open port?',
                 content: (
                     <div className="space-y-4 text-sm">
-                        <p>This port is open, indicating the server is actively accepting connection requests.</p>
+                        <p>This port is open and the server is accepting connection requests.</p>
                         <ul className="mt-2 list-disc space-y-1 pl-5">
-                            <li>A service (e.g., web or email server) is running here.</li>
+                            <li>A service is running here.</li>
                             <li>You can establish connections and exchange data through this port.</li>
                         </ul>
-                        <p>
-                            Open ports are normal when services are running. For example, web servers typically use
-                            ports 80 (HTTP) or 443 (HTTPS).
-                        </p>
                     </div>
                 ),
             };
@@ -255,14 +251,14 @@ function getPortStateInformation(
                 title: 'What is a closed port?',
                 content: (
                     <div className="space-y-4 text-sm">
-                        <p>This port is closed, meaning the server actively refuses connection requests.</p>
+                        <p>The server is reachable but actively refusing connections on this port.</p>
                         <ul className="list-disc space-y-1 pl-5">
-                            <li>No service is running here.</li>
-                            <li>Connection attempts receive an immediate refusal.</li>
+                            <li>No service is running on this port on this server.</li>
+                            <li>Connection attempts receive an immediate refusal from the server.</li>
                         </ul>
                         <p>
-                            Closed ports typically indicate that a port is intentionally unused or disabled. It&apos;s
-                            not usually a security concern.
+                            To open this port, ensure the intended service or application is running on your server and
+                            configured to listen on this port.
                         </p>
                     </div>
                 ),
@@ -274,16 +270,24 @@ function getPortStateInformation(
                 content: (
                     <div className="space-y-4 text-sm">
                         <p>
-                            This port is filtered, indicating that connection attempts are being silently ignored,
-                            likely due to firewall rules.
+                            Connection attempts to this port are being silently ignored or blocked. It is unclear if the
+                            server behind this port is online or offline.
                         </p>
                         <ul className="list-disc space-y-1 pl-5">
-                            <li>No response is returned when trying to connect.</li>
-                            <li>Firewalls or security policies are actively blocking this port.</li>
+                            <li>
+                                A firewall, router, or security policy might be silently dropping connection attempts.
+                            </li>
+                            <li>
+                                The port forwarding settings might not be correctly directing traffic to the intended
+                                server.
+                            </li>
+                            <li>
+                                The server itself may be offline or configured to ignore incoming traffic on this port.
+                            </li>
                         </ul>
                         <p>
-                            Filtered ports are typically used to enhance security by preventing unauthorized
-                            connections.
+                            To open this port, check your firewall settings and ensure they allow incoming traffic.
+                            Also, confirm that the intended application or service is actively listening on this port.
                         </p>
                     </div>
                 ),
@@ -295,12 +299,17 @@ function getPortStateInformation(
                 content: (
                     <div className="space-y-4 text-sm">
                         <p>
-                            This port is unfiltered, meaning it is accessible, but there&apos;s no indication if a
-                            service is actively listening.
+                            The port is reachable and not actively blocked by firewalls or security rules. However,
+                            it&apos;s unclear whether an application or service is actually listening.
                         </p>
                         <ul className="list-disc space-y-1 pl-5">
-                            <li>Port responds to connection attempts but may not have active services.</li>
-                            <li>Further checks are required to determine if a service is running.</li>
+                            <li>
+                                The port accepts connection attempts, but there may not be an active service responding.
+                            </li>
+                            <li>
+                                Check the server to confirm if the intended application or service is running and
+                                listening on this port.
+                            </li>
                         </ul>
                     </div>
                 ),
@@ -311,10 +320,13 @@ function getPortStateInformation(
                 title: 'What is an open|filtered port?',
                 content: (
                     <div className="space-y-4 text-sm">
-                        <p>This port state is ambiguous, indicating it could be either open or filtered.</p>
+                        <p>
+                            This port state is ambiguous, meaning it&apos;s unclear whether the port is open or
+                            filtered. Connection attempts aren&apos;t receiving clear responses.
+                        </p>
                         <ul className="list-disc space-y-1 pl-5">
-                            <li>The port might be silently dropping packets.</li>
-                            <li>Further scanning methods are necessary for clarity.</li>
+                            <li>The port could be open with responses blocked by network security settings.</li>
+                            <li>A firewall or router might be silently dropping connection attempts.</li>
                         </ul>
                     </div>
                 ),
@@ -326,12 +338,13 @@ function getPortStateInformation(
                 content: (
                     <div className="space-y-4 text-sm">
                         <p>
-                            This port is closed or filtered, indicating uncertainty about whether it&apos;s refusing
-                            connections or blocked by a firewall.
+                            This port is reported as closed or filtered, meaning connection attempts aren&apos;t
+                            receiving clear responses. It&apos;s uncertain if the server is actively refusing
+                            connections or if a firewall is silently blocking them.
                         </p>
                         <ul className="list-disc space-y-1 pl-5">
-                            <li>No response to connection attempts.</li>
-                            <li>Could be due to firewall rules or simply no active service.</li>
+                            <li>The server may be configured to reject connections without responding.</li>
+                            <li>Firewall or network security rules could be silently dropping incoming packets.</li>
                         </ul>
                     </div>
                 ),
