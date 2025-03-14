@@ -100,6 +100,33 @@ function getPortStateInformation(
                 };
             }
 
+            // Special handling for disallowed IP addresses/hosts
+            if(errorMessage.includes('Invalid or disallowed host')) {
+                return {
+                    title: 'Disallowed Host',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>The port check service returned the following error:</p>
+                            <div className="">
+                                <code>{errorMessage}</code>
+                            </div>
+                            <p>What this means:</p>
+                            <ul className="list-disc space-y-1 pl-5">
+                                <li>
+                                    The host you entered resolves to an IP address that is not allowed for scanning.
+                                </li>
+                                <li>This may be an internal IP address or a host that is restricted by our service.</li>
+                                <li>
+                                    For security reasons, our service does not allow scanning of our own infrastructure
+                                    or certain protected networks.
+                                </li>
+                            </ul>
+                            <p>Please try scanning a different public host or domain.</p>
+                        </div>
+                    ),
+                };
+            }
+
             // Special handling for private IP addresses
             if(errorMessage === 'Private IP Address') {
                 return {
@@ -146,25 +173,51 @@ function getPortStateInformation(
             }
 
             // Special handling for "Host is down" error
-            if(errorMessage.includes('Host is down')) {
+            if(errorMessage && errorMessage.includes('Host is down')) {
                 return {
                     title: 'Host Down Error',
                     content: (
                         <div className="space-y-4 text-sm">
-                            <p>The service returned the following error:</p>
-                            <div className="">
-                                <code>{errorMessage}</code>
-                            </div>
+                            <p>
+                                Port check result: <strong>Host is down or not responding</strong>
+                            </p>
                             <p>What this means:</p>
                             <ul className="list-disc space-y-1 pl-5">
-                                <li>The host you&apos;re trying to reach did not respond.</li>
+                                <li>The host you&apos;re trying to reach did not respond to our scan.</li>
                                 <li>The host might be offline or unreachable from our network.</li>
-                                <li>The host might be configured to block or ignore packets.</li>
+                                <li>The host might be configured to block or ignore our scan packets.</li>
+                                <li>The host exists but may have firewalls preventing any response.</li>
                             </ul>
                             <p>
                                 You can try again later, try using a different region, or verify that the host is
-                                actually online.
+                                actually online using other methods like ping or traceroute.
                             </p>
+                        </div>
+                    ),
+                };
+            }
+
+            // Special handling for invalid format errors
+            if(errorMessage && errorMessage.includes('Invalid format')) {
+                return {
+                    title: 'Invalid Address Format',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>The address you entered has an invalid format.</p>
+                            <p>Valid formats include:</p>
+                            <ul className="list-disc space-y-1 pl-5">
+                                <li>
+                                    Domain names (e.g., <code>example.com</code>, <code>sub.domain.co.uk</code>)
+                                </li>
+                                <li>
+                                    IPv4 addresses (e.g., <code>8.8.8.8</code>, <code>192.0.2.1</code>)
+                                </li>
+                                <li>
+                                    IPv6 addresses (e.g., <code>2001:4860:4860::8888</code>,{' '}
+                                    <code>2606:4700:4700::1111</code>)
+                                </li>
+                            </ul>
+                            <p>Please check your input and try again with a valid domain name or IP address.</p>
                         </div>
                     ),
                 };

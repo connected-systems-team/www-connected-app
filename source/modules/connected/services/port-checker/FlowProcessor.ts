@@ -27,18 +27,15 @@ export class FlowProcessor {
     private onResult: (result: PortScanResult) => void;
     private stepProcessor: StepProcessor;
     private currentExecutionId: string | undefined;
-    private pendingResults: Set<string>;
 
     constructor(
         onStatusUpdate: (update: PortScanStatusUpdate) => void,
         onResult: (result: PortScanResult) => void,
         stepProcessor: StepProcessor,
-        pendingResults: Set<string>,
     ) {
         this.onStatusUpdate = onStatusUpdate;
         this.onResult = onResult;
         this.stepProcessor = stepProcessor;
-        this.pendingResults = pendingResults;
     }
 
     public setExecutionId(executionId: string | undefined): void {
@@ -56,6 +53,9 @@ export class FlowProcessor {
         let regionIdentifier = '';
         let portState: PortState = 'unknown';
         let errorMessage = '';
+        let isUnresolvedDomain = false;
+        let isHostResolutionError = false;
+        let isHostDown = false;
 
         // Extract info from stepExecutions
         const stepExecutions = flowExecution.stepExecutions || [];
@@ -65,6 +65,33 @@ export class FlowProcessor {
                 rawStep as GraphQlFlowStepExecutionResponse,
                 flowExecution.id,
             );
+
+            // Check if this is a domain resolution failure (hostsUp=0, addressesScanned=0)
+            // or a host down error
+            if(step.output) {
+                try {
+                    const output = typeof step.output === 'string' ? JSON.parse(step.output) : step.output;
+
+                    if(output.hostsUp === 0 && output.addressesScanned === 0) {
+                        isUnresolvedDomain = true;
+                    }
+
+                    // Check for "Host is down" error with hostsUp=0
+                    if(
+                        output.hostsUp === 0 &&
+                        output.error &&
+                        output.error.message &&
+                        output.error.message.includes('Host is down')
+                    ) {
+                        // Set error message and mark as host down
+                        errorMessage = 'Host is down or not responding.';
+                        isHostDown = true;
+                    }
+                }
+                catch(error) {
+                    console.error('Error checking for unresolved domain or host down:', error);
+                }
+            }
 
             this.stepProcessor.extractDataFromStep(step, {
                 onHostPortRegion: (data) => {
@@ -128,9 +155,6 @@ export class FlowProcessor {
             errorMessage = flowExecution.errors[0].message || 'An error occurred';
         }
 
-        // Check for host resolution errors specifically
-        let isHostResolutionError = false;
-
         // Look directly in the steps for host resolution errors
         if(stepExecutions && stepExecutions.length > 0) {
             for(const step of stepExecutions) {
@@ -140,13 +164,18 @@ export class FlowProcessor {
 
                     if(stepErrorMsg && stepErrorMsg.includes('Failed to resolve host')) {
                         // Found host resolution error in step
-
                         errorMessage = 'Failed to resolve host: The hostname could not be found.';
                         isHostResolutionError = true;
                         break;
                     }
                 }
             }
+        }
+
+        // Mark host resolution issues even from successful steps with hostsUp=0 and addressesScanned=0
+        if(isUnresolvedDomain) {
+            errorMessage = 'Failed to resolve host: The hostname could not be found.';
+            isHostResolutionError = true;
         }
 
         // Check for flow execution failure
@@ -169,6 +198,15 @@ export class FlowProcessor {
             // For system errors, we'll emit a special system error result
             // This will help UI differentiate between port states and system errors
             if(host && port) {
+                let specificErrorMessage: string | undefined = undefined;
+
+                if(isHostResolutionError) {
+                    specificErrorMessage = 'Failed to resolve host.';
+                }
+                else if(isHostDown) {
+                    specificErrorMessage = 'Host is down.';
+                }
+
                 this.onResult({
                     host,
                     port,
@@ -177,13 +215,12 @@ export class FlowProcessor {
                     timestamp: new Date(),
                     executionId: this.currentExecutionId,
                     systemError: true, // Flag that this is a system error, not a port state
-                    // Include the error message specifically for host resolution errors
-                    errorMessage: isHostResolutionError ? 'Failed to resolve host.' : undefined,
+                    errorMessage: specificErrorMessage,
                 });
             }
         }
-        // Emit result if we have enough info and region hasn't been processed yet
-        else if(host && port && portState && regionIdentifier && this.pendingResults.has(regionIdentifier)) {
+        // Emit result if we have enough info
+        else if(host && port && portState && regionIdentifier) {
             this.onResult({
                 host,
                 port,
@@ -193,14 +230,8 @@ export class FlowProcessor {
                 executionId: this.currentExecutionId,
             });
         }
-        // Handle case where we have host/port but not state (assume success means open) and region hasn't been processed yet
-        else if(
-            host &&
-            port &&
-            flowExecution.status === FlowExecutionStatus.Success &&
-            regionIdentifier &&
-            this.pendingResults.has(regionIdentifier)
-        ) {
+        // Handle case where we have host/port but not state (assume success means open)
+        else if(host && port && flowExecution.status === FlowExecutionStatus.Success && regionIdentifier) {
             this.onResult({
                 host,
                 port,
@@ -210,8 +241,8 @@ export class FlowProcessor {
                 executionId: this.currentExecutionId,
             });
         }
-        // Handle case where we're missing data and haven't already processed this region
-        else if(regionIdentifier && this.pendingResults.has(regionIdentifier)) {
+        // Handle case where we're missing data
+        else if(regionIdentifier) {
             this.onStatusUpdate({
                 message: "Port scan completed but couldn't determine exact status",
                 isFinal: true,
@@ -221,11 +252,6 @@ export class FlowProcessor {
             });
         }
         // Otherwise silently complete the flow without additional messages
-
-        // Remove this region from pending
-        if(regionIdentifier) {
-            this.pendingResults.delete(regionIdentifier);
-        }
     }
 }
 

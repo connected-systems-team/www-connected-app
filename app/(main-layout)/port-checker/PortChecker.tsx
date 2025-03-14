@@ -22,7 +22,7 @@ import { PortCheckerService } from '@project/source/modules/connected/services/p
 
 // Dependencies - Utilities
 import { getRegionMetadata } from '@project/source/modules/connected/utilities/GridUtilities';
-import { isIpV4Address, isPrivateIpAddress } from '@structure/source/utilities/network/IpAddress';
+import { isIpV4Address, isIpV6Address, isPrivateIpAddress } from '@structure/source/utilities/network/IpAddress';
 
 // Component - PortChecker
 export interface PortCheckerInterface {
@@ -56,6 +56,12 @@ export function PortChecker(properties: PortCheckerInterface) {
                 // Check for specific error types
                 if(result.errorMessage.includes('Failed to resolve host')) {
                     resultMessage = `Failed to resolve host: The hostname could not be found.`;
+                }
+                else if(result.errorMessage.includes('Host is down')) {
+                    resultMessage = `Host ${result.host} is down or not responding.`;
+                }
+                else if(result.errorMessage.includes('Invalid or disallowed host')) {
+                    resultMessage = `${result.host} is a private or disallowed IP address.`;
                 }
                 else {
                     // Show other specific error messages from the server
@@ -174,7 +180,7 @@ export function PortChecker(properties: PortCheckerInterface) {
         const portCheckerService = initializePortCheckerService();
 
         try {
-            // Check if the address is a private IP address
+            // Check if the address is a private IP address (only for IPv4)
             if(isIpV4Address(remoteAddress) && isPrivateIpAddress(remoteAddress)) {
                 // Handle private IP address - show message in animated list
                 setStatusItems([
@@ -192,28 +198,32 @@ export function PortChecker(properties: PortCheckerInterface) {
                 return;
             }
 
-            // Special handling for invalid domain names to provide immediate feedback
-            // This is a simple client-side check before sending to the server
-            if(
+            // First check if it's a valid IPv6 address - if so, we'll allow it through
+            if(isIpV6Address(remoteAddress)) {
+                // Valid IPv6 - continue to the API call
+            }
+            // If it's not IPv6, check if it's a valid domain or IPv4
+            else if(
                 !remoteAddress.match(/^[a-zA-Z0-9][-a-zA-Z0-9.]{0,253}[a-zA-Z0-9](\.[a-zA-Z]{2,})+$/) &&
                 !remoteAddress.match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/)
             ) {
                 const domainPattern = /^[a-zA-Z0-9][-a-zA-Z0-9.]{0,253}[a-zA-Z0-9](\.[a-zA-Z]{2,})+$/;
                 const ipPattern = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
 
-                // This is not a valid domain name or IP pattern - provide immediate feedback
+                // This is not a valid domain name or IPv4 pattern - provide immediate feedback
                 if(!domainPattern.test(remoteAddress) && !ipPattern.test(remoteAddress)) {
                     // Invalid hostname detected, show user-friendly error
 
                     // Only show this if it's likely to fail host resolution
-                    if(!remoteAddress.includes('.')) {
+                    // Allow IPv6 addresses which often don't have dots
+                    if(!remoteAddress.includes('.') && !remoteAddress.includes(':')) {
                         setStatusItems([
                             {
-                                text: 'Failed to resolve host: The hostname could not be found.',
+                                text: `Invalid IP address or domain name format: "${remoteAddress}"`,
                                 state: 'unknown' as PortState,
                                 isLoading: false,
                                 systemError: true,
-                                errorMessage: 'Failed to resolve host.',
+                                errorMessage: 'Invalid format. Please enter a valid domain name or IP address.',
                                 host: remoteAddress,
                                 port: remotePort,
                             },

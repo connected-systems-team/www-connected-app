@@ -18,7 +18,7 @@ export function convertGraphQlStepToFlowStepExecution(
     executionId: string,
 ): FlowStepExecution {
     return {
-        id: step.stepId,
+        stepId: step.stepId,
         executionId: step.flowExecutionId || executionId,
         status: step.status,
         actionType: step.actionType,

@@ -55,7 +55,7 @@ export interface FlowExecution {
 }
 
 export interface FlowStepExecution {
-    id: string;
+    stepId: string;
     executionId: string;
     status: FlowStepExecutionStatus | string;
     actionType: string;

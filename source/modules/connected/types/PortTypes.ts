@@ -67,4 +67,16 @@ export interface PortScanStepOutput extends Record<string, unknown> {
         state: PortState;
         port: string;
     }>;
+    error?: {
+        message: string;
+        host?: string;
+        port?: string;
+    };
+    hostsUp?: number;
+    addressesScanned?: number;
+    scanTime?: string;
+    latency?: string;
+    ipAddress?: string;
+    additionalIps?: string[];
+    hostName?: string;
 }

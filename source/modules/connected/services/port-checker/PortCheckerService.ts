@@ -47,7 +47,6 @@ export class PortCheckerService {
     private isActive: boolean = false;
     private usingFallbackPolling: boolean = false;
     private lastWebSocketMessageTime: number = 0;
-    private pendingResults: Set<string> = new Set(); // Track regions we're waiting for
 
     // Timeouts and intervals
     private webSocketTimeoutId: NodeJS.Timeout | undefined;
@@ -71,14 +70,9 @@ export class PortCheckerService {
         this.pollingInterval = options.pollingInterval || 2000;
 
         // Initialize service modules
-        this.stepProcessor = new StepProcessor(this.onStatusUpdate, this.onResult, this.pendingResults);
+        this.stepProcessor = new StepProcessor(this.onStatusUpdate, this.onResult);
 
-        this.flowProcessor = new FlowProcessor(
-            this.onStatusUpdate,
-            this.onResult,
-            this.stepProcessor,
-            this.pendingResults,
-        );
+        this.flowProcessor = new FlowProcessor(this.onStatusUpdate, this.onResult, this.stepProcessor);
 
         this.pollingService = new PollingService(
             this.apolloClient,
@@ -128,8 +122,22 @@ export class PortCheckerService {
                 this.onStatusUpdate(update);
             },
             (stepExecution) => {
+                console.log('WebSocketHandler: Processing step execution', {
+                    stepId: stepExecution.stepId,
+                    status: stepExecution.status,
+                    actionType: stepExecution.actionType,
+                    hasOutput: !!stepExecution.output,
+                    output:
+                        stepExecution.output && typeof stepExecution.output === 'object'
+                            ? JSON.stringify(stepExecution.output)
+                            : stepExecution.output,
+                });
+
                 const isComplete = this.stepProcessor.processStepExecution(stepExecution);
+                console.log('WebSocketHandler: Step execution complete?', isComplete);
+
                 if(isComplete) {
+                    console.log('WebSocketHandler: Stopping port check');
                     this.stopChecking();
                 }
             },
@@ -180,13 +188,35 @@ export class PortCheckerService {
      * Poll for port scan results using GraphQL
      */
     private pollPortScan(): void {
-        this.pollingService.pollPortScan(this.currentExecutionId, this.isActive);
+        console.log('PortCheckerService: Starting polling', {
+            executionId: this.currentExecutionId,
+            isActive: this.isActive,
+        });
+        this.pollingService
+            .pollPortScan(this.currentExecutionId, this.isActive)
+            .then((isComplete) => {
+                console.log('PortCheckerService: Polling returned', { isComplete });
+                if(isComplete) {
+                    // If polling detected a complete state, stop the port checker
+                    console.log('PortCheckerService: Polling completed, stopping port check');
+                    this.stopChecking();
+                }
+            })
+            .catch((error) => {
+                console.error('PortCheckerService: Error in polling', error);
+            });
     }
 
     /**
      * Clean up all timeouts and intervals
      */
     private cleanupTimeouts(): void {
+        console.log('PortCheckerService: Cleaning up timeouts', {
+            hasWebSocketTimeout: !!this.webSocketTimeoutId,
+            hasGlobalTimeout: !!this.globalTimeoutId,
+            isActive: this.isActive,
+        });
+
         if(this.webSocketTimeoutId) {
             clearInterval(this.webSocketTimeoutId);
             this.webSocketTimeoutId = undefined;
@@ -214,8 +244,6 @@ export class PortCheckerService {
         this.isActive = true;
         this.usingFallbackPolling = false;
         this.lastWebSocketMessageTime = Date.now();
-        this.pendingResults.clear();
-        this.pendingResults.add(input.region);
 
         // Update processors with execution ID
         this.stepProcessor.setExecutionId(undefined);
@@ -225,10 +253,19 @@ export class PortCheckerService {
 
         // Set up global timeout for the entire request (15 seconds)
         this.globalTimeoutId = setTimeout(() => {
-            // Only trigger timeout if we're still active and haven't completed the scan
-            if(this.isActive && this.pendingResults.size > 0) {
+            console.log('PortCheckerService: Global timeout triggered', {
+                isActive: this.isActive,
+                executionId: this.currentExecutionId,
+                hasInput: !!this.lastScanInput,
+                inputHost: this.lastScanInput?.host,
+                inputPort: this.lastScanInput?.port,
+            });
+
+            // Only trigger timeout if we're still active
+            if(this.isActive) {
                 // Send timeout result
                 if(this.lastScanInput) {
+                    console.log('PortCheckerService: Sending timeout result');
                     this.onResult({
                         host: this.lastScanInput.host,
                         port: this.lastScanInput.port,
@@ -242,6 +279,9 @@ export class PortCheckerService {
 
                 // Clean up and stop
                 this.stopChecking();
+            }
+            else {
+                console.log('PortCheckerService: Not sending timeout result - service not active');
             }
         }, 15000); // 15 second timeout
 
@@ -349,10 +389,15 @@ export class PortCheckerService {
      * Stop checking and clean up resources
      */
     public stopChecking(): void {
+        console.log('PortCheckerService: Stopping port check', {
+            isActive: this.isActive,
+            executionId: this.currentExecutionId,
+            usingFallbackPolling: this.usingFallbackPolling,
+        });
+
         this.cleanupTimeouts();
         this.isActive = false;
         this.currentExecutionId = undefined;
-        this.pendingResults.clear();
         // Don't clear lastScanInput as we might need it for error recovery
     }
 

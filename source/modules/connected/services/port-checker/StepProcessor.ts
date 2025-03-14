@@ -24,16 +24,10 @@ export class StepProcessor {
     private onStatusUpdate: (update: PortScanStatusUpdate) => void;
     private onResult: (result: PortScanResult) => void;
     private currentExecutionId: string | undefined;
-    private pendingResults: Set<string>;
 
-    constructor(
-        onStatusUpdate: (update: PortScanStatusUpdate) => void,
-        onResult: (result: PortScanResult) => void,
-        pendingResults: Set<string>,
-    ) {
+    constructor(onStatusUpdate: (update: PortScanStatusUpdate) => void, onResult: (result: PortScanResult) => void) {
         this.onStatusUpdate = onStatusUpdate;
         this.onResult = onResult;
-        this.pendingResults = pendingResults;
     }
 
     public setExecutionId(executionId: string | undefined): void {
@@ -61,6 +55,83 @@ export class StepProcessor {
                 let portNumber = extractPortFromStepInput(input);
                 const region = input.region || '';
 
+                // Check if this is a domain resolution failure case
+                // hostsUp=0 and addressesScanned=0 indicates domain resolution failure
+                const hostResolutionFailed = output.hostsUp === 0 && output.addressesScanned === 0;
+
+                // Check for "Host is down" error with hostsUp=0
+                const hostIsDown =
+                    output.hostsUp === 0 &&
+                    output.error &&
+                    output.error.message &&
+                    output.error.message.includes('Host is down');
+
+                console.log('StepProcessor: Checking for host issues', {
+                    host,
+                    hostsUp: output.hostsUp,
+                    addressesScanned: output.addressesScanned,
+                    hasError: !!output.error,
+                    errorMessage: output.error?.message,
+                    hostResolutionFailed,
+                    hostIsDown,
+                });
+
+                if(hostResolutionFailed) {
+                    // Handle domain resolution failure
+                    this.onStatusUpdate({
+                        message: 'Failed to resolve host: The hostname could not be found.',
+                        isFinal: true,
+                        timestamp: new Date(),
+                        region: region,
+                        type: 'error',
+                    });
+
+                    // Emit system error result for domain resolution failure
+                    if(host && portNumber) {
+                        this.onResult({
+                            host,
+                            port: portNumber,
+                            state: 'unknown',
+                            region,
+                            timestamp: new Date(),
+                            executionId: this.currentExecutionId,
+                            systemError: true,
+                            errorMessage: 'Failed to resolve host.',
+                        });
+                    }
+
+                    return true; // Processing is complete
+                }
+
+                if(hostIsDown) {
+                    console.log('StepProcessor: Host is down, sending result and marking complete');
+
+                    // Handle host down case
+                    this.onStatusUpdate({
+                        message: 'Host is down or not responding.',
+                        isFinal: true,
+                        timestamp: new Date(),
+                        region: region,
+                        type: 'error',
+                    });
+
+                    // Emit system error result for host down
+                    if(host && portNumber) {
+                        this.onResult({
+                            host,
+                            port: portNumber,
+                            state: 'unknown',
+                            region,
+                            timestamp: new Date(),
+                            executionId: this.currentExecutionId,
+                            systemError: true,
+                            errorMessage: 'Host is down.',
+                        });
+                    }
+
+                    return true; // Processing is complete
+                }
+
                 // Extract port state from output results
                 const portState: PortState = extractPortStateFromStepOutput(output);
 
@@ -83,24 +154,17 @@ export class StepProcessor {
                         type: 'info',
                     });
 
-                    // Only emit result if this region hasn't been processed yet
-                    if(this.pendingResults.has(region)) {
-                        // Emit the result
-                        this.onResult({
-                            host,
-                            port: portNumber,
-                            state: portState,
-                            region,
-                            timestamp: new Date(),
-                            executionId: this.currentExecutionId,
-                        });
+                    // Emit the result
+                    this.onResult({
+                        host,
+                        port: portNumber,
+                        state: portState,
+                        region,
+                        timestamp: new Date(),
+                        executionId: this.currentExecutionId,
+                    });
 
-                        // Remove this region from pending
-                        this.pendingResults.delete(region);
-                    }
-
-                    // Return true if all regions processed
-                    return this.pendingResults.size === 0;
+                    return true; // Processing is complete
                 }
                 else {
                     // Just show progress update for this region
@@ -155,9 +219,8 @@ export class StepProcessor {
                 });
 
                 // If we have the key information, emit a result with systemError flag
-                if(host && portNumber && this.pendingResults.has(region)) {
+                if(host && portNumber) {
                     // Emit system error result for failed step
-
                     this.onResult({
                         host,
                         port: portNumber,
@@ -168,13 +231,9 @@ export class StepProcessor {
                         systemError: true,
                         errorMessage: errorMessage,
                     });
-
-                    // Remove this region from pending
-                    this.pendingResults.delete(region);
                 }
 
-                // Return true if all regions processed
-                return this.pendingResults.size === 0;
+                return true; // Processing is complete
             }
             catch(error) {
                 console.error('Error processing failed step execution:', error);

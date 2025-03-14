@@ -57,9 +57,9 @@ export class PollingService {
     /**
      * Poll for port scan results using GraphQL
      */
-    public async pollPortScan(executionId: string | undefined, isActive: boolean): Promise<void> {
+    public async pollPortScan(executionId: string | undefined, isActive: boolean): Promise<boolean> {
         if(!executionId || !isActive) {
-            return;
+            return false; // Not complete, since we didn't do anything
         }
 
         try {
@@ -84,7 +84,7 @@ export class PollingService {
                         this.pollingInterval,
                     );
                 }
-                return;
+                return false; // Not complete, need to poll again
             }
 
             // Process all step executions to find results
@@ -94,7 +94,20 @@ export class PollingService {
                     if(step.actionType === 'PortScan' && step.status === FlowStepExecutionStatus.Success) {
                         // Convert to our internal FlowStepExecution type
                         const stepExecution = convertGraphQlStepToFlowStepExecution(step, flowExecution.id);
-                        this.stepProcessor.processStepExecution(stepExecution);
+                        console.log('PollingService: Processing port scan step', {
+                            stepId: step.stepId,
+                            status: step.status,
+                            hasOutput: !!step.output,
+                            output: step.output ? JSON.stringify(step.output) : null,
+                        });
+                        const isComplete = this.stepProcessor.processStepExecution(stepExecution);
+                        console.log('PollingService: Step complete?', isComplete);
+
+                        // If step processing indicates it's complete, we should stop
+                        if(isComplete) {
+                            console.log('PollingService: Step processing reports complete, will not poll again');
+                            return true; // Complete, stop polling this execution
+                        }
                     }
                 }
             }
@@ -109,10 +122,12 @@ export class PollingService {
                     () => this.pollPortScan(executionId, isActive),
                     this.pollingInterval,
                 );
+                return false; // Not complete, need to poll again
             }
             // If completed but no results, try extract from other sources
             else if(flowExecution.status === FlowExecutionStatus.Success) {
                 this.flowProcessor.processFlowExecution(flowExecution as unknown as any);
+                return true; // Flow is complete, no need to poll again
             }
             // Handle errors
             else if(flowExecution.status === FlowExecutionStatus.Failed) {
@@ -127,7 +142,14 @@ export class PollingService {
                     timestamp: new Date(),
                     type: 'error',
                 });
+
+                // Process the flow to extract any relevant info
+                this.flowProcessor.processFlowExecution(flowExecution as unknown as any);
+                return true; // Complete with error
             }
+
+            // If we got here without returning, we're not complete
+            return false;
         }
         catch(error) {
             console.error('Polling error:', error);
@@ -138,6 +160,7 @@ export class PollingService {
                     this.pollingInterval,
                 );
             }
+            return false; // Not complete due to error
         }
     }
 }
