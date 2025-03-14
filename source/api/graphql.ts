@@ -1439,6 +1439,7 @@ export type FlowExecution = {
   errors?: Maybe<Array<Scalars['JSON']['output']>>;
   flowVersionId?: Maybe<Scalars['String']['output']>;
   id: Scalars['String']['output'];
+  logs?: Maybe<Array<Scalars['JSON']['output']>>;
   startedAt: Scalars['DateTimeISO']['output'];
   status: FlowExecutionStatus;
   stepExecutions: Array<FlowStepExecution>;
@@ -1467,6 +1468,7 @@ export type FlowStepExecution = {
   flowExecutionId: Scalars['String']['output'];
   id: Scalars['String']['output'];
   input?: Maybe<Scalars['JSON']['output']>;
+  logs?: Maybe<Array<Scalars['JSON']['output']>>;
   output?: Maybe<Scalars['JSON']['output']>;
   startedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   status: FlowStepExecutionStatus;
@@ -1518,23 +1520,6 @@ export type FulfillmentProductVariant = {
   sku?: Maybe<Scalars['String']['output']>;
 };
 
-export type GridCluster = {
-  __typename?: 'GridCluster';
-  createdAt: Scalars['DateTimeISO']['output'];
-  displayName?: Maybe<Scalars['String']['output']>;
-  enabled: Scalars['Boolean']['output'];
-  id: Scalars['String']['output'];
-  name: Scalars['String']['output'];
-  updatedAt: Scalars['DateTimeISO']['output'];
-};
-
-export type GridClusterUpdateInput = {
-  clusterId?: InputMaybe<Scalars['String']['input']>;
-  clusterName?: InputMaybe<Scalars['String']['input']>;
-  displayName?: InputMaybe<Scalars['String']['input']>;
-  enabled?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
 export type GridNode = {
   __typename?: 'GridNode';
   createdAt: Scalars['DateTimeISO']['output'];
@@ -1547,7 +1532,6 @@ export type GridNode = {
 };
 
 export type GridNodeCreateInput = {
-  clusterName: Scalars['String']['input'];
   displayName?: InputMaybe<Scalars['String']['input']>;
   enabled?: InputMaybe<Scalars['Boolean']['input']>;
   ipAddress: Scalars['String']['input'];
@@ -1564,7 +1548,6 @@ export type GridNodeInput = {
 };
 
 export type GridNodeUpdateInput = {
-  cluster?: InputMaybe<Scalars['String']['input']>;
   displayName?: InputMaybe<Scalars['String']['input']>;
   enabled?: InputMaybe<Scalars['Boolean']['input']>;
   id?: InputMaybe<Scalars['String']['input']>;
@@ -1712,10 +1695,10 @@ export type Mutation = {
   emailTemplateUpdate: EmailTemplate;
   engagementEventCreate: OperationResult;
   engagementEventsCreate: OperationResult;
+  flowAbort: OperationResult;
   flowCancel: OperationResult;
   flowPurge: OperationResult;
-  /** Update a cluster. */
-  gridClusterUpdate?: Maybe<GridCluster>;
+  flowPurgeByDate: OperationResult;
   /** Create a new node. */
   gridNodeCreate: GridNode;
   /** Update a node. */
@@ -2135,8 +2118,14 @@ export type MutationEngagementEventsCreateArgs = {
 };
 
 
+export type MutationFlowAbortArgs = {
+  objectId: Scalars['String']['input'];
+};
+
+
 export type MutationFlowCancelArgs = {
   objectId: Scalars['String']['input'];
+  timeout?: InputMaybe<Scalars['Float']['input']>;
 };
 
 
@@ -2145,8 +2134,8 @@ export type MutationFlowPurgeArgs = {
 };
 
 
-export type MutationGridClusterUpdateArgs = {
-  input: GridClusterUpdateInput;
+export type MutationFlowPurgeByDateArgs = {
+  date: Scalars['DateTimeISO']['input'];
 };
 
 
@@ -2176,7 +2165,7 @@ export type MutationPortMonitorCreateArgs = {
 
 
 export type MutationPortMonitorDeleteArgs = {
-  input: PortMonitorDeleteInput;
+  input: PortMonitorInput;
 };
 
 
@@ -2682,7 +2671,7 @@ export type PortMonitorCreateInput = {
   region: Scalars['String']['input'];
 };
 
-export type PortMonitorDeleteInput = {
+export type PortMonitorInput = {
   monitorId: Scalars['String']['input'];
 };
 
@@ -3257,6 +3246,7 @@ export type Query = {
   emailTemplates: EmailTemplatesResult;
   engagementEvents: Array<EngagementEvent>;
   engagementOverview: EngagementOverview;
+  flowInfo: Scalars['JSON']['output'];
   /** Get a node. */
   gridNode?: Maybe<GridNode>;
   /** Generate a new key for a node. */
@@ -3264,6 +3254,7 @@ export type Query = {
   /** Get all active regions. */
   gridRegions: Array<GridRegion>;
   portMonitor: PaginationPortMonitor;
+  portMonitorHistory: PaginationPortScanResult;
   portScan?: Maybe<FlowExecution>;
   portScanHistory: PaginationPortScanResult;
   post: Post;
@@ -3574,6 +3565,11 @@ export type QueryEngagementOverviewArgs = {
 };
 
 
+export type QueryFlowInfoArgs = {
+  objectId: Scalars['String']['input'];
+};
+
+
 export type QueryGridNodeArgs = {
   input: GridNodeInput;
 };
@@ -3585,6 +3581,12 @@ export type QueryGridNodeGenerateKeyArgs = {
 
 
 export type QueryPortMonitorArgs = {
+  pagination: PaginationInput;
+};
+
+
+export type QueryPortMonitorHistoryArgs = {
+  input: PortMonitorInput;
   pagination: PaginationInput;
 };
 
@@ -4886,7 +4888,7 @@ export type PortMonitorCreateMutationVariables = Exact<{
 export type PortMonitorCreateMutation = { __typename?: 'Mutation', portMonitorCreate: { __typename?: 'PortMonitor', id: string, flowId: string, durableObjectId?: string | null, host: string, region: string, hour: number, minute: number, state: PortMonitorState, emailDeliveryPreference: Array<PortScanFlowNodeResultStatus>, updatedAt: any, createdAt: any, ports: Array<{ __typename?: 'PortMonitorStateCheck', port: string, state: PortStateValue }> } };
 
 export type PortMonitorDeleteMutationVariables = Exact<{
-  input: PortMonitorDeleteInput;
+  input: PortMonitorInput;
 }>;
 
 
@@ -4974,7 +4976,7 @@ export const PortScanDocument = {"kind":"Document","definitions":[{"kind":"Opera
 export const PortScanHistoryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PortScanHistory"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portScanHistory"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"triggerId"}},{"kind":"Field","name":{"kind":"Name","value":"triggerType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"stepExecutions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stepId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"actionType"}},{"kind":"Field","name":{"kind":"Name","value":"attempt"}},{"kind":"Field","name":{"kind":"Name","value":"input"}},{"kind":"Field","name":{"kind":"Name","value":"output"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}},{"kind":"Field","name":{"kind":"Name","value":"flowVersionId"}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}}]}}]}}]}}]} as unknown as DocumentNode<PortScanHistoryQuery, PortScanHistoryQueryVariables>;
 export const PortMonitorDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PortMonitor"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portMonitor"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"flowId"}},{"kind":"Field","name":{"kind":"Name","value":"durableObjectId"}},{"kind":"Field","name":{"kind":"Name","value":"host"}},{"kind":"Field","name":{"kind":"Name","value":"ports"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"port"}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}},{"kind":"Field","name":{"kind":"Name","value":"region"}},{"kind":"Field","name":{"kind":"Name","value":"hour"}},{"kind":"Field","name":{"kind":"Name","value":"minute"}},{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"emailDeliveryPreference"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}}]}}]}}]}}]} as unknown as DocumentNode<PortMonitorQuery, PortMonitorQueryVariables>;
 export const PortMonitorCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PortMonitorCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PortMonitorCreateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portMonitorCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"flowId"}},{"kind":"Field","name":{"kind":"Name","value":"durableObjectId"}},{"kind":"Field","name":{"kind":"Name","value":"host"}},{"kind":"Field","name":{"kind":"Name","value":"ports"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"port"}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}},{"kind":"Field","name":{"kind":"Name","value":"region"}},{"kind":"Field","name":{"kind":"Name","value":"hour"}},{"kind":"Field","name":{"kind":"Name","value":"minute"}},{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"emailDeliveryPreference"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<PortMonitorCreateMutation, PortMonitorCreateMutationVariables>;
-export const PortMonitorDeleteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PortMonitorDelete"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PortMonitorDeleteInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portMonitorDelete"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}}]}}]}}]} as unknown as DocumentNode<PortMonitorDeleteMutation, PortMonitorDeleteMutationVariables>;
+export const PortMonitorDeleteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PortMonitorDelete"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PortMonitorInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portMonitorDelete"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}}]}}]}}]} as unknown as DocumentNode<PortMonitorDeleteMutation, PortMonitorDeleteMutationVariables>;
 export type GraphQLInputTypeMetadata =
   GraphQLInputScalarTypeMetadata |
   GraphQLInputEnumTypeMetadata |
@@ -5052,9 +5054,9 @@ export interface GraphQLInputObjectFieldValidationMetadata {
 
 export namespace GraphQLInputTypes {
 
-  export const PortMonitorDeleteInput: GraphQLInputObjectTypeMetadata = {
+  export const PortMonitorInput: GraphQLInputObjectTypeMetadata = {
     kind: 'object',
-    type: 'PortMonitorDeleteInput',
+    type: 'PortMonitorInput',
     fields: [
       {
         name: 'monitorId',
@@ -8435,7 +8437,7 @@ export const PortMonitorDeleteOperation: GraphQLOperationMetadata<typeof PortMon
       parameter: 'input',
       required: true,
       kind: 'object',
-      type: GraphQLInputTypes.PortMonitorDeleteInput,
+      type: GraphQLInputTypes.PortMonitorInput,
     },
   ],
 }

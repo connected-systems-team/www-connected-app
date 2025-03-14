@@ -141,7 +141,7 @@ mutation PortMonitorCreate($input: PortMonitorCreateInput!) {
 }
 
 # Port Monitor Delete Mutation
-mutation PortMonitorDelete($input: PortMonitorDeleteInput!) {
+mutation PortMonitorDelete($input: PortMonitorInput!) {
     portMonitorDelete(input: $input) {
         success
     }
