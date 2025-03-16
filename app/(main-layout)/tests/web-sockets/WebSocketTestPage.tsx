@@ -5,23 +5,65 @@ import React from 'react';
 
 // Dependencies - Provider
 import { useSharedWebSocketContext } from '@structure/source/api/web-sockets/SharedWebSocketProvider';
+import { WebSocketConnectionState } from '@structure/source/api/web-sockets/types/SharedWorkerMessage';
 
 // Components
 import { Button } from '@structure/source/common/buttons/Button';
+import { FormInputText } from '@structure/source/common/forms/FormInputText';
 
 // Component - WebSocketTestPage
 export function WebSocketTestPage() {
+    // State
+    const [webSocketUrl, setWebSocketUrl] = React.useState<string>('wss://echo.websocket.org');
+    const [message, setMessage] = React.useState<string>('Hello, WebSocket!');
+
+    // Custom handlers for FormInputText
+    const handleWebSocketUrlChange = React.useCallback(function (value: string | undefined) {
+        if(value !== undefined) {
+            setWebSocketUrl(value);
+        }
+    }, []);
+
+    const handleMessageChange = React.useCallback(function (value: string | undefined) {
+        if(value !== undefined) {
+            setMessage(value);
+        }
+    }, []);
+
     // Hooks - WebSocket
     const webSocket = useSharedWebSocketContext();
 
-    // Effects
-    React.useEffect(
-        function () {
-            // Request the client connections when the component mounts
-            webSocket.requestSharedWorkerServerClientConnections();
-        },
-        [webSocket.requestSharedWorkerServerClientConnections],
-    );
+    // Functions
+    function handleConnect() {
+        webSocket.connectWebSocket(webSocketUrl);
+    }
+
+    function handleDisconnect() {
+        webSocket.disconnectWebSocket(1000, 'User initiated disconnect');
+    }
+
+    function handleSendMessage() {
+        webSocket.sendWebSocketMessage({ text: message });
+    }
+
+    // Get connection status color and text
+    function getConnectionStatusInfo() {
+        switch(webSocket.webSocketState) {
+            case WebSocketConnectionState.Connected:
+                return { color: 'bg-green-500', text: 'Connected' };
+            case WebSocketConnectionState.Connecting:
+                return { color: 'bg-yellow-500', text: 'Connecting' };
+            case WebSocketConnectionState.Reconnecting:
+                return { color: 'bg-yellow-500', text: 'Reconnecting' };
+            case WebSocketConnectionState.Failed:
+                return { color: 'bg-red-500', text: 'Failed' };
+            case WebSocketConnectionState.Disconnected:
+            default:
+                return { color: 'bg-gray-500', text: 'Disconnected' };
+        }
+    }
+
+    const connectionStatus = getConnectionStatusInfo();
 
     // Render the component
     return (
@@ -29,14 +71,93 @@ export function WebSocketTestPage() {
             <h1 className="mb-6 text-2xl font-bold">WebSocket Testing Dashboard</h1>
 
             <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-                <p>Web Socket Supported?</p>
+                <p>SharedWorker Supported?</p>
                 <p>{webSocket.isSupported ? 'Yes' : 'No'}</p>
 
-                <p>Web Socket Connected?</p>
+                <p>SharedWorker Connected?</p>
                 <p>{webSocket.isConnected ? 'Yes' : 'No'}</p>
 
                 <p>Client ID</p>
                 <p>{webSocket.clientId}</p>
+            </div>
+
+            <div className="mb-8 rounded-md border p-4">
+                <h2 className="mb-4 text-xl font-bold">WebSocket Connection</h2>
+
+                <div className="mb-4 grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <p>WebSocket Status</p>
+                    <p>
+                        <span className={`mr-2 inline-block h-2 w-2 rounded-full ${connectionStatus.color}`}></span>
+                        {connectionStatus.text}
+                    </p>
+
+                    {webSocket.webSocketUrl && (
+                        <>
+                            <p>Connected URL</p>
+                            <p>{webSocket.webSocketUrl}</p>
+                        </>
+                    )}
+
+                    {webSocket.webSocketError && (
+                        <>
+                            <p>Last Error</p>
+                            <p className="text-red-500">{webSocket.webSocketError}</p>
+                        </>
+                    )}
+                </div>
+
+                <div className="mb-4 flex flex-col">
+                    <FormInputText
+                        id="websocket-url"
+                        label="WebSocket URL"
+                        defaultValue={webSocketUrl}
+                        onChange={handleWebSocketUrlChange}
+                        placeholder="wss://echo.websocket.org"
+                    />
+                </div>
+
+                <div className="flex gap-2">
+                    <Button
+                        onClick={handleConnect}
+                        disabled={
+                            webSocket.webSocketState === WebSocketConnectionState.Connected ||
+                            webSocket.webSocketState === WebSocketConnectionState.Connecting
+                        }
+                    >
+                        Connect
+                    </Button>
+                    <Button
+                        onClick={handleDisconnect}
+                        variant="light"
+                        disabled={
+                            webSocket.webSocketState === WebSocketConnectionState.Disconnected ||
+                            webSocket.webSocketState === WebSocketConnectionState.Failed
+                        }
+                    >
+                        Disconnect
+                    </Button>
+                </div>
+            </div>
+
+            <div className="mb-8 rounded-md border p-4">
+                <h2 className="mb-4 text-xl font-bold">Send Message</h2>
+
+                <div className="mb-4 flex flex-col">
+                    <FormInputText
+                        id="websocket-message"
+                        label="Message"
+                        defaultValue={message}
+                        onChange={handleMessageChange}
+                        placeholder="Enter a message to send"
+                    />
+                </div>
+
+                <Button
+                    onClick={handleSendMessage}
+                    disabled={webSocket.webSocketState !== WebSocketConnectionState.Connected}
+                >
+                    Send Message
+                </Button>
             </div>
 
             <div className="mb-6">

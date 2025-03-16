@@ -1,7 +1,7 @@
 'use client'; // This service uses client-only features
 
 // Dependencies - Types
-import { WebSocketEvent } from '@structure/source/api/web-sockets/types/WebSocketMessage';
+import { WebSocketEventMessage } from '@structure/source/api/web-sockets/types/WebSocketMessage';
 import {
     FlowExecutionStatus,
     FlowStepExecution,
@@ -30,7 +30,7 @@ export class WebSocketHandler {
     /**
      * Handle WebSocket messages from the server
      */
-    public handleWebSocketMessage(event: WebSocketEvent, currentExecutionId: string | undefined): boolean {
+    public handleWebSocketMessage(event: any, currentExecutionId: string | undefined): boolean {
         if(!currentExecutionId) {
             return false;
         }
@@ -42,15 +42,15 @@ export class WebSocketHandler {
         let flowExecution: FlowExecution | undefined;
         let stepExecution: FlowStepExecution | undefined;
 
-        if(event.type === 'FlowExecution') {
-            const args = (event as any).arguments;
+        if(event.event === 'FlowExecution') {
+            const args = event.data && event.data.arguments;
             if(args && args.length > 0) {
                 executionId = args[0].id;
                 flowExecution = args[0];
             }
         }
-        else if(event.type === 'FlowStepExecution') {
-            const args = (event as any).arguments;
+        else if(event.event === 'FlowStepExecution') {
+            const args = event.data && event.data.arguments;
             if(args && args.length > 0) {
                 executionId = args[0].flowExecutionId; // Note: It's flowExecutionId, not executionId
                 stepExecution = args[0];
@@ -112,7 +112,7 @@ export class WebSocketHandler {
         }
 
         // Process Flow Execution events
-        if(event.type === 'FlowExecution' && flowExecution) {
+        if(event.event === 'FlowExecution' && flowExecution) {
             // If the flow execution completed, query for complete results
             if(flowExecution.status === FlowExecutionStatus.Success) {
                 this.onStatusUpdate({
@@ -161,7 +161,7 @@ export class WebSocketHandler {
             return true;
         }
         // Process Step Execution events
-        else if(event.type === 'FlowStepExecution' && stepExecution) {
+        else if(event.event === 'FlowStepExecution' && stepExecution) {
             // Check specifically for failed port scan steps with error messages
             if(
                 stepExecution.actionType === 'PortScan' &&

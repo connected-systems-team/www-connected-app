@@ -1,7 +1,7 @@
 'use client'; // This service uses client-only features
 
 // Dependencies - Types
-import { WebSocketEvent } from '@structure/source/api/web-sockets/types/WebSocketMessage';
+import { WebSocketEventMessage } from '@structure/source/api/web-sockets/types/WebSocketMessage';
 import { WebSocketHook } from '@project/source/modules/connected/types/FlowTypes';
 import {
     PortScanInput,
@@ -157,7 +157,7 @@ export class PortCheckerService {
             this.messageHandler();
         }
 
-        this.messageHandler = this.webSocket.addMessageHandler((event: WebSocketEvent) => {
+        this.messageHandler = this.webSocket.addMessageHandler((event: WebSocketEventMessage) => {
             // If we're using fallback polling but received a WebSocket message, stop polling
             if(this.handleWebSocketMessage(event) && this.usingFallbackPolling) {
                 this.usingFallbackPolling = false;
@@ -169,7 +169,7 @@ export class PortCheckerService {
     /**
      * Handle WebSocket messages
      */
-    private handleWebSocketMessage(event: WebSocketEvent): boolean {
+    private handleWebSocketMessage(event: WebSocketEventMessage): boolean {
         if(!this.isActive || !this.currentExecutionId) {
             return false;
         }
