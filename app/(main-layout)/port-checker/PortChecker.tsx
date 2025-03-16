@@ -13,7 +13,7 @@ import { PortCheckStatusAnimatedList, PortCheckStatusItem } from './PortCheckSta
 import { About } from '@project/app/(main-layout)/port-checker/About';
 
 // Dependencies - Hooks
-import { useWebSocket } from '@structure/source/api/web-sockets/hooks/useWebSocket';
+import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/hooks/useWebSocketViaSharedWorker';
 
 // Dependencies - API
 import { useApolloClient } from '@apollo/client';
@@ -34,7 +34,7 @@ export function PortChecker(properties: PortCheckerInterface) {
     const [statusItems, setStatusItems] = React.useState<PortCheckStatusItem[]>([]);
 
     // Hooks
-    const webSocket = useWebSocket();
+    const webSocketViaSharedWorker = useWebSocketViaSharedWorker();
     const apolloClient = useApolloClient();
 
     // References - Port Check Form
@@ -130,7 +130,7 @@ export function PortChecker(properties: PortCheckerInterface) {
         if(!portCheckerServiceReference.current) {
             portCheckerServiceReference.current = new PortCheckerService({
                 apolloClient,
-                webSocket,
+                webSocketViaSharedWorker,
                 // Handle intermediate status updates to show progress
                 onStatusUpdate: (update) => {
                     // Process status update

@@ -1,11 +1,11 @@
 'use client'; // This service uses client-only features
 
 // Dependencies - Types
-import { WebSocketEventMessage } from '@structure/source/api/web-sockets/types/WebSocketMessage';
 import {
     FlowExecutionStatus,
     FlowStepExecution,
     FlowExecution,
+    PortScanWebSocketEvent,
 } from '@project/source/modules/connected/types/FlowTypes';
 import { PortScanStatusUpdate } from '@project/source/modules/connected/types/PortTypes';
 
@@ -30,7 +30,10 @@ export class WebSocketHandler {
     /**
      * Handle WebSocket messages from the server
      */
-    public handleWebSocketMessage(event: any, currentExecutionId: string | undefined): boolean {
+    public handleWebSocketMessage(
+        event: PortScanWebSocketEvent | { data?: { event?: string; arguments?: unknown[] }; event?: string },
+        currentExecutionId: string | undefined,
+    ): boolean {
         if(!currentExecutionId) {
             return false;
         }
@@ -42,26 +45,90 @@ export class WebSocketHandler {
         let flowExecution: FlowExecution | undefined;
         let stepExecution: FlowStepExecution | undefined;
 
-        if(event.event === 'FlowExecution') {
-            const args = event.data && event.data.arguments;
-            if(args && args.length > 0) {
-                executionId = args[0].id;
-                flowExecution = args[0];
+        // Handle both direct event types and wrapped events in data property
+        let eventType: string | undefined;
+
+        // Type guard for PortScanWebSocketEvent
+        if('type' in event && typeof event.type === 'string') {
+            eventType = event.type;
+        }
+        // Type guard for wrapper object with event property
+        else if('event' in event && typeof event.event === 'string') {
+            eventType = event.event;
+        }
+        // Type guard for wrapper object with data.event property
+        else if(
+            event &&
+            typeof event === 'object' &&
+            'data' in event &&
+            event.data &&
+            typeof event.data === 'object' &&
+            'event' in (event.data as Record<string, unknown>) &&
+            typeof (event.data as Record<string, unknown>).event === 'string'
+        ) {
+            eventType = (event.data as Record<string, unknown>).event as string;
+        }
+
+        if(eventType === 'FlowExecution') {
+            // Get arguments using type guards
+            let args: unknown[] | undefined;
+
+            // Direct arguments in PortScanWebSocketEvent
+            if('arguments' in event && Array.isArray(event.arguments)) {
+                args = event.arguments;
+            }
+            // Nested arguments in data property
+            else if(
+                event &&
+                typeof event === 'object' &&
+                'data' in event &&
+                event.data &&
+                typeof event.data === 'object' &&
+                'arguments' in (event.data as Record<string, unknown>) &&
+                Array.isArray((event.data as Record<string, unknown>).arguments)
+            ) {
+                args = (event.data as Record<string, unknown>).arguments as unknown[];
+            }
+
+            if(args && args.length > 0 && typeof args[0] === 'object' && args[0] !== null) {
+                const flowExecutionData = args[0] as FlowExecution;
+                executionId = flowExecutionData.id;
+                flowExecution = flowExecutionData;
             }
         }
-        else if(event.event === 'FlowStepExecution') {
-            const args = event.data && event.data.arguments;
-            if(args && args.length > 0) {
-                executionId = args[0].flowExecutionId; // Note: It's flowExecutionId, not executionId
-                stepExecution = args[0];
+        else if(eventType === 'FlowStepExecution') {
+            // Get arguments using type guards
+            let args: unknown[] | undefined;
+
+            // Direct arguments in PortScanWebSocketEvent
+            if('arguments' in event && Array.isArray(event.arguments)) {
+                args = event.arguments;
+            }
+            // Nested arguments in data property
+            else if(
+                event &&
+                typeof event === 'object' &&
+                'data' in event &&
+                event.data &&
+                typeof event.data === 'object' &&
+                'arguments' in (event.data as Record<string, unknown>) &&
+                Array.isArray((event.data as Record<string, unknown>).arguments)
+            ) {
+                args = (event.data as Record<string, unknown>).arguments as unknown[];
+            }
+
+            if(args && args.length > 0 && typeof args[0] === 'object' && args[0] !== null) {
+                const stepExecutionData = args[0] as FlowStepExecution;
+                executionId = stepExecutionData.executionId; // This is the ID linking to the parent flow execution
+                stepExecution = stepExecutionData;
 
                 // Direct check for host resolution errors in any flow step execution
                 if(
-                    args[0].errors &&
-                    args[0].errors.length > 0 &&
-                    args[0].errors[0] &&
-                    args[0].errors[0].message &&
-                    args[0].errors[0].message.includes('Failed to resolve host')
+                    stepExecutionData.errors &&
+                    stepExecutionData.errors.length > 0 &&
+                    stepExecutionData.errors[0] &&
+                    stepExecutionData.errors[0].message &&
+                    stepExecutionData.errors[0].message.includes('Failed to resolve host')
                 ) {
                     // Found host resolution error in step execution
 
@@ -76,20 +143,23 @@ export class WebSocketHandler {
                     // Extract host and port information if available
                     let host = '';
                     let port = '';
-                    let region = '';
 
                     try {
-                        if(args[0].input) {
-                            host = args[0].input.host || '';
-                            region = args[0].input.region || '';
+                        if(stepExecutionData.input) {
+                            // Safely access input properties if they exist
+                            const input = stepExecutionData.input;
+                            if(typeof input === 'object' && input !== null) {
+                                host = 'host' in input && typeof input.host === 'string' ? input.host : '';
 
-                            // Try to get port from the ports array
-                            if(args[0].input.ports && args[0].input.ports.length > 0) {
-                                if(typeof args[0].input.ports[0] === 'string') {
-                                    port = args[0].input.ports[0];
-                                }
-                                else if(typeof args[0].input.ports[0] === 'object') {
-                                    port = args[0].input.ports[0].port || '';
+                                // Try to get port from the ports array
+                                if('ports' in input && Array.isArray(input.ports) && input.ports.length > 0) {
+                                    const portData = input.ports[0];
+                                    if(typeof portData === 'string') {
+                                        port = portData;
+                                    }
+                                    else if(typeof portData === 'object' && portData !== null && 'port' in portData) {
+                                        port = typeof portData.port === 'string' ? portData.port : '';
+                                    }
                                 }
                             }
                         }
@@ -112,7 +182,7 @@ export class WebSocketHandler {
         }
 
         // Process Flow Execution events
-        if(event.event === 'FlowExecution' && flowExecution) {
+        if(eventType === 'FlowExecution' && flowExecution) {
             // If the flow execution completed, query for complete results
             if(flowExecution.status === FlowExecutionStatus.Success) {
                 this.onStatusUpdate({
@@ -161,7 +231,7 @@ export class WebSocketHandler {
             return true;
         }
         // Process Step Execution events
-        else if(event.event === 'FlowStepExecution' && stepExecution) {
+        else if(eventType === 'FlowStepExecution' && stepExecution) {
             // Check specifically for failed port scan steps with error messages
             if(
                 stepExecution.actionType === 'PortScan' &&
@@ -193,7 +263,6 @@ export class WebSocketHandler {
                     try {
                         if(stepExecution.input && typeof stepExecution.input === 'object') {
                             const hostInput = stepExecution.input.host;
-                            const regionInput = stepExecution.input.region;
                             let portInput = null;
 
                             // Try to get port from different formats

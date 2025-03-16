@@ -1,7 +1,7 @@
 'use client'; // This service uses client-only features
 
 // Dependencies - Types
-import { WebSocketEventMessage } from '@structure/source/api/web-sockets/types/WebSocketMessage';
+import { WebSocketEventMessage } from '@structure/source/api/web-sockets/types/WebSocketTypes';
 import { WebSocketHook } from '@project/source/modules/connected/types/FlowTypes';
 import {
     PortScanInput,
@@ -26,7 +26,7 @@ import { getPortStateDescription } from '@project/source/modules/connected/utili
 // PortCheckerService configuration interface
 export interface PortCheckerServiceOptions {
     apolloClient: ApolloClient<object>;
-    webSocket: WebSocketHook;
+    webSocketViaSharedWorker: WebSocketHook;
     onStatusUpdate?: (update: PortScanStatusUpdate) => void;
     onResult?: (result: PortScanResult) => void;
     pollingInterval?: number;
@@ -37,7 +37,7 @@ export interface PortCheckerServiceOptions {
  */
 export class PortCheckerService {
     private apolloClient: ApolloClient<object>;
-    private webSocket: WebSocketHook;
+    private webSocketViaSharedWorker: WebSocketHook;
     private onStatusUpdate: (update: PortScanStatusUpdate) => void;
     private onResult: (result: PortScanResult) => void;
     private pollingInterval: number;
@@ -64,7 +64,7 @@ export class PortCheckerService {
 
     constructor(options: PortCheckerServiceOptions) {
         this.apolloClient = options.apolloClient;
-        this.webSocket = options.webSocket;
+        this.webSocketViaSharedWorker = options.webSocketViaSharedWorker;
         this.onStatusUpdate = options.onStatusUpdate || (() => {});
         this.onResult = options.onResult || (() => {});
         this.pollingInterval = options.pollingInterval || 2000;
@@ -157,7 +157,7 @@ export class PortCheckerService {
             this.messageHandler();
         }
 
-        this.messageHandler = this.webSocket.addMessageHandler((event: WebSocketEventMessage) => {
+        this.messageHandler = this.webSocketViaSharedWorker.onWebSocketMessage((event: WebSocketEventMessage) => {
             // If we're using fallback polling but received a WebSocket message, stop polling
             if(this.handleWebSocketMessage(event) && this.usingFallbackPolling) {
                 this.usingFallbackPolling = false;
@@ -174,7 +174,16 @@ export class PortCheckerService {
             return false;
         }
 
-        const wasProcessed = this.webSocketHandler.handleWebSocketMessage(event, this.currentExecutionId);
+        // Convert WebSocketEventMessage to a format compatible with WebSocketHandler
+        const adaptedEvent = {
+            event: event.event,
+            data: {
+                event: event.event,
+                arguments: [event.data], // Always wrap in array since our handler expects array of arguments
+            },
+        };
+
+        const wasProcessed = this.webSocketHandler.handleWebSocketMessage(adaptedEvent, this.currentExecutionId);
 
         if(wasProcessed) {
             // Update last message time
@@ -340,7 +349,7 @@ export class PortCheckerService {
             this.setupWebSocketTimeout();
 
             // Start polling immediately if WebSocket is not connected
-            if(!this.webSocket.isConnected) {
+            if(!this.webSocketViaSharedWorker.isSharedWorkerConnected) {
                 this.usingFallbackPolling = true;
                 // Skip status update for backup connection method
                 // We want to keep the UI clean with just initial message and final result

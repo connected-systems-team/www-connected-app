@@ -14,7 +14,7 @@ import {
 import { ButtonElementType } from '@structure/source/common/buttons/Button';
 
 // Dependencies - Hooks
-import { useWebSocket } from '@structure/source/api/web-sockets/hooks/useWebSocket';
+import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/hooks/useWebSocketViaSharedWorker';
 
 // Dependencies - API
 import { useApolloClient } from '@apollo/client';
@@ -43,7 +43,7 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
     const [statusItems, setStatusItems] = React.useState<PortCheckStatusItem[]>([]);
 
     // Hooks
-    const webSocket = useWebSocket();
+    const webSocketViaSharedWorker = useWebSocketViaSharedWorker();
     const apolloClient = useApolloClient();
 
     // References - Port Check Form
@@ -130,7 +130,7 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
         if(!portCheckerServiceReference.current) {
             portCheckerServiceReference.current = new PortCheckerService({
                 apolloClient,
-                webSocket,
+                webSocketViaSharedWorker,
                 // We don't need to do anything with intermediate status updates
                 onResult: handlePortScanResult,
             });

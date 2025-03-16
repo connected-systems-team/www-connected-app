@@ -1,9 +1,9 @@
 import { FlowExecutionStatus, FlowStepExecutionStatus } from '@project/source/api/GraphQlGeneratedCode';
 import { PortScanStepInput, PortScanStepOutput } from './PortTypes';
-import { useWebSocket } from '@structure/source/api/web-sockets/hooks/useWebSocket';
+import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/hooks/useWebSocketViaSharedWorker';
 
 // WebSocketHook type definition for type safety
-export type WebSocketHook = ReturnType<typeof useWebSocket>;
+export type WebSocketHook = ReturnType<typeof useWebSocketViaSharedWorker>;
 
 // GraphQL Flow Execution response types to handle different property names
 export interface GraphQlFlowStepExecutionResponse {
