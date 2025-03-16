@@ -13,7 +13,7 @@ import { PortCheckStatusAnimatedList, PortCheckStatusItem } from './PortCheckSta
 import { About } from '@project/app/(main-layout)/port-checker/About';
 
 // Dependencies - Hooks
-import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/hooks/useWebSocketViaSharedWorker';
+import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
 
 // Dependencies - API
 import { useApolloClient } from '@apollo/client';

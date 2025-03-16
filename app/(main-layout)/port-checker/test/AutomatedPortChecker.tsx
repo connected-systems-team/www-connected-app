@@ -14,7 +14,7 @@ import {
 import { ButtonElementType } from '@structure/source/common/buttons/Button';
 
 // Dependencies - Hooks
-import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/hooks/useWebSocketViaSharedWorker';
+import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
 
 // Dependencies - API
 import { useApolloClient } from '@apollo/client';

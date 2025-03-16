@@ -2,7 +2,7 @@
 
 // Dependencies - Types
 import { WebSocketEventMessage } from '@structure/source/api/web-sockets/types/WebSocketTypes';
-import { WebSocketViaSharedWorkerHook } from '@structure/source/api/web-sockets/hooks/useWebSocketViaSharedWorker';
+import { WebSocketViaSharedWorkerContextInterface } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
 import {
     PortScanInput,
     PortScanResult,
@@ -26,7 +26,7 @@ import { getPortStateDescription } from '@project/source/modules/connected/utili
 // PortCheckerService configuration interface
 export interface PortCheckerServiceOptions {
     apolloClient: ApolloClient<object>;
-    webSocketViaSharedWorker: WebSocketViaSharedWorkerHook;
+    webSocketViaSharedWorker: WebSocketViaSharedWorkerContextInterface;
     onStatusUpdate?: (update: PortScanStatusUpdate) => void;
     onResult?: (result: PortScanResult) => void;
     pollingInterval?: number;
@@ -37,7 +37,7 @@ export interface PortCheckerServiceOptions {
  */
 export class PortCheckerService {
     private apolloClient: ApolloClient<object>;
-    private webSocketViaSharedWorker: WebSocketViaSharedWorkerHook;
+    private webSocketViaSharedWorker: WebSocketViaSharedWorkerContextInterface;
     private onStatusUpdate: (update: PortScanStatusUpdate) => void;
     private onResult: (result: PortScanResult) => void;
     private pollingInterval: number;
