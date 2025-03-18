@@ -26,7 +26,7 @@ import { NextResponse } from 'next/server';
 
 // Dependencies - Worker Script
 // @ts-expect-error - WebSocketSharedWorker is imported as a string by webpack
-import WebSocketSharedWorker from '@structure/source/api/web-sockets/shared-workers/WebSocketSharedWorker.code.js';
+import WebSocketSharedWorker from '@structure/source/api/web-sockets/shared-worker/generated/WebSocketSharedWorker.code.js';
 
 /**
  * GET /api/web-sockets/shared-workers/web-socket-shared-worker.js
