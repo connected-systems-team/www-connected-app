@@ -9,23 +9,17 @@ import { FormInputReferenceInterface } from '@structure/source/common/forms/Form
 import { PortCheckForm } from '@project/app/(main-layout)/port-checker/PortCheckForm';
 import { CommonPorts } from '@project/app/(main-layout)/port-checker/CommonPorts';
 import { YourPublicIpAddress } from '@project/app/(main-layout)/port-checker/YourPublicIpAddress';
-import { PortCheckStatusAnimatedList, PortCheckStatusItem } from './PortCheckStatusAnimatedList';
+import {
+    PortCheckStatusItem,
+    PortCheckStatusAnimatedList,
+} from '@project/app/(main-layout)/port-checker/PortCheckStatusAnimatedList';
 import { About } from '@project/app/(main-layout)/port-checker/About';
 
 // Dependencies - Hooks
 import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
 
 // Dependencies - API
-import { useApolloClient } from '@apollo/client';
-import {
-    PortScanResultInterface,
-    NmapPortStateType,
-} from '@project/source/modules/connected/port-scan/types/PortScanTypes';
-import { PortScanService } from '@project/source/modules/connected/port-scan/old/PortScanService';
-
-// Dependencies - Utilities
-import { getRegionMetadata } from '@project/source/modules/connected/grid/utilities/GridUtilities';
-import { isIpV4Address, isIpV6Address, isPrivateIpAddress } from '@structure/source/utilities/network/IpAddress';
+import { PortCheckStatusAdapter } from '@project/app/(main-layout)/port-checker/adapters/PortCheckStatusAdapter';
 
 // Component - PortChecker
 export interface PortCheckerInterface {
@@ -33,17 +27,11 @@ export interface PortCheckerInterface {
 }
 export function PortChecker(properties: PortCheckerInterface) {
     // State
-    const [checkingPort, setCheckingPort] = React.useState<boolean>(false);
-    const [statusItems, setStatusItems] = React.useState<PortCheckStatusItem[]>([]);
+    const [isCheckingPort, setIsCheckingPort] = React.useState<boolean>(false);
+    const [portCheckStatusItems, setPortCheckStatusItems] = React.useState<PortCheckStatusItem[]>([]);
 
     // Hooks
     const webSocketViaSharedWorker = useWebSocketViaSharedWorker();
-    console.log('PortChecker: useWebSocketViaSharedWorker returned', {
-        isSharedWorkerSupported: webSocketViaSharedWorker.isSharedWorkerSupported,
-        isSharedWorkerConnected: webSocketViaSharedWorker.isSharedWorkerConnected,
-        webSocketState: webSocketViaSharedWorker.webSocketConnectionInformation,
-    });
-    const apolloClient = useApolloClient();
 
     // References - Port Check Form
     const portCheckFormSubmitButtonReference = React.useRef<ButtonElementType>(null);
@@ -51,251 +39,59 @@ export function PortChecker(properties: PortCheckerInterface) {
     const portCheckFormRemotePortFormInputReference = React.useRef<FormInputReferenceInterface>(null);
     const portCheckFormRegionFormInputReference = React.useRef<FormInputReferenceInterface>(null);
 
-    // References - Port Checker Service
-    const portCheckerServiceReference = React.useRef<PortScanService | null>(null);
+    // Reference - Port Check Status Adapter
+    const portCheckStatusAdapterReference = React.useRef<PortCheckStatusAdapter | null>(null);
 
-    // Function to handle port scan results
-    function handlePortScanResult(result: PortScanResultInterface): void {
-        let resultMessage: string;
+    // Function to handle port check status item (append to list)
+    function handlePortCheckStatusItem(portCheckStatusItem: PortCheckStatusItem): void {
+        // Add the status item to the end of the list
+        setPortCheckStatusItems(function (previousPortCheckStatusItems) {
+            return [...previousPortCheckStatusItems, portCheckStatusItem];
+        });
 
-        // Handle system errors and timeouts differently from actual port states
-        if(result.systemError) {
-            if(result.errorMessage) {
-                // Check for specific error types
-                if(result.errorMessage.includes('Failed to resolve host')) {
-                    resultMessage = `Failed to resolve host: The hostname could not be found.`;
-                }
-                else if(result.errorMessage.includes('Host is down')) {
-                    resultMessage = `Host ${result.host} is down or not responding.`;
-                }
-                else if(result.errorMessage.includes('Invalid or disallowed host')) {
-                    resultMessage = `${result.host} is a private or disallowed IP address.`;
-                }
-                else {
-                    // Show other specific error messages from the server
-                    resultMessage = `Error: ${result.errorMessage}`;
-                }
-            }
-            else {
-                resultMessage = `Our system is down and our engineers have been notified.`;
-            }
+        // If this is a final status (not loading), update the checking state
+        if(!portCheckStatusItem.isLoading) {
+            setIsCheckingPort(false);
         }
-        else if(result.timeout) {
-            resultMessage = `The request timed out. Please try again.`;
-        }
-        else {
-            const stateDescription = PortScanService.getPortStateDescription(result.state);
-            resultMessage = `Port ${result.port} is ${stateDescription} on ${result.host}.`;
-        }
-
-        // Create the new result item
-        const resultItem: PortCheckStatusItem = {
-            text: resultMessage,
-            state: result.state,
-            isLoading: false,
-            systemError: result.systemError,
-            timeout: result.timeout,
-            errorMessage: result.errorMessage,
-            host: result.host,
-            port: typeof result.port === 'string' ? parseInt(result.port, 10) : result.port,
-        };
-
-        // Create a function to update the status items with the proper return type
-        function updateStatusItems(previousItems: PortCheckStatusItem[]): PortCheckStatusItem[] {
-            // If we have previous items
-            if(previousItems.length > 0) {
-                // Check if this exact message already exists
-                const messageExists = previousItems.some((item) => item.text === resultMessage);
-                if(messageExists) {
-                    return previousItems;
-                }
-
-                // Get the first item (we already checked that length > 0, so it exists)
-                const firstItem = previousItems[0];
-
-                // Extra safety check for TypeScript - make sure it's not undefined
-                if(firstItem) {
-                    return [firstItem, resultItem];
-                }
-
-                // Fallback in case there's somehow an undefined item
-                return [resultItem];
-            }
-
-            // If no previous items, return just the result
-            return [resultItem];
-        }
-
-        // Update the status items
-        setStatusItems(updateStatusItems);
-
-        // Finish the port checking
-        setCheckingPort(false);
-    }
-
-    // Function to initialize port checker service
-    function initializePortScanService(): PortScanService {
-        if(!portCheckerServiceReference.current) {
-            portCheckerServiceReference.current = new PortScanService({
-                apolloClient,
-                webSocketViaSharedWorker,
-                // Handle intermediate status updates to show progress
-                onStatusUpdate: (update) => {
-                    // Process status update
-
-                    // If we get specific error status updates, immediately show them in the UI
-                    if(update.type === 'error' && update.isFinal && update.message) {
-                        // Special handling for host resolution errors
-                        if(
-                            update.message.includes('Failed to resolve host') ||
-                            update.message.includes('hostname could not be found')
-                        ) {
-                            // Handle host resolution error status update
-
-                            // We'll let the onResult handler show the final result
-                            // This is just a backup in case onResult doesn't get called
-                            if(statusItems.length === 1 && statusItems[0] && statusItems[0].isLoading) {
-                                setStatusItems([
-                                    {
-                                        text: 'Failed to resolve host: The hostname could not be found.',
-                                        state: 'unknown' as NmapPortStateType,
-                                        isLoading: false,
-                                        systemError: true,
-                                        errorMessage: 'Failed to resolve host.',
-                                    },
-                                ]);
-                                setCheckingPort(false);
-                            }
-                        }
-                    }
-                },
-                // Handle port scan results
-                onResult: handlePortScanResult,
-            });
-        }
-        return portCheckerServiceReference.current;
     }
 
     // Function to check the port
-    async function checkPort(remoteAddress: string, remotePort: number, regionIdentifier: string = 'north-america') {
+    async function checkPort(
+        remoteAddress: string,
+        remotePort: number,
+        regionIdentifier: string = 'north-america',
+    ): Promise<void> {
         // Reset status updates
-        setStatusItems([]);
+        setPortCheckStatusItems([]);
 
         // Set checking state
-        setCheckingPort(true);
+        setIsCheckingPort(true);
 
-        // Get port checker service and start port checking
-        const portCheckerService = initializePortScanService();
-
-        try {
-            // Check if the address is a private IP address (only for IPv4)
-            if(isIpV4Address(remoteAddress) && isPrivateIpAddress(remoteAddress)) {
-                // Handle private IP address - show message in animated list
-                setStatusItems([
-                    {
-                        text: `${remoteAddress} is a private IP address.`,
-                        state: 'unknown' as NmapPortStateType,
-                        isLoading: false,
-                        systemError: true,
-                        errorMessage: 'Private IP Address',
-                        host: remoteAddress,
-                        port: remotePort,
-                    },
-                ]);
-                setCheckingPort(false);
-                return;
-            }
-
-            // First check if it's a valid IPv6 address - if so, we'll allow it through
-            if(isIpV6Address(remoteAddress)) {
-                // Valid IPv6 - continue to the API call
-            }
-            // If it's not IPv6, check if it's a valid domain or IPv4
-            else if(
-                !remoteAddress.match(/^[a-zA-Z0-9][-a-zA-Z0-9.]{0,253}[a-zA-Z0-9](\.[a-zA-Z]{2,})+$/) &&
-                !remoteAddress.match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/)
-            ) {
-                const domainPattern = /^[a-zA-Z0-9][-a-zA-Z0-9.]{0,253}[a-zA-Z0-9](\.[a-zA-Z]{2,})+$/;
-                const ipPattern = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
-
-                // This is not a valid domain name or IPv4 pattern - provide immediate feedback
-                if(!domainPattern.test(remoteAddress) && !ipPattern.test(remoteAddress)) {
-                    // Invalid hostname detected, show user-friendly error
-
-                    // Only show this if it's likely to fail host resolution
-                    // Allow IPv6 addresses which often don't have dots
-                    if(!remoteAddress.includes('.') && !remoteAddress.includes(':')) {
-                        setStatusItems([
-                            {
-                                text: `Invalid IP address or domain name format: "${remoteAddress}"`,
-                                state: 'unknown' as NmapPortStateType,
-                                isLoading: false,
-                                systemError: true,
-                                errorMessage: 'Invalid format. Please enter a valid domain name or IP address.',
-                                host: remoteAddress,
-                                port: remotePort,
-                            },
-                        ]);
-                        setCheckingPort(false);
-                        return;
-                    }
-                }
-            }
-
-            // Get region metadata for the display name
-            const regionMetadata = getRegionMetadata(regionIdentifier);
-
-            // Set initial message
-            const initialMessage = `Checking port ${remotePort} on ${remoteAddress} from ${regionMetadata.emoji} ${regionMetadata.displayName}...`;
-
-            setStatusItems([
-                {
-                    text: initialMessage,
-                    state: 'unknown' as NmapPortStateType,
-                    isLoading: true,
-                    host: remoteAddress,
-                    port: remotePort,
-                },
-            ]);
-
-            await portCheckerService.checkPort({
-                host: remoteAddress,
-                port: remotePort,
-                regionIdentifier: regionIdentifier,
-            });
-        }
-        catch(error) {
-            console.error('Error starting port check:', error);
-
-            // Check if this might be a host resolution issue
-            const isHostResolutionIssue = error instanceof Error && error.message.toLowerCase().includes('resolve');
-
-            setStatusItems([
-                {
-                    text: isHostResolutionIssue
-                        ? 'Failed to resolve host: The hostname could not be found.'
-                        : 'Failed to start port check. Our service encountered an internal error.',
-                    state: 'unknown' as NmapPortStateType,
-                    isLoading: false,
-                    systemError: true,
-                    errorMessage: isHostResolutionIssue ? 'Failed to resolve host.' : undefined,
-                    host: remoteAddress,
-                    port: remotePort,
-                },
-            ]);
-            setCheckingPort(false);
+        // Start the scan - all validation is handled inside the flow service
+        if(portCheckStatusAdapterReference.current) {
+            await portCheckStatusAdapterReference.current.checkPort(remoteAddress, remotePort, regionIdentifier);
         }
     }
 
-    // Cleanup on component unmount
-    React.useEffect(function () {
-        return function () {
-            if(portCheckerServiceReference.current) {
-                portCheckerServiceReference.current.dispose();
-                portCheckerServiceReference.current = null;
-            }
-        };
-    }, []);
+    // Initialize and cleanup port check status adapter
+    React.useEffect(
+        function () {
+            // Initialize the adapter on mount
+            portCheckStatusAdapterReference.current = new PortCheckStatusAdapter(
+                webSocketViaSharedWorker,
+                handlePortCheckStatusItem,
+            );
+
+            // On unmount, dispose of the adapter
+            return function () {
+                if(portCheckStatusAdapterReference.current) {
+                    portCheckStatusAdapterReference.current.dispose();
+                    portCheckStatusAdapterReference.current = null;
+                }
+            };
+        },
+        [webSocketViaSharedWorker],
+    );
 
     // Render the component
     return (
@@ -309,11 +105,11 @@ export function PortChecker(properties: PortCheckerInterface) {
                     remotePortFormInputReference={portCheckFormRemotePortFormInputReference}
                     regionFormInputReference={portCheckFormRegionFormInputReference}
                     buttonReference={portCheckFormSubmitButtonReference}
-                    checkingPort={checkingPort}
+                    checkingPort={isCheckingPort}
                     checkPort={checkPort}
                 />
 
-                <PortCheckStatusAnimatedList portCheckStatusItems={statusItems} />
+                <PortCheckStatusAnimatedList portCheckStatusItems={portCheckStatusItems} />
 
                 <About />
             </div>
@@ -324,7 +120,7 @@ export function PortChecker(properties: PortCheckerInterface) {
                     portCheckFormRemotePortFormInputReference.current?.setValue(port.toString());
 
                     // Immediately check the port if not already checking
-                    if(!checkingPort) {
+                    if(!isCheckingPort) {
                         portCheckFormSubmitButtonReference.current?.click();
                     }
                 }}
