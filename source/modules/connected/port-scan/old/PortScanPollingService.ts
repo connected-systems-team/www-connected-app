@@ -5,26 +5,26 @@ import {
     FlowExecutionStatus,
     FlowStepExecutionStatus,
     GraphQlFlowStepExecutionResponse,
-} from '@project/source/modules/connected/types/FlowTypes';
-import { PortScanStatusUpdate } from '@project/source/modules/connected/types/PortTypes';
+} from '@project/source/modules/connected/flows/types/FlowTypes';
+import { PortScanStatusUpdateInterface } from '@project/source/modules/connected/port-scan/types/PortScanTypes';
 
 // Dependencies - API
 import { ApolloClient } from '@apollo/client';
 import { PortScanDocument } from '@project/source/api/GraphQlGeneratedCode';
 
 // Dependencies - Services
-import { FlowProcessor } from './FlowProcessor';
-import { StepProcessor } from './StepProcessor';
+import { FlowProcessor } from '../flows/FlowProcessor';
+import { StepProcessor } from '../flows/FlowStepProcessor';
 
 // Dependencies - Utilities
-import { convertGraphQlStepToFlowStepExecution } from '@project/source/modules/connected/utilities/FlowUtilities';
+import { convertGraphQlStepToFlowStepExecution } from '@project/source/modules/connected/flows/utilities/FlowUtilities';
 
 /**
  * Class for handling polling functionality as a fallback for WebSockets
  */
 export class PollingService {
     private apolloClient: ApolloClient<object>;
-    private onStatusUpdate: (update: PortScanStatusUpdate) => void;
+    private onStatusUpdate: (update: PortScanStatusUpdateInterface) => void;
     private flowProcessor: FlowProcessor;
     private stepProcessor: StepProcessor;
     private pollingInterval: number;
@@ -32,7 +32,7 @@ export class PollingService {
 
     constructor(
         apolloClient: ApolloClient<object>,
-        onStatusUpdate: (update: PortScanStatusUpdate) => void,
+        onStatusUpdate: (update: PortScanStatusUpdateInterface) => void,
         flowProcessor: FlowProcessor,
         stepProcessor: StepProcessor,
         pollingInterval: number,

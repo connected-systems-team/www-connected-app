@@ -20,11 +20,11 @@ import CheckCircledGreenBorderIcon from '@project/assets/icons/status/CheckCircl
 import ErrorCircledRedBorderIcon from '@project/assets/icons/status/ErrorCircledRedBorderIcon.svg';
 
 // Dependencies - Utilities
-import { getRegionMetadata } from '@project/source/modules/connected/utilities/GridUtilities';
+import { getRegionMetadata } from '@project/source/modules/connected/grid/utilities/GridUtilities';
 import { iso8601Date, timeAgo } from '@structure/source/utilities/Time';
 import { uppercaseFirstCharacter } from '@structure/source/utilities/String';
-import { extractPortScanHistoryData } from '@project/source/modules/connected/utilities/FlowUtilities';
-import { getPortStateDescription } from '@project/source/modules/connected/utilities/PortUtilities';
+import { extractPortScanHistoryData } from '@project/source/modules/connected/flows/utilities/FlowUtilities';
+import { getPortStateDescription } from '@project/source/modules/connected/port-scan/utilities/PortScanUtilities';
 
 // Component - PortCheckerHistoryPage
 export function PortCheckerHistoryPage() {

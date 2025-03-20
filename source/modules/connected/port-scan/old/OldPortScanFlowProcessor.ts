@@ -5,32 +5,32 @@ import {
     FlowExecutionStatus,
     GraphQlFlowExecutionResponse,
     GraphQlFlowStepExecutionResponse,
-} from '@project/source/modules/connected/types/FlowTypes';
+} from '@project/source/modules/connected/flows/types/FlowTypes';
 import {
-    PortScanResult,
-    PortScanStatusUpdate,
-    PortState,
-    PortScanStepInput,
-} from '@project/source/modules/connected/types/PortTypes';
+    PortScanResultInterface,
+    PortScanStatusUpdateInterface,
+    NmapPortStateType,
+    PortScanFlowStepInputInterface,
+} from '@project/source/modules/connected/port-scan/types/PortScanTypes';
 
 // Dependencies - Services
-import { StepProcessor } from './StepProcessor';
+import { StepProcessor } from './OldPortScanFlowStepProcessor';
 
 // Dependencies - Utilities
-import { convertGraphQlStepToFlowStepExecution } from '@project/source/modules/connected/utilities/FlowUtilities';
+import { convertGraphQlStepToFlowStepExecution } from '@project/source/modules/connected/flows/utilities/FlowUtilities';
 
 /**
  * Class for processing flow execution data
  */
 export class FlowProcessor {
-    private onStatusUpdate: (update: PortScanStatusUpdate) => void;
-    private onResult: (result: PortScanResult) => void;
+    private onStatusUpdate: (update: PortScanStatusUpdateInterface) => void;
+    private onResult: (result: PortScanResultInterface) => void;
     private stepProcessor: StepProcessor;
     private currentExecutionId: string | undefined;
 
     constructor(
-        onStatusUpdate: (update: PortScanStatusUpdate) => void,
-        onResult: (result: PortScanResult) => void,
+        onStatusUpdate: (update: PortScanStatusUpdateInterface) => void,
+        onResult: (result: PortScanResultInterface) => void,
         stepProcessor: StepProcessor,
     ) {
         this.onStatusUpdate = onStatusUpdate;
@@ -51,7 +51,7 @@ export class FlowProcessor {
         let host = '';
         let port = '';
         let regionIdentifier = '';
-        let portState: PortState = 'unknown';
+        let portState: NmapPortStateType = 'unknown';
         let errorMessage = '';
         let isUnresolvedDomain = false;
         let isHostResolutionError = false;
@@ -113,10 +113,10 @@ export class FlowProcessor {
             try {
                 const inputData = flowExecution.input;
                 if(inputData) {
-                    let input: PortScanStepInput;
+                    let input: PortScanFlowStepInputInterface;
                     if(typeof inputData === 'string') {
                         try {
-                            input = JSON.parse(inputData) as PortScanStepInput;
+                            input = JSON.parse(inputData) as PortScanFlowStepInputInterface;
                         }
                         catch(error) {
                             console.error('Error parsing flow input:', error);

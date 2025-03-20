@@ -18,11 +18,14 @@ import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/p
 
 // Dependencies - API
 import { useApolloClient } from '@apollo/client';
-import { PortScanResult, PortState } from '@project/source/modules/connected/types/PortTypes';
-import { PortCheckerService } from '@project/source/modules/connected/services/port-checker/PortCheckerService';
+import {
+    PortScanResultInterface,
+    NmapPortStateType,
+} from '@project/source/modules/connected/port-scan/types/PortScanTypes';
+import { PortScanService } from '@project/source/modules/connected/port-scan/old/PortScanService';
 
 // Dependencies - Utilities
-import { getRegionMetadata } from '@project/source/modules/connected/utilities/GridUtilities';
+import { getRegionMetadata } from '@project/source/modules/connected/grid/utilities/GridUtilities';
 
 // Test case interface
 interface PortCheckerTestCase {
@@ -33,7 +36,7 @@ interface PortCheckerTestCase {
 // Component - AutomatedPortChecker
 export interface AutomatedPortCheckerInterface {
     testCase: PortCheckerTestCase;
-    onTestComplete?: (result: PortScanResult) => void;
+    onTestComplete?: (result: PortScanResultInterface) => void;
     autoRun?: boolean;
 }
 
@@ -53,10 +56,10 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
     const portCheckFormRegionFormInputReference = React.useRef<FormInputReferenceInterface>(null);
 
     // References - Port Checker Service
-    const portCheckerServiceReference = React.useRef<PortCheckerService | null>(null);
+    const portCheckerServiceReference = React.useRef<PortScanService | null>(null);
 
     // Function to handle port scan results
-    function handlePortScanResult(result: PortScanResult): void {
+    function handlePortScanResult(result: PortScanResultInterface): void {
         let resultMessage: string;
 
         // Handle system errors and timeouts differently from actual port states
@@ -73,7 +76,7 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
             resultMessage = `The request to check port ${result.port} on ${result.host} timed out. Please try again later.`;
         }
         else {
-            const stateDescription = PortCheckerService.getPortStateDescription(result.state);
+            const stateDescription = PortScanService.getPortStateDescription(result.state);
             resultMessage = `Port ${result.port} is ${stateDescription} on ${result.host}.`;
         }
 
@@ -126,9 +129,9 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
     }
 
     // Function to initialize port checker service
-    function initializePortCheckerService(): PortCheckerService {
+    function initializePortScanService(): PortScanService {
         if(!portCheckerServiceReference.current) {
-            portCheckerServiceReference.current = new PortCheckerService({
+            portCheckerServiceReference.current = new PortScanService({
                 apolloClient,
                 webSocketViaSharedWorker,
                 // We don't need to do anything with intermediate status updates
@@ -147,7 +150,7 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
         setCheckingPort(true);
 
         // Get port checker service and start port checking
-        const portCheckerService = initializePortCheckerService();
+        const portCheckerService = initializePortScanService();
 
         try {
             // Get region metadata for the display name
@@ -158,7 +161,7 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
             setStatusItems([
                 {
                     text: initialMessage,
-                    state: 'unknown' as PortState,
+                    state: 'unknown' as NmapPortStateType,
                     isLoading: true,
                 },
             ]);
@@ -166,7 +169,7 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
             await portCheckerService.checkPort({
                 host: remoteAddress,
                 port: remotePort,
-                region: regionIdentifier,
+                regionIdentifier: regionIdentifier,
             });
         }
         catch(error) {
@@ -174,7 +177,7 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
             setStatusItems([
                 {
                     text: 'Failed to start port check. Our service encountered an internal error.',
-                    state: 'unknown' as PortState,
+                    state: 'unknown' as NmapPortStateType,
                     isLoading: false,
                     systemError: true,
                 },

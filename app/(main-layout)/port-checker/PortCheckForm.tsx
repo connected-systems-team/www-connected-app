@@ -16,7 +16,7 @@ import { GridRegionsDocument } from '@project/source/api/GraphQlGeneratedCode';
 import ArrowUpIcon from '@structure/assets/icons/interface/ArrowUpIcon.svg';
 
 // Dependencies - Utilities
-import { getRegionMetadata } from '@project/source/modules/connected/utilities/GridUtilities';
+import { getRegionMetadata } from '@project/source/modules/connected/grid/utilities/GridUtilities';
 
 // Component - PortCheckForm
 export interface PortCheckFormInterface {

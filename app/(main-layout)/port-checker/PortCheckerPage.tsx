@@ -73,7 +73,7 @@ export function PortCheckerPage(properties: PortCheckerPageInterface) {
 
                             <Button
                                 variant="unstyled"
-                                className="rounded-small mt-4 w-full bg-purple-800 hover:bg-purple-700 active:bg-purple-600"
+                                className="mt-4 w-full rounded-small bg-purple-800 hover:bg-purple-700 active:bg-purple-600"
                                 onClick={handleDismissNotice}
                             >
                                 Acknowledge

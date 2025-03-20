@@ -1,105 +1,7 @@
 'use client'; // This utility uses client-only features
 
-// Dependencies - Types
-import { FlowStepExecution, GraphQlFlowStepExecutionResponse } from '../types/FlowTypes';
-import { PortScanStepInput, PortScanStepOutput, PortState } from '../types/PortTypes';
-
-// Dependencies - Utilities
-import { extractPortFromStepInput, extractPortStateFromStepOutput } from './PortUtilities';
-
-/**
- * Convert GraphQL step execution response to our internal FlowStepExecution type
- * @param step The GraphQL step execution response
- * @param executionId The flow execution ID
- * @returns A formatted FlowStepExecution object
- */
-export function convertGraphQlStepToFlowStepExecution(
-    step: GraphQlFlowStepExecutionResponse,
-    executionId: string,
-): FlowStepExecution {
-    return {
-        stepId: step.stepId,
-        executionId: step.flowExecutionId || executionId,
-        status: step.status,
-        actionType: step.actionType,
-        input: parseStepInput(step.input),
-        output: parseStepOutput(step.output),
-        errors: step.errors || undefined,
-    };
-}
-
-/**
- * Step execution input can be a string (serialized JSON) or an object
- */
-export type StepInputType = string | Record<string, unknown> | null | undefined;
-
-/**
- * Step execution output can be a string (serialized JSON) or an object
- */
-export type StepOutputType = string | Record<string, unknown> | null | undefined;
-
-/**
- * Parse step execution input into a structured object
- * @param input The input to parse (string or object)
- * @returns Parsed object or empty object if parsing fails
- */
-export function parseStepInput<T = Record<string, unknown>>(input: StepInputType): T {
-    if(typeof input === 'string') {
-        try {
-            return JSON.parse(input) as T;
-        }
-        catch(error) {
-            console.error('Error parsing step input:', error);
-            return {} as T;
-        }
-    }
-
-    if(!input) {
-        return {} as T;
-    }
-
-    // Cast to T as it's an object and should match the expected structure
-    return input as unknown as T;
-}
-
-/**
- * Parse step execution output into a structured object
- * @param output The output to parse (string or object)
- * @returns Parsed object or empty object if parsing fails
- */
-export function parseStepOutput<T = Record<string, unknown>>(output: StepOutputType): T {
-    if(typeof output === 'string') {
-        try {
-            return JSON.parse(output) as T;
-        }
-        catch(error) {
-            console.error('Error parsing step output:', error);
-            return {} as T;
-        }
-    }
-
-    if(!output) {
-        return {} as T;
-    }
-
-    // Cast to T as it's an object and should match the expected structure
-    return output as unknown as T;
-}
-
-/**
- * Extract port scan history data from a flow execution
- * @param flowExecution The flow execution object from history data
- * @returns An object containing extracted port scan data
- */
-export interface PortScanHistoryData {
-    hostName: string;
-    hostIp: string;
-    port: string;
-    portState: PortState;
-    portIsOpen: boolean;
-    latencyInMilliseconds: string;
-    regionName: string;
-}
+import { PortState, PortStateDescriptions, PortScanStepInput, PortScanStepOutput } from '../types/PortTypes';
+import { isIpAddress } from '@structure/source/utilities/network/IpAddress';
 
 export function extractPortScanHistoryData(flowExecution: {
     id?: string;
@@ -204,4 +106,60 @@ export function extractPortScanHistoryData(flowExecution: {
         latencyInMilliseconds,
         regionName,
     };
+}
+
+/**
+ * Get a user-friendly description for a port state
+ */
+export function getPortStateDescription(state: PortState): string {
+    return PortStateDescriptions[state] || state;
+}
+
+/**
+ * Extract port from different possible input formats
+ */
+export function extractPortFromStepInput(input: PortScanStepInput): string {
+    let portNumber = '';
+
+    if(input.ports) {
+        if(Array.isArray(input.ports)) {
+            if(typeof input.ports[0] === 'object') {
+                portNumber = input.ports[0].port || '';
+            }
+            else {
+                portNumber = input.ports[0] || '';
+            }
+        }
+    }
+
+    return portNumber;
+}
+
+/**
+ * Extract port state from port scan output
+ */
+export function extractPortStateFromStepOutput(output: PortScanStepOutput): PortState {
+    let portState: PortState = 'unknown';
+
+    if(output.ports && output.ports.length > 0 && output.ports[0] && output.ports[0].state) {
+        portState = output.ports[0].state;
+    }
+    else if(output.results && output.results.length > 0 && output.results[0] && output.results[0].state) {
+        portState = output.results[0].state;
+    }
+    else if(
+        output.status === 'success' &&
+        output.results &&
+        output.results.length > 0 &&
+        output.results[0] &&
+        output.results[0].port
+    ) {
+        const portResult = output.results[0];
+        if(portResult.port && typeof portResult.port === 'string' && portResult.port.includes('/tcp')) {
+            // For successful TCP port checks without explicit state, assume open
+            portState = 'open';
+        }
+    }
+
+    return portState;
 }

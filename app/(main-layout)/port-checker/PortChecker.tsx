@@ -17,11 +17,14 @@ import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/p
 
 // Dependencies - API
 import { useApolloClient } from '@apollo/client';
-import { PortScanResult, PortState } from '@project/source/modules/connected/types/PortTypes';
-import { PortCheckerService } from '@project/source/modules/connected/services/port-checker/PortCheckerService';
+import {
+    PortScanResultInterface,
+    NmapPortStateType,
+} from '@project/source/modules/connected/port-scan/types/PortScanTypes';
+import { PortScanService } from '@project/source/modules/connected/port-scan/old/PortScanService';
 
 // Dependencies - Utilities
-import { getRegionMetadata } from '@project/source/modules/connected/utilities/GridUtilities';
+import { getRegionMetadata } from '@project/source/modules/connected/grid/utilities/GridUtilities';
 import { isIpV4Address, isIpV6Address, isPrivateIpAddress } from '@structure/source/utilities/network/IpAddress';
 
 // Component - PortChecker
@@ -35,6 +38,11 @@ export function PortChecker(properties: PortCheckerInterface) {
 
     // Hooks
     const webSocketViaSharedWorker = useWebSocketViaSharedWorker();
+    console.log('PortChecker: useWebSocketViaSharedWorker returned', {
+        isSharedWorkerSupported: webSocketViaSharedWorker.isSharedWorkerSupported,
+        isSharedWorkerConnected: webSocketViaSharedWorker.isSharedWorkerConnected,
+        webSocketState: webSocketViaSharedWorker.webSocketConnectionInformation,
+    });
     const apolloClient = useApolloClient();
 
     // References - Port Check Form
@@ -44,10 +52,10 @@ export function PortChecker(properties: PortCheckerInterface) {
     const portCheckFormRegionFormInputReference = React.useRef<FormInputReferenceInterface>(null);
 
     // References - Port Checker Service
-    const portCheckerServiceReference = React.useRef<PortCheckerService | null>(null);
+    const portCheckerServiceReference = React.useRef<PortScanService | null>(null);
 
     // Function to handle port scan results
-    function handlePortScanResult(result: PortScanResult): void {
+    function handlePortScanResult(result: PortScanResultInterface): void {
         let resultMessage: string;
 
         // Handle system errors and timeouts differently from actual port states
@@ -76,7 +84,7 @@ export function PortChecker(properties: PortCheckerInterface) {
             resultMessage = `The request timed out. Please try again.`;
         }
         else {
-            const stateDescription = PortCheckerService.getPortStateDescription(result.state);
+            const stateDescription = PortScanService.getPortStateDescription(result.state);
             resultMessage = `Port ${result.port} is ${stateDescription} on ${result.host}.`;
         }
 
@@ -126,9 +134,9 @@ export function PortChecker(properties: PortCheckerInterface) {
     }
 
     // Function to initialize port checker service
-    function initializePortCheckerService(): PortCheckerService {
+    function initializePortScanService(): PortScanService {
         if(!portCheckerServiceReference.current) {
-            portCheckerServiceReference.current = new PortCheckerService({
+            portCheckerServiceReference.current = new PortScanService({
                 apolloClient,
                 webSocketViaSharedWorker,
                 // Handle intermediate status updates to show progress
@@ -150,7 +158,7 @@ export function PortChecker(properties: PortCheckerInterface) {
                                 setStatusItems([
                                     {
                                         text: 'Failed to resolve host: The hostname could not be found.',
-                                        state: 'unknown' as PortState,
+                                        state: 'unknown' as NmapPortStateType,
                                         isLoading: false,
                                         systemError: true,
                                         errorMessage: 'Failed to resolve host.',
@@ -177,7 +185,7 @@ export function PortChecker(properties: PortCheckerInterface) {
         setCheckingPort(true);
 
         // Get port checker service and start port checking
-        const portCheckerService = initializePortCheckerService();
+        const portCheckerService = initializePortScanService();
 
         try {
             // Check if the address is a private IP address (only for IPv4)
@@ -186,7 +194,7 @@ export function PortChecker(properties: PortCheckerInterface) {
                 setStatusItems([
                     {
                         text: `${remoteAddress} is a private IP address.`,
-                        state: 'unknown' as PortState,
+                        state: 'unknown' as NmapPortStateType,
                         isLoading: false,
                         systemError: true,
                         errorMessage: 'Private IP Address',
@@ -220,7 +228,7 @@ export function PortChecker(properties: PortCheckerInterface) {
                         setStatusItems([
                             {
                                 text: `Invalid IP address or domain name format: "${remoteAddress}"`,
-                                state: 'unknown' as PortState,
+                                state: 'unknown' as NmapPortStateType,
                                 isLoading: false,
                                 systemError: true,
                                 errorMessage: 'Invalid format. Please enter a valid domain name or IP address.',
@@ -243,7 +251,7 @@ export function PortChecker(properties: PortCheckerInterface) {
             setStatusItems([
                 {
                     text: initialMessage,
-                    state: 'unknown' as PortState,
+                    state: 'unknown' as NmapPortStateType,
                     isLoading: true,
                     host: remoteAddress,
                     port: remotePort,
@@ -253,7 +261,7 @@ export function PortChecker(properties: PortCheckerInterface) {
             await portCheckerService.checkPort({
                 host: remoteAddress,
                 port: remotePort,
-                region: regionIdentifier,
+                regionIdentifier: regionIdentifier,
             });
         }
         catch(error) {
@@ -267,7 +275,7 @@ export function PortChecker(properties: PortCheckerInterface) {
                     text: isHostResolutionIssue
                         ? 'Failed to resolve host: The hostname could not be found.'
                         : 'Failed to start port check. Our service encountered an internal error.',
-                    state: 'unknown' as PortState,
+                    state: 'unknown' as NmapPortStateType,
                     isLoading: false,
                     systemError: true,
                     errorMessage: isHostResolutionIssue ? 'Failed to resolve host.' : undefined,

@@ -7,11 +7,11 @@ import React from 'react';
 import { DialogInterface, Dialog } from '@structure/source/common/dialogs/Dialog';
 
 // Dependencies - Types
-import { PortState } from '@project/source/modules/connected/types/PortTypes';
+import { NmapPortStateType } from '@project/source/modules/connected/port-scan/types/PortScanTypes';
 
 // Component - PortStateDialog
 export interface PortStateDialogInterface extends DialogInterface {
-    portState: PortState;
+    portState: NmapPortStateType;
     isSystemError?: boolean;
     isTimeout?: boolean;
     errorMessage?: string;
@@ -62,7 +62,7 @@ export function PortStateDialog(properties: PortStateDialogInterface) {
 
 // Function to get the title and content for a specific port state
 function getPortStateInformation(
-    portState: PortState,
+    portState: NmapPortStateType,
     isSystemError?: boolean,
     isTimeout?: boolean,
     errorMessage?: string,

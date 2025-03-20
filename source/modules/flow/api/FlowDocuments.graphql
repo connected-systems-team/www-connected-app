@@ -1,0 +1,76 @@
+# Flow Execution Query - Get details of a specific flow execution
+query FlowExecution($input: FlowExecutionInput!) {
+    flowExecution(input: $input) {
+        id
+        triggerId
+        triggerType
+        flowVersionId
+        status
+        stepExecutions {
+            id
+            stepId
+            flowExecutionId
+            status
+            attempt
+            actionType
+            input
+            output
+            elapsedTimeMs
+            startedAt
+            completedAt
+            updatedAt
+            createdAt
+            errors
+        }
+        elapsedTimeMs
+        startedAt
+        completedAt
+        updatedAt
+        createdAt
+        errors
+    }
+}
+
+# Flow Execution History Query - Get paginated history of flow executions
+query FlowExecutionHistory($input: FlowExecutionHistoryInput!, $pagination: PaginationInput!) {
+    flowExecutionHistory(input: $input, pagination: $pagination) {
+        items {
+            id
+            triggerId
+            triggerType
+            flowVersionId
+            status
+            stepExecutions {
+                id
+                stepId
+                flowExecutionId
+                status
+                attempt
+                actionType
+                input
+                output
+                elapsedTimeMs
+                startedAt
+                completedAt
+                updatedAt
+                createdAt
+                errors
+            }
+            elapsedTimeMs
+            startedAt
+            completedAt
+            updatedAt
+            createdAt
+            errors
+        }
+        pagination {
+            itemIndex
+            itemIndexForPreviousPage
+            itemIndexForNextPage
+            itemsPerPage
+            itemsTotal
+            page
+            pagesTotal
+        }
+    }
+}

@@ -9,7 +9,7 @@ import { Button } from '@structure/source/common/buttons/Button';
 import { AutomatedPortChecker } from './AutomatedPortChecker';
 
 // Dependencies - API
-import { PortScanResult } from '@project/source/modules/connected/types/PortTypes';
+import { PortScanResultInterface } from '@project/source/modules/connected/port-scan/types/PortScanTypes';
 
 // TestCase interface to define our test cases
 interface TestCase {
@@ -364,7 +364,7 @@ export function TestPortCheckerPage() {
         if(!selectedTest) return null;
 
         // Handle test completion
-        function handleTestComplete(result: PortScanResult) {
+        function handleTestComplete(result: PortScanResultInterface) {
             console.log('Test completed:', result);
             // Don't auto-mark as complete - let the user decide
         }

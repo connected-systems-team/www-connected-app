@@ -1,17 +1,17 @@
 'use client'; // This service uses client-only features
 
 // Dependencies - Types
-import { FlowStepExecution, FlowStepExecutionStatus } from '@project/source/modules/connected/types/FlowTypes';
+import { FlowStepExecution, FlowStepExecutionStatus } from '@project/source/modules/connected/flows/types/FlowTypes';
 import {
-    PortScanResult,
-    PortScanStatusUpdate,
-    PortState,
-    PortScanStepInput,
-    PortScanStepOutput,
-} from '@project/source/modules/connected/types/PortTypes';
+    PortScanResultInterface,
+    PortScanStatusUpdateInterface,
+    NmapPortStateType,
+    PortScanFlowStepInputInterface,
+    PortScanStepOutputInterface,
+} from '@project/source/modules/connected/port-scan/types/PortScanTypes';
 
 // Dependencies - Utilities
-import { parseStepInput, parseStepOutput } from '@project/source/modules/connected/utilities/FlowUtilities';
+import { parseStepInput, parseStepOutput } from '@project/source/modules/connected/flows/utilities/FlowUtilities';
 import {
     extractPortFromStepInput,
     extractPortStateFromStepOutput,
@@ -21,11 +21,14 @@ import {
  * Class for processing step execution data and extracting results
  */
 export class StepProcessor {
-    private onStatusUpdate: (update: PortScanStatusUpdate) => void;
-    private onResult: (result: PortScanResult) => void;
+    private onStatusUpdate: (update: PortScanStatusUpdateInterface) => void;
+    private onResult: (result: PortScanResultInterface) => void;
     private currentExecutionId: string | undefined;
 
-    constructor(onStatusUpdate: (update: PortScanStatusUpdate) => void, onResult: (result: PortScanResult) => void) {
+    constructor(
+        onStatusUpdate: (update: PortScanStatusUpdateInterface) => void,
+        onResult: (result: PortScanResultInterface) => void,
+    ) {
         this.onStatusUpdate = onStatusUpdate;
         this.onResult = onResult;
     }
@@ -47,8 +50,8 @@ export class StepProcessor {
         ) {
             try {
                 // Parse input and output
-                const input = parseStepInput(stepExecution.input) as PortScanStepInput;
-                const output = parseStepOutput(stepExecution.output) as PortScanStepOutput;
+                const input = parseStepInput(stepExecution.input) as PortScanFlowStepInputInterface;
+                const output = parseStepOutput(stepExecution.output) as PortScanStepOutputInterface;
 
                 // Extract host, port, region from input
                 const host = input.host;
@@ -133,7 +136,7 @@ export class StepProcessor {
                 }
 
                 // Extract port state from output results
-                const portState: PortState = extractPortStateFromStepOutput(output);
+                const portState: NmapPortStateType = extractPortStateFromStepOutput(output);
 
                 // If we didn't get port from input, try from output
                 if(!portNumber && output.results && output.results.length > 0) {
@@ -191,7 +194,7 @@ export class StepProcessor {
         ) {
             try {
                 // Parse input to get host, port, region
-                const input = parseStepInput(stepExecution.input) as PortScanStepInput;
+                const input = parseStepInput(stepExecution.input) as PortScanFlowStepInputInterface;
                 const host = input.host;
                 const portNumber = extractPortFromStepInput(input);
                 const region = input.region || '';
@@ -275,14 +278,14 @@ export class StepProcessor {
         step: FlowStepExecution,
         callbacks: {
             onHostPortRegion: (data: { host: string; port: string; region: string }) => void;
-            onPortState: (state: PortState) => void;
+            onPortState: (state: NmapPortStateType) => void;
             onError: (message: string) => void;
         },
     ): void {
         // Get host and port info from input
         if(step.input) {
             try {
-                const input = parseStepInput(step.input) as PortScanStepInput;
+                const input = parseStepInput(step.input) as PortScanFlowStepInputInterface;
 
                 const host = input.host || '';
                 const port = extractPortFromStepInput(input);
@@ -300,7 +303,7 @@ export class StepProcessor {
         // Get port state from output
         if(step.output) {
             try {
-                const output = parseStepOutput(step.output) as PortScanStepOutput;
+                const output = parseStepOutput(step.output) as PortScanStepOutputInterface;
                 const portState = extractPortStateFromStepOutput(output);
 
                 if(portState !== 'unknown') {

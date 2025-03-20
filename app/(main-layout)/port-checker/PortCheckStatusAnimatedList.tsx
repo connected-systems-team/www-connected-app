@@ -2,7 +2,7 @@
 import React from 'react';
 
 // Dependencies - Types
-import { PortState } from '@project/source/modules/connected/types/PortTypes';
+import { NmapPortStateType } from '@project/source/modules/connected/port-scan/types/PortScanTypes';
 
 // Dependencies - Main Components
 import { Link } from '@structure/source/common/navigation/Link';
@@ -25,7 +25,7 @@ import InformationCircledIcon from '@structure/assets/icons/status/InformationCi
 // Interface for status item with associated port state
 export interface PortCheckStatusItem {
     text: string;
-    state: PortState;
+    state: NmapPortStateType;
     isLoading?: boolean;
     systemError?: boolean;
     timeout?: boolean;
@@ -44,13 +44,18 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
 
     // State for dialog
     const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>(false);
-    const [currentPortState, setCurrentPortState] = React.useState<PortState>('open');
+    const [currentPortState, setCurrentPortState] = React.useState<NmapPortStateType>('open');
     const [isSystemError, setIsSystemError] = React.useState<boolean>(false);
     const [isTimeout, setIsTimeout] = React.useState<boolean>(false);
     const [errorMessage, setErrorMessage] = React.useState<string | undefined>(undefined);
 
     // Function to open port state info dialog
-    function openPortStateDialog(portState: PortState, systemError?: boolean, timeout?: boolean, errorMsg?: string) {
+    function openPortStateDialog(
+        portState: NmapPortStateType,
+        systemError?: boolean,
+        timeout?: boolean,
+        errorMsg?: string,
+    ) {
         setCurrentPortState(portState);
         setIsSystemError(!!systemError);
         setIsTimeout(!!timeout);

@@ -1,24 +1,33 @@
 'use client'; // This service uses client-only features
 
 // Dependencies - Types
-import { WebSocketEventMessage } from '@structure/source/api/web-sockets/types/WebSocketTypes';
-import { WebSocketViaSharedWorkerContextInterface } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
 import {
-    PortScanInput,
-    PortScanResult,
-    PortScanStatusUpdate,
-    PortState,
-} from '@project/source/modules/connected/types/PortTypes';
+    WebSocketViaSharedWorkerContextInterface,
+    WebSocketMessageEventInterface,
+} from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
+import {
+    PortScanInputInterface,
+    PortScanResultInterface,
+    PortScanStatusUpdateInterface,
+    NmapPortStateType,
+} from '@project/source/modules/connected/port-scan/types/PortScanTypes';
+import {
+    PortScanWebSocketEvent,
+    FlowExecution,
+    FlowStepExecution,
+    FlowExecutionEvent,
+    FlowStepExecutionEvent,
+} from '@project/source/modules/connected/flows/types/FlowTypes';
 
 // Dependencies - API
 import { ApolloClient } from '@apollo/client';
 import { PortScanCreateDocument } from '@project/source/api/GraphQlGeneratedCode';
 
 // Dependencies - Services
-import { WebSocketHandler } from './WebSocketHandler';
-import { StepProcessor } from './StepProcessor';
-import { FlowProcessor } from './FlowProcessor';
-import { PollingService } from './PollingService';
+import { PortCheckerWebSocketHandler } from '@project/source/modules/connected/services/port-checker/PortCheckerWebSocketHandler';
+import { FlowStepProcessor } from '@project/source/modules/connected/services/port-checker/FlowStepProcessor';
+import { FlowProcessor } from '@project/source/modules/connected/services/port-checker/FlowProcessor';
+import { PollingService } from '@project/source/modules/connected/services/port-checker/PollingService';
 
 // Dependencies - Utilities
 import { getPortStateDescription } from '@project/source/modules/connected/utilities/PortUtilities';
@@ -27,40 +36,39 @@ import { getPortStateDescription } from '@project/source/modules/connected/utili
 export interface PortCheckerServiceOptions {
     apolloClient: ApolloClient<object>;
     webSocketViaSharedWorker: WebSocketViaSharedWorkerContextInterface;
-    onStatusUpdate?: (update: PortScanStatusUpdate) => void;
-    onResult?: (result: PortScanResult) => void;
+    onStatusUpdate?: (update: PortScanStatusUpdateInterface) => void;
+    onResult?: (result: PortScanResultInterface) => void;
     pollingInterval?: number;
 }
 
-/**
- * Service for managing port checking functionality with robust WebSocket and fallback polling support
- */
-export class PortCheckerService {
-    private apolloClient: ApolloClient<object>;
-    private webSocketViaSharedWorker: WebSocketViaSharedWorkerContextInterface;
-    private onStatusUpdate: (update: PortScanStatusUpdate) => void;
-    private onResult: (result: PortScanResult) => void;
-    private pollingInterval: number;
+// Class - PortScanService
+// Manages port scan functionality with WebSocket and fallback polling support
+export class PortScanService {
+    apolloClient: ApolloClient<object>;
+    webSocketViaSharedWorker: WebSocketViaSharedWorkerContextInterface;
+    onStatusUpdate: (update: PortScanStatusUpdateInterface) => void;
+    onResult: (result: PortScanResultInterface) => void;
+    pollingInterval: number;
 
     // State references
-    private currentExecutionId: string | undefined;
-    private isActive: boolean = false;
-    private usingFallbackPolling: boolean = false;
-    private lastWebSocketMessageTime: number = 0;
+    currentExecutionId: string | undefined;
+    isActive: boolean = false;
+    usingFallbackPolling: boolean = false;
+    lastWebSocketMessageTime: number = 0;
 
     // Timeouts and intervals
-    private webSocketTimeoutId: NodeJS.Timeout | undefined;
-    private globalTimeoutId: NodeJS.Timeout | undefined; // Global timeout for the entire request
-    private messageHandler: (() => void) | undefined;
+    webSocketTimeoutId: NodeJS.Timeout | undefined;
+    globalTimeoutId: NodeJS.Timeout | undefined; // Global timeout for the entire request
+    messageHandler: (() => void) | undefined;
 
     // Service modules
-    private webSocketHandler: WebSocketHandler;
-    private stepProcessor: StepProcessor;
-    private flowProcessor: FlowProcessor;
-    private pollingService: PollingService;
+    webSocketHandler: PortCheckerWebSocketHandler;
+    stepProcessor: FlowStepProcessor;
+    flowProcessor: FlowProcessor;
+    pollingService: PollingService;
 
     // Input data reference for error recovery
-    private lastScanInput: PortScanInput | null = null;
+    lastScanInput: PortScanInputInterface | null = null;
 
     constructor(options: PortCheckerServiceOptions) {
         this.apolloClient = options.apolloClient;
@@ -70,7 +78,7 @@ export class PortCheckerService {
         this.pollingInterval = options.pollingInterval || 2000;
 
         // Initialize service modules
-        this.stepProcessor = new StepProcessor(this.onStatusUpdate, this.onResult);
+        this.stepProcessor = new FlowStepProcessor(this.onStatusUpdate, this.onResult);
 
         this.flowProcessor = new FlowProcessor(this.onStatusUpdate, this.onResult, this.stepProcessor);
 
@@ -82,7 +90,7 @@ export class PortCheckerService {
             this.pollingInterval,
         );
 
-        this.webSocketHandler = new WebSocketHandler(
+        this.webSocketHandler = new PortCheckerWebSocketHandler(
             (update) => {
                 // Process status update
 
@@ -108,7 +116,7 @@ export class PortCheckerService {
                             host: this.lastScanInput.host,
                             port: this.lastScanInput.port,
                             state: 'unknown',
-                            region: this.lastScanInput.region,
+                            region: this.lastScanInput.regionIdentifier,
                             timestamp: new Date(),
                             executionId: this.currentExecutionId,
                             systemError: true,
@@ -157,37 +165,109 @@ export class PortCheckerService {
             this.messageHandler();
         }
 
-        this.messageHandler = this.webSocketViaSharedWorker.onWebSocketMessage((event: WebSocketEventMessage) => {
-            // If we're using fallback polling but received a WebSocket message, stop polling
-            if(this.handleWebSocketMessage(event) && this.usingFallbackPolling) {
-                this.usingFallbackPolling = false;
-                this.pollingService.cleanup();
-            }
-        });
+        this.messageHandler = this.webSocketViaSharedWorker.onWebSocketMessage(
+            (event: WebSocketMessageEventInterface) => {
+                console.log('PortCheckerService: Received WebSocket message', {
+                    event,
+                    isActive: this.isActive,
+                    executionId: this.currentExecutionId,
+                    usingFallbackPolling: this.usingFallbackPolling,
+                });
+
+                // If we're using fallback polling but received a WebSocket message, stop polling
+                const wasHandled = this.handleWebSocketMessage(event);
+                console.log('PortCheckerService: WebSocket message was handled:', wasHandled);
+
+                if(wasHandled && this.usingFallbackPolling) {
+                    console.log('PortCheckerService: Stopping fallback polling due to successful WebSocket message');
+                    this.usingFallbackPolling = false;
+                    this.pollingService.cleanup();
+                }
+            },
+        );
     }
 
     /**
      * Handle WebSocket messages
      */
-    private handleWebSocketMessage(event: WebSocketEventMessage): boolean {
+    private handleWebSocketMessage(event: WebSocketMessageEventInterface): boolean {
+        console.log('PortCheckerService: handleWebSocketMessage details', {
+            event,
+            isActive: this.isActive,
+            currentExecutionId: this.currentExecutionId,
+            data: event.data,
+        });
+
         if(!this.isActive || !this.currentExecutionId) {
+            console.log('PortCheckerService: Not active or no executionId, ignoring message');
             return false;
         }
 
-        // Convert WebSocketEventMessage to a format compatible with WebSocketHandler
-        const adaptedEvent = {
-            event: event.event,
-            data: {
-                event: event.event,
-                arguments: [event.data], // Always wrap in array since our handler expects array of arguments
-            },
+        // Convert WebSocketEventMessageInterface to a format compatible with WebSocketHandler
+        let adaptedEvent:
+            | PortScanWebSocketEvent
+            | { data?: { event?: string; arguments?: unknown[] }; event?: string } = {
+            event: event,
+            data: event.data,
         };
+
+        // Check if the data contains type and other flow properties
+        if(event.data && typeof event.data === 'object') {
+            // If the message data is a flow type directly, adapt for direct event handling
+            if(
+                'type' in event.data &&
+                (event.data.type === 'FlowExecution' || event.data.type === 'FlowStepExecution')
+            ) {
+                const eventType = event.data.type as 'FlowExecution' | 'FlowStepExecution';
+
+                if(eventType === 'FlowExecution') {
+                    // Create a properly typed FlowExecutionEvent
+                    const flowExecutionData =
+                        'data' in event.data && typeof event.data.data === 'object'
+                            ? (event.data.data as FlowExecution)
+                            : (event.data as unknown as FlowExecution);
+
+                    adaptedEvent = {
+                        type: 'FlowExecution',
+                        arguments: [flowExecutionData],
+                    } as FlowExecutionEvent;
+                }
+                else {
+                    // Create a properly typed FlowStepExecutionEvent
+                    const stepExecutionData =
+                        'data' in event.data && typeof event.data.data === 'object'
+                            ? (event.data.data as FlowStepExecution)
+                            : (event.data as unknown as FlowStepExecution);
+
+                    adaptedEvent = {
+                        type: 'FlowStepExecution',
+                        arguments: [stepExecutionData],
+                    } as FlowStepExecutionEvent;
+                }
+            }
+            else {
+                // Standard message wrapping
+                adaptedEvent = {
+                    event: event.event,
+                    data: {
+                        event: event.event,
+                        arguments: [event.data],
+                    },
+                };
+            }
+        }
+
+        console.log('PortCheckerService: Adapted event for WebSocketHandler', adaptedEvent);
 
         const wasProcessed = this.webSocketHandler.handleWebSocketMessage(adaptedEvent, this.currentExecutionId);
 
         if(wasProcessed) {
             // Update last message time
             this.lastWebSocketMessageTime = Date.now();
+            console.log('PortCheckerService: WebSocket message was processed, updated lastWebSocketMessageTime');
+        }
+        else {
+            console.log('PortCheckerService: WebSocket message was NOT processed');
         }
 
         return wasProcessed;
@@ -243,7 +323,7 @@ export class PortCheckerService {
     /**
      * Start checking a port
      */
-    public async checkPort(input: PortScanInput): Promise<void> {
+    public async checkPort(input: PortScanInputInterface): Promise<void> {
         // Store input for error recovery
         this.lastScanInput = { ...input };
 
@@ -279,7 +359,7 @@ export class PortCheckerService {
                         host: this.lastScanInput.host,
                         port: this.lastScanInput.port,
                         state: 'unknown',
-                        region: this.lastScanInput.region,
+                        region: this.lastScanInput.regionIdentifier,
                         timestamp: new Date(),
                         executionId: this.currentExecutionId,
                         timeout: true,
@@ -302,7 +382,7 @@ export class PortCheckerService {
                     input: {
                         host: input.host,
                         ports: [input.port.toString()],
-                        region: input.region,
+                        region: input.regionIdentifier,
                     },
                 },
             });
@@ -323,7 +403,7 @@ export class PortCheckerService {
                     host: input.host,
                     port: input.port,
                     state: 'unknown',
-                    region: input.region,
+                    region: input.regionIdentifier,
                     timestamp: new Date(),
                     systemError: true,
                     errorMessage: errorMessage,
@@ -413,7 +493,7 @@ export class PortCheckerService {
     /**
      * Get a user-friendly description for a port state
      */
-    public static getPortStateDescription(state: PortState): string {
+    public static getPortStateDescription(state: NmapPortStateType): string {
         return getPortStateDescription(state);
     }
 
@@ -433,4 +513,4 @@ export class PortCheckerService {
 }
 
 // Export - Default
-export default PortCheckerService;
+export default PortScanService;
