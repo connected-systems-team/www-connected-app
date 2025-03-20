@@ -15,7 +15,8 @@
         "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
         "lint": "next lint",
         "api": "libraries/structure/scripts/api.sh",
-        "graphql:generate": "graphql-codegen --config libraries/structure/source/api/graphql/GraphQlCodeGeneratorConfiguration.ts"
+        "graphql:generate": "graphql-codegen --config libraries/structure/source/api/graphql/GraphQlCodeGeneratorConfiguration.ts",
+        "build:websocketsharedworker": "node libraries/structure/source/api/web-sockets/shared-worker/scripts/BuildWebSocketSharedWorker.mjs"
     },
     "dependencies": {
         "@apollo/client": "^3.11.8",
