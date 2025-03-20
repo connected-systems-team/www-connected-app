@@ -9,14 +9,14 @@
         "dev": "next dev --experimental-https --port 2666 --hostname localhost.connected.app",
         "dev:kam": "next dev --experimental-https --port 2666 --hostname localhost.kamsdev.workers.dev",
         "dev:wrangler": "wrangler dev --port 2666",
-        "build": "opennextjs-cloudflare",
-        "preview": "opennextjs-cloudflare && wrangler dev --var STRUCTURE_ENV:development --local-protocol \"https\" --port 2666 --ip localhost.connected.app --https-key-path \"./certificates/localhost-key.pem\" --https-cert-path \"./certificates/localhost.pem\"",
-        "deploy": "opennextjs-cloudflare && wrangler deploy",
-        "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
-        "lint": "next lint",
         "api": "libraries/structure/scripts/api.sh",
         "graphql:generate": "graphql-codegen --config libraries/structure/source/api/graphql/GraphQlCodeGeneratorConfiguration.ts",
-        "build:websocketsharedworker": "node libraries/structure/source/api/web-sockets/shared-worker/scripts/BuildWebSocketSharedWorker.mjs"
+        "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
+        "lint": "next lint",
+        "preview": "opennextjs-cloudflare && wrangler dev --var STRUCTURE_ENV:development --local-protocol \"https\" --port 2666 --ip localhost.connected.app --https-key-path \"./certificates/localhost-key.pem\" --https-cert-path \"./certificates/localhost.pem\"",
+        "build": "opennextjs-cloudflare",
+        "build:websocketsharedworker": "node libraries/structure/source/api/web-sockets/shared-worker/scripts/BuildWebSocketSharedWorker.mjs",
+        "deploy": "opennextjs-cloudflare && wrangler deploy"
     },
     "dependencies": {
         "@apollo/client": "^3.11.8",
