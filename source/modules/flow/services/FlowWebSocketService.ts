@@ -1,16 +1,43 @@
 'use client'; // This service uses client-only features
 
 // Dependencies - Types
+import { FlowExecution, FlowStepExecution } from '@project/source/api/GraphQlGeneratedCode';
 import {
     WebSocketViaSharedWorkerContextInterface,
     WebSocketMessageEventInterface,
 } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
+import { SharedWorkerBaseMessageInterface } from '@structure/source/api/web-sockets/shared-worker/types/SharedWorkerTypes';
 import { WebSocketConnectionState } from '@structure/source/api/web-sockets/shared-worker/types/WebSocketSharedWorkerTypes';
+
+// Server Type - FlowWebSocketMessageType
+export enum FlowWebSocketMessageType {
+    FlowExecution = 'FlowExecution',
+    FlowStepExecution = 'FlowStepExecution',
+}
+
+// Server Type - FlowExecutionWebSocketMessageInterface
+export interface FlowExecutionWebSocketMessageInterface extends SharedWorkerBaseMessageInterface {
+    origin: string; // The worker the message is coming from
+    type: FlowWebSocketMessageType.FlowExecution;
+    arguments: [FlowExecution, ...unknown[]];
+}
+
+// Server Type - FlowStepExecutionWebSocketMessageInterface
+export interface FlowStepExecutionWebSocketMessageInterface extends SharedWorkerBaseMessageInterface {
+    origin: string; // The worker the message is coming from
+    type: FlowWebSocketMessageType.FlowStepExecution;
+    arguments: [FlowStepExecution, ...unknown[]];
+}
+
+// Server Type - FlowWebSocketMessageInterface
+export type FlowWebSocketMessageInterface =
+    | FlowExecutionWebSocketMessageInterface
+    | FlowStepExecutionWebSocketMessageInterface;
 
 // Class - FlowWebSocketService
 export class FlowWebSocketService {
     private flowExecutionId?: string;
-    private webSocketProvider: WebSocketViaSharedWorkerContextInterface;
+    private webSocketViaSharedWorker: WebSocketViaSharedWorkerContextInterface;
     private messageHandlerUnsubscribe: (() => void) | null = null;
     private messageHandlerFunction: (event: WebSocketMessageEventInterface) => boolean;
 
@@ -18,7 +45,7 @@ export class FlowWebSocketService {
         webSocketProvider: WebSocketViaSharedWorkerContextInterface,
         onMessage: (event: WebSocketMessageEventInterface) => boolean,
     ) {
-        this.webSocketProvider = webSocketProvider;
+        this.webSocketViaSharedWorker = webSocketProvider;
         this.messageHandlerFunction = onMessage;
     }
 
@@ -38,7 +65,7 @@ export class FlowWebSocketService {
         this.unregisterMessageHandler();
 
         // Register new handler
-        this.messageHandlerUnsubscribe = this.webSocketProvider.onWebSocketMessage((event) => {
+        this.messageHandlerUnsubscribe = this.webSocketViaSharedWorker.onWebSocketMessage((event) => {
             return this.messageHandlerFunction(event);
         });
     }
@@ -53,12 +80,14 @@ export class FlowWebSocketService {
 
     // Function to send a WebSocket message
     public sendMessage(data: unknown): void {
-        this.webSocketProvider.sendWebSocketMessage(data);
+        this.webSocketViaSharedWorker.sendWebSocketMessage(data);
     }
 
     // Function to check if the WebSocket is currently connected
     public isWebSocketConnected(): boolean {
-        return this.webSocketProvider.webSocketConnectionInformation.state === WebSocketConnectionState.Connected;
+        return (
+            this.webSocketViaSharedWorker.webSocketConnectionInformation.state === WebSocketConnectionState.Connected
+        );
     }
 
     // Function to dispose of all resources used by the service

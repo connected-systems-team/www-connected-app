@@ -1,8 +1,8 @@
 // Dependencies - API
-import { RegionMetadata } from '@project/source/modules/connected/types/GridTypes';
+import { GridRegionMetadata } from '@project/source/modules/connected/grid/types/GridTypes';
 
 // Function to get region metadata from a region identifier
-export function getRegionMetadata(regionIdentifier: string): RegionMetadata {
+export function getRegionMetadata(regionIdentifier: string): GridRegionMetadata {
     let emoji = '🌐';
     let displayName = 'Unknown';
 

@@ -1,19 +1,7 @@
 'use client'; // This service uses client-only features
 
 // Dependencies - Types
-import { FlowExecution, FlowStepExecution } from '@project/source/api/GraphQlGeneratedCode';
-import {
-    FlowServiceStatusType,
-    FlowStepUpdateType,
-    FlowStepUpdateInterface,
-    FlowStepUpdateDataInterface,
-    FlowStepResultInterface,
-    FlowErrorInterface,
-    FlowError,
-    isFlowWebSocketEventMessage,
-    isFlowExecutionMessage,
-    isFlowStepExecutionMessage,
-} from '@project/source/modules/flow/types/FlowTypes';
+import { FlowExecution, FlowStepExecution, FlowStepExecutionStatus } from '@project/source/api/GraphQlGeneratedCode';
 import {
     WebSocketViaSharedWorkerContextInterface,
     WebSocketMessageEventInterface,
@@ -23,16 +11,105 @@ import {
 import { FlowWebSocketService } from '@project/source/modules/flow/services/FlowWebSocketService';
 import { FlowPollingService } from '@project/source/modules/flow/services/FlowPollingService';
 
+// Dependencies - Utilities
+import {
+    isFlowWebSocketEventMessage,
+    isFlowExecutionWebSocketMessage,
+    isFlowStepExecutionWebSocketMessage,
+} from '@project/source/modules/flow/services/utilities/FlowWebSocketServiceUtilities';
+
+// Type - FlowStepExecutionInterface
+// Typed version of the server type FlowStepExecution
+export interface FlowStepExecutionInterface<TFlowStepInput, TFlowStepOutput> extends FlowStepExecution {
+    input?: TFlowStepInput;
+    output?: TFlowStepOutput;
+}
+
+// Type - FlowServiceStatusType (extends from FlowExecutionStatus in GraphQL)
+// The status of the flow service, used to track the state of the flow execution
+export enum FlowServiceStatusType {
+    NotStarted = 'NotStarted',
+    Starting = 'Starting',
+    Running = 'Running',
+    Success = 'Success',
+    Failed = 'Failed',
+    Canceled = 'Canceled',
+    TimedOut = 'TimedOut',
+}
+
+// Server Type - FlowExecutionErrorInterface
+export interface FlowExecutionErrorInterface {
+    code?: string;
+    name?: string;
+    message: string;
+    createdAt: Date;
+}
+
+// Server Type - FlowStepExecutionErrorInterface
+export interface FlowStepExecutionErrorInterface extends FlowExecutionErrorInterface {}
+
+// Type - FlowServiceErrors
+// Standard error definitions for flow services
+export const FlowServiceErrors = {
+    // General flow errors
+    FlowCanceled: {
+        code: 'FlowCanceled',
+        message: 'Flow execution was canceled.',
+    },
+    FlowTimedOut: {
+        code: 'FlowTimedOut',
+        message: 'Flow execution timed out.',
+    },
+    FlowError: {
+        code: 'FlowError',
+        message: 'An error occurred during flow execution.',
+    },
+
+    // Communication errors
+    WebSocketError: {
+        code: 'WebSocketError',
+        message: 'WebSocket communication error.',
+    },
+    PollingError: {
+        code: 'PollingError',
+        message: 'Error polling for flow updates.',
+    },
+
+    // API errors
+    ApiError: {
+        code: 'ApiError',
+        message: 'API request failed.',
+    },
+    GraphQlError: {
+        code: 'GraphQlError',
+        message: 'GraphQL query failed.',
+    },
+
+    // Execution errors
+    ExecutionFailed: {
+        code: 'ExecutionFailed',
+        message: 'Flow execution failed.',
+    },
+    StepExecutionFailed: {
+        code: 'StepExecutionFailed',
+        message: 'Flow step execution failed.',
+    },
+} as const;
+
 // Type - FlowServiceEventHandlersInterface
-// The event handlers for the flow service
-export interface FlowServiceEventHandlersInterface<TFlowResult> {
-    onFlowStepUpdate?: (update: FlowStepUpdateInterface) => void;
-    onFlowComplete?: (result: TFlowResult) => void;
-    onFlowError?: (error: FlowErrorInterface) => void;
+export interface FlowServiceEventHandlersInterface<TFlowExecutionResult> {
+    // Flow Execution events
+    onFlowExecutionUpdate?: (flowExecutionResult: TFlowExecutionResult) => void;
+    onFlowExecutionComplete?: (flowExecutionResult: TFlowExecutionResult) => void;
+    onFlowExecutionError?: (flowExecutionError: FlowExecutionErrorInterface) => void;
+
+    // Flow Step Execution events
+    onFlowStepExecutionUpdate?: (flowStepExecution: FlowStepExecution) => void;
+    onFlowStepExecutionComplete?: (flowStepExecution: FlowStepExecution) => void;
+    onFlowStepExecutionError?: (flowStepExecution: FlowStepExecution) => void;
 }
 
 // Type - FlowServiceOptionsInterface
-// The options for the FlowService class
 export interface FlowServiceOptionsInterface {
     timeoutInMilliseconds?: number;
     pollingIntervalInMilliseconds?: number;
@@ -42,14 +119,18 @@ export interface FlowServiceOptionsInterface {
 // Abstract Class - FlowService
 export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, TFlowResult> {
     // Service status and state
-    protected flowInput?: TFlowInput;
+    protected input?: TFlowInput;
     protected flowExecutionId?: string;
-    protected flowStatus: FlowServiceStatusType;
-    protected flowStepResults: Array<FlowStepResultInterface<TFlowStepInput, TFlowStepOutput>>;
+    protected status: FlowServiceStatusType;
+    protected stepResults: Array<FlowStepExecutionInterface<TFlowStepInput, TFlowStepOutput>>;
 
-    // Configuration
-    protected options: FlowServiceOptionsInterface;
+    // Event handlers
     protected eventHandlers: FlowServiceEventHandlersInterface<TFlowResult>;
+
+    // Options
+    protected timeoutInMilliseconds: number;
+    protected pollingIntervalInMilliseconds: number;
+    protected fallbackToPolling: boolean;
 
     // Services
     protected webSocketService: FlowWebSocketService;
@@ -59,28 +140,32 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
     protected timeout?: NodeJS.Timeout;
 
     constructor(
-        webSocketProvider: WebSocketViaSharedWorkerContextInterface,
-        options: FlowServiceOptionsInterface,
+        webSocketViaSharedWorker: WebSocketViaSharedWorkerContextInterface,
         eventHandlers: FlowServiceEventHandlersInterface<TFlowResult>,
+        options?: FlowServiceOptionsInterface,
     ) {
-        this.flowStatus = FlowServiceStatusType.NotStarted;
-        this.options = {
-            timeoutInMilliseconds: 20000, // Default 20 seconds timeout
-            pollingIntervalInMilliseconds: 1500, // Default 1.5 seconds polling interval
-            fallbackToPolling: true, // Default to support fallback to polling
-            ...options,
-        };
+        this.status = FlowServiceStatusType.NotStarted;
+        this.stepResults = [];
+
+        // Event handlers
         this.eventHandlers = eventHandlers;
-        this.flowStepResults = [];
+
+        // Options
+        this.timeoutInMilliseconds = options?.timeoutInMilliseconds || 20000;
+        this.pollingIntervalInMilliseconds = options?.pollingIntervalInMilliseconds || 1500;
+        this.fallbackToPolling = options?.fallbackToPolling || true;
 
         // Initialize WebSocket service
-        this.webSocketService = new FlowWebSocketService(webSocketProvider, this.handleWebSocketMessage.bind(this));
+        this.webSocketService = new FlowWebSocketService(
+            webSocketViaSharedWorker,
+            this.handleWebSocketMessage.bind(this),
+        );
 
         // Initialize polling service
         this.pollingService = new FlowPollingService({
-            pollingIntervalInMilliseconds: this.options.pollingIntervalInMilliseconds,
+            pollingIntervalInMilliseconds: this.pollingIntervalInMilliseconds,
             onPollResult: this.processFlowExecution.bind(this),
-            onPollError: (error: Error) => this.handleError(error, FlowError.PollingError.code),
+            onPollError: (error: Error) => this.handleError(error, FlowServiceErrors.PollingError.code),
         });
     }
 
@@ -89,17 +174,17 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
     public async executeFlow(input: TFlowInput): Promise<void> {
         try {
             // Store the flow input
-            this.flowInput = input;
+            this.input = input;
 
             // Reset state
-            this.flowStepResults = [];
-            this.flowStatus = FlowServiceStatusType.Starting;
+            this.stepResults = [];
+            this.status = FlowServiceStatusType.Starting;
 
             // Call the concrete implementation to initialize the specific flow
             this.flowExecutionId = await this.createFlowExecution(input);
 
             // Update status
-            this.flowStatus = FlowServiceStatusType.Running;
+            this.status = FlowServiceStatusType.Running;
 
             // Start the services (WebSocket and/or polling)
             this.startServices(this.flowExecutionId);
@@ -108,7 +193,7 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
             // Handle initialization error
             this.handleError(
                 error instanceof Error ? error : new Error('Unknown error while starting flow execution.'),
-                FlowError.ExecutionFailed.code,
+                FlowServiceErrors.ExecutionFailed.code,
             );
 
             // Re-throw to allow concrete implementations to handle specific errors
@@ -129,43 +214,35 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
         this.webSocketService.registerMessageHandler();
 
         // Start polling if configured to do so
-        if(this.options.fallbackToPolling && !this.webSocketService.isWebSocketConnected()) {
+        if(this.fallbackToPolling && !this.webSocketService.isWebSocketConnected()) {
             this.pollingService.startPolling();
         }
 
         // Set up timeout monitor
-        this.setupTimeoutMonitor();
+        this.setupTimeoutMonitor(this.timeoutInMilliseconds);
     }
 
     // Function to setup a timeout monitor to automatically fail the flow after a specified time
-    protected setupTimeoutMonitor(timeoutInMilliseconds: number = this.options.timeoutInMilliseconds || 60000) {
+    protected setupTimeoutMonitor(timeoutInMilliseconds: number) {
         // Clear any existing timeout
         this.clearTimeoutMonitor();
 
         // Set up new timeout
         this.timeout = setTimeout(() => {
             // Only process timeout if we're still active
-            if(
-                this.flowStatus === FlowServiceStatusType.Running ||
-                this.flowStatus === FlowServiceStatusType.Starting
-            ) {
+            if(this.status === FlowServiceStatusType.Running || this.status === FlowServiceStatusType.Starting) {
                 // Update status
-                this.flowStatus = FlowServiceStatusType.TimedOut;
+                this.status = FlowServiceStatusType.TimedOut;
 
                 // Clean up resources
                 this.cleanupFlowResources();
 
-                // Notify of timeout
-                this.sendFlowStepUpdate(FlowStepUpdateType.Error, { message: FlowError.FlowTimeout.message });
-
                 // Optionally, call the error handler
-                if(this.eventHandlers.onFlowError) {
-                    this.eventHandlers.onFlowError({
-                        message: FlowError.FlowTimeout.message,
-                        code: FlowError.FlowTimeout.code,
-                        createdAt: new Date(),
-                    });
-                }
+                this.eventHandlers.onFlowExecutionError?.({
+                    message: FlowServiceErrors.FlowTimedOut.message,
+                    code: FlowServiceErrors.FlowTimedOut.code,
+                    createdAt: new Date(),
+                });
             }
         }, timeoutInMilliseconds);
     }
@@ -177,7 +254,7 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
             // Use the new event message type guard for cleaner code
             if(isFlowWebSocketEventMessage(event)) {
                 // Handle Flow execution message
-                if(isFlowExecutionMessage(event.data)) {
+                if(isFlowExecutionWebSocketMessage(event.data)) {
                     const flowExecution = event.data.arguments[0];
 
                     if(this.flowExecutionId === flowExecution.id) {
@@ -187,7 +264,7 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
                 }
 
                 // Handle Flow step execution message
-                if(isFlowStepExecutionMessage(event.data)) {
+                if(isFlowStepExecutionWebSocketMessage(event.data)) {
                     const flowStepExecution = event.data.arguments[0];
 
                     if(this.flowExecutionId === flowStepExecution.flowExecutionId) {
@@ -209,32 +286,30 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
     // Function to process a flow execution
     protected processFlowExecution(flowExecution: FlowExecution): void {
         // Update the flow status
-        this.flowStatus = flowExecution.status as unknown as FlowServiceStatusType;
+        this.status = flowExecution.status as unknown as FlowServiceStatusType;
 
         // Process all step executions
         this.processFlowStepExecutions(flowExecution);
 
         // If the flow is complete, finish processing
         if(
-            this.flowStatus === FlowServiceStatusType.Success ||
-            this.flowStatus === FlowServiceStatusType.Failed ||
-            this.flowStatus === FlowServiceStatusType.Canceled
+            this.status === FlowServiceStatusType.Success ||
+            this.status === FlowServiceStatusType.Failed ||
+            this.status === FlowServiceStatusType.Canceled
         ) {
             // Clean up resources
             this.cleanupFlowResources();
 
             // If the flow is successful, process the completion
-            if(this.flowStatus === FlowServiceStatusType.Success) {
+            if(this.status === FlowServiceStatusType.Success) {
                 // Process successful completion
                 const result = this.processFlowCompletion(flowExecution);
 
                 // Call the completion handler if provided
-                if(this.eventHandlers.onFlowComplete) {
-                    this.eventHandlers.onFlowComplete(result);
-                }
+                this.eventHandlers.onFlowExecutionComplete?.(result);
             }
             // If the flow is failed, handle the failure
-            else if(this.flowStatus === FlowServiceStatusType.Failed) {
+            else if(this.status === FlowServiceStatusType.Failed) {
                 // Process failure
                 this.handleFlowFailure(flowExecution);
             }
@@ -257,31 +332,26 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
     public stopExecution() {
         // If the flow is already not started or completed, do nothing
         if(
-            this.flowStatus === FlowServiceStatusType.NotStarted ||
-            this.flowStatus === FlowServiceStatusType.Success ||
-            this.flowStatus === FlowServiceStatusType.Failed ||
-            this.flowStatus === FlowServiceStatusType.Canceled
+            this.status === FlowServiceStatusType.NotStarted ||
+            this.status === FlowServiceStatusType.Success ||
+            this.status === FlowServiceStatusType.Failed ||
+            this.status === FlowServiceStatusType.Canceled
         ) {
             return;
         }
 
         // Update the flow status
-        this.flowStatus = FlowServiceStatusType.Canceled;
+        this.status = FlowServiceStatusType.Canceled;
 
         // Clean up resources
         this.cleanupFlowResources();
 
-        // Notify of cancellation
-        this.sendFlowStepUpdate(FlowStepUpdateType.Warning, { message: FlowError.FlowCanceled.message });
-
         // Optionally call the error handler
-        if(this.eventHandlers.onFlowError) {
-            this.eventHandlers.onFlowError({
-                message: FlowError.FlowCanceled.message,
-                code: FlowError.FlowCanceled.code,
-                createdAt: new Date(),
-            });
-        }
+        this.eventHandlers.onFlowExecutionError?.({
+            message: FlowServiceErrors.FlowCanceled.message,
+            code: FlowServiceErrors.FlowCanceled.code,
+            createdAt: new Date(),
+        });
     }
 
     // Function to dispose of all resources used by the service
@@ -294,9 +364,9 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
         this.webSocketService.dispose();
 
         // Reset state
-        this.flowStatus = FlowServiceStatusType.NotStarted;
+        this.status = FlowServiceStatusType.NotStarted;
         this.flowExecutionId = undefined;
-        this.flowStepResults = [];
+        this.stepResults = [];
     }
 
     // Function to clean up resources when a flow is complete
@@ -318,21 +388,18 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
     protected handleFlowFailure(flowExecution: FlowExecution): void {
         // Default implementation sends a generic error message
         const errorMessage = this.extractErrorMessageFromExecution(flowExecution);
-        this.sendFlowStepUpdate(FlowStepUpdateType.Error, { message: errorMessage });
 
-        if(this.eventHandlers.onFlowError) {
-            this.eventHandlers.onFlowError({
-                message: errorMessage,
-                code: FlowError.FlowError.code,
-                createdAt: new Date(),
-            });
-        }
+        this.eventHandlers.onFlowExecutionError?.({
+            message: errorMessage,
+            code: FlowServiceErrors.FlowError.code,
+            createdAt: new Date(),
+        });
     }
 
     // Function to extract an error message from a flow execution
     protected extractErrorMessageFromExecution(flowExecution: FlowExecution): string {
         // Default error message
-        let errorMessage = 'Flow execution failed';
+        let errorMessage = 'Flow execution failed.';
 
         // Try to extract errors from the flow execution
         if(flowExecution.errors && Array.isArray(flowExecution.errors) && flowExecution.errors.length > 0) {
@@ -353,7 +420,7 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
     // Function to process a flow step execution
     protected processFlowStepExecution(stepExecution: FlowStepExecution): boolean {
         // Skip if we don't have input (shouldn't happen)
-        if(!this.flowInput) {
+        if(!this.input) {
             return false;
         }
 
@@ -361,47 +428,31 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
         const stepOutput = this.processFlowStep(stepExecution);
 
         // Store the result for later use
-        this.flowStepResults.push({
-            flowStepId: stepExecution.stepId,
+        this.stepResults.push({
+            id: stepExecution.id,
+            flowExecutionId: stepExecution.flowExecutionId,
+            stepId: stepExecution.stepId,
             actionType: stepExecution.actionType,
+            attempt: stepExecution.attempt || 1, // Default to 1 if not provided
             status: stepExecution.status,
+            flowExecution: stepExecution.flowExecution,
             input: stepExecution.input as TFlowStepInput,
             output: stepOutput,
-            errors: stepExecution.errors,
+            updatedAt: stepExecution.updatedAt ? new Date(stepExecution.updatedAt) : new Date(),
             createdAt: new Date(stepExecution.createdAt),
+            errors: stepExecution.errors,
         });
 
         // Send step update based on status
         switch(stepExecution.status) {
-            case 'Success':
-                this.sendFlowStepUpdate(FlowStepUpdateType.Success, {
-                    message: `Flow step ${stepExecution.actionType} completed`,
-                });
+            case FlowStepExecutionStatus.Success:
+                this.eventHandlers.onFlowStepExecutionComplete?.(stepExecution);
                 return true;
-            case 'Failed':
-                // Try to extract error message
-                let errorMessage = 'Flow step failed';
-                if(stepExecution.errors) {
-                    try {
-                        const errors = Array.isArray(stepExecution.errors)
-                            ? stepExecution.errors
-                            : [stepExecution.errors];
-
-                        if(errors.length > 0 && errors[0].message) {
-                            errorMessage = errors[0].message;
-                        }
-                    }
-                    catch(error) {
-                        console.error('Error parsing step execution errors', error);
-                    }
-                }
-
-                this.sendFlowStepUpdate(FlowStepUpdateType.Error, { message: errorMessage });
+            case FlowStepExecutionStatus.Failed:
+                this.eventHandlers.onFlowStepExecutionError?.(stepExecution);
                 return true;
-            case 'Running':
-                this.sendFlowStepUpdate(FlowStepUpdateType.Information, {
-                    message: `Processing flow step ${stepExecution.actionType}`,
-                });
+            case FlowStepExecutionStatus.Running:
+                this.eventHandlers.onFlowStepExecutionUpdate?.(stepExecution);
                 break;
         }
 
@@ -422,7 +473,7 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
         // This is a simple default implementation that returns a basic result
         // Derived classes should override this for specialized processing
 
-        if(!this.flowInput || !this.flowExecutionId) {
+        if(!this.input || !this.flowExecutionId) {
             throw new Error('Flow input or execution ID not found');
         }
 
@@ -431,7 +482,7 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
             flowExecutionId: flowExecution.id,
             createdAt: new Date(),
             // Use the flowInput for additional fields (will be type-checked by TypeScript)
-            ...this.flowInput,
+            ...this.input,
         } as unknown as TFlowResult;
 
         return result;
@@ -453,41 +504,22 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
         }
     }
 
-    // Function to send a flow step update to registered handlers
-    protected sendFlowStepUpdate(type: FlowStepUpdateType, data: FlowStepUpdateDataInterface = {}) {
-        const update: FlowStepUpdateInterface = {
-            type,
-            data,
-            createdAt: new Date(),
-        };
-
-        if(this.eventHandlers.onFlowStepUpdate) {
-            this.eventHandlers.onFlowStepUpdate(update);
-        }
-    }
-
     // Function to handle errors from the flow execution
     protected handleError(error: Error, code?: string) {
         console.error(`FlowService error (${code || 'UNKNOWN'})`, error);
 
         // Update status
-        this.flowStatus = FlowServiceStatusType.Failed;
+        this.status = FlowServiceStatusType.Failed;
 
         // Clean up resources
         this.cleanupFlowResources();
 
-        // Notify of error
-        this.sendFlowStepUpdate(FlowStepUpdateType.Error, { message: `Error: ${error.message}` });
-
         // Optionally call the error handler
-        if(this.eventHandlers.onFlowError) {
-            this.eventHandlers.onFlowError({
-                message: error.message,
-                code: code || FlowError.FlowError.code,
-                data: { originalError: error },
-                createdAt: new Date(),
-            });
-        }
+        this.eventHandlers.onFlowExecutionError?.({
+            message: error.message,
+            code: code || FlowServiceErrors.FlowError.code,
+            createdAt: new Date(),
+        });
     }
 }
 
