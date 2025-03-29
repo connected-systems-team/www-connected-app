@@ -22,13 +22,6 @@ import {
     isFlowStepExecutionWebSocketMessage,
 } from '@project/source/modules/flow/services/utilities/FlowWebSocketServiceUtilities';
 
-// Type - FlowStepExecutionInterface
-// Typed version of the server type FlowStepExecution
-export interface FlowStepExecutionInterface<TFlowStepInput, TFlowStepOutput> extends FlowStepExecutionGraphQlInterface {
-    input?: TFlowStepInput;
-    output?: TFlowStepOutput;
-}
-
 // Type - FlowServiceStatusType (extends from FlowExecutionStatus in GraphQL)
 // The status of the flow service, used to track the state of the flow execution
 export enum FlowServiceStatusType {
@@ -117,10 +110,10 @@ export const FlowServiceErrors = {
 } as const;
 
 // Type - FlowServiceEventHandlersInterface
-export interface FlowServiceEventHandlersInterface<TFlowExecutionResult> {
+export interface FlowServiceEventHandlersInterface<TFlowInput, TFlowOutput> {
     // Flow Execution events
-    onFlowExecutionUpdate?: (flowExecutionResult: TFlowExecutionResult) => void;
-    onFlowExecutionComplete?: (flowExecutionResult: TFlowExecutionResult) => void;
+    onFlowExecutionUpdate?: (flowExecutionResult: FlowExecutionInterface<TFlowInput, TFlowOutput>) => void;
+    onFlowExecutionComplete?: (flowExecutionResult: FlowExecutionInterface<TFlowInput, TFlowOutput>) => void;
     onFlowExecutionError?: (flowExecutionError: FlowExecutionErrorInterface) => void;
 
     // Flow Step Execution events
@@ -136,16 +129,31 @@ export interface FlowServiceOptionsInterface {
     fallbackToPolling?: boolean;
 }
 
+// Type - FlowExecutionInterface
+// Typed version of the server type FlowExecution
+export interface FlowExecutionInterface<TFlowExecutionInput, TFlowExecutionOutput>
+    extends FlowExecutionGraphQlInterface {
+    input?: TFlowExecutionInput;
+    output?: TFlowExecutionOutput;
+}
+
+// Type - FlowStepExecutionInterface
+// Typed version of the server type FlowExecution
+export interface FlowStepExecutionInterface extends FlowStepExecutionGraphQlInterface {
+    input?: Record<string, unknown>;
+    output?: Record<string, unknown>;
+}
+
 // Abstract Class - FlowService
-export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, TFlowResult> {
+export abstract class FlowService<TFlowInput, TFlowOutput> {
     // Service status and state
     protected input?: TFlowInput;
     protected flowExecutionId?: string;
     protected status: FlowServiceStatusType;
-    protected stepResults: Array<FlowStepExecutionInterface<TFlowStepInput, TFlowStepOutput>>;
+    protected stepResults: Array<FlowStepExecutionInterface>;
 
     // Event handlers
-    protected eventHandlers: FlowServiceEventHandlersInterface<TFlowResult>;
+    protected eventHandlers: FlowServiceEventHandlersInterface<TFlowInput, TFlowOutput>;
 
     // Options
     protected timeoutInMilliseconds: number;
@@ -161,7 +169,7 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
 
     constructor(
         webSocketViaSharedWorker: WebSocketViaSharedWorkerContextInterface,
-        eventHandlers: FlowServiceEventHandlersInterface<TFlowResult>,
+        eventHandlers: FlowServiceEventHandlersInterface<TFlowInput, TFlowOutput>,
         options?: FlowServiceOptionsInterface,
     ) {
         this.status = FlowServiceStatusType.NotStarted;
@@ -276,18 +284,30 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
     }
 
     // Function to handle a WebSocket message
-    protected handleWebSocketMessage(event: WebSocketMessageEventInterface): boolean {
-        // Default implementation can be overridden by concrete classes
+    private handleWebSocketMessage(event: WebSocketMessageEventInterface): boolean {
+        console.log('!!!!!!!!!!! FlowService.ts(handleWebSocketMessage) WebSocket message received', event);
+
         try {
             // Use the new event message type guard for cleaner code
             if(isFlowWebSocketEventMessage(event)) {
+                console.log('isFlowWebSocketEventMessage', event);
+
                 // Handle Flow execution message
                 if(isFlowExecutionWebSocketMessage(event.data)) {
+                    console.log('isFlowExecutionWebSocketMessage', event.data);
+
                     const flowExecution = event.data.arguments[0];
 
+                    console.log('Flow execution ID', this.flowExecutionId, 'vs', flowExecution.id);
+
                     if(this.flowExecutionId === flowExecution.id) {
+                        console.log('Flow execution ID matches', this.flowExecutionId, flowExecution.id);
+
                         this.processFlowExecution(flowExecution);
                         return true;
+                    }
+                    else {
+                        console.log('Flow execution ID does not match', this.flowExecutionId, flowExecution.id);
                     }
                 }
 
@@ -313,6 +333,8 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
 
     // Function to process a flow execution
     protected processFlowExecution(flowExecution: FlowExecutionGraphQlInterface): void {
+        console.log('!!!!!!!!!!! Processing flow execution', flowExecution);
+
         // Update the flow status
         this.status = flowExecution.status as unknown as FlowServiceStatusType;
 
@@ -384,6 +406,8 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
 
     // Function to dispose of all resources used by the service
     public dispose() {
+        console.log('DISPOSEEEEEEEEEEE FlowService - Disposing of resources');
+
         // Clean up all resources
         this.cleanupFlowResources();
 
@@ -393,7 +417,7 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
 
         // Reset state
         this.status = FlowServiceStatusType.NotStarted;
-        this.flowExecutionId = undefined;
+        // this.flowExecutionId = undefined;
         this.stepResults = [];
     }
 
@@ -469,7 +493,7 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
             attempt: stepExecution.attempt || 1, // Default to 1 if not provided
             status: stepExecution.status,
             flowExecution: stepExecution.flowExecution,
-            input: stepExecution.input as TFlowStepInput,
+            input: stepExecution.input,
             output: stepOutput,
             updatedAt: stepExecution.updatedAt ? new Date(stepExecution.updatedAt) : new Date(),
             createdAt: new Date(stepExecution.createdAt),
@@ -501,8 +525,26 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
         return true;
     }
 
+    // Function to process the flow step output
+    protected processFlowStep(flowStep: FlowStepExecutionGraphQlInterface): Record<string, unknown> | undefined {
+        // Default implementation just returns the output
+        if(!flowStep.output) {
+            return undefined;
+        }
+
+        try {
+            return flowStep.output;
+        }
+        catch(error) {
+            console.error('Error processing flow step output', error);
+            return undefined;
+        }
+    }
+
     // Function to process the flow completion with a default implementation
-    protected processFlowCompletion(flowExecution: FlowExecutionGraphQlInterface): TFlowResult {
+    protected processFlowCompletion(
+        flowExecution: FlowExecutionGraphQlInterface,
+    ): FlowExecutionInterface<TFlowInput, TFlowOutput> {
         // This is a simple default implementation that returns a basic result
         // Derived classes should override this for specialized processing
 
@@ -516,25 +558,9 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
             createdAt: new Date(),
             // Use the flowInput for additional fields (will be type-checked by TypeScript)
             ...this.input,
-        } as unknown as TFlowResult;
+        } as unknown as FlowExecutionInterface<TFlowInput, TFlowOutput>;
 
         return result;
-    }
-
-    // Function to process the flow step output
-    protected processFlowStep(flowStep: FlowStepExecutionGraphQlInterface): TFlowStepOutput | undefined {
-        // Default implementation just returns the output cast to the expected type
-        if(!flowStep.output) {
-            return undefined;
-        }
-
-        try {
-            return flowStep.output as TFlowStepOutput;
-        }
-        catch(error) {
-            console.error('Error processing flow step output', error);
-            return undefined;
-        }
     }
 
     // Function to validate the input before executing a flow

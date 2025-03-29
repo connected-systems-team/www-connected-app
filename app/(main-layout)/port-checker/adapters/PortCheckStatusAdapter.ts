@@ -1,12 +1,10 @@
 'use client'; // This adapter uses client-only features
 
 // Dependencies - Types
-import { FlowStepExecutionStatus as FlowStepExecutionStatusType } from '@project/source/api/GraphQlGeneratedCode';
 import { FlowExecutionErrorInterface } from '@project/source/modules/flow/FlowService';
 import {
     NmapPortStateType,
-    PortScanFlowStepExecutionInterface,
-    PortScanFlowStepOutputInterface,
+    PortScanFlowExecutionInterface,
 } from '@project/source/modules/connected/port-scan/PortScanFlowService';
 import { PortCheckStatusItemInterface } from '@project/app/(main-layout)/port-checker/PortCheckStatusAnimatedList';
 import { WebSocketViaSharedWorkerContextInterface } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
@@ -14,7 +12,7 @@ import { WebSocketViaSharedWorkerContextInterface } from '@structure/source/api/
 // Dependencies - Services
 import {
     PortScanFlowService,
-    PortScanFlowInputInterface,
+    PortScanFlowClientInputInterface,
 } from '@project/source/modules/connected/port-scan/PortScanFlowService';
 
 // Dependencies - Utilities
@@ -73,7 +71,7 @@ export function mapNmapPortStateToPortStateType(nmapPortState: NmapPortStateType
 
 // Class - PortCheckStatusAdapter
 export class PortCheckStatusAdapter {
-    private portScanFlowInput?: PortScanFlowInputInterface;
+    private portScanFlowInput?: PortScanFlowClientInputInterface;
     private portScanFlowService: PortScanFlowService;
     private onPortCheckStatusItem: (status: PortCheckStatusItemInterface) => void;
 
@@ -86,7 +84,7 @@ export class PortCheckStatusAdapter {
 
         // Create the flow service
         this.portScanFlowService = new PortScanFlowService(webSocketViaSharedWorker, {
-            onFlowStepExecutionComplete: this.onFlowStepExecutionComplete.bind(this),
+            onFlowExecutionComplete: this.onFlowExecutionComplete.bind(this),
             onFlowExecutionError: this.onFlowExecutionError.bind(this),
         });
     }
@@ -136,14 +134,16 @@ export class PortCheckStatusAdapter {
     }
 
     // Function to handle flow step updates
-    private onFlowStepExecutionComplete(portScanFlowStepExecution: PortScanFlowStepExecutionInterface): void {
+    private onFlowExecutionComplete(portScanFlowStepExecution: PortScanFlowExecutionInterface): void {
         const portState = portScanFlowStepExecution.output?.ports?.[0]?.state
             ? mapNmapPortStateToPortStateType(portScanFlowStepExecution.output?.ports?.[0]?.state as NmapPortStateType)
             : PortStateType.Unknown;
 
+        const text = 'HI HI HI';
+
         this.onPortCheckStatusItem({
             portState: portState,
-            text: 'REPLACE ME',
+            text: text,
             host: this.portScanFlowInput?.host,
             port: this.portScanFlowInput?.port,
             isFinal: true,

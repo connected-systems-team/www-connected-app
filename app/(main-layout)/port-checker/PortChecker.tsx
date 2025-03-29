@@ -10,7 +10,7 @@ import { PortCheckForm } from '@project/app/(main-layout)/port-checker/PortCheck
 import { CommonPorts } from '@project/app/(main-layout)/port-checker/CommonPorts';
 import { YourPublicIpAddress } from '@project/app/(main-layout)/port-checker/YourPublicIpAddress';
 import {
-    PortCheckStatusItem,
+    PortCheckStatusItemInterface,
     PortCheckStatusAnimatedList,
 } from '@project/app/(main-layout)/port-checker/PortCheckStatusAnimatedList';
 import { About } from '@project/app/(main-layout)/port-checker/About';
@@ -28,7 +28,7 @@ export interface PortCheckerInterface {
 export function PortChecker(properties: PortCheckerInterface) {
     // State
     const [isCheckingPort, setIsCheckingPort] = React.useState<boolean>(false);
-    const [portCheckStatusItems, setPortCheckStatusItems] = React.useState<PortCheckStatusItem[]>([]);
+    const [portCheckStatusItems, setPortCheckStatusItems] = React.useState<PortCheckStatusItemInterface[]>([]);
 
     // Hooks
     const webSocketViaSharedWorker = useWebSocketViaSharedWorker();
@@ -43,14 +43,14 @@ export function PortChecker(properties: PortCheckerInterface) {
     const portCheckStatusAdapterReference = React.useRef<PortCheckStatusAdapter | null>(null);
 
     // Function to handle port check status item (append to list)
-    function handlePortCheckStatusItem(portCheckStatusItem: PortCheckStatusItem): void {
+    function handlePortCheckStatusItem(portCheckStatusItem: PortCheckStatusItemInterface): void {
         // Add the status item to the end of the list
         setPortCheckStatusItems(function (previousPortCheckStatusItems) {
             return [...previousPortCheckStatusItems, portCheckStatusItem];
         });
 
-        // If this is a final status (not loading), update the checking state
-        if(!portCheckStatusItem.isLoading) {
+        // If this is a final status, update the checking state
+        if(portCheckStatusItem.isFinal) {
             setIsCheckingPort(false);
         }
     }
@@ -68,27 +68,22 @@ export function PortChecker(properties: PortCheckerInterface) {
         setIsCheckingPort(true);
 
         // Start the scan - all validation is handled inside the flow service
-        if(portCheckStatusAdapterReference.current) {
-            await portCheckStatusAdapterReference.current.checkPort(remoteAddress, remotePort, regionIdentifier);
-        }
+        await portCheckStatusAdapterReference.current?.checkPort(remoteAddress, remotePort, regionIdentifier);
     }
 
-    // Initialize and cleanup port check status adapter
+    // On mount
     React.useEffect(
         function () {
-            // Initialize the adapter on mount
-            portCheckStatusAdapterReference.current = new PortCheckStatusAdapter(
-                webSocketViaSharedWorker,
-                handlePortCheckStatusItem,
-            );
+            // Initialize the adapter if it doesn't exist
+            if(!portCheckStatusAdapterReference.current) {
+                portCheckStatusAdapterReference.current = new PortCheckStatusAdapter(
+                    webSocketViaSharedWorker,
+                    handlePortCheckStatusItem,
+                );
+            }
 
-            // On unmount, dispose of the adapter
-            return function () {
-                if(portCheckStatusAdapterReference.current) {
-                    portCheckStatusAdapterReference.current.dispose();
-                    portCheckStatusAdapterReference.current = null;
-                }
-            };
+            // On unmount, do nothing
+            return function () {};
         },
         [webSocketViaSharedWorker],
     );

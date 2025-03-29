@@ -2,7 +2,7 @@
 import React from 'react';
 
 // Dependencies - Types
-import { NmapPortStateType } from '@project/source/modules/connected/port-scan/types/PortScanTypes';
+import { PortStateType } from '@project/app/(main-layout)/port-checker/adapters/PortCheckStatusAdapter';
 
 // Dependencies - Main Components
 import { Link } from '@structure/source/common/navigation/Link';
@@ -23,20 +23,20 @@ import ErrorCircledRedBorderIcon from '@project/assets/icons/status/ErrorCircled
 import InformationCircledIcon from '@structure/assets/icons/status/InformationCircledIcon.svg';
 
 // Interface for status item with associated port state
-export interface PortCheckStatusItem {
+export interface PortCheckStatusItemInterface {
+    portState: PortStateType;
     text: string;
-    state: NmapPortStateType;
-    isLoading?: boolean;
-    systemError?: boolean;
-    timeout?: boolean;
-    errorMessage?: string;
     host?: string;
     port?: number;
+    timeout?: boolean;
+    errorMessage?: string;
+    systemError?: boolean;
+    isFinal?: boolean;
 }
 
 // Component - PortCheckStatusAnimatedList
 export interface PortCheckStatusAnimatedListInterface {
-    portCheckStatusItems: PortCheckStatusItem[];
+    portCheckStatusItems: PortCheckStatusItemInterface[];
 }
 export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedListInterface) {
     // Hooks
@@ -44,14 +44,14 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
 
     // State for dialog
     const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>(false);
-    const [currentPortState, setCurrentPortState] = React.useState<NmapPortStateType>('open');
+    const [currentPortState, setCurrentPortState] = React.useState<PortStateType>(PortStateType.Open);
     const [isSystemError, setIsSystemError] = React.useState<boolean>(false);
     const [isTimeout, setIsTimeout] = React.useState<boolean>(false);
     const [errorMessage, setErrorMessage] = React.useState<string | undefined>(undefined);
 
     // Function to open port state info dialog
     function openPortStateDialog(
-        portState: NmapPortStateType,
+        portState: PortStateType,
         systemError?: boolean,
         timeout?: boolean,
         errorMsg?: string,
@@ -64,7 +64,7 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
     }
 
     // Function to render host link if applicable
-    function renderHostLink(item: PortCheckStatusItem, displayText: string): React.ReactNode {
+    function renderHostLink(item: PortCheckStatusItemInterface, displayText: string): React.ReactNode {
         let content: React.ReactNode = displayText;
 
         // If the port is 80 or 443 and there is a host, render a link
@@ -99,23 +99,13 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
             <AnimatedList
                 className="ml-[8px] mt-4"
                 items={properties.portCheckStatusItems.map(function (item) {
-                    const isFinal =
-                        !item.isLoading &&
-                        (item.state === 'open' ||
-                            item.state === 'closed' ||
-                            item.state === 'filtered' ||
-                            item.state === 'unfiltered' ||
-                            item.state === 'open|filtered' ||
-                            item.state === 'closed|filtered' ||
-                            item.state === 'unknown');
-
                     // Clean the text for display by removing explanations in parentheses
                     const displayText = item.text;
 
                     let content;
 
                     // Allow users to copy the last text and show info button for final results
-                    if(isFinal) {
+                    if(item.isFinal) {
                         content = (
                             <span>
                                 <span>
@@ -127,7 +117,7 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
                                             event.preventDefault();
                                             event.stopPropagation();
                                             openPortStateDialog(
-                                                item.state,
+                                                item.portState,
                                                 item.systemError,
                                                 item.timeout,
                                                 item.errorMessage,
@@ -157,14 +147,14 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
                     }
 
                     const isNegativeState =
-                        item.state === 'closed' ||
-                        item.state === 'filtered' ||
-                        item.state === 'closed|filtered' ||
-                        item.state === 'unknown';
+                        item.portState === PortStateType.Closed ||
+                        item.portState === PortStateType.Filtered ||
+                        item.portState === PortStateType.ClosedFiltered ||
+                        item.portState === PortStateType.Unknown;
 
                     return {
                         content: content,
-                        isFinal: isFinal,
+                        isFinal: item.isFinal,
                         finalDiscIcon: isNegativeState
                             ? theme == Theme.Light
                                 ? ErrorCircledRedBorderIcon

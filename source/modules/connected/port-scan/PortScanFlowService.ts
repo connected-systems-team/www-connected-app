@@ -3,7 +3,7 @@
 // Dependencies - Types
 import {
     FlowService,
-    FlowStepExecutionInterface,
+    FlowExecutionInterface,
     FlowInputValidationResultInterface,
 } from '@project/source/modules/flow/FlowService';
 
@@ -23,50 +23,6 @@ export type NmapPortStateType =
     | 'open|filtered'
     | 'closed|filtered'
     | 'unknown';
-
-// Type - PortScanFlowInputInterface - Input for a new port scan
-export interface PortScanFlowInputInterface {
-    host: string;
-    port: number;
-    regionIdentifier: string; // E.g., north-america
-}
-
-// Server Type - PortScanFlowStepInputInterface - Input for a port scan flow step
-export interface PortScanFlowStepInputInterface extends Record<string, unknown> {
-    host: string;
-    ports?: Array<string | { port: string }>;
-    region?: string;
-}
-
-// Server Type - PortScanFlowStepOutputInterface - Output for a port scan flow step
-export interface PortScanFlowStepOutputInterface extends Record<string, unknown> {
-    status: 'success' | 'error' | 'mismatch';
-    ipAddress?: string;
-    addressesScanned: number;
-    // When a domain resolves to multiple IPs
-    additionalIps?: string[];
-    // hostsUp - Not the same as additionalIps.length because additionalIps can be empty
-    // Used to determine if someone put in an invalid IP address
-    hostsUp: number;
-    hostName?: string;
-    ports?: Array<{
-        port: string;
-        state: NmapPortStateType;
-        // If the port state is different from the expected state in monitoring
-        mismatch: boolean;
-        // If nmap returns a service name that is listening on the port, e.g., http
-        service?: string;
-    }>;
-    // The time it took in seconds to perform the scan
-    scanTime: string;
-    // This will only exist if a scan is succesful, the time it took to get a response
-    latency?: string;
-    error?: {
-        message?: string;
-        host?: string;
-        port?: string;
-    };
-}
 
 // Type - PortScanFlowServiceErrors
 export const PortScanFlowServiceErrors = {
@@ -109,19 +65,59 @@ export const PortScanFlowServiceErrors = {
     },
 } as const;
 
-// Type - PortScanFlowStepResultInterface - Port scan specific flow step result
-export interface PortScanFlowStepExecutionInterface
-    extends FlowStepExecutionInterface<PortScanFlowStepInputInterface, PortScanFlowStepOutputInterface> {}
+// Type - PortScanFlowClientInputInterface - Input for a new port scan from the client
+export interface PortScanFlowClientInputInterface {
+    host: string;
+    port: number;
+    regionIdentifier: string; // E.g., north-america
+}
+
+// Server Type - PortScanFlowInputInterface - Input for a port scan flow step
+export interface PortScanFlowInputInterface {
+    host: string;
+    ports?: Array<string | { port: string }>;
+    region?: string;
+    maxAttemps?: number;
+}
+
+// Server Type - PortScanFlowOutputInterface - Output for a port scan flow
+export interface PortScanFlowOutputInterface {
+    status: 'success' | 'error' | 'mismatch';
+    ipAddress?: string;
+    addressesScanned: number;
+    // When a domain resolves to multiple IPs
+    additionalIps?: string[];
+    // hostsUp - Not the same as additionalIps.length because additionalIps can be empty
+    // Used to determine if someone put in an invalid IP address
+    hostsUp: number;
+    hostName?: string;
+    ports?: Array<{
+        port: string;
+        state: NmapPortStateType;
+        // If the port state is different from the expected state in monitoring
+        mismatch: boolean;
+        // If nmap returns a service name that is listening on the port, e.g., http
+        service?: string;
+    }>;
+    // The time it took in seconds to perform the scan
+    scanTime: string;
+    // This will only exist if a scan is succesful, the time it took to get a response
+    latency?: string;
+    error?: {
+        message?: string;
+        host?: string;
+        port?: string;
+    };
+}
+
+// Type - PortScanFlowExecutionInterface
+export interface PortScanFlowExecutionInterface
+    extends FlowExecutionInterface<PortScanFlowInputInterface, PortScanFlowOutputInterface> {}
 
 // Class - PortScanFlowService
-export class PortScanFlowService extends FlowService<
-    PortScanFlowInputInterface,
-    PortScanFlowStepInputInterface,
-    PortScanFlowStepOutputInterface,
-    PortScanFlowStepExecutionInterface
-> {
+export class PortScanFlowService extends FlowService<PortScanFlowInputInterface, PortScanFlowOutputInterface> {
     // Function to override validateInput to add port scan specific validation
-    protected validateInput(input: PortScanFlowInputInterface): FlowInputValidationResultInterface {
+    protected validateInput(input: PortScanFlowClientInputInterface): FlowInputValidationResultInterface {
         // Validate host - Check for private IP addresses (only for IPv4)
         if(isIpV4Address(input.host) && isPrivateIpAddress(input.host)) {
             return {
@@ -170,7 +166,7 @@ export class PortScanFlowService extends FlowService<
     }
 
     // Function to create a new flow execution
-    protected async createFlowExecution(input: PortScanFlowInputInterface): Promise<string> {
+    protected async createFlowExecution(input: PortScanFlowClientInputInterface): Promise<string> {
         // Execute the port scan mutation to create the flow
         const portScanMutation = await apolloClient.mutate({
             mutation: PortScanCreateDocument,

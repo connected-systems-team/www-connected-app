@@ -39,14 +39,14 @@ export class FlowWebSocketService {
     private flowExecutionId?: string;
     private webSocketViaSharedWorker: WebSocketViaSharedWorkerContextInterface;
     private messageHandlerUnsubscribe: (() => void) | null = null;
-    private messageHandlerFunction: (event: WebSocketMessageEventInterface) => boolean;
+    private onMessage: (event: WebSocketMessageEventInterface) => boolean;
 
     constructor(
         webSocketProvider: WebSocketViaSharedWorkerContextInterface,
         onMessage: (event: WebSocketMessageEventInterface) => boolean,
     ) {
         this.webSocketViaSharedWorker = webSocketProvider;
-        this.messageHandlerFunction = onMessage;
+        this.onMessage = onMessage;
     }
 
     // Function to set the flow execution ID that this service is tracking
@@ -61,20 +61,25 @@ export class FlowWebSocketService {
 
     // Function to register the WebSocket message handler
     public registerMessageHandler(): void {
+        console.log('!!!! registerMessageHandler - FlowWebSocketService - Registering message handler');
+
         // Unregister any existing handler
-        this.unregisterMessageHandler();
+        // this.unregisterMessageHandler();
 
         // Register new handler
         this.messageHandlerUnsubscribe = this.webSocketViaSharedWorker.onWebSocketMessage((event) => {
-            return this.messageHandlerFunction(event);
+            console.log('FlowWebSocketService - Message received:', event);
+            return this.onMessage(event);
         });
     }
 
     // Function to unregister the WebSocket message handler
     public unregisterMessageHandler(): void {
+        console.log('!!!! unregisterMessageHandler - FlowWebSocketService - Unregistering message handler');
+
         if(this.messageHandlerUnsubscribe) {
-            this.messageHandlerUnsubscribe();
-            this.messageHandlerUnsubscribe = null;
+            // this.messageHandlerUnsubscribe();
+            // this.messageHandlerUnsubscribe = null;
         }
     }
 
@@ -92,7 +97,9 @@ export class FlowWebSocketService {
 
     // Function to dispose of all resources used by the service
     public dispose(): void {
-        this.unregisterMessageHandler();
+        console.log('DISPOSE - FlowWebSocketService - Disposing of resources');
+
+        // this.unregisterMessageHandler();
         this.flowExecutionId = undefined;
     }
 }
