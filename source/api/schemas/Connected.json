@@ -1,11 +1,6 @@
 {
     "types": {
         "input": {
-            "JSON": {
-                "kind": "scalar",
-                "type": "JSON",
-                "description": "The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf)."
-            },
             "String": {
                 "kind": "scalar",
                 "type": "String",
@@ -15,6 +10,16 @@
                 "kind": "scalar",
                 "type": "DateTimeISO",
                 "description": "A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.This scalar is serialized to a string in ISO 8601 format and parsed from a string in ISO 8601 format."
+            },
+            "FlowType": {
+                "kind": "enum",
+                "type": "FlowType",
+                "values": ["Custom", "Entity", "Static"]
+            },
+            "JSON": {
+                "kind": "scalar",
+                "type": "JSON",
+                "description": "The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf)."
             },
             "Float": {
                 "kind": "scalar",
@@ -34,7 +39,7 @@
             "FlowTriggerType": {
                 "kind": "enum",
                 "type": "FlowTriggerType",
-                "values": ["Manual", "Scheduled", "Webhook"]
+                "values": ["Manual", "Recurring", "Webhook"]
             },
             "PortScanInput": {
                 "kind": "object",
@@ -169,19 +174,9 @@
                 "description": "The order direction of a query",
                 "values": ["Ascending", "Descending"]
             },
-            "PortStateValue": {
+            "FlowTriggerState": {
                 "kind": "enum",
-                "type": "PortStateValue",
-                "values": ["Open", "Closed", "Filtered", "Unfiltered", "OpenFiltered", "ClosedFiltered"]
-            },
-            "PortScanFlowNodeResultStatus": {
-                "kind": "enum",
-                "type": "PortScanFlowNodeResultStatus",
-                "values": ["Success", "Failure", "Mismatch"]
-            },
-            "PortMonitorState": {
-                "kind": "enum",
-                "type": "PortMonitorState",
+                "type": "FlowTriggerState",
                 "values": ["Inactive", "Active", "Deleted"]
             },
             "PortMonitorInput": {
@@ -405,6 +400,16 @@
                         "name": "state"
                     }
                 ]
+            },
+            "PortStateValue": {
+                "kind": "enum",
+                "type": "PortStateValue",
+                "values": ["Open", "Closed", "Filtered", "Unfiltered", "OpenFiltered", "ClosedFiltered"]
+            },
+            "PortScanFlowNodeResultStatus": {
+                "kind": "enum",
+                "type": "PortScanFlowNodeResultStatus",
+                "values": ["Success", "Failure", "Mismatch"]
             },
             "__TypeKind": {
                 "kind": "enum",

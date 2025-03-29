@@ -1429,6 +1429,23 @@ export type EstimateOrderPriceInput = {
   shippingAddress?: InputMaybe<StreetAddressInput>;
 };
 
+export type FlowEntity = {
+  __typename?: 'FlowEntity';
+  activeVersion?: Maybe<FlowVersionEntity>;
+  activeVersionId?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTimeISO']['output'];
+  createdByAccountId: Scalars['String']['output'];
+  createdByProfileId: Scalars['String']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  executions: Array<FlowExecution>;
+  id: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  updatedAt: Scalars['DateTimeISO']['output'];
+  updatedByAccountId?: Maybe<Scalars['String']['output']>;
+  updatedByProfileId?: Maybe<Scalars['String']['output']>;
+  versions: Array<FlowVersionEntity>;
+};
+
 export type FlowExecution = {
   __typename?: 'FlowExecution';
   completedAt?: Maybe<Scalars['DateTimeISO']['output']>;
@@ -1437,9 +1454,15 @@ export type FlowExecution = {
   createdByProfileId: Scalars['String']['output'];
   elapsedTimeMs?: Maybe<Scalars['Float']['output']>;
   errors?: Maybe<Array<Scalars['JSON']['output']>>;
+  flowEntity?: Maybe<FlowEntity>;
+  flowType: FlowType;
+  flowTypeId: Scalars['String']['output'];
+  flowVersionEntity?: Maybe<FlowVersionEntity>;
   flowVersionId?: Maybe<Scalars['String']['output']>;
   id: Scalars['String']['output'];
+  input?: Maybe<Scalars['JSON']['output']>;
   logs?: Maybe<Array<Scalars['JSON']['output']>>;
+  output?: Maybe<Scalars['JSON']['output']>;
   startedAt: Scalars['DateTimeISO']['output'];
   status: FlowExecutionStatus;
   stepExecutions: Array<FlowStepExecution>;
@@ -1497,11 +1520,35 @@ export type FlowSubscribeInput = {
   triggerId: Scalars['String']['input'];
 };
 
+export enum FlowTriggerState {
+  Active = 'Active',
+  Deleted = 'Deleted',
+  Inactive = 'Inactive'
+}
+
 export enum FlowTriggerType {
   Manual = 'Manual',
-  Scheduled = 'Scheduled',
+  Recurring = 'Recurring',
   Webhook = 'Webhook'
 }
+
+export enum FlowType {
+  Custom = 'Custom',
+  Entity = 'Entity',
+  Static = 'Static'
+}
+
+export type FlowVersionEntity = {
+  __typename?: 'FlowVersionEntity';
+  createdAt: Scalars['DateTimeISO']['output'];
+  createdByAccountId: Scalars['String']['output'];
+  createdByProfileId: Scalars['String']['output'];
+  executions: Array<FlowExecution>;
+  flow: FlowEntity;
+  flowId: Scalars['String']['output'];
+  graph: Scalars['JSON']['output'];
+  id: Scalars['String']['output'];
+};
 
 export type FulfillmentOrder = {
   __typename?: 'FulfillmentOrder';
@@ -1709,10 +1756,10 @@ export type Mutation = {
   emailTemplateUpdate: EmailTemplate;
   engagementEventCreate: OperationResult;
   engagementEventsCreate: OperationResult;
-  flowAbort: OperationResult;
-  flowCancel: OperationResult;
-  flowPurge: OperationResult;
-  flowPurgeByDate: OperationResult;
+  flowAbortPrivileged: OperationResult;
+  flowCancelPrivileged: OperationResult;
+  flowPurgeByDatePrivileged: OperationResult;
+  flowPurgePrivileged: OperationResult;
   flowSubscribe: FlowExecution;
   flowUnsubscribe: FlowExecution;
   /** Create a new node. */
@@ -1723,7 +1770,7 @@ export type Mutation = {
   gridRegionCreate: GridRegion;
   /** Update a region. */
   gridRegionUpdate?: Maybe<GridRegion>;
-  portMonitorCreate: PortMonitor;
+  portMonitorCreate: RecurringFlowTrigger;
   portMonitorDelete: OperationResult;
   portScanCreate: Scalars['String']['output'];
   postCommentCreate: PostComment;
@@ -2134,24 +2181,24 @@ export type MutationEngagementEventsCreateArgs = {
 };
 
 
-export type MutationFlowAbortArgs = {
+export type MutationFlowAbortPrivilegedArgs = {
   objectId: Scalars['String']['input'];
 };
 
 
-export type MutationFlowCancelArgs = {
+export type MutationFlowCancelPrivilegedArgs = {
   objectId: Scalars['String']['input'];
   timeout?: InputMaybe<Scalars['Float']['input']>;
 };
 
 
-export type MutationFlowPurgeArgs = {
-  objectId: Scalars['String']['input'];
+export type MutationFlowPurgeByDatePrivilegedArgs = {
+  date: Scalars['DateTimeISO']['input'];
 };
 
 
-export type MutationFlowPurgeByDateArgs = {
-  date: Scalars['DateTimeISO']['input'];
+export type MutationFlowPurgePrivilegedArgs = {
+  objectId: Scalars['String']['input'];
 };
 
 
@@ -2580,7 +2627,7 @@ export type PaginationOrderResult = {
 
 export type PaginationPortMonitor = {
   __typename?: 'PaginationPortMonitor';
-  items: Array<PortMonitor>;
+  items: Array<RecurringFlowTrigger>;
   pagination: Pagination;
 };
 
@@ -2674,26 +2721,6 @@ export enum PaymentStatus {
   Pending = 'Pending'
 }
 
-export type PortMonitor = {
-  __typename?: 'PortMonitor';
-  createdAt: Scalars['DateTimeISO']['output'];
-  createdByAccountId: Scalars['String']['output'];
-  createdByProfileId: Scalars['String']['output'];
-  durableObjectId?: Maybe<Scalars['String']['output']>;
-  emailDeliveryPreference: Array<PortScanFlowNodeResultStatus>;
-  flowId: Scalars['String']['output'];
-  host: Scalars['String']['output'];
-  hour: Scalars['Float']['output'];
-  id: Scalars['String']['output'];
-  minute: Scalars['Float']['output'];
-  ports: Array<PortMonitorStateCheck>;
-  region: Scalars['String']['output'];
-  state: PortMonitorState;
-  updatedAt: Scalars['DateTimeISO']['output'];
-  updatedByAccountId?: Maybe<Scalars['String']['output']>;
-  updatedByProfileId?: Maybe<Scalars['String']['output']>;
-};
-
 export type PortMonitorCreateInput = {
   emailDeliveryPreference: Array<PortScanFlowNodeResultStatus>;
   host: Scalars['String']['input'];
@@ -2705,18 +2732,6 @@ export type PortMonitorCreateInput = {
 
 export type PortMonitorInput = {
   monitorId: Scalars['String']['input'];
-};
-
-export enum PortMonitorState {
-  Active = 'Active',
-  Deleted = 'Deleted',
-  Inactive = 'Inactive'
-}
-
-export type PortMonitorStateCheck = {
-  __typename?: 'PortMonitorStateCheck';
-  port: Scalars['String']['output'];
-  state: PortStateValue;
 };
 
 export type PortMonitorStateCheckInput = {
@@ -3280,7 +3295,7 @@ export type Query = {
   engagementOverview: EngagementOverview;
   flowExecution?: Maybe<FlowExecution>;
   flowExecutionHistory: PaginationFlowExecutionResult;
-  flowInfo: Scalars['JSON']['output'];
+  flowInfoPrivileged: Scalars['JSON']['output'];
   /** Get a node. */
   gridNode?: Maybe<GridNode>;
   /** Generate a new key for a node. */
@@ -3610,7 +3625,7 @@ export type QueryFlowExecutionHistoryArgs = {
 };
 
 
-export type QueryFlowInfoArgs = {
+export type QueryFlowInfoPrivilegedArgs = {
   objectId: Scalars['String']['input'];
 };
 
@@ -3754,6 +3769,30 @@ export type QueryShipmentBatchInput = {
   orderBy?: InputMaybe<Array<OrderByInput>>;
   startAt?: InputMaybe<Scalars['DateTimeISO']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type RecurringFlowTrigger = {
+  __typename?: 'RecurringFlowTrigger';
+  createdAt: Scalars['DateTimeISO']['output'];
+  createdByAccountId: Scalars['String']['output'];
+  createdByProfileId: Scalars['String']['output'];
+  dayOfMonth: Scalars['String']['output'];
+  dayOfWeek: Scalars['String']['output'];
+  flowEntity?: Maybe<FlowEntity>;
+  flowType: FlowType;
+  flowTypeId: Scalars['String']['output'];
+  flowVersionEntity?: Maybe<FlowVersionEntity>;
+  flowVersionId?: Maybe<Scalars['String']['output']>;
+  hour: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  input?: Maybe<Scalars['JSON']['output']>;
+  minute: Scalars['String']['output'];
+  month: Scalars['String']['output'];
+  second: Scalars['String']['output'];
+  state: FlowTriggerState;
+  updatedAt: Scalars['DateTimeISO']['output'];
+  updatedByAccountId?: Maybe<Scalars['String']['output']>;
+  updatedByProfileId?: Maybe<Scalars['String']['output']>;
 };
 
 /** The format of the string rich-content */
@@ -4931,14 +4970,14 @@ export type PortMonitorQueryVariables = Exact<{
 }>;
 
 
-export type PortMonitorQuery = { __typename?: 'Query', portMonitor: { __typename?: 'PaginationPortMonitor', items: Array<{ __typename?: 'PortMonitor', id: string, flowId: string, durableObjectId?: string | null, host: string, region: string, hour: number, minute: number, state: PortMonitorState, emailDeliveryPreference: Array<PortScanFlowNodeResultStatus>, updatedAt: any, createdAt: any, ports: Array<{ __typename?: 'PortMonitorStateCheck', port: string, state: PortStateValue }> }>, pagination: { __typename?: 'Pagination', itemIndex: number, itemIndexForPreviousPage?: number | null, itemIndexForNextPage?: number | null, itemsPerPage: number, itemsTotal: number, page: number, pagesTotal: number } } };
+export type PortMonitorQuery = { __typename?: 'Query', portMonitor: { __typename?: 'PaginationPortMonitor', items: Array<{ __typename?: 'RecurringFlowTrigger', id: string, input?: any | null, hour: string, minute: string, state: FlowTriggerState, updatedAt: any, createdAt: any }>, pagination: { __typename?: 'Pagination', itemIndex: number, itemIndexForPreviousPage?: number | null, itemIndexForNextPage?: number | null, itemsPerPage: number, itemsTotal: number, page: number, pagesTotal: number } } };
 
 export type PortMonitorCreateMutationVariables = Exact<{
   input: PortMonitorCreateInput;
 }>;
 
 
-export type PortMonitorCreateMutation = { __typename?: 'Mutation', portMonitorCreate: { __typename?: 'PortMonitor', id: string, flowId: string, durableObjectId?: string | null, host: string, region: string, hour: number, minute: number, state: PortMonitorState, emailDeliveryPreference: Array<PortScanFlowNodeResultStatus>, updatedAt: any, createdAt: any, ports: Array<{ __typename?: 'PortMonitorStateCheck', port: string, state: PortStateValue }> } };
+export type PortMonitorCreateMutation = { __typename?: 'Mutation', portMonitorCreate: { __typename?: 'RecurringFlowTrigger', id: string, input?: any | null, hour: string, minute: string, state: FlowTriggerState, updatedAt: any, createdAt: any } };
 
 export type PortMonitorDeleteMutationVariables = Exact<{
   input: PortMonitorInput;
@@ -5043,8 +5082,8 @@ export const GridRegionsDocument = {"kind":"Document","definitions":[{"kind":"Op
 export const PortScanCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PortScanCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PortScanCreateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portScanCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}]}]}}]} as unknown as DocumentNode<PortScanCreateMutation, PortScanCreateMutationVariables>;
 export const PortScanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PortScan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PortScanInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portScan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"triggerId"}},{"kind":"Field","name":{"kind":"Name","value":"triggerType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"stepExecutions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stepId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"actionType"}},{"kind":"Field","name":{"kind":"Name","value":"attempt"}},{"kind":"Field","name":{"kind":"Name","value":"input"}},{"kind":"Field","name":{"kind":"Name","value":"output"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}},{"kind":"Field","name":{"kind":"Name","value":"flowVersionId"}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}}]}}]} as unknown as DocumentNode<PortScanQuery, PortScanQueryVariables>;
 export const PortScanHistoryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PortScanHistory"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portScanHistory"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"triggerId"}},{"kind":"Field","name":{"kind":"Name","value":"triggerType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"stepExecutions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stepId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"actionType"}},{"kind":"Field","name":{"kind":"Name","value":"attempt"}},{"kind":"Field","name":{"kind":"Name","value":"input"}},{"kind":"Field","name":{"kind":"Name","value":"output"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}},{"kind":"Field","name":{"kind":"Name","value":"flowVersionId"}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}}]}}]}}]}}]} as unknown as DocumentNode<PortScanHistoryQuery, PortScanHistoryQueryVariables>;
-export const PortMonitorDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PortMonitor"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portMonitor"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"flowId"}},{"kind":"Field","name":{"kind":"Name","value":"durableObjectId"}},{"kind":"Field","name":{"kind":"Name","value":"host"}},{"kind":"Field","name":{"kind":"Name","value":"ports"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"port"}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}},{"kind":"Field","name":{"kind":"Name","value":"region"}},{"kind":"Field","name":{"kind":"Name","value":"hour"}},{"kind":"Field","name":{"kind":"Name","value":"minute"}},{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"emailDeliveryPreference"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}}]}}]}}]}}]} as unknown as DocumentNode<PortMonitorQuery, PortMonitorQueryVariables>;
-export const PortMonitorCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PortMonitorCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PortMonitorCreateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portMonitorCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"flowId"}},{"kind":"Field","name":{"kind":"Name","value":"durableObjectId"}},{"kind":"Field","name":{"kind":"Name","value":"host"}},{"kind":"Field","name":{"kind":"Name","value":"ports"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"port"}},{"kind":"Field","name":{"kind":"Name","value":"state"}}]}},{"kind":"Field","name":{"kind":"Name","value":"region"}},{"kind":"Field","name":{"kind":"Name","value":"hour"}},{"kind":"Field","name":{"kind":"Name","value":"minute"}},{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"emailDeliveryPreference"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<PortMonitorCreateMutation, PortMonitorCreateMutationVariables>;
+export const PortMonitorDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PortMonitor"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portMonitor"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"input"}},{"kind":"Field","name":{"kind":"Name","value":"hour"}},{"kind":"Field","name":{"kind":"Name","value":"minute"}},{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}}]}}]}}]}}]} as unknown as DocumentNode<PortMonitorQuery, PortMonitorQueryVariables>;
+export const PortMonitorCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PortMonitorCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PortMonitorCreateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portMonitorCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"input"}},{"kind":"Field","name":{"kind":"Name","value":"hour"}},{"kind":"Field","name":{"kind":"Name","value":"minute"}},{"kind":"Field","name":{"kind":"Name","value":"state"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<PortMonitorCreateMutation, PortMonitorCreateMutationVariables>;
 export const PortMonitorDeleteDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PortMonitorDelete"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PortMonitorInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"portMonitorDelete"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}}]}}]}}]} as unknown as DocumentNode<PortMonitorDeleteMutation, PortMonitorDeleteMutationVariables>;
 export const FlowExecutionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FlowExecution"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"FlowExecutionInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"flowExecution"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"triggerId"}},{"kind":"Field","name":{"kind":"Name","value":"triggerType"}},{"kind":"Field","name":{"kind":"Name","value":"flowVersionId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"stepExecutions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"stepId"}},{"kind":"Field","name":{"kind":"Name","value":"flowExecutionId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"attempt"}},{"kind":"Field","name":{"kind":"Name","value":"actionType"}},{"kind":"Field","name":{"kind":"Name","value":"input"}},{"kind":"Field","name":{"kind":"Name","value":"output"}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}}]}}]} as unknown as DocumentNode<FlowExecutionQuery, FlowExecutionQueryVariables>;
 export const FlowExecutionHistoryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FlowExecutionHistory"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"FlowExecutionHistoryInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"flowExecutionHistory"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"triggerId"}},{"kind":"Field","name":{"kind":"Name","value":"triggerType"}},{"kind":"Field","name":{"kind":"Name","value":"flowVersionId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"stepExecutions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"stepId"}},{"kind":"Field","name":{"kind":"Name","value":"flowExecutionId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"attempt"}},{"kind":"Field","name":{"kind":"Name","value":"actionType"}},{"kind":"Field","name":{"kind":"Name","value":"input"}},{"kind":"Field","name":{"kind":"Name","value":"output"}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}}]}}]}}]}}]} as unknown as DocumentNode<FlowExecutionHistoryQuery, FlowExecutionHistoryQueryVariables>;

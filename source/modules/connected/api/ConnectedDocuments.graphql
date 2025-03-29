@@ -92,18 +92,10 @@ query PortMonitor($pagination: PaginationInput!) {
     portMonitor(pagination: $pagination) {
         items {
             id
-            flowId
-            durableObjectId
-            host
-            ports {
-                port
-                state
-            }
-            region
+            input
             hour
             minute
             state
-            emailDeliveryPreference
             updatedAt
             createdAt
         }
@@ -123,18 +115,10 @@ query PortMonitor($pagination: PaginationInput!) {
 mutation PortMonitorCreate($input: PortMonitorCreateInput!) {
     portMonitorCreate(input: $input) {
         id
-        flowId
-        durableObjectId
-        host
-        ports {
-            port
-            state
-        }
-        region
+        input
         hour
         minute
         state
-        emailDeliveryPreference
         updatedAt
         createdAt
     }

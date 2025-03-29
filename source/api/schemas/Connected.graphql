@@ -33,6 +33,22 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `dat
 """
 scalar DateTimeISO
 
+type FlowEntity {
+    activeVersion: FlowVersionEntity
+    activeVersionId: String
+    createdAt: DateTimeISO!
+    createdByAccountId: String!
+    createdByProfileId: String!
+    description: String
+    executions: [FlowExecution!]!
+    id: String!
+    name: String!
+    updatedAt: DateTimeISO!
+    updatedByAccountId: String
+    updatedByProfileId: String
+    versions: [FlowVersionEntity!]!
+}
+
 type FlowExecution {
     completedAt: DateTimeISO
     createdAt: DateTimeISO!
@@ -40,9 +56,15 @@ type FlowExecution {
     createdByProfileId: String!
     elapsedTimeMs: Float
     errors: [JSON!]
+    flowEntity: FlowEntity
+    flowType: FlowType!
+    flowTypeId: String!
+    flowVersionEntity: FlowVersionEntity
     flowVersionId: String
     id: String!
+    input: JSON
     logs: [JSON!]
+    output: JSON
     startedAt: DateTimeISO!
     status: FlowExecutionStatus!
     stepExecutions: [FlowStepExecution!]!
@@ -85,10 +107,33 @@ enum FlowStepExecutionStatus {
     Success
 }
 
+enum FlowTriggerState {
+    Active
+    Deleted
+    Inactive
+}
+
 enum FlowTriggerType {
     Manual
-    Scheduled
+    Recurring
     Webhook
+}
+
+enum FlowType {
+    Custom
+    Entity
+    Static
+}
+
+type FlowVersionEntity {
+    createdAt: DateTimeISO!
+    createdByAccountId: String!
+    createdByProfileId: String!
+    executions: [FlowExecution!]!
+    flow: FlowEntity!
+    flowId: String!
+    graph: JSON!
+    id: String!
 }
 
 """
@@ -97,11 +142,7 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 scalar JSON
 
 type Mutation {
-    flowAbort(objectId: String!): OperationResult!
-    flowCancel(objectId: String!, timeout: Float): OperationResult!
-    flowPurge(objectId: String!): OperationResult!
-    flowPurgeByDate(date: DateTimeISO!): OperationResult!
-    portMonitorCreate(input: PortMonitorCreateInput!): PortMonitor!
+    portMonitorCreate(input: PortMonitorCreateInput!): RecurringFlowTrigger!
     portMonitorDelete(input: PortMonitorInput!): OperationResult!
     portScanCreate(input: PortScanCreateInput!): String!
 }
@@ -141,32 +182,13 @@ input PaginationInput {
 }
 
 type PaginationPortMonitor {
-    items: [PortMonitor!]!
+    items: [RecurringFlowTrigger!]!
     pagination: Pagination!
 }
 
 type PaginationPortScanResult {
     items: [FlowExecution!]!
     pagination: Pagination!
-}
-
-type PortMonitor {
-    createdAt: DateTimeISO!
-    createdByAccountId: String!
-    createdByProfileId: String!
-    durableObjectId: String
-    emailDeliveryPreference: [PortScanFlowNodeResultStatus!]!
-    flowId: String!
-    host: String!
-    hour: Float!
-    id: String!
-    minute: Float!
-    ports: [PortMonitorStateCheck!]!
-    region: String!
-    state: PortMonitorState!
-    updatedAt: DateTimeISO!
-    updatedByAccountId: String
-    updatedByProfileId: String
 }
 
 input PortMonitorCreateInput {
@@ -180,17 +202,6 @@ input PortMonitorCreateInput {
 
 input PortMonitorInput {
     monitorId: String!
-}
-
-enum PortMonitorState {
-    Active
-    Deleted
-    Inactive
-}
-
-type PortMonitorStateCheck {
-    port: String!
-    state: PortStateValue!
 }
 
 input PortMonitorStateCheckInput {
@@ -224,9 +235,31 @@ enum PortStateValue {
 }
 
 type Query {
-    flowInfo(objectId: String!): JSON!
     portMonitor(pagination: PaginationInput!): PaginationPortMonitor!
     portMonitorHistory(input: PortMonitorInput!, pagination: PaginationInput!): PaginationPortScanResult!
     portScan(input: PortScanInput!): FlowExecution
     portScanHistory(pagination: PaginationInput!): PaginationPortScanResult!
+}
+
+type RecurringFlowTrigger {
+    createdAt: DateTimeISO!
+    createdByAccountId: String!
+    createdByProfileId: String!
+    dayOfMonth: String!
+    dayOfWeek: String!
+    flowEntity: FlowEntity
+    flowType: FlowType!
+    flowTypeId: String!
+    flowVersionEntity: FlowVersionEntity
+    flowVersionId: String
+    hour: String!
+    id: String!
+    input: JSON
+    minute: String!
+    month: String!
+    second: String!
+    state: FlowTriggerState!
+    updatedAt: DateTimeISO!
+    updatedByAccountId: String
+    updatedByProfileId: String
 }
