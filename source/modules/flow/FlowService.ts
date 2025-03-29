@@ -1,7 +1,11 @@
 'use client'; // This service uses client-only features
 
 // Dependencies - Types
-import { FlowExecution, FlowStepExecution, FlowStepExecutionStatus } from '@project/source/api/GraphQlGeneratedCode';
+import {
+    FlowExecution as FlowExecutionGraphQlInterface,
+    FlowStepExecution as FlowStepExecutionGraphQlInterface,
+    FlowStepExecutionStatus as FlowStepExecutionStatusGraphQlType,
+} from '@project/source/api/GraphQlGeneratedCode';
 import {
     WebSocketViaSharedWorkerContextInterface,
     WebSocketMessageEventInterface,
@@ -20,7 +24,7 @@ import {
 
 // Type - FlowStepExecutionInterface
 // Typed version of the server type FlowStepExecution
-export interface FlowStepExecutionInterface<TFlowStepInput, TFlowStepOutput> extends FlowStepExecution {
+export interface FlowStepExecutionInterface<TFlowStepInput, TFlowStepOutput> extends FlowStepExecutionGraphQlInterface {
     input?: TFlowStepInput;
     output?: TFlowStepOutput;
 }
@@ -47,6 +51,16 @@ export interface FlowExecutionErrorInterface {
 
 // Server Type - FlowStepExecutionErrorInterface
 export interface FlowStepExecutionErrorInterface extends FlowExecutionErrorInterface {}
+
+// Type - FlowInputValidationResultInterface
+// Standard validation result interface for flow services
+export interface FlowInputValidationResultInterface {
+    isValid: boolean;
+    error?: {
+        code: string;
+        message: string;
+    };
+}
 
 // Type - FlowServiceErrors
 // Standard error definitions for flow services
@@ -94,6 +108,12 @@ export const FlowServiceErrors = {
         code: 'StepExecutionFailed',
         message: 'Flow step execution failed.',
     },
+
+    // Validation errors
+    ValidationError: {
+        code: 'ValidationError',
+        message: 'Input validation failed.',
+    },
 } as const;
 
 // Type - FlowServiceEventHandlersInterface
@@ -104,9 +124,9 @@ export interface FlowServiceEventHandlersInterface<TFlowExecutionResult> {
     onFlowExecutionError?: (flowExecutionError: FlowExecutionErrorInterface) => void;
 
     // Flow Step Execution events
-    onFlowStepExecutionUpdate?: (flowStepExecution: FlowStepExecution) => void;
-    onFlowStepExecutionComplete?: (flowStepExecution: FlowStepExecution) => void;
-    onFlowStepExecutionError?: (flowStepExecution: FlowStepExecution) => void;
+    onFlowStepExecutionUpdate?: (flowStepExecution: FlowStepExecutionGraphQlInterface) => void;
+    onFlowStepExecutionComplete?: (flowStepExecution: FlowStepExecutionGraphQlInterface) => void;
+    onFlowStepExecutionError?: (flowStepExecution: FlowStepExecutionGraphQlInterface) => void;
 }
 
 // Type - FlowServiceOptionsInterface
@@ -173,6 +193,14 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
     // Handles common flow initialization, state management, and service setup
     public async executeFlow(input: TFlowInput): Promise<void> {
         try {
+            // Validate input before proceeding
+            const validation = this.validateInput(input);
+            if(!validation.isValid && validation.error) {
+                // If validation fails, handle the error and don't proceed
+                this.handleValidationError(validation.error.code, validation.error.message);
+                return;
+            }
+
             // Store the flow input
             this.input = input;
 
@@ -284,7 +312,7 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
     }
 
     // Function to process a flow execution
-    protected processFlowExecution(flowExecution: FlowExecution): void {
+    protected processFlowExecution(flowExecution: FlowExecutionGraphQlInterface): void {
         // Update the flow status
         this.status = flowExecution.status as unknown as FlowServiceStatusType;
 
@@ -317,7 +345,7 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
     }
 
     // Function to process all step executions in a flow
-    protected processFlowStepExecutions(flowExecution: FlowExecution): void {
+    protected processFlowStepExecutions(flowExecution: FlowExecutionGraphQlInterface): void {
         if(flowExecution.stepExecutions && flowExecution.stepExecutions.length > 0) {
             for(const flowStep of flowExecution.stepExecutions) {
                 // Only process steps we care about
@@ -369,6 +397,11 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
         this.stepResults = [];
     }
 
+    // Function to check if a flow is currently executing
+    public isFlowExecuting(): boolean {
+        return this.status === FlowServiceStatusType.Starting || this.status === FlowServiceStatusType.Running;
+    }
+
     // Function to clean up resources when a flow is complete
     protected cleanupFlowResources(): void {
         this.clearTimeoutMonitor();
@@ -385,7 +418,7 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
     }
 
     // Function to handle flow failure - should be overridden by subclasses
-    protected handleFlowFailure(flowExecution: FlowExecution): void {
+    protected handleFlowFailure(flowExecution: FlowExecutionGraphQlInterface): void {
         // Default implementation sends a generic error message
         const errorMessage = this.extractErrorMessageFromExecution(flowExecution);
 
@@ -397,7 +430,7 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
     }
 
     // Function to extract an error message from a flow execution
-    protected extractErrorMessageFromExecution(flowExecution: FlowExecution): string {
+    protected extractErrorMessageFromExecution(flowExecution: FlowExecutionGraphQlInterface): string {
         // Default error message
         let errorMessage = 'Flow execution failed.';
 
@@ -418,7 +451,7 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
     }
 
     // Function to process a flow step execution
-    protected processFlowStepExecution(stepExecution: FlowStepExecution): boolean {
+    protected processFlowStepExecution(stepExecution: FlowStepExecutionGraphQlInterface): boolean {
         // Skip if we don't have input (shouldn't happen)
         if(!this.input) {
             return false;
@@ -445,13 +478,13 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
 
         // Send step update based on status
         switch(stepExecution.status) {
-            case FlowStepExecutionStatus.Success:
+            case FlowStepExecutionStatusGraphQlType.Success:
                 this.eventHandlers.onFlowStepExecutionComplete?.(stepExecution);
                 return true;
-            case FlowStepExecutionStatus.Failed:
+            case FlowStepExecutionStatusGraphQlType.Failed:
                 this.eventHandlers.onFlowStepExecutionError?.(stepExecution);
                 return true;
-            case FlowStepExecutionStatus.Running:
+            case FlowStepExecutionStatusGraphQlType.Running:
                 this.eventHandlers.onFlowStepExecutionUpdate?.(stepExecution);
                 break;
         }
@@ -460,7 +493,7 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
     }
 
     // Function to determine if a flow step should be processed
-    protected shouldProcessFlowStep(flowStep: FlowStepExecution): boolean {
+    protected shouldProcessFlowStep(flowStep: FlowStepExecutionGraphQlInterface): boolean {
         if(flowStep) {
         }
 
@@ -469,7 +502,7 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
     }
 
     // Function to process the flow completion with a default implementation
-    protected processFlowCompletion(flowExecution: FlowExecution): TFlowResult {
+    protected processFlowCompletion(flowExecution: FlowExecutionGraphQlInterface): TFlowResult {
         // This is a simple default implementation that returns a basic result
         // Derived classes should override this for specialized processing
 
@@ -489,7 +522,7 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
     }
 
     // Function to process the flow step output
-    protected processFlowStep(flowStep: FlowStepExecution): TFlowStepOutput | undefined {
+    protected processFlowStep(flowStep: FlowStepExecutionGraphQlInterface): TFlowStepOutput | undefined {
         // Default implementation just returns the output cast to the expected type
         if(!flowStep.output) {
             return undefined;
@@ -502,6 +535,28 @@ export abstract class FlowService<TFlowInput, TFlowStepInput, TFlowStepOutput, T
             console.error('Error processing flow step output', error);
             return undefined;
         }
+    }
+
+    // Function to validate the input before executing a flow
+    // Default implementation returns valid (no validation)
+    // Child classes can override this method to add custom validations
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    protected validateInput(input: TFlowInput): FlowInputValidationResultInterface {
+        // Default implementation - all inputs are valid
+        return { isValid: true };
+    }
+
+    // Function to handle validation errors
+    protected handleValidationError(errorCode: string, errorMessage: string): void {
+        // Update status
+        this.status = FlowServiceStatusType.Failed;
+
+        // Call the error handler if available
+        this.eventHandlers.onFlowExecutionError?.({
+            code: errorCode,
+            message: errorMessage,
+            createdAt: new Date(),
+        });
     }
 
     // Function to handle errors from the flow execution
