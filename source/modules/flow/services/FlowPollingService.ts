@@ -63,6 +63,10 @@ export class FlowPollingService {
             clearInterval(this.pollingIntervalTimeout);
             this.pollingIntervalTimeout = null;
         }
+        
+        // Also clear the execution ID to ensure a complete cleanup
+        // This prevents any lingering state if polling is started again
+        this.flowExecutionId = null;
     }
 
     // Function to poll the flow execution from the GraphQL API
@@ -70,6 +74,8 @@ export class FlowPollingService {
         if(!this.flowExecutionId) return;
 
         try {
+            console.log('[FlowPollingService] Polling flow execution:', this.flowExecutionId);
+            
             // Query GraphQL API for flow execution status
             const flowExecutionQueryResult = await apolloClient.query({
                 query: FlowExecutionDocument,
@@ -85,6 +91,10 @@ export class FlowPollingService {
             if(flowExecutionQueryResult.data?.flowExecution) {
                 // Cast to FlowExecution to handle GraphQL typing differences
                 const flowExecution = flowExecutionQueryResult.data.flowExecution as FlowExecution;
+                
+                console.log('[FlowPollingService] Received poll result:', 
+                  flowExecution.status, 
+                  'Has output:', !!flowExecution.output);
 
                 // Process the flow execution result
                 this.onPollResult(flowExecution);
@@ -95,6 +105,7 @@ export class FlowPollingService {
                     flowExecutionQueryResult.data.flowExecution.status === FlowExecutionStatus.Failed ||
                     flowExecutionQueryResult.data.flowExecution.status === FlowExecutionStatus.Canceled
                 ) {
+                    console.log('[FlowPollingService] Flow completed, stopping polling');
                     this.stopPolling();
                 }
             }
