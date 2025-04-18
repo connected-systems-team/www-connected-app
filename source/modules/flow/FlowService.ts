@@ -250,8 +250,17 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
         this.webSocketService.registerMessageHandler();
 
         // Start polling if configured to do so
-        if(this.fallbackToPolling && !this.webSocketService.isWebSocketConnected()) {
+        const isWebSocketConnected = this.webSocketService.isWebSocketConnected();
+        // console.log('[FlowService] WebSocket connected status:', isWebSocketConnected);
+        // console.log('[FlowService] fallbackToPolling setting:', this.fallbackToPolling);
+
+        // Fallback to polling if WebSocket is not connected
+        if(this.fallbackToPolling && !isWebSocketConnected) {
+            console.log('[FlowService] Starting polling service as fallback');
             this.pollingService.startPolling();
+        }
+        else {
+            // console.log('[FlowService] Using WebSocket only, polling not started');
         }
 
         // Set up timeout monitor
@@ -285,29 +294,36 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
 
     // Function to handle a WebSocket message
     private handleWebSocketMessage(event: WebSocketMessageEventInterface): boolean {
-        console.log('!!!!!!!!!!! FlowService.ts(handleWebSocketMessage) WebSocket message received', event);
+        // console.log('FlowService.ts(handleWebSocketMessage) WebSocket message received', event);
 
         try {
             // Use the new event message type guard for cleaner code
             if(isFlowWebSocketEventMessage(event)) {
-                console.log('isFlowWebSocketEventMessage', event);
+                // console.log('isFlowWebSocketEventMessage', event);
 
                 // Handle Flow execution message
                 if(isFlowExecutionWebSocketMessage(event.data)) {
-                    console.log('isFlowExecutionWebSocketMessage', event.data);
+                    // console.log('isFlowExecutionWebSocketMessage', event.data);
 
                     const flowExecution = event.data.arguments[0];
+                    // console.log(
+                    //     '[FlowService-WebSocket] Received flow execution:',
+                    //     flowExecution.status,
+                    //     'Has output:',
+                    //     !!flowExecution.output,
+                    // );
 
-                    console.log('Flow execution ID', this.flowExecutionId, 'vs', flowExecution.id);
+                    // console.log('Flow execution ID', this.flowExecutionId, 'vs', flowExecution.id);
 
+                    // Make sure the flow execution ID matches
+                    // This is important to avoid processing messages from other flows
                     if(this.flowExecutionId === flowExecution.id) {
-                        console.log('Flow execution ID matches', this.flowExecutionId, flowExecution.id);
-
+                        // console.log('Flow execution ID matches', this.flowExecutionId, flowExecution.id);
                         this.processFlowExecution(flowExecution);
                         return true;
                     }
                     else {
-                        console.log('Flow execution ID does not match', this.flowExecutionId, flowExecution.id);
+                        // console.log('Flow execution ID does not match', this.flowExecutionId, flowExecution.id);
                     }
                 }
 
@@ -315,7 +331,27 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
                 if(isFlowStepExecutionWebSocketMessage(event.data)) {
                     const flowStepExecution = event.data.arguments[0];
 
+                    // Check if this step belongs to our flow execution
                     if(this.flowExecutionId === flowStepExecution.flowExecutionId) {
+                        // Ignore step executions if the flow is already complete
+                        if(
+                            this.status === FlowServiceStatusType.Success ||
+                            this.status === FlowServiceStatusType.Failed ||
+                            this.status === FlowServiceStatusType.Canceled
+                        ) {
+                            console.log(
+                                '[FlowService] Ignoring late step execution for completed flow:',
+                                'flowId:',
+                                flowStepExecution.flowExecutionId,
+                                'stepId:',
+                                flowStepExecution.stepId,
+                                'current flow status:',
+                                this.status,
+                            );
+                            return false;
+                        }
+
+                        // Process the step if we should
                         if(this.shouldProcessFlowStep(flowStepExecution)) {
                             this.processFlowStepExecution(flowStepExecution);
                             return true;
@@ -333,7 +369,7 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
 
     // Function to process a flow execution
     protected processFlowExecution(flowExecution: FlowExecutionGraphQlInterface): void {
-        console.log('!!!!!!!!!!! Processing flow execution', flowExecution);
+        // console.log('[FlowService].processFlowExecution() flowExecution.output', flowExecution.output);
 
         // Update the flow status
         this.status = flowExecution.status as unknown as FlowServiceStatusType;
@@ -347,6 +383,23 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
             this.status === FlowServiceStatusType.Failed ||
             this.status === FlowServiceStatusType.Canceled
         ) {
+            // console.log('[FlowService] Flow completed with status:', this.status);
+            // console.log('[FlowService] Has flow output:', !!flowExecution.output);
+
+            // If this is a WebSocket message with complete output data, stop polling immediately
+            // to prevent duplicate completion messages from polling
+            if(flowExecution.output) {
+                // console.log('[FlowService] Preemptively stopping polling due to complete WebSocket data');
+                this.pollingService.stopPolling();
+            }
+
+            // Skip if this is a duplicate completion call without output data
+            // This helps avoid processing incomplete data from polling or other sources
+            if(this.status === FlowServiceStatusType.Success && !flowExecution.output) {
+                console.warn('[FlowService] Got duplicate completion call without output data.');
+                return;
+            }
+
             // Clean up resources
             this.cleanupFlowResources();
 
@@ -354,6 +407,7 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
             if(this.status === FlowServiceStatusType.Success) {
                 // Process successful completion
                 const result = this.processFlowCompletion(flowExecution);
+                // console.log('[FlowService] Calling completion handler with result:', result);
 
                 // Call the completion handler if provided
                 this.eventHandlers.onFlowExecutionComplete?.(result);
@@ -417,7 +471,7 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
 
         // Reset state
         this.status = FlowServiceStatusType.NotStarted;
-        // this.flowExecutionId = undefined;
+        this.flowExecutionId = undefined;
         this.stepResults = [];
     }
 
@@ -545,19 +599,15 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
     protected processFlowCompletion(
         flowExecution: FlowExecutionGraphQlInterface,
     ): FlowExecutionInterface<TFlowInput, TFlowOutput> {
-        // This is a simple default implementation that returns a basic result
-        // Derived classes should override this for specialized processing
-
         if(!this.input || !this.flowExecutionId) {
-            throw new Error('Flow input or execution ID not found');
+            throw new Error('Flow input or execution ID not found.');
         }
 
-        // Create a minimal result with basic info that all flow results should have
+        // Create a result with the typed input and output
         const result = {
-            flowExecutionId: flowExecution.id,
-            createdAt: new Date(),
-            // Use the flowInput for additional fields (will be type-checked by TypeScript)
-            ...this.input,
+            ...flowExecution,
+            input: this.input as unknown as TFlowInput,
+            output: flowExecution.output as unknown as TFlowOutput,
         } as unknown as FlowExecutionInterface<TFlowInput, TFlowOutput>;
 
         return result;
