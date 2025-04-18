@@ -61,25 +61,18 @@ export class FlowWebSocketService {
 
     // Function to register the WebSocket message handler
     public registerMessageHandler(): void {
-        console.log('!!!! registerMessageHandler - FlowWebSocketService - Registering message handler');
-
-        // Unregister any existing handler
-        // this.unregisterMessageHandler();
-
         // Register new handler
         this.messageHandlerUnsubscribe = this.webSocketViaSharedWorker.onWebSocketMessage((event) => {
-            console.log('FlowWebSocketService - Message received:', event);
+            // console.log('FlowWebSocketService - Message received:', event);
             return this.onMessage(event);
         });
     }
 
     // Function to unregister the WebSocket message handler
     public unregisterMessageHandler(): void {
-        console.log('!!!! unregisterMessageHandler - FlowWebSocketService - Unregistering message handler');
-
         if(this.messageHandlerUnsubscribe) {
-            // this.messageHandlerUnsubscribe();
-            // this.messageHandlerUnsubscribe = null;
+            this.messageHandlerUnsubscribe();
+            this.messageHandlerUnsubscribe = null;
         }
     }
 
@@ -90,16 +83,30 @@ export class FlowWebSocketService {
 
     // Function to check if the WebSocket is currently connected
     public isWebSocketConnected(): boolean {
-        return (
-            this.webSocketViaSharedWorker.webSocketConnectionInformation.state === WebSocketConnectionState.Connected
-        );
+        // Get the current connection state directly from the reference
+        const webSocketConnectionInformation = this.webSocketViaSharedWorker.webSocketConnectionInformation;
+        const webSocketConnectionInformationState = webSocketConnectionInformation.state;
+        const isWebSocketConnected = webSocketConnectionInformationState === WebSocketConnectionState.Connected;
+
+        // console.log(
+        //     '[FlowWebSocketService] Current WebSocket state:',
+        //     webSocketConnectionInformationState,
+        //     'isConnected:',
+        //     isWebSocketConnected,
+        //     'url:',
+        //     webSocketConnectionInformation.url,
+        //     'createdAt:',
+        //     new Date(webSocketConnectionInformation.createdAt).toISOString(),
+        // );
+
+        return isWebSocketConnected;
     }
 
     // Function to dispose of all resources used by the service
     public dispose(): void {
         console.log('DISPOSE - FlowWebSocketService - Disposing of resources');
 
-        // this.unregisterMessageHandler();
+        this.unregisterMessageHandler();
         this.flowExecutionId = undefined;
     }
 }
