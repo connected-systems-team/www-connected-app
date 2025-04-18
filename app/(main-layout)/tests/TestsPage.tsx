@@ -47,7 +47,7 @@ export function TestsPage() {
             content: 'Item 3',
             finalDiscIcon: ErrorCircledIcon,
             finalDiscClassName: 'bg-red-500',
-            isFinal: true,
+            isFinal: false,
         },
     ];
 

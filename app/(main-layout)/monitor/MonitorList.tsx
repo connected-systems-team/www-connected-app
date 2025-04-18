@@ -95,6 +95,25 @@ export function MonitorList(properties: MonitorListInterface) {
         });
     }
 
+    // Helper function to safely extract host from monitor input
+    function getMonitorHost(monitor: any): string {
+        if(!monitor || !monitor.input) return 'Unknown';
+
+        try {
+            if(typeof monitor.input === 'string') {
+                const parsed = JSON.parse(monitor.input);
+                return parsed.host || 'Unknown';
+            }
+            else {
+                return monitor.input.host || 'Unknown';
+            }
+        }
+        catch(error) {
+            console.error('Error parsing monitor input:', error);
+            return 'Unknown';
+        }
+    }
+
     // Find monitor by ID
     const monitorToDelete = data?.portMonitor.items.find(function (monitor) {
         return monitor.id === deleteMonitorId;
@@ -196,7 +215,7 @@ export function MonitorList(properties: MonitorListInterface) {
                         if(!open) setDeleteMonitorId(null);
                     }}
                     monitorId={deleteMonitorId}
-                    monitorHost={monitorToDelete.host}
+                    monitorHost={getMonitorHost(monitorToDelete)}
                     onDeleteComplete={handleDeleteComplete}
                 />
             )}

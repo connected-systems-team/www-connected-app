@@ -50,7 +50,7 @@ export function AtlasScene(properties: AtlasSceneInterface) {
         handleDoubleClick,
         frameUpdate,
         setTargetRotationFromNormalizedCoords,
-        animatingColor,
+        // animatingColor,
         reset, // Add the reset function
     } = useAtlasAnimations(groupReference, sphereReference);
 

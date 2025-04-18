@@ -4,6 +4,9 @@
 import React from 'react';
 import { useUrlSearchParameters } from '@structure/source/utilities/next/NextNavigation';
 
+// Dependencies - Types
+import { NmapPortStateType } from '@project/source/modules/connected/port-scan/PortScanFlowService';
+
 // Dependencies - Main Components
 import { AuthorizationLayout } from '@structure/source/layouts/AuthorizationLayout';
 import { Button } from '@structure/source/common/buttons/Button';
@@ -23,8 +26,105 @@ import ErrorCircledRedBorderIcon from '@project/assets/icons/status/ErrorCircled
 import { getRegionMetadata } from '@project/source/modules/connected/grid/utilities/GridUtilities';
 import { iso8601Date, timeAgo } from '@structure/source/utilities/Time';
 import { uppercaseFirstCharacter } from '@structure/source/utilities/String';
-import { extractPortScanHistoryData } from '@project/source/modules/connected/flows/utilities/FlowUtilities';
-import { getPortStateDescription } from '@project/source/modules/connected/port-scan/utilities/PortScanUtilities';
+// import { getPortStateDescription } from '@project/app/(main-layout)/port-checker/adapters/PortCheckStatusAdapter';
+
+// Define a minimal type for compatibility with GraphQL result
+interface FlowExecutionMinimal {
+    id: string;
+    status: string;
+    createdAt: string;
+    input?: any;
+    stepExecutions?: Array<{
+        stepId?: string;
+        id?: string;
+        actionType: string;
+        status: string | any;
+        output?: any;
+    }>;
+}
+
+// Type - Extracted Port Scan History Data
+export interface ExtractedPortScanHistoryDataInterface {
+    hostName: string;
+    hostIp: string;
+    port: string;
+    portState: NmapPortStateType;
+    portIsOpen: boolean;
+    latencyInMilliseconds: string;
+    regionName: string;
+}
+
+/**
+ * Extract port scan data from a flow execution
+ * @param flowExecution The flow execution to extract data from
+ * @returns Structured data for displaying port scan history
+ */
+export function extractPortScanHistoryData(flowExecution: FlowExecutionMinimal): ExtractedPortScanHistoryDataInterface {
+    // Default values
+    let hostName = 'Unknown';
+    let hostIp = 'Unknown';
+    let port = 'Unknown';
+    let portState: NmapPortStateType = 'unknown';
+    let latencyInMilliseconds = 'N/A';
+    let regionName = '';
+
+    // Extract step executions
+    const stepExecutions = flowExecution.stepExecutions || [];
+
+    // Look for port scan step
+    for(const step of stepExecutions) {
+        // Check if this is a port scan step with output
+        if(step.actionType === 'PortScan' && step.output) {
+            // Try to extract the step output
+            try {
+                const output = typeof step.output === 'string' ? JSON.parse(step.output) : step.output;
+
+                // Extract host name and IP
+                hostName = output.hostName || hostName;
+                hostIp = output.ipAddress || hostIp;
+
+                // Extract port data if available
+                if(output.ports && output.ports.length > 0) {
+                    const portInfo = output.ports[0];
+                    port = portInfo.port || port;
+                    portState = (portInfo.state as NmapPortStateType) || portState;
+                }
+
+                // Extract latency data
+                latencyInMilliseconds = output.latency || latencyInMilliseconds;
+            }
+            catch(error) {
+                console.error('Error parsing port scan step output', error);
+            }
+        }
+    }
+
+    // Extract region from input
+    if(flowExecution.input) {
+        try {
+            const input =
+                typeof flowExecution.input === 'string' ? JSON.parse(flowExecution.input) : flowExecution.input;
+
+            regionName = input.region || '';
+        }
+        catch(error) {
+            console.error('Error parsing flow execution input', error);
+        }
+    }
+
+    // Determine if port is open
+    const portIsOpen = portState === 'open';
+
+    return {
+        hostName,
+        hostIp,
+        port,
+        portState,
+        portIsOpen,
+        latencyInMilliseconds,
+        regionName,
+    };
+}
 
 // Component - PortCheckerHistoryPage
 export function PortCheckerHistoryPage() {
@@ -137,9 +237,10 @@ export function PortCheckerHistoryPage() {
                                     } = extractPortScanHistoryData(flowExecution);
 
                                     // Map port states to user-friendly descriptions using our utility
-                                    const fullPortStateDisplay = uppercaseFirstCharacter(
-                                        getPortStateDescription(portState),
-                                    );
+                                    // const fullPortStateDisplay = uppercaseFirstCharacter(
+                                    //     getPortStateDescription(portState),
+                                    // );
+                                    const fullPortStateDisplay = uppercaseFirstCharacter(portState);
 
                                     return (
                                         <div

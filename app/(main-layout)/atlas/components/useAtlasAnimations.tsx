@@ -20,9 +20,6 @@ export function useAtlasAnimations(
     const [targetRotation, setTargetRotation] = React.useState({ x: 0.265, y: 0.265 });
     const [animatingColor, setAnimatingColor] = React.useState(false);
 
-    // Constants
-    const DEFAULT_ROTATION = { x: 0.265, y: 0.265 };
-
     // References
     const resetTimeoutIdReference = React.useRef<NodeJS.Timeout | null>(null);
     const animationFrameReference = React.useRef<number | null>(null);
@@ -155,8 +152,11 @@ export function useAtlasAnimations(
                 console.log('👁️ Returning to default position');
             }
 
+            // Define default rotation inside callback to avoid dependency
+            const defaultRotation = { x: 0.265, y: 0.265 };
+
             // Set target rotation to default
-            setTargetRotation(DEFAULT_ROTATION);
+            setTargetRotation(defaultRotation);
 
             // Clear isMoving flag to allow blinking again
             setIsMoving(false);
@@ -201,7 +201,7 @@ export function useAtlasAnimations(
                 }, 750);
             }
         },
-        [reset, blink],
+        [reset, blink, groupReference],
     );
 
     // Handle click to change eye direction - improved for accuracy
@@ -228,7 +228,7 @@ export function useAtlasAnimations(
             // Use the shared method for setting rotation from normalized coordinates
             setTargetRotationFromNormalizedCoords(normalizedMouseX, normalizedMouseY);
         },
-        [setTargetRotationFromNormalizedCoords],
+        [setTargetRotationFromNormalizedCoords, groupReference],
     );
 
     // Spin animation - improved to match original behavior
@@ -253,7 +253,7 @@ export function useAtlasAnimations(
                 if(!spinActiveReference.current) return;
 
                 const elapsedTime = Date.now() - startTime;
-                let progress = elapsedTime / duration;
+                const progress = elapsedTime / duration;
 
                 if(progress < 1) {
                     // Apply easing for smoother animation

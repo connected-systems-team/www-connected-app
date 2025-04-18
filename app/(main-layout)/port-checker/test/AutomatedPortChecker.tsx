@@ -3,13 +3,16 @@
 // Dependencies - React and Next.js
 import React from 'react';
 
+// Dependencies - Types
+import { PortStateType } from '@project/app/(main-layout)/port-checker/adapters/PortCheckStatusAdapter';
+
 // Dependencies - Main Components
 import { Button } from '@structure/source/common/buttons/Button';
 import { FormInputReferenceInterface } from '@structure/source/common/forms/FormInput';
 import { PortCheckForm } from '@project/app/(main-layout)/port-checker/PortCheckForm';
 import {
     PortCheckStatusAnimatedList,
-    PortCheckStatusItem,
+    PortCheckStatusItemInterface,
 } from '@project/app/(main-layout)/port-checker/PortCheckStatusAnimatedList';
 import { ButtonElementType } from '@structure/source/common/buttons/Button';
 
@@ -17,15 +20,8 @@ import { ButtonElementType } from '@structure/source/common/buttons/Button';
 import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
 
 // Dependencies - API
-import { useApolloClient } from '@apollo/client';
-import {
-    PortScanResultInterface,
-    NmapPortStateType,
-} from '@project/source/modules/connected/port-scan/types/PortScanTypes';
-import { PortScanService } from '@project/source/modules/connected/port-scan/old/PortScanService';
-
-// Dependencies - Utilities
-import { getRegionMetadata } from '@project/source/modules/connected/grid/utilities/GridUtilities';
+import { PortCheckStatusAdapter } from '@project/app/(main-layout)/port-checker/adapters/PortCheckStatusAdapter';
+import { PortScanFlowExecutionInterface } from '@project/source/modules/connected/port-scan/PortScanFlowService';
 
 // Test case interface
 interface PortCheckerTestCase {
@@ -36,18 +32,17 @@ interface PortCheckerTestCase {
 // Component - AutomatedPortChecker
 export interface AutomatedPortCheckerInterface {
     testCase: PortCheckerTestCase;
-    onTestComplete?: (result: PortScanResultInterface) => void;
+    onTestComplete?: (result: PortScanFlowExecutionInterface) => void;
     autoRun?: boolean;
 }
 
 export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) {
     // State
     const [checkingPort, setCheckingPort] = React.useState<boolean>(false);
-    const [statusItems, setStatusItems] = React.useState<PortCheckStatusItem[]>([]);
+    const [statusItems, setStatusItems] = React.useState<PortCheckStatusItemInterface[]>([]);
 
     // Hooks
     const webSocketViaSharedWorker = useWebSocketViaSharedWorker();
-    const apolloClient = useApolloClient();
 
     // References - Port Check Form
     const portCheckFormSubmitButtonReference = React.useRef<ButtonElementType>(null);
@@ -55,47 +50,17 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
     const portCheckFormRemotePortFormInputReference = React.useRef<FormInputReferenceInterface>(null);
     const portCheckFormRegionFormInputReference = React.useRef<FormInputReferenceInterface>(null);
 
-    // References - Port Checker Service
-    const portCheckerServiceReference = React.useRef<PortScanService | null>(null);
+    // References - Port Checker Adapter
+    const portCheckerAdapterReference = React.useRef<PortCheckStatusAdapter | null>(null);
 
-    // Function to handle port scan results
-    function handlePortScanResult(result: PortScanResultInterface): void {
-        let resultMessage: string;
-
-        // Handle system errors and timeouts differently from actual port states
-        if(result.systemError) {
-            if(result.errorMessage) {
-                // Show the specific error message from the server
-                resultMessage = `Error: ${result.errorMessage}`;
-            }
-            else {
-                resultMessage = `Our system is down and our engineers have been notified.`;
-            }
-        }
-        else if(result.timeout) {
-            resultMessage = `The request to check port ${result.port} on ${result.host} timed out. Please try again later.`;
-        }
-        else {
-            const stateDescription = PortScanService.getPortStateDescription(result.state);
-            resultMessage = `Port ${result.port} is ${stateDescription} on ${result.host}.`;
-        }
-
-        // Create the new result item
-        const resultItem: PortCheckStatusItem = {
-            text: resultMessage,
-            state: result.state,
-            isLoading: false,
-            systemError: result.systemError,
-            timeout: result.timeout,
-            errorMessage: result.errorMessage,
-        };
-
+    // Function to handle port check status updates
+    function handlePortCheckStatusUpdate(status: PortCheckStatusItemInterface): void {
         // Create a function to update the status items with the proper return type
-        function updateStatusItems(previousItems: PortCheckStatusItem[]): PortCheckStatusItem[] {
-            // If we have previous items
-            if(previousItems.length > 0) {
+        function updateStatusItems(previousItems: PortCheckStatusItemInterface[]): PortCheckStatusItemInterface[] {
+            // If we have previous items and the new status is final
+            if(previousItems.length > 0 && status.isFinal) {
                 // Check if this exact message already exists
-                const messageExists = previousItems.some((item) => item.text === resultMessage);
+                const messageExists = previousItems.some((item) => item.text === status.text);
                 if(messageExists) {
                     return previousItems;
                 }
@@ -105,40 +70,57 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
 
                 // Extra safety check for TypeScript - make sure it's not undefined
                 if(firstItem) {
-                    return [firstItem, resultItem];
+                    return [firstItem, status];
                 }
 
                 // Fallback in case there's somehow an undefined item
-                return [resultItem];
+                return [status];
             }
 
-            // If no previous items, return just the result
-            return [resultItem];
+            // If no previous items or not a final status, just return the new status
+            return [status];
         }
 
         // Update the status items
         setStatusItems(updateStatusItems);
 
-        // Call the callback if provided
-        if(properties.onTestComplete) {
-            properties.onTestComplete(result);
-        }
+        // If this is a final status item, finish the port checking
+        if(status.isFinal) {
+            // Get the port scan execution flow result for the callback
+            if(properties.onTestComplete && portCheckerAdapterReference.current) {
+                // Since the adapter doesn't directly expose the flow execution result, we are passing the status item
+                // which contains most of the important information about the port check
+                const result = {
+                    output: {
+                        status: status.systemError ? 'error' : 'success',
+                        ports: [
+                            {
+                                port: status.port?.toString() || '',
+                                state: status.portState.toLowerCase(),
+                            },
+                        ],
+                        ipAddress: status.host,
+                        error: status.errorMessage ? { message: status.errorMessage } : undefined,
+                    },
+                } as PortScanFlowExecutionInterface;
 
-        // Finish the port checking
-        setCheckingPort(false);
+                properties.onTestComplete(result);
+            }
+
+            // Finish the port checking
+            setCheckingPort(false);
+        }
     }
 
-    // Function to initialize port checker service
-    function initializePortScanService(): PortScanService {
-        if(!portCheckerServiceReference.current) {
-            portCheckerServiceReference.current = new PortScanService({
-                apolloClient,
+    // Function to initialize port checker adapter
+    function initializePortCheckerAdapter(): PortCheckStatusAdapter {
+        if(!portCheckerAdapterReference.current) {
+            portCheckerAdapterReference.current = new PortCheckStatusAdapter(
                 webSocketViaSharedWorker,
-                // We don't need to do anything with intermediate status updates
-                onResult: handlePortScanResult,
-            });
+                handlePortCheckStatusUpdate,
+            );
         }
-        return portCheckerServiceReference.current;
+        return portCheckerAdapterReference.current;
     }
 
     // Function to check the port
@@ -149,36 +131,19 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
         // Set checking state
         setCheckingPort(true);
 
-        // Get port checker service and start port checking
-        const portCheckerService = initializePortScanService();
+        // Get port checker adapter and start port checking
+        const portCheckerAdapter = initializePortCheckerAdapter();
 
         try {
-            // Get region metadata for the display name
-            const regionMetadata = getRegionMetadata(regionIdentifier);
-
-            // Set initial message
-            const initialMessage = `Checking port ${remotePort} on ${remoteAddress} from ${regionMetadata.emoji} ${regionMetadata.displayName}...`;
-            setStatusItems([
-                {
-                    text: initialMessage,
-                    state: 'unknown' as NmapPortStateType,
-                    isLoading: true,
-                },
-            ]);
-
-            await portCheckerService.checkPort({
-                host: remoteAddress,
-                port: remotePort,
-                regionIdentifier: regionIdentifier,
-            });
+            await portCheckerAdapter.checkPort(remoteAddress, remotePort, regionIdentifier);
         }
         catch(error) {
             console.error('Error starting port check:', error);
             setStatusItems([
                 {
                     text: 'Failed to start port check. Our service encountered an internal error.',
-                    state: 'unknown' as NmapPortStateType,
-                    isLoading: false,
+                    portState: PortStateType.Unknown,
+                    isFinal: true,
                     systemError: true,
                 },
             ]);
@@ -220,9 +185,9 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
     // Cleanup on component unmount
     React.useEffect(() => {
         return () => {
-            if(portCheckerServiceReference.current) {
-                portCheckerServiceReference.current.dispose();
-                portCheckerServiceReference.current = null;
+            if(portCheckerAdapterReference.current) {
+                portCheckerAdapterReference.current.dispose();
+                portCheckerAdapterReference.current = null;
             }
         };
     }, []);

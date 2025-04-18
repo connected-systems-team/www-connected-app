@@ -8,9 +8,6 @@ import { Link } from '@structure/source/common/navigation/Link';
 import { Button } from '@structure/source/common/buttons/Button';
 import { AutomatedPortChecker } from './AutomatedPortChecker';
 
-// Dependencies - API
-import { PortScanResultInterface } from '@project/source/modules/connected/port-scan/types/PortScanTypes';
-
 // TestCase interface to define our test cases
 interface TestCase {
     id: string;
@@ -364,10 +361,10 @@ export function TestPortCheckerPage() {
         if(!selectedTest) return null;
 
         // Handle test completion
-        function handleTestComplete(result: PortScanResultInterface) {
-            console.log('Test completed:', result);
-            // Don't auto-mark as complete - let the user decide
-        }
+        // function handleTestComplete(result: PortScanResultInterface) {
+        //     console.log('Test completed:', result);
+        //     // Don't auto-mark as complete - let the user decide
+        // }
 
         return (
             <div className="space-y-6">
@@ -423,7 +420,7 @@ export function TestPortCheckerPage() {
                             host: selectedTest.host,
                             port: selectedTest.port,
                         }}
-                        onTestComplete={handleTestComplete}
+                        // onTestComplete={handleTestComplete}
                         autoRun={true}
                     />
                 </div>
