@@ -185,7 +185,7 @@ export class PortCheckStatusAdapter {
         // Extract other useful information
         const ipAddress = output?.hostIpAddress;
         const hostName = output?.hostName;
-        const serviceName = portData?.service;
+        // const serviceName = portData?.service;
         // const scanTime = output?.scanTime;
         // const latency = output?.latency;
 

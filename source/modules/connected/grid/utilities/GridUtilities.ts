@@ -7,6 +7,18 @@ export function getCountryEmoji(country?: string | null): string {
             return '🇳🇱';
         case 'Taiwan':
             return '🇹🇼';
+        case 'Australia':
+            return '🇦🇺';
+        case 'Brazil':
+            return '🇧🇷';
+        case 'France':
+            return '🇫🇷';
+        case 'Israel':
+            return '🇮🇱';
+        case 'Japan':
+            return '🇯🇵';
+        case 'South Africa':
+            return '🇿🇦';
         default:
             return '🌐';
     }
