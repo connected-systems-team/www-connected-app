@@ -13,6 +13,7 @@ import { WebSocketViaSharedWorkerContextInterface } from '@structure/source/api/
 import {
     PortScanFlowService,
     PortScanFlowClientInputInterface,
+    PortScanFlowServiceErrors,
 } from '@project/source/modules/connected/port-scan/PortScanFlowService';
 
 // Dependencies - Utilities
@@ -133,38 +134,146 @@ export class PortCheckStatusAdapter {
         this.portScanFlowService.dispose();
     }
 
-    // Function to handle flow step updates
-    private onFlowExecutionComplete(portScanFlowStepExecution: PortScanFlowExecutionInterface): void {
-        const portState = portScanFlowStepExecution.output?.ports?.[0]?.state
-            ? mapNmapPortStateToPortStateType(portScanFlowStepExecution.output?.ports?.[0]?.state as NmapPortStateType)
-            : PortStateType.Unknown;
+    // Function to handle flow execution completion
+    private onFlowExecutionComplete(portScanFlowExecution: PortScanFlowExecutionInterface): void {
+        // Debug logging
+        console.log('Flow execution output:', portScanFlowExecution);
 
-        const text = 'HI HI HI';
+        // Extract the output for early checks
+        const output = portScanFlowExecution.output;
+        const host = this.portScanFlowInput?.host;
+        const port = this.portScanFlowInput?.port;
 
+        // Check if this is a domain resolution failure (hostsUp=0, addressesScanned=0)
+        if(output?.hostsUp === 0 && output?.addressesScanned === 0) {
+            this.onPortCheckStatusItem({
+                portState: PortStateType.Unknown,
+                text: PortScanFlowServiceErrors.HostResolutionFailed.message,
+                systemError: true,
+                errorMessage: PortScanFlowServiceErrors.HostResolutionFailed.message,
+                host: host,
+                port: port,
+                isFinal: true,
+            });
+            return;
+        }
+
+        // Check for "Host is down" error with hostsUp=0
+        if(output?.hostsUp === 0 && output?.error?.message?.includes('Host is down')) {
+            this.onPortCheckStatusItem({
+                portState: PortStateType.Unknown,
+                text: PortScanFlowServiceErrors.HostDown.message,
+                systemError: true,
+                errorMessage: PortScanFlowServiceErrors.HostDown.message,
+                host: host,
+                port: port,
+                isFinal: true,
+            });
+            return;
+        }
+
+        // Extract the port state from the flow execution output
+        let portState = PortStateType.Unknown;
+
+        // Safely extract the port state if it exists
+        const portData = output?.ports?.[0];
+        if(portData && portData.state) {
+            // console.log('Port state from server:', portData.state);
+            portState = mapNmapPortStateToPortStateType(portData.state as NmapPortStateType);
+        }
+
+        // Extract other useful information
+        const ipAddress = output?.ipAddress;
+        const hostName = output?.hostName;
+        const serviceName = portData?.service;
+        // const scanTime = output?.scanTime;
+        // const latency = output?.latency;
+
+        // Create a descriptive status message
+        let text = '';
+
+        // Debug output status
+        // console.log('Output status:', output?.status);
+        // console.log('Output error:', output?.error);
+
+        // If we have an error
+        if(output?.status === 'error' && output?.error?.message) {
+            text = `Error scanning ${host}:${port} - ${output.error.message}`;
+        }
+        // If scan completed successfully
+        else {
+            // Format host display (showing resolved IP if domain was used)
+            const hostDisplay =
+                hostName && ipAddress && hostName !== ipAddress ? `${hostName} (${ipAddress})` : ipAddress || host;
+
+            // Format port state with service name if available
+            const portStateDescription = getPortStateDescription(portState);
+            const portStateWithService = serviceName
+                ? `${portStateDescription} (${serviceName})`
+                : portStateDescription;
+
+            // Construct the main message
+            text = `Port ${port} on ${hostDisplay} is ${portStateWithService}`;
+        }
+
+        // Debug final message
+        // console.log('Final message:', text);
+
+        // If we don't have enough data but the flow completed
+        if(!host || !port) {
+            this.onPortCheckStatusItem({
+                portState: PortStateType.Unknown,
+                text: PortScanFlowServiceErrors.MissingData.message,
+                systemError: true,
+                isFinal: true,
+            });
+            return;
+        }
+
+        // Send the port check status item with the formatted text
         this.onPortCheckStatusItem({
             portState: portState,
             text: text,
-            host: this.portScanFlowInput?.host,
-            port: this.portScanFlowInput?.port,
+            host: host,
+            port: port,
             isFinal: true,
         });
     }
 
     // Function to handle flow errors
     private onFlowExecutionError(error: FlowExecutionErrorInterface): void {
-        // Process error message for better user experience
-        let message = error.message || 'An unknown error occurred during port scanning.';
+        console.error('Flow execution error:', error);
 
-        // Special handling for known error types
-        if(error.message) {
+        // Process error message for better user experience
+        let message = error.message || PortScanFlowServiceErrors.UnknownError.message;
+
+        // Map error code to error message if we have a code
+        if(error.code) {
+            // Check if we have a predefined error for this code
+            const errorKey = Object.keys(PortScanFlowServiceErrors).find(
+                (key) => PortScanFlowServiceErrors[key as keyof typeof PortScanFlowServiceErrors].code === error.code,
+            ) as keyof typeof PortScanFlowServiceErrors | undefined;
+
+            if(errorKey) {
+                message = PortScanFlowServiceErrors[errorKey].message;
+            }
+        }
+        // If no code, try to identify error by message content
+        else if(error.message) {
             if(error.message.includes('Failed to resolve host')) {
-                message = 'Failed to resolve host. The hostname could not be found.';
+                message = PortScanFlowServiceErrors.HostResolutionFailed.message;
             }
             else if(error.message.includes('Host is down')) {
-                message = 'Host is down or not responding.';
+                message = PortScanFlowServiceErrors.HostDown.message;
             }
-            else if(error.message.includes('Invalid or disallowed host')) {
-                message = 'This is a private or disallowed IP address.';
+            else if(
+                error.message.includes('Invalid or disallowed host') ||
+                error.message.includes('private IP address')
+            ) {
+                message = PortScanFlowServiceErrors.PrivateIpError.message;
+            }
+            else if(error.message.includes('timeout')) {
+                message = PortScanFlowServiceErrors.ConnectionTimeout.message;
             }
         }
 

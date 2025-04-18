@@ -29,40 +29,56 @@ export const PortScanFlowServiceErrors = {
     // Validation errors
     PrivateIpError: {
         code: 'PrivateIpError',
-        message: 'Private IP addresses cannot be scanned',
+        message: 'This is a private or disallowed IP address.',
     },
     InvalidHostError: {
         code: 'InvalidHostError',
-        message: 'Invalid hostname format',
+        message: 'Invalid hostname format.',
     },
     InvalidPortError: {
         code: 'InvalidPortError',
-        message: 'Invalid port number',
+        message: 'Invalid port number. Port must be between 1 and 65535.',
     },
 
     // Host resolution errors
     HostResolutionFailed: {
         code: 'HostResolutionFailed',
-        message: 'Domain name could not be resolved via DNS',
+        message: 'Failed to resolve host. The hostname could not be found.',
     },
 
     // Connectivity errors
     HostUnreachable: {
         code: 'HostUnreachable',
-        message: 'Host exists but cannot be reached (e.g., firewall)',
+        message: 'Host exists but cannot be reached. It may be behind a firewall.',
     },
     HostDown: {
         code: 'HostDown',
-        message: 'Host is not responding to any probes',
+        message: 'Host is down or not responding.',
     },
     ConnectionTimeout: {
         code: 'ConnectionTimeout',
-        message: 'Connection attempt timed out',
+        message: 'Connection attempt timed out. The host may be blocking scans or is unreachable.',
     },
     ConnectionError: {
         code: 'ConnectionError',
-        message: 'Connection error',
+        message: 'Connection error occurred during port scan.',
     },
+    
+    // General errors
+    UnknownError: {
+        code: 'UnknownError',
+        message: 'An unknown error occurred during port scanning.',
+    },
+    InternalServerError: {
+        code: 'InternalServerError',
+        message: 'Internal server error: The port check service is currently experiencing issues.',
+    },
+    
+    // Results issues
+    MissingData: {
+        code: 'MissingData',
+        message: "Port scan completed but couldn't determine exact status.",
+    }
 } as const;
 
 // Type - PortScanFlowClientInputInterface - Input for a new port scan from the client
@@ -143,7 +159,7 @@ export class PortScanFlowService extends FlowService<PortScanFlowInputInterface,
                         isValid: false,
                         error: {
                             code: PortScanFlowServiceErrors.InvalidHostError.code,
-                            message: `Invalid IP address or domain name format: "${input.host}"`,
+                            message: PortScanFlowServiceErrors.InvalidHostError.message,
                         },
                     };
                 }
@@ -156,7 +172,7 @@ export class PortScanFlowService extends FlowService<PortScanFlowInputInterface,
                 isValid: false,
                 error: {
                     code: PortScanFlowServiceErrors.InvalidPortError.code,
-                    message: `Invalid port number: ${input.port}. Port must be between 1 and 65535.`,
+                    message: PortScanFlowServiceErrors.InvalidPortError.message,
                 },
             };
         }
