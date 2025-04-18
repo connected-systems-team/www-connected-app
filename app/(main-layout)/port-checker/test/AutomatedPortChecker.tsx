@@ -21,7 +21,7 @@ import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/p
 
 // Dependencies - API
 import { PortCheckStatusAdapter } from '@project/app/(main-layout)/port-checker/adapters/PortCheckStatusAdapter';
-import { PortScanFlowExecutionInterface } from '@project/source/modules/connected/port-scan/PortScanFlowService';
+import { PortCheckFlowExecutionInterface } from '@project/source/modules/connected/port-check/PortCheckFlowService';
 
 // Test case interface
 interface PortCheckerTestCase {
@@ -32,7 +32,7 @@ interface PortCheckerTestCase {
 // Component - AutomatedPortChecker
 export interface AutomatedPortCheckerInterface {
     testCase: PortCheckerTestCase;
-    onTestComplete?: (result: PortScanFlowExecutionInterface) => void;
+    onTestComplete?: (result: PortCheckFlowExecutionInterface) => void;
     autoRun?: boolean;
 }
 
@@ -93,16 +93,14 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
                 const result = {
                     output: {
                         status: status.systemError ? 'error' : 'success',
-                        ports: [
-                            {
-                                port: status.port?.toString() || '',
-                                state: status.portState.toLowerCase(),
-                            },
-                        ],
-                        ipAddress: status.host,
+                        port: {
+                            number: status.port || -1,
+                            state: status.portState.toLowerCase(),
+                        },
+                        hostIpAddress: status.host,
                         error: status.errorMessage ? { message: status.errorMessage } : undefined,
                     },
-                } as PortScanFlowExecutionInterface;
+                } as PortCheckFlowExecutionInterface;
 
                 properties.onTestComplete(result);
             }

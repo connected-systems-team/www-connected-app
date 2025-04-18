@@ -41,9 +41,9 @@
                 "type": "FlowTriggerType",
                 "values": ["Manual", "Recurring", "Webhook"]
             },
-            "PortScanInput": {
+            "PortCheckInput": {
                 "kind": "object",
-                "type": "PortScanInput",
+                "type": "PortCheckInput",
                 "fields": [
                     {
                         "kind": "scalar",
@@ -174,34 +174,9 @@
                 "description": "The order direction of a query",
                 "values": ["Ascending", "Descending"]
             },
-            "FlowTriggerState": {
-                "kind": "enum",
-                "type": "FlowTriggerState",
-                "values": ["Inactive", "Active", "Deleted"]
-            },
-            "PortMonitorInput": {
+            "PortCheckCreateInput": {
                 "kind": "object",
-                "type": "PortMonitorInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "monitorId",
-                        "validation": [
-                            {
-                                "type": "isNotEmpty"
-                            },
-                            {
-                                "type": "isString"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "PortScanCreateInput": {
-                "kind": "object",
-                "type": "PortScanCreateInput",
+                "type": "PortCheckCreateInput",
                 "fields": [
                     {
                         "kind": "scalar",
@@ -219,197 +194,66 @@
                     },
                     {
                         "kind": "scalar",
-                        "type": "String",
+                        "type": "Float",
                         "required": true,
-                        "name": "ports",
+                        "name": "port",
                         "validation": [
                             {
-                                "type": "arrayMaxSize",
+                                "type": "isInt"
+                            },
+                            {
+                                "type": "max",
+                                "constraints": [65535]
+                            },
+                            {
+                                "type": "min",
                                 "constraints": [1]
-                            },
-                            {
-                                "type": "arrayMinSize",
-                                "constraints": [1]
-                            },
-                            {
-                                "type": "isArray"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "region",
-                        "validation": [
-                            {
-                                "type": "isNotEmpty"
-                            },
-                            {
-                                "type": "isString"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "PortMonitorCreateInput": {
-                "kind": "object",
-                "type": "PortMonitorCreateInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "host",
-                        "validation": [
-                            {
-                                "type": "isNotEmpty"
-                            },
-                            {
-                                "type": "isString"
                             }
                         ]
                     },
                     {
                         "kind": "object",
-                        "type": "PortMonitorStateCheckInput",
+                        "type": "GridRegionLevelsInput",
                         "required": true,
-                        "name": "ports",
-                        "validation": [
-                            {
-                                "type": "arrayMaxSize",
-                                "constraints": [1]
-                            },
-                            {
-                                "type": "arrayMinSize",
-                                "constraints": [1]
-                            },
-                            {
-                                "type": "isArray"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "region",
-                        "validation": [
-                            {
-                                "type": "isNotEmpty"
-                            },
-                            {
-                                "type": "isString"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Float",
-                        "required": true,
-                        "name": "hour",
-                        "validation": [
-                            {
-                                "type": "max",
-                                "constraints": [23]
-                            },
-                            {
-                                "type": "min",
-                                "constraints": [0]
-                            },
-                            {
-                                "type": "isNumber",
-                                "constraints": [
-                                    {
-                                        "maxDecimalPlaces": 0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Float",
-                        "required": true,
-                        "name": "minute",
-                        "validation": [
-                            {
-                                "type": "max",
-                                "constraints": [59]
-                            },
-                            {
-                                "type": "min",
-                                "constraints": [0]
-                            },
-                            {
-                                "type": "isNumber",
-                                "constraints": [
-                                    {
-                                        "maxDecimalPlaces": 0
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "PortScanFlowNodeResultStatus",
-                        "required": true,
-                        "name": "emailDeliveryPreference",
-                        "validation": [
-                            {
-                                "type": "isEnum",
-                                "constraints": [
-                                    {
-                                        "Success": "success",
-                                        "Failure": "failure",
-                                        "Mismatch": "mismatch"
-                                    },
-                                    ["success", "failure", "mismatch"]
-                                ]
-                            },
-                            {
-                                "type": "arrayMaxSize",
-                                "constraints": [3]
-                            },
-                            {
-                                "type": "arrayMinSize",
-                                "constraints": [1]
-                            },
-                            {
-                                "type": "isArray"
-                            }
-                        ]
+                        "name": "region"
                     }
                 ]
             },
-            "PortMonitorStateCheckInput": {
+            "GridRegionLevelsInput": {
                 "kind": "object",
-                "type": "PortMonitorStateCheckInput",
+                "type": "GridRegionLevelsInput",
                 "fields": [
                     {
                         "kind": "scalar",
                         "type": "String",
-                        "required": true,
-                        "name": "port"
+                        "required": false,
+                        "name": "region"
                     },
                     {
-                        "kind": "enum",
-                        "type": "PortStateValue",
-                        "required": true,
-                        "name": "state"
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "country"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "division"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "locality"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "site"
                     }
                 ]
-            },
-            "PortStateValue": {
-                "kind": "enum",
-                "type": "PortStateValue",
-                "values": ["Open", "Closed", "Filtered", "Unfiltered", "OpenFiltered", "ClosedFiltered"]
-            },
-            "PortScanFlowNodeResultStatus": {
-                "kind": "enum",
-                "type": "PortScanFlowNodeResultStatus",
-                "values": ["Success", "Failure", "Mismatch"]
             },
             "__TypeKind": {
                 "kind": "enum",

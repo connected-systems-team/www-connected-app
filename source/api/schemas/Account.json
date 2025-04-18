@@ -613,26 +613,6 @@
                     }
                 ]
             },
-            "AccountSessionDeleteInput": {
-                "kind": "object",
-                "type": "AccountSessionDeleteInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "sessionIds",
-                        "validation": [
-                            {
-                                "type": "isNotEmpty"
-                            },
-                            {
-                                "type": "isArray"
-                            }
-                        ]
-                    }
-                ]
-            },
             "AccountPasswordVerifyInput": {
                 "kind": "object",
                 "type": "AccountPasswordVerifyInput",
@@ -662,6 +642,26 @@
                         "validation": [
                             {
                                 "type": "isNotEmpty"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "AccountSessionDeleteInput": {
+                "kind": "object",
+                "type": "AccountSessionDeleteInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "sessionIds",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            },
+                            {
+                                "type": "isArray"
                             }
                         ]
                     }

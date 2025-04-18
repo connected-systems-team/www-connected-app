@@ -107,12 +107,6 @@ enum FlowStepExecutionStatus {
     Success
 }
 
-enum FlowTriggerState {
-    Active
-    Deleted
-    Inactive
-}
-
 enum FlowTriggerType {
     Manual
     Recurring
@@ -136,19 +130,21 @@ type FlowVersionEntity {
     id: String!
 }
 
+input GridRegionLevelsInput {
+    country: String
+    division: String
+    locality: String
+    region: String
+    site: String
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
 scalar JSON
 
 type Mutation {
-    portMonitorCreate(input: PortMonitorCreateInput!): RecurringFlowTrigger!
-    portMonitorDelete(input: PortMonitorInput!): OperationResult!
-    portScanCreate(input: PortScanCreateInput!): String!
-}
-
-type OperationResult {
-    success: Boolean!
+    portCheckCreate(input: PortCheckCreateInput!): String!
 }
 
 """
@@ -181,85 +177,22 @@ input PaginationInput {
     orderBy: [OrderByInput!]
 }
 
-type PaginationPortMonitor {
-    items: [RecurringFlowTrigger!]!
-    pagination: Pagination!
-}
-
-type PaginationPortScanResult {
+type PaginationPortCheckResult {
     items: [FlowExecution!]!
     pagination: Pagination!
 }
 
-input PortMonitorCreateInput {
-    emailDeliveryPreference: [PortScanFlowNodeResultStatus!]!
+input PortCheckCreateInput {
     host: String!
-    hour: Float!
-    minute: Float!
-    ports: [PortMonitorStateCheckInput!]!
-    region: String!
+    port: Float!
+    region: GridRegionLevelsInput!
 }
 
-input PortMonitorInput {
-    monitorId: String!
-}
-
-input PortMonitorStateCheckInput {
-    port: String!
-    state: PortStateValue!
-}
-
-input PortScanCreateInput {
-    host: String!
-    ports: [String!]!
-    region: String!
-}
-
-enum PortScanFlowNodeResultStatus {
-    Failure
-    Mismatch
-    Success
-}
-
-input PortScanInput {
+input PortCheckInput {
     executionId: String!
 }
 
-enum PortStateValue {
-    Closed
-    ClosedFiltered
-    Filtered
-    Open
-    OpenFiltered
-    Unfiltered
-}
-
 type Query {
-    portMonitor(pagination: PaginationInput!): PaginationPortMonitor!
-    portMonitorHistory(input: PortMonitorInput!, pagination: PaginationInput!): PaginationPortScanResult!
-    portScan(input: PortScanInput!): FlowExecution
-    portScanHistory(pagination: PaginationInput!): PaginationPortScanResult!
-}
-
-type RecurringFlowTrigger {
-    createdAt: DateTimeISO!
-    createdByAccountId: String!
-    createdByProfileId: String!
-    dayOfMonth: String!
-    dayOfWeek: String!
-    flowEntity: FlowEntity
-    flowType: FlowType!
-    flowTypeId: String!
-    flowVersionEntity: FlowVersionEntity
-    flowVersionId: String
-    hour: String!
-    id: String!
-    input: JSON
-    minute: String!
-    month: String!
-    second: String!
-    state: FlowTriggerState!
-    updatedAt: DateTimeISO!
-    updatedByAccountId: String
-    updatedByProfileId: String
+    portCheck(input: PortCheckInput!): FlowExecution
+    portCheckHistory(pagination: PaginationInput!): PaginationPortCheckResult!
 }

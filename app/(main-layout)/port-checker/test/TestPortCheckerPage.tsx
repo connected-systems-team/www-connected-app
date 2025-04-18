@@ -361,7 +361,7 @@ export function TestPortCheckerPage() {
         if(!selectedTest) return null;
 
         // Handle test completion
-        // function handleTestComplete(result: PortScanResultInterface) {
+        // function handleTestComplete(result: PortCheckResultInterface) {
         //     console.log('Test completed:', result);
         //     // Don't auto-mark as complete - let the user decide
         // }

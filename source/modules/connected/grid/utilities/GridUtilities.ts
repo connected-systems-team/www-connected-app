@@ -1,52 +1,13 @@
-// Dependencies - API
-import { GridRegionMetadata } from '@project/source/modules/connected/grid/types/GridTypes';
-
 // Function to get region metadata from a region identifier
-export function getRegionMetadata(regionIdentifier: string): GridRegionMetadata {
-    let emoji = '🌐';
-    let displayName = 'Unknown';
-
-    switch(regionIdentifier) {
-        case 'north-america':
-            emoji = '🇺🇸';
-            displayName = 'North America';
-            break;
-        case 'europe':
-            emoji = '🇪🇺';
-            displayName = 'Europe';
-            break;
-        case 'asia':
-            emoji = '🇸🇬';
-            displayName = 'Asia';
-            break;
-        case 'australia':
-            emoji = '🇦🇺';
-            displayName = 'Australia';
-            break;
-        case 'south-america':
-            emoji = '🇧🇷';
-            displayName = 'South America';
-            break;
-        case 'africa':
-            emoji = '🇿🇦';
-            displayName = 'Africa';
-            break;
-        case 'antarctica':
-            emoji = '🇦🇶';
-            displayName = 'Antarctica';
-            break;
-        case 'world':
-            emoji = '🌍';
-            displayName = 'World';
-            break;
+export function getCountryEmoji(country?: string | null): string {
+    switch(country) {
+        case 'United States':
+            return '🇺🇸';
+        case 'Netherlands':
+            return '🇳🇱';
+        case 'Taiwan':
+            return '🇹🇼';
         default:
-            emoji = '🌐';
-            displayName = regionIdentifier ? regionIdentifier : 'Unknown';
+            return '🌐';
     }
-
-    return {
-        identifier: regionIdentifier,
-        displayName,
-        emoji,
-    };
 }

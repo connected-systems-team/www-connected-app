@@ -5,7 +5,7 @@ import React from 'react';
 import { useUrlSearchParameters } from '@structure/source/utilities/next/NextNavigation';
 
 // Dependencies - Types
-import { NmapPortStateType } from '@project/source/modules/connected/port-scan/PortScanFlowService';
+import { NmapPortStateType } from '@project/source/modules/connected/port-check/PortCheckFlowService';
 
 // Dependencies - Main Components
 import { AuthorizationLayout } from '@structure/source/layouts/AuthorizationLayout';
@@ -15,7 +15,7 @@ import { PlaceholderAnimation } from '@structure/source/common/animations/Placeh
 
 // Dependencies - API
 import { useQuery } from '@apollo/client';
-import { PortScanHistoryDocument, OrderByDirection } from '@project/source/api/GraphQlGeneratedCode';
+import { PortCheckHistoryDocument, OrderByDirection } from '@project/source/api/GraphQlGeneratedCode';
 
 // Dependencies - Assets
 import ArrowLeftIcon from '@structure/assets/icons/interface/ArrowLeftIcon.svg';
@@ -23,7 +23,7 @@ import CheckCircledGreenBorderIcon from '@project/assets/icons/status/CheckCircl
 import ErrorCircledRedBorderIcon from '@project/assets/icons/status/ErrorCircledRedBorderIcon.svg';
 
 // Dependencies - Utilities
-import { getRegionMetadata } from '@project/source/modules/connected/grid/utilities/GridUtilities';
+import { getCountryEmoji } from '@project/source/modules/connected/grid/utilities/GridUtilities';
 import { iso8601Date, timeAgo } from '@structure/source/utilities/Time';
 import { uppercaseFirstCharacter } from '@structure/source/utilities/String';
 // import { getPortStateDescription } from '@project/app/(main-layout)/port-checker/adapters/PortCheckStatusAdapter';
@@ -43,15 +43,15 @@ interface FlowExecutionMinimal {
     }>;
 }
 
-// Type - Extracted Port Scan History Data
-export interface ExtractedPortScanHistoryDataInterface {
+// Type - Extracted Port Check History Data
+export interface ExtractedPortCheckHistoryDataInterface {
     hostName: string;
     hostIp: string;
     port: string;
     portState: NmapPortStateType;
     portIsOpen: boolean;
     latencyInMilliseconds: string;
-    regionName: string;
+    country: string;
 }
 
 /**
@@ -59,14 +59,16 @@ export interface ExtractedPortScanHistoryDataInterface {
  * @param flowExecution The flow execution to extract data from
  * @returns Structured data for displaying port scan history
  */
-export function extractPortScanHistoryData(flowExecution: FlowExecutionMinimal): ExtractedPortScanHistoryDataInterface {
+export function extractPortCheckHistoryData(
+    flowExecution: FlowExecutionMinimal,
+): ExtractedPortCheckHistoryDataInterface {
     // Default values
     let hostName = 'Unknown';
     let hostIp = 'Unknown';
     let port = 'Unknown';
     let portState: NmapPortStateType = 'unknown';
     let latencyInMilliseconds = 'N/A';
-    let regionName = '';
+    let country = '';
 
     // Extract step executions
     const stepExecutions = flowExecution.stepExecutions || [];
@@ -74,7 +76,7 @@ export function extractPortScanHistoryData(flowExecution: FlowExecutionMinimal):
     // Look for port scan step
     for(const step of stepExecutions) {
         // Check if this is a port scan step with output
-        if(step.actionType === 'PortScan' && step.output) {
+        if(step.actionType === 'PortCheck' && step.output) {
             // Try to extract the step output
             try {
                 const output = typeof step.output === 'string' ? JSON.parse(step.output) : step.output;
@@ -105,7 +107,7 @@ export function extractPortScanHistoryData(flowExecution: FlowExecutionMinimal):
             const input =
                 typeof flowExecution.input === 'string' ? JSON.parse(flowExecution.input) : flowExecution.input;
 
-            regionName = input.region || '';
+            country = input.region || '';
         }
         catch(error) {
             console.error('Error parsing flow execution input', error);
@@ -122,7 +124,7 @@ export function extractPortScanHistoryData(flowExecution: FlowExecutionMinimal):
         portState,
         portIsOpen,
         latencyInMilliseconds,
-        regionName,
+        country,
     };
 }
 
@@ -132,10 +134,10 @@ export function PortCheckerHistoryPage() {
     const urlSearchParameters = useUrlSearchParameters();
     const page = parseInt(urlSearchParameters.get('page') as string) || 1;
     const itemsPerPage = 10;
-    const [totalScans, setTotalScans] = React.useState<number>(0);
+    const [totalChecks, setTotalChecks] = React.useState<number>(0);
 
     // Query
-    const portScanHistoryQuery = useQuery(PortScanHistoryDocument, {
+    const portCheckHistoryQuery = useQuery(PortCheckHistoryDocument, {
         variables: {
             pagination: {
                 itemsPerPage: itemsPerPage,
@@ -151,20 +153,20 @@ export function PortCheckerHistoryPage() {
     });
 
     // Debugging
-    // console.log('portScanHistoryQuery', portScanHistoryQuery);
+    // console.log('portCheckHistoryQuery', portCheckHistoryQuery);
 
     // Effects
     React.useEffect(
         function () {
-            if(portScanHistoryQuery.data?.portScanHistory.pagination?.itemsTotal) {
-                setTotalScans(portScanHistoryQuery.data.portScanHistory.pagination.itemsTotal);
+            if(portCheckHistoryQuery.data?.portCheckHistory.pagination?.itemsTotal) {
+                setTotalChecks(portCheckHistoryQuery.data.portCheckHistory.pagination.itemsTotal);
             }
         },
-        [portScanHistoryQuery.data?.portScanHistory.pagination?.itemsTotal],
+        [portCheckHistoryQuery.data?.portCheckHistory.pagination?.itemsTotal],
     );
 
     // Data
-    const flowExecutions = portScanHistoryQuery.data?.portScanHistory.items || [];
+    const flowExecutions = portCheckHistoryQuery.data?.portCheckHistory.items || [];
 
     // Render the component
     return (
@@ -183,9 +185,9 @@ export function PortCheckerHistoryPage() {
                 <h1 className="mb-6 mt-4 text-2xl font-medium">Port Checker History</h1>
 
                 <div>
-                    {portScanHistoryQuery.error ? (
-                        <div className="text-red-500">Error: {portScanHistoryQuery.error.message}</div>
-                    ) : portScanHistoryQuery.loading ? (
+                    {portCheckHistoryQuery.error ? (
+                        <div className="text-red-500">Error: {portCheckHistoryQuery.error.message}</div>
+                    ) : portCheckHistoryQuery.loading ? (
                         <div className="divide-y divide-neutral/10">
                             <div className="grid grid-cols-[1fr] items-center gap-3 py-4 md:grid-cols-[160px_160px_72px_110px_100px_110px_160px]">
                                 <div className="font-medium">Host</div>
@@ -233,8 +235,8 @@ export function PortCheckerHistoryPage() {
                                         portState,
                                         portIsOpen,
                                         latencyInMilliseconds,
-                                        regionName,
-                                    } = extractPortScanHistoryData(flowExecution);
+                                        country,
+                                    } = extractPortCheckHistoryData(flowExecution);
 
                                     // Map port states to user-friendly descriptions using our utility
                                     // const fullPortStateDisplay = uppercaseFirstCharacter(
@@ -277,12 +279,10 @@ export function PortCheckerHistoryPage() {
 
                                             {/* Region */}
                                             <div className="flex items-center space-x-1">
-                                                {regionName && (
+                                                {country && (
                                                     <>
-                                                        <span>{getRegionMetadata(regionName).emoji}</span>
-                                                        <span className="neutral">
-                                                            {getRegionMetadata(regionName).displayName}
-                                                        </span>
+                                                        <span>{getCountryEmoji(country)}</span>
+                                                        <span className="neutral">{country}</span>
                                                     </>
                                                 )}
                                             </div>
@@ -299,19 +299,19 @@ export function PortCheckerHistoryPage() {
                         </>
                     )}
 
-                    {(portScanHistoryQuery.loading || portScanHistoryQuery.data) && (
+                    {(portCheckHistoryQuery.loading || portCheckHistoryQuery.data) && (
                         <div className="flex items-center space-x-4 pt-6">
                             <Pagination
                                 className="justify-start"
                                 page={page}
                                 itemsPerPage={itemsPerPage}
-                                itemsTotal={totalScans}
-                                pagesTotal={portScanHistoryQuery.data?.portScanHistory.pagination?.pagesTotal ?? 0}
+                                itemsTotal={totalChecks}
+                                pagesTotal={portCheckHistoryQuery.data?.portCheckHistory.pagination?.pagesTotal ?? 0}
                                 useLinks={true}
                                 itemsPerPageControl={false}
                                 pageInputControl={false}
                             />
-                            {totalScans > 0 && <div className="neutral text-sm">{totalScans} scans</div>}
+                            {totalChecks > 0 && <div className="neutral text-sm">{totalChecks} scans</div>}
                         </div>
                     )}
                 </div>

@@ -136,6 +136,7 @@ type SupportTicket {
     status: SupportTicketStatus!
     title: String!
     type: String!
+    updatedAt: DateTimeISO!
     userEmailAddress: String!
 }
 
@@ -154,8 +155,8 @@ type SupportTicketComment {
 input SupportTicketCommentCreateInput {
     content: String!
     contentType: RichContentFormat
-    replyToCommentId: String!
-    ticketId: String!
+    replyToCommentId: String
+    ticketIdentifier: String!
     visibility: SupportTicketCommentVisibility
 }
 

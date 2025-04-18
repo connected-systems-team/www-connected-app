@@ -9,7 +9,7 @@ import {
 
 // Dependencies - API
 import { apolloClient } from '@structure/source/api/apollo/ApolloClient';
-import { PortScanCreateDocument } from '@project/source/api/GraphQlGeneratedCode';
+import { PortCheckCreateDocument } from '@project/source/api/GraphQlGeneratedCode';
 
 // Dependencies - Utilities
 import { isIpV4Address, isIpV6Address, isPrivateIpAddress } from '@structure/source/utilities/network/IpAddress';
@@ -24,8 +24,8 @@ export type NmapPortStateType =
     | 'closed|filtered'
     | 'unknown';
 
-// Type - PortScanFlowServiceErrors
-export const PortScanFlowServiceErrors = {
+// Type - PortCheckFlowServiceErrors
+export const PortCheckFlowServiceErrors = {
     // Validation errors
     PrivateIpError: {
         code: 'PrivateIpError',
@@ -63,7 +63,7 @@ export const PortScanFlowServiceErrors = {
         code: 'ConnectionError',
         message: 'Connection error occurred during port scan.',
     },
-    
+
     // General errors
     UnknownError: {
         code: 'UnknownError',
@@ -73,33 +73,33 @@ export const PortScanFlowServiceErrors = {
         code: 'InternalServerError',
         message: 'Internal server error: The port check service is currently experiencing issues.',
     },
-    
+
     // Results issues
     MissingData: {
         code: 'MissingData',
         message: "Port scan completed but couldn't determine exact status.",
-    }
+    },
 } as const;
 
-// Type - PortScanFlowClientInputInterface - Input for a new port scan from the client
-export interface PortScanFlowClientInputInterface {
+// Type - PortCheckFlowClientInputInterface - Input for a new port scan from the client
+export interface PortCheckFlowClientInputInterface {
     host: string;
     port: number;
-    regionIdentifier: string; // E.g., north-america
+    country: string; // E.g., north-america
 }
 
-// Server Type - PortScanFlowInputInterface - Input for a port scan flow step
-export interface PortScanFlowInputInterface {
+// Server Type - PortCheckFlowInputInterface - Input for a port scan flow step
+export interface PortCheckFlowInputInterface {
     host: string;
-    ports?: Array<string | { port: string }>;
-    region?: string;
+    port?: number;
+    country?: string;
     maxAttemps?: number;
 }
 
-// Server Type - PortScanFlowOutputInterface - Output for a port scan flow
-export interface PortScanFlowOutputInterface {
+// Server Type - PortCheckFlowOutputInterface - Output for a port scan flow
+export interface PortCheckFlowOutputInterface {
     status: 'success' | 'error' | 'mismatch';
-    ipAddress?: string;
+    hostIpAddress?: string;
     addressesScanned: number;
     // When a domain resolves to multiple IPs
     additionalIps?: string[];
@@ -107,14 +107,12 @@ export interface PortScanFlowOutputInterface {
     // Used to determine if someone put in an invalid IP address
     hostsUp: number;
     hostName?: string;
-    ports?: Array<{
-        port: string;
+    port?: {
+        number: number;
         state: NmapPortStateType;
-        // If the port state is different from the expected state in monitoring
-        mismatch: boolean;
-        // If nmap returns a service name that is listening on the port, e.g., http
-        service?: string;
-    }>;
+        protocol?: string; // If nmap returns a protocol name that is listening on the port, e.g., tcp
+        service?: string; // If nmap returns a service name that is listening on the port, e.g., http
+    };
     // The time it took in seconds to perform the scan
     scanTime: string;
     // This will only exist if a scan is succesful, the time it took to get a response
@@ -126,20 +124,20 @@ export interface PortScanFlowOutputInterface {
     };
 }
 
-// Type - PortScanFlowExecutionInterface
-export interface PortScanFlowExecutionInterface
-    extends FlowExecutionInterface<PortScanFlowInputInterface, PortScanFlowOutputInterface> {}
+// Type - PortCheckFlowExecutionInterface
+export interface PortCheckFlowExecutionInterface
+    extends FlowExecutionInterface<PortCheckFlowInputInterface, PortCheckFlowOutputInterface> {}
 
-// Class - PortScanFlowService
-export class PortScanFlowService extends FlowService<PortScanFlowInputInterface, PortScanFlowOutputInterface> {
+// Class - PortCheckFlowService
+export class PortCheckFlowService extends FlowService<PortCheckFlowInputInterface, PortCheckFlowOutputInterface> {
     // Function to override validateInput to add port scan specific validation
-    protected validateInput(input: PortScanFlowClientInputInterface): FlowInputValidationResultInterface {
+    protected validateInput(input: PortCheckFlowClientInputInterface): FlowInputValidationResultInterface {
         // Validate host - Check for private IP addresses (only for IPv4)
         if(isIpV4Address(input.host) && isPrivateIpAddress(input.host)) {
             return {
                 isValid: false,
                 error: {
-                    code: PortScanFlowServiceErrors.PrivateIpError.code,
+                    code: PortCheckFlowServiceErrors.PrivateIpError.code,
                     message: `${input.host} is a private IP address and cannot be scanned.`,
                 },
             };
@@ -158,8 +156,8 @@ export class PortScanFlowService extends FlowService<PortScanFlowInputInterface,
                     return {
                         isValid: false,
                         error: {
-                            code: PortScanFlowServiceErrors.InvalidHostError.code,
-                            message: PortScanFlowServiceErrors.InvalidHostError.message,
+                            code: PortCheckFlowServiceErrors.InvalidHostError.code,
+                            message: PortCheckFlowServiceErrors.InvalidHostError.message,
                         },
                     };
                 }
@@ -171,8 +169,8 @@ export class PortScanFlowService extends FlowService<PortScanFlowInputInterface,
             return {
                 isValid: false,
                 error: {
-                    code: PortScanFlowServiceErrors.InvalidPortError.code,
-                    message: PortScanFlowServiceErrors.InvalidPortError.message,
+                    code: PortCheckFlowServiceErrors.InvalidPortError.code,
+                    message: PortCheckFlowServiceErrors.InvalidPortError.message,
                 },
             };
         }
@@ -182,28 +180,30 @@ export class PortScanFlowService extends FlowService<PortScanFlowInputInterface,
     }
 
     // Function to create a new flow execution
-    protected async createFlowExecution(input: PortScanFlowClientInputInterface): Promise<string> {
+    protected async createFlowExecution(input: PortCheckFlowClientInputInterface): Promise<string> {
         // Execute the port scan mutation to create the flow
-        const portScanMutation = await apolloClient.mutate({
-            mutation: PortScanCreateDocument,
+        const portCheckMutation = await apolloClient.mutate({
+            mutation: PortCheckCreateDocument,
             variables: {
                 input: {
                     host: input.host,
-                    ports: [input.port.toString()],
-                    region: input.regionIdentifier,
+                    port: input.port,
+                    region: {
+                        country: input.country,
+                    },
                 },
             },
         });
 
         // If the mutation failed, throw an error
-        if(!portScanMutation.data?.portScanCreate) {
+        if(!portCheckMutation.data?.portCheckCreate) {
             throw new Error('Failed to create port scan.');
         }
 
         // Return the flow execution ID
-        return portScanMutation.data.portScanCreate;
+        return portCheckMutation.data.portCheckCreate;
     }
 }
 
 // Export - Default
-export default PortScanFlowService;
+export default PortCheckFlowService;

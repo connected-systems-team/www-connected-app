@@ -4,29 +4,147 @@ schema {
 }
 
 """
+The operator of a field filter
+"""
+enum ColumnFilterConditionOperator {
+    Equal
+    GreaterThan
+    GreaterThanOrEqual
+    In
+    IsNotNull
+    IsNull
+    LessThan
+    LessThanOrEqual
+    Like
+    NotEqual
+    NotIn
+    NotLike
+}
+
+input ColumnFilterInput {
+    caseSensitive: Boolean
+    column: String!
+    operator: ColumnFilterConditionOperator!
+    value: JSON!
+}
+
+"""
 A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.This scalar is serialized to a string in ISO 8601 format and parsed from a string in ISO 8601 format.
 """
 scalar DateTimeISO
 
-type GridNode {
+"""
+Enabled filter type
+"""
+enum EnabledFilterType {
+    All
+    Disabled
+    Enabled
+}
+
+type GridCapability {
     createdAt: DateTimeISO!
+    description: String
     id: String!
     name: String!
-    region: GridRegion!
-    regionId: String!
-    type: String!
     updatedAt: DateTimeISO!
 }
 
-input GridNodeCreateInput {
-    displayName: String
-    enabled: Boolean
-    ipAddress: String!
-    meta: JSON
+input GridCapabilityCreateInput {
+    description: String
     name: String!
-    regionName: String!
+}
+
+input GridCapabilityInput {
+    id: String
+    name: String
+}
+
+input GridCapabilityUpdateInput {
+    description: String
+    id: String!
+    name: String
+}
+
+type GridCloudProvider {
+    adapter: String!
+    createdAt: DateTimeISO!
+    description: String
+    id: String!
+    name: String!
+    note: String
+    updatedAt: DateTimeISO!
+}
+
+input GridCloudProviderCreateInput {
+    adapter: String!
+    description: String
+    enabled: Boolean
+    name: String!
+    note: String
+}
+
+input GridCloudProviderInput {
+    id: String
+    name: String
+}
+
+input GridCloudProviderListInput {
+    adapter: String
+    enabledOnly: Boolean
+}
+
+input GridCloudProviderUpdateInput {
+    adapter: String
+    description: String
+    enabled: Boolean
+    id: String!
+    name: String
+    note: String
+}
+
+type GridNode {
+    createdAt: DateTimeISO!
+    enabled: Boolean!
+    healthEndpoint: String!
+    host: String!
+    id: String!
+    lastSeenAt: DateTimeISO
+    name: String!
+    note: String
+    online: Boolean!
+    providerRegionId: String!
     settings: JSON
-    type: String!
+    updatedAt: DateTimeISO!
+}
+
+type GridNodeCapability {
+    capabilityId: String!
+    createdAt: DateTimeISO!
+    id: String!
+    nodeId: String!
+}
+
+input GridNodeCapabilityAssignInput {
+    capabilityId: String!
+    nodeId: String!
+}
+
+input GridNodeCapabilityListInput {
+    capabilityId: String
+    nodeId: String
+}
+
+input GridNodeCapabilityRemoveInput {
+    capabilityId: String!
+    nodeId: String!
+}
+
+input GridNodeCreateInput {
+    host: String!
+    name: String!
+    port: Float
+    providerRegionId: String!
 }
 
 input GridNodeInput {
@@ -34,35 +152,278 @@ input GridNodeInput {
     name: String
 }
 
+input GridNodeListInput {
+    providerRegionId: String
+    status: String
+}
+
 input GridNodeUpdateInput {
-    displayName: String
-    enabled: Boolean
-    id: String
-    ipAddress: String
-    meta: JSON
+    id: String!
     name: String
-    settings: JSON
+}
+
+type GridProviderRegion {
+    cloudProviderId: String!
+    createdAt: DateTimeISO!
+    healthEndpoint: String
+    host: String
+    id: String!
+    key: String
+    note: String
+    online: Boolean!
+    providerRegionCode: String!
+    regionId: String!
+    secure: Boolean!
+    updatedAt: DateTimeISO!
+}
+
+type GridProviderRegionCapability {
+    capabilityId: String!
+    createdAt: DateTimeISO!
+    id: String!
+    providerRegionId: String!
+}
+
+input GridProviderRegionCapabilityAssignInput {
+    capabilityId: String!
+    providerRegionId: String!
+}
+
+input GridProviderRegionCapabilityListInput {
+    capabilityId: String
+    providerRegionId: String
+}
+
+input GridProviderRegionCapabilityRemoveInput {
+    capabilityId: String!
+    providerRegionId: String!
+}
+
+input GridProviderRegionCreateInput {
+    cloudProviderId: String!
+    enabled: Boolean
+    healthEndpoint: String
+    host: String
+    key: String
+    online: Boolean
+    providerRegionCode: String!
+    regionId: String!
+    secure: Boolean
+}
+
+input GridProviderRegionInput {
+    cloudProviderId: String
+    id: String
+    providerRegionCode: String
+    regionId: String
+}
+
+input GridProviderRegionListInput {
+    cloudProviderId: String
+    enabledOnly: Boolean
+    regionId: String
+}
+
+input GridProviderRegionUpdateInput {
+    enabled: Boolean
+    id: String!
+    providerRegionCode: String
 }
 
 type GridRegion {
+    country: String!
     createdAt: DateTimeISO!
-    displayName: String!
+    division: String!
+    enabled: Boolean!
     id: String!
-    name: String!
+    locality: String!
+    note: String
+    region: String!
+    site: String
     updatedAt: DateTimeISO!
 }
 
 input GridRegionCreateInput {
-    displayName: String!
+    country: String!
+    division: String!
     enabled: Boolean
-    regionName: String!
+    locality: String!
+    region: String!
+    site: String
+}
+
+input GridRegionInput {
+    id: String
+    name: String
+}
+
+"""
+Grid region level
+"""
+enum GridRegionLevel {
+    Country
+    Division
+    Locality
+    Region
+    Site
+}
+
+type GridRegionLevels {
+    country: String
+    division: String
+    locality: String
+    region: String
+    site: String
+}
+
+input GridRegionLevelsListInput {
+    level: GridRegionLevel!
+}
+
+input GridRegionListInput {
+    enabled: EnabledFilterType
 }
 
 input GridRegionUpdateInput {
-    displayName: String
+    country: String
+    division: String
     enabled: Boolean
-    regionId: String
-    regionName: String
+    id: String!
+    locality: String
+    name: String
+    note: String
+    region: String
+    site: String
+}
+
+type GridTask {
+    allowAsync: Boolean!
+    createdAt: DateTimeISO!
+    description: String
+    id: String!
+    name: String!
+    note: String
+    timeoutMs: Float!
+    updatedAt: DateTimeISO!
+}
+
+type GridTaskCapability {
+    capabilityId: String!
+    createdAt: DateTimeISO!
+    id: String!
+    required: Boolean!
+    taskId: String!
+}
+
+input GridTaskCapabilityCreateInput {
+    capabilityId: String!
+    required: Boolean
+    taskId: String!
+}
+
+input GridTaskCapabilityDeleteInput {
+    capabilityId: String!
+    taskId: String!
+}
+
+input GridTaskCapabilityListInput {
+    capabilityId: String
+    taskId: String
+}
+
+input GridTaskCapabilityUpdateInput {
+    capabilityId: String!
+    required: Boolean!
+    taskId: String!
+}
+
+input GridTaskCreateInput {
+    allowAsync: Boolean
+    description: String
+    enabled: Boolean
+    name: String!
+    timeoutMs: Float
+}
+
+type GridTaskExecution {
+    attempt: Float!
+    completedAt: DateTimeISO
+    createdAt: DateTimeISO!
+    error: JSON
+    flowId: String
+    id: String!
+    inputData: JSON
+    isAsync: Boolean
+    maxAttempts: Float
+    nodeId: String
+    outputData: JSON
+    providerRegionId: String
+    startedAt: DateTimeISO
+    status: GridTaskExecutionStatus!
+    taskTypeId: String!
+    updatedAt: DateTimeISO!
+}
+
+input GridTaskExecutionInput {
+    flowId: String
+    id: String
+    nodeId: String
+    providerRegionId: String
+    taskTypeId: String
+}
+
+input GridTaskExecutionListInput {
+    flowId: String
+    nodeId: String
+    providerRegionId: String
+    status: GridTaskExecutionStatus
+    taskTypeId: String
+}
+
+"""
+The possible states of a task ran on the Grid.
+"""
+enum GridTaskExecutionStatus {
+    Failed
+    Pending
+    Retry
+    Running
+    Success
+}
+
+input GridTaskInput {
+    id: String
+    name: String
+}
+
+input GridTaskListInput {
+    enabledOnly: Boolean
+}
+
+type GridTaskProviderSupport {
+    cloudProviderId: String!
+    createdAt: DateTimeISO!
+    id: String!
+    taskId: String!
+}
+
+input GridTaskProviderSupportCreateInput {
+    cloudProviderId: String!
+    taskId: String!
+}
+
+input GridTaskProviderSupportDeleteInput {
+    cloudProviderId: String!
+    taskId: String!
+}
+
+input GridTaskUpdateInput {
+    allowAsync: Boolean
+    description: String
+    enabled: Boolean
+    id: String!
+    name: String
+    timeoutMs: Float
 }
 
 """
@@ -72,34 +433,237 @@ scalar JSON
 
 type Mutation {
     """
+    Create a new capability.
+    """
+    gridCapabilityCreatePrivileged(input: GridCapabilityCreateInput!): GridCapability!
+    """
+    Delete a capability.
+    """
+    gridCapabilityDeletePrivileged(input: GridCapabilityInput!): Boolean!
+    """
+    Update a capability.
+    """
+    gridCapabilityUpdatePrivileged(input: GridCapabilityUpdateInput!): GridCapability!
+    """
+    Create a new grid cloud provider.
+    """
+    gridCloudProviderCreatePrivileged(input: GridCloudProviderCreateInput!): GridCloudProvider!
+    """
+    Delete a grid cloud provider.
+    """
+    gridCloudProviderDeletePrivileged(input: GridCloudProviderInput!): Boolean!
+    """
+    Update a grid cloud provider.
+    """
+    gridCloudProviderUpdatePrivileged(input: GridCloudProviderUpdateInput!): GridCloudProvider!
+    """
+    Assign a capability to a node.
+    """
+    gridNodeCapabilityCreatePrivileged(input: GridNodeCapabilityAssignInput!): GridNodeCapability!
+    """
+    Remove a capability from a node.
+    """
+    gridNodeCapabilityDeletePrivileged(input: GridNodeCapabilityRemoveInput!): Boolean!
+    """
     Create a new node.
     """
-    gridNodeCreate(input: GridNodeCreateInput!): GridNode!
+    gridNodeCreatePrivileged(input: GridNodeCreateInput!): GridNode!
+    """
+    Delete a node.
+    """
+    gridNodeDeletePrivileged(input: GridNodeInput!): Boolean!
     """
     Update a node.
     """
-    gridNodeUpdate(input: GridNodeUpdateInput!): GridNode!
+    gridNodeUpdatePrivileged(input: GridNodeUpdateInput!): GridNode!
+    """
+    Assign a capability to a provider region.
+    """
+    gridProviderRegionCapabilityCreatePrivileged(
+        input: GridProviderRegionCapabilityAssignInput!
+    ): GridProviderRegionCapability!
+    """
+    Remove a capability from a provider region.
+    """
+    gridProviderRegionCapabilityDeletePrivileged(input: GridProviderRegionCapabilityRemoveInput!): Boolean!
+    """
+    Create a new provider region.
+    """
+    gridProviderRegionCreatePrivileged(input: GridProviderRegionCreateInput!): GridProviderRegion!
+    """
+    Delete a provider region.
+    """
+    gridProviderRegionDeletePrivileged(input: GridProviderRegionInput!): Boolean!
+    """
+    Update a provider region.
+    """
+    gridProviderRegionUpdatePrivileged(input: GridProviderRegionUpdateInput!): GridProviderRegion!
     """
     Create a new region.
     """
-    gridRegionCreate(input: GridRegionCreateInput!): GridRegion!
+    gridRegionCreatePrivileged(input: GridRegionCreateInput!): GridRegion!
+    """
+    Delete a region.
+    """
+    gridRegionDeletePrivileged(input: GridRegionInput!): Boolean!
     """
     Update a region.
     """
-    gridRegionUpdate(input: GridRegionUpdateInput!): GridRegion
+    gridRegionUpdatePrivileged(input: GridRegionUpdateInput!): GridRegion!
+    """
+    Assign a capability to a task type.
+    """
+    gridTaskCapabilityCreatePrivileged(input: GridTaskCapabilityCreateInput!): GridTaskCapability!
+    """
+    Remove a capability from a task type.
+    """
+    gridTaskCapabilityDeletePrivileged(input: GridTaskCapabilityDeleteInput!): Boolean!
+    """
+    Update a task type capability.
+    """
+    gridTaskCapabilityUpdatePrivileged(input: GridTaskCapabilityUpdateInput!): GridTaskCapability!
+    """
+    Create a new task type.
+    """
+    gridTaskCreatePrivileged(input: GridTaskCreateInput!): GridTask!
+    """
+    Delete a task type.
+    """
+    gridTaskDeletePrivileged(input: GridTaskInput!): Boolean!
+    """
+    Assign a task type to a cloud provider.
+    """
+    gridTaskProviderSupportCreatePrivileged(input: GridTaskProviderSupportCreateInput!): GridTaskProviderSupport!
+    """
+    Remove a task type from a cloud provider.
+    """
+    gridTaskProviderSupportDeletePrivileged(input: GridTaskProviderSupportDeleteInput!): Boolean!
+    """
+    Update a task.
+    """
+    gridTaskUpdatePrivileged(input: GridTaskUpdateInput!): GridTask!
+}
+
+"""
+The order direction of a query
+"""
+enum OrderByDirection {
+    Ascending
+    Descending
+}
+
+input OrderByInput {
+    direction: OrderByDirection
+    key: String!
+}
+
+type Pagination {
+    itemIndex: Int!
+    itemIndexForNextPage: Int
+    itemIndexForPreviousPage: Int
+    itemsPerPage: Int!
+    itemsTotal: Int!
+    page: Int!
+    pagesTotal: Int!
+}
+
+type PaginationGridCapability {
+    items: [GridCapability!]!
+    pagination: Pagination!
+}
+
+input PaginationInput {
+    filters: [ColumnFilterInput!]
+    itemIndex: Int
+    itemsPerPage: Int!
+    orderBy: [OrderByInput!]
 }
 
 type Query {
     """
-    Get a node.
+    Get all capabilities.
     """
-    gridNode(input: GridNodeInput!): GridNode
+    gridCapabilitiesPrivileged(pagination: PaginationInput!): [PaginationGridCapability!]!
     """
-    Generate a new key for a node.
+    Get a capability by ID or name.
     """
-    gridNodeGenerateKey(input: GridNodeInput!): String!
+    gridCapabilityPrivileged(input: GridCapabilityInput!): GridCapability
     """
-    Get all active regions.
+    Get a grid cloud provider by ID or name.
     """
-    gridRegions: [GridRegion!]!
+    gridCloudProviderPrivileged(input: GridCloudProviderInput!): GridCloudProvider
+    """
+    Get all grid cloud providers.
+    """
+    gridCloudProvidersPrivileged(input: GridCloudProviderListInput): [GridCloudProvider!]!
+    """
+    Get all node capabilities.
+    """
+    gridNodeCapabilitiesPrivileged(
+        input: GridNodeCapabilityListInput
+        pagination: PaginationInput!
+    ): [GridNodeCapability!]!
+    """
+    Get a node by ID or name.
+    """
+    gridNodePrivileged(input: GridNodeInput!): GridNode
+    """
+    Get all nodes.
+    """
+    gridNodesPrivileged(input: GridNodeListInput, pagination: PaginationInput!): [GridNode!]!
+    """
+    Get all provider region capabilities.
+    """
+    gridProviderRegionCapabilitiesPrivileged(
+        input: GridProviderRegionCapabilityListInput
+    ): [GridProviderRegionCapability!]!
+    """
+    Get a provider region by ID or other criteria.
+    """
+    gridProviderRegionPrivleged(input: GridProviderRegionInput!): GridProviderRegion
+    """
+    Get all provider regions.
+    """
+    gridProviderRegionsPrivileged(input: GridProviderRegionListInput): [GridProviderRegion!]!
+    """
+    Get all regions.
+    """
+    gridRegionLevels(input: GridRegionLevelsListInput!): [GridRegionLevels!]!
+    """
+    Get a region by ID or name.
+    """
+    gridRegionPrivileged(input: GridRegionInput!): GridRegion
+    """
+    Get all regions.
+    """
+    gridRegionsPrivileged(input: GridRegionListInput): [GridRegion!]!
+    """
+    Get all task type capabilities.
+    """
+    gridTaskCapabilitiesPrivileged(input: GridTaskCapabilityListInput): [GridTaskCapability!]!
+    """
+    Get a specific task execution.
+    """
+    gridTaskExecutionPrivileged(input: GridTaskExecutionInput!): GridTaskExecution
+    """
+    Get task executions.
+    """
+    gridTaskExecutionsPrivileged(input: GridTaskExecutionListInput, pagination: PaginationInput!): [GridTaskExecution!]!
+    """
+    Get a task type by ID, name, or name and version.
+    """
+    gridTaskPrivileged(input: GridTaskInput!): GridTask
+    """
+    Get all task provider supports.
+    """
+    gridTaskProviderSupportPrivileged(input: TaskProviderSupportListInput): [GridTaskProviderSupport!]!
+    """
+    Get all task types.
+    """
+    gridTasksPrivileged(input: GridTaskListInput): [GridTask!]!
+}
+
+input TaskProviderSupportListInput {
+    cloudProviderId: String
+    taskId: String
 }

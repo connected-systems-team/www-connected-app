@@ -6,8 +6,8 @@ import React from 'react';
 // Dependencies - Main Components
 
 // Dependencies - Local Components
-import { MonitorForm } from './MonitorForm';
-import { MonitorList } from './MonitorList';
+// import { MonitorForm } from './MonitorForm';
+// import { MonitorList } from './MonitorList';
 
 // Component - MonitorPage
 export function MonitorPage() {
@@ -21,7 +21,7 @@ export function MonitorPage() {
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+            {/* <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                 <div className="lg:col-span-1">
                     <div className="rounded-lg border p-6 shadow-sm">
                         <h2 className="mb-4 text-xl font-bold">Create Monitor</h2>
@@ -34,7 +34,7 @@ export function MonitorPage() {
                         <MonitorList />
                     </div>
                 </div>
-            </div>
+            </div> */}
         </div>
     );
 }

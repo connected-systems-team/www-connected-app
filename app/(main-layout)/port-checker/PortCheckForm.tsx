@@ -10,13 +10,13 @@ import { FormInputSelect } from '@structure/source/common/forms/FormInputSelect'
 
 // Dependencies - API
 import { useQuery } from '@apollo/client';
-import { GridRegionsDocument } from '@project/source/api/GraphQlGeneratedCode';
+import { GridRegionLevelsDocument, GridRegionLevel } from '@project/source/api/GraphQlGeneratedCode';
 
 // Dependencies - Assets
 import ArrowUpIcon from '@structure/assets/icons/interface/ArrowUpIcon.svg';
 
 // Dependencies - Utilities
-import { getRegionMetadata } from '@project/source/modules/connected/grid/utilities/GridUtilities';
+import { getCountryEmoji } from '@project/source/modules/connected/grid/utilities/GridUtilities';
 
 // Component - PortCheckForm
 export interface PortCheckFormInterface {
@@ -26,11 +26,17 @@ export interface PortCheckFormInterface {
     regionFormInputReference: React.RefObject<FormInputReferenceInterface>;
     buttonReference: React.RefObject<ButtonElementType>;
     checkingPort: boolean;
-    checkPort: (remoteAddress: string, remotePort: number, regionIdentifier: string) => void;
+    checkPort: (remoteAddress: string, port: number, country: string) => void;
 }
 export function PortCheckForm(properties: PortCheckFormInterface) {
     // Hooks
-    const gridRegionsQueryState = useQuery(GridRegionsDocument);
+    const gridRegionLevelsQueryState = useQuery(GridRegionLevelsDocument, {
+        variables: {
+            input: {
+                level: GridRegionLevel.Country,
+            },
+        },
+    });
     // console.log('gridRegionsQueryState', gridRegionsQueryState);
 
     // Function to check the port
@@ -102,7 +108,10 @@ export function PortCheckForm(properties: PortCheckFormInterface) {
                 {/* Region */}
                 <FormInputSelect
                     ref={properties.regionFormInputReference}
-                    key={gridRegionsQueryState.data?.gridRegions[0]?.id}
+                    key={
+                        gridRegionLevelsQueryState.data?.gridRegionLevels?.map((level) => level.region).join('-') ||
+                        'loading-regions'
+                    }
                     className="mt-4 w-full md:mr-4 md:mt-0 md:w-48"
                     id="region"
                     label="Check From"
@@ -111,20 +120,20 @@ export function PortCheckForm(properties: PortCheckFormInterface) {
                         contentClassName: 'w-48',
                     }}
                     items={
-                        gridRegionsQueryState.data?.gridRegions.map(function (gridRegion) {
+                        gridRegionLevelsQueryState.data?.gridRegionLevels.map(function (gridRegionLevel) {
                             return {
-                                value: gridRegion.name,
-                                content: getRegionMetadata(gridRegion.name).emoji + ' ' + gridRegion.displayName,
+                                value: gridRegionLevel.country!,
+                                content: getCountryEmoji(gridRegionLevel.country) + ' ' + gridRegionLevel.country,
                             };
                         }) || [
                             {
-                                value: 'north-america',
-                                content: '🇺🇸 North America',
+                                value: 'United States',
+                                content: '🇺🇸 United States',
                             },
                         ]
                     }
                     placeholder="Loading regions..."
-                    defaultValue={'north-america'}
+                    defaultValue={'United States'}
                 />
             </div>
 

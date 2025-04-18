@@ -1,22 +1,22 @@
 # Grid Regions Query
-query GridRegions {
-    gridRegions {
-        id
-        name
-        displayName
-        updatedAt
-        createdAt
+query GridRegionLevels($input: GridRegionLevelsListInput!) {
+    gridRegionLevels(input: $input) {
+        region
+        country
+        division
+        locality
+        site
     }
 }
 
-# Port Scan Create Mutation
-mutation PortScanCreate($input: PortScanCreateInput!) {
-    portScanCreate(input: $input)
+# Port Check Create Mutation
+mutation PortCheckCreate($input: PortCheckCreateInput!) {
+    portCheckCreate(input: $input)
 }
 
-# Port Scan Query
-query PortScan($input: PortScanInput!) {
-    portScan(input: $input) {
+# Port Check Query
+query PortCheck($input: PortCheckInput!) {
+    portCheck(input: $input) {
         id
         triggerId
         triggerType
@@ -45,9 +45,9 @@ query PortScan($input: PortScanInput!) {
     }
 }
 
-# Port Scan History Query
-query PortScanHistory($pagination: PaginationInput!) {
-    portScanHistory(pagination: $pagination) {
+# Port Check History Query
+query PortCheckHistory($pagination: PaginationInput!) {
+    portCheckHistory(pagination: $pagination) {
         items {
             id
             triggerId
@@ -87,49 +87,49 @@ query PortScanHistory($pagination: PaginationInput!) {
     }
 }
 
-# Port Monitor Query
-query PortMonitor($pagination: PaginationInput!) {
-    portMonitor(pagination: $pagination) {
-        items {
-            id
-            input
-            hour
-            minute
-            state
-            updatedAt
-            createdAt
-        }
-        pagination {
-            itemIndex
-            itemIndexForPreviousPage
-            itemIndexForNextPage
-            itemsPerPage
-            itemsTotal
-            page
-            pagesTotal
-        }
-    }
-}
+# # Port Monitor Query
+# query PortMonitor($pagination: PaginationInput!) {
+#     portMonitor(pagination: $pagination) {
+#         items {
+#             id
+#             input
+#             hour
+#             minute
+#             state
+#             updatedAt
+#             createdAt
+#         }
+#         pagination {
+#             itemIndex
+#             itemIndexForPreviousPage
+#             itemIndexForNextPage
+#             itemsPerPage
+#             itemsTotal
+#             page
+#             pagesTotal
+#         }
+#     }
+# }
 
-# Port Monitor Create Mutation
-mutation PortMonitorCreate($input: PortMonitorCreateInput!) {
-    portMonitorCreate(input: $input) {
-        id
-        input
-        hour
-        minute
-        state
-        updatedAt
-        createdAt
-    }
-}
+# # Port Monitor Create Mutation
+# mutation PortMonitorCreate($input: PortMonitorCreateInput!) {
+#     portMonitorCreate(input: $input) {
+#         id
+#         input
+#         hour
+#         minute
+#         state
+#         updatedAt
+#         createdAt
+#     }
+# }
 
-# Port Monitor Delete Mutation
-mutation PortMonitorDelete($input: PortMonitorInput!) {
-    portMonitorDelete(input: $input) {
-        success
-    }
-}
+# # Port Monitor Delete Mutation
+# mutation PortMonitorDelete($input: PortMonitorInput!) {
+#     portMonitorDelete(input: $input) {
+#         success
+#     }
+# }
 
 # query whois($input: String!) {
 #     whois(input: $input) {

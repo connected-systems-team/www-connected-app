@@ -156,6 +156,87 @@
                 "description": "The order direction of a query",
                 "values": ["Ascending", "Descending"]
             },
+            "SupportTicketUpdateInput": {
+                "kind": "object",
+                "type": "SupportTicketUpdateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "id",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "title",
+                        "validation": [
+                            {
+                                "type": "maxLength",
+                                "constraints": [256]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "description"
+                    }
+                ]
+            },
+            "SupportTicketCommentCreateInput": {
+                "kind": "object",
+                "type": "SupportTicketCommentCreateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "ticketIdentifier",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "content"
+                    },
+                    {
+                        "kind": "enum",
+                        "type": "RichContentFormat",
+                        "required": false,
+                        "name": "contentType"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "replyToCommentId",
+                        "validation": [
+                            {
+                                "type": "isUuid"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "enum",
+                        "type": "SupportTicketCommentVisibility",
+                        "required": false,
+                        "name": "visibility"
+                    }
+                ]
+            },
             "SupportTicketCreateInput": {
                 "kind": "object",
                 "type": "SupportTicketCreateInput",
@@ -210,87 +291,6 @@
                         "type": "SupportTicketCommentCreateInput",
                         "required": false,
                         "name": "initialComment"
-                    }
-                ]
-            },
-            "SupportTicketCommentCreateInput": {
-                "kind": "object",
-                "type": "SupportTicketCommentCreateInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "ticketId",
-                        "validation": [
-                            {
-                                "type": "isUuid"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "content"
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "RichContentFormat",
-                        "required": false,
-                        "name": "contentType"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "replyToCommentId",
-                        "validation": [
-                            {
-                                "type": "isUuid"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "SupportTicketCommentVisibility",
-                        "required": false,
-                        "name": "visibility"
-                    }
-                ]
-            },
-            "SupportTicketUpdateInput": {
-                "kind": "object",
-                "type": "SupportTicketUpdateInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "id",
-                        "validation": [
-                            {
-                                "type": "isUuid"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "title",
-                        "validation": [
-                            {
-                                "type": "maxLength",
-                                "constraints": [256]
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "description"
                     }
                 ]
             },
