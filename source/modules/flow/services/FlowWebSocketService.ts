@@ -104,7 +104,7 @@ export class FlowWebSocketService {
 
     // Function to dispose of all resources used by the service
     public dispose(): void {
-        console.log('DISPOSE - FlowWebSocketService - Disposing of resources');
+        console.log('[FlowWebSocketService] Disposing of resources');
 
         this.unregisterMessageHandler();
         this.flowExecutionId = undefined;

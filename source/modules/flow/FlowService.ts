@@ -187,10 +187,9 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
         // Options
         this.timeoutInMilliseconds = options?.timeoutInMilliseconds || 20000;
         this.pollingIntervalInMilliseconds = options?.pollingIntervalInMilliseconds || 1250;
-        this.webSocketInactivityTimeoutInMilliseconds = options?.webSocketInactivityTimeoutInMilliseconds || 2000;
+        this.webSocketInactivityTimeoutInMilliseconds = options?.webSocketInactivityTimeoutInMilliseconds || 2500;
         this.fallbackToPolling = options?.fallbackToPolling ?? true;
         this.forcePolling = options?.forcePolling ?? false;
-        // this.forcePolling = true;
 
         // Initialize WebSocket service
         this.webSocketService = new FlowWebSocketService(
@@ -429,6 +428,15 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
                         this.pollingService.stopPolling();
                     }
 
+                    // Reset WebSocket inactivity timeout since we received a message
+                    // Only reset the timeout if we're still processing this flow
+                    if(
+                        this.status === FlowServiceStatusType.Running ||
+                        this.status === FlowServiceStatusType.Starting
+                    ) {
+                        this.setupWebSocketInactivityTimeout();
+                    }
+
                     return true;
                 }
             }
@@ -443,6 +451,18 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
     // Function to process a flow execution
     protected processFlowExecution(flowExecution: FlowExecutionGraphQlInterface): void {
         // console.log('[FlowService].processFlowExecution() flowExecution.output', flowExecution.output);
+
+        // Check if we've already completed this flow (in a terminal state)
+        if(
+            this.status === FlowServiceStatusType.Success ||
+            this.status === FlowServiceStatusType.Failed ||
+            this.status === FlowServiceStatusType.Canceled
+        ) {
+            console.warn(
+                `[FlowService] Already completed flow with status: ${this.status}, ignoring duplicate completion (a poll or WebSocket result came in right after another)`,
+            );
+            return;
+        }
 
         // Update the flow status
         this.status = flowExecution.status as unknown as FlowServiceStatusType;
@@ -466,17 +486,10 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
                 this.pollingService.stopPolling();
             }
 
-            // Skip if this is a duplicate completion call without output data
-            // This helps avoid processing incomplete data from polling or other sources
-            if(this.status === FlowServiceStatusType.Success && !flowExecution.output) {
-                console.warn('[FlowService] Got duplicate completion call without output data.');
-                return;
-            }
-
-            // Clean up resources
+            // Clean up resources (this will stop polling and WebSockets)
             this.cleanupFlowResources();
 
-            // If the flow is successful, process the completion
+            // Check if we're processing a Success status
             if(this.status === FlowServiceStatusType.Success) {
                 // Process successful completion
                 const result = this.processFlowCompletion(flowExecution);
@@ -533,7 +546,7 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
 
     // Function to dispose of all resources used by the service
     public dispose() {
-        console.log('DISPOSEEEEEEEEEEE FlowService - Disposing of resources');
+        console.log('[FlowService] Disposing of resources');
 
         // Clean up all resources
         this.cleanupFlowResources();
@@ -555,8 +568,8 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
 
     // Function to clean up resources when a flow is complete
     protected cleanupFlowResources(): void {
-        this.clearTimeoutMonitor();
         this.clearWebSocketInactivityTimeout();
+        this.clearTimeoutMonitor();
         this.pollingService.stopPolling();
         this.webSocketService.unregisterMessageHandler();
     }
@@ -660,13 +673,7 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
             return undefined;
         }
 
-        try {
-            return flowStep.output;
-        }
-        catch(error) {
-            console.error('Error processing flow step output', error);
-            return undefined;
-        }
+        return flowStep.output;
     }
 
     // Function to process the flow completion with a default implementation

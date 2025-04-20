@@ -137,7 +137,7 @@ export class PortCheckStatusAdapter {
     // Function to handle flow execution completion
     private onFlowExecutionComplete(portCheckFlowExecution: PortCheckFlowExecutionInterface): void {
         // Debug logging
-        console.log('Flow execution output:', portCheckFlowExecution);
+        console.log('onFlowExecutionComplete', portCheckFlowExecution);
 
         // Extract the output for early checks
         const output = portCheckFlowExecution.output;
