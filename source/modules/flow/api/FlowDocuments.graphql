@@ -6,6 +6,8 @@ query FlowExecution($input: FlowExecutionInput!) {
         triggerType
         flowVersionId
         status
+        input
+        output
         stepExecutions {
             id
             stepId
@@ -23,11 +25,11 @@ query FlowExecution($input: FlowExecutionInput!) {
             errors
         }
         elapsedTimeMs
+        errors
         startedAt
         completedAt
         updatedAt
         createdAt
-        errors
     }
 }
 

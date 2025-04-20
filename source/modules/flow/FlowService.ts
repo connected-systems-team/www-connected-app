@@ -126,7 +126,9 @@ export interface FlowServiceEventHandlersInterface<TFlowInput, TFlowOutput> {
 export interface FlowServiceOptionsInterface {
     timeoutInMilliseconds?: number;
     pollingIntervalInMilliseconds?: number;
+    webSocketInactivityTimeoutInMilliseconds?: number;
     fallbackToPolling?: boolean;
+    forcePolling?: boolean; // Force polling and do not use WebSockets
 }
 
 // Type - FlowExecutionInterface
@@ -151,20 +153,24 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
     protected flowExecutionId?: string;
     protected status: FlowServiceStatusType;
     protected stepResults: Array<FlowStepExecutionInterface>;
+    protected lastWebSocketMessageReceivedAt?: Date;
 
     // Event handlers
     protected eventHandlers: FlowServiceEventHandlersInterface<TFlowInput, TFlowOutput>;
 
     // Options
-    protected timeoutInMilliseconds: number;
-    protected pollingIntervalInMilliseconds: number;
     protected fallbackToPolling: boolean;
+    protected forcePolling: boolean;
+    protected pollingIntervalInMilliseconds: number;
+    protected webSocketInactivityTimeoutInMilliseconds: number;
+    protected timeoutInMilliseconds: number;
 
     // Services
     protected webSocketService: FlowWebSocketService;
     protected pollingService: FlowPollingService;
 
     // Cleanup references
+    protected webSocketInactivityTimeout?: NodeJS.Timeout;
     protected timeout?: NodeJS.Timeout;
 
     constructor(
@@ -180,8 +186,11 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
 
         // Options
         this.timeoutInMilliseconds = options?.timeoutInMilliseconds || 20000;
-        this.pollingIntervalInMilliseconds = options?.pollingIntervalInMilliseconds || 1500;
-        this.fallbackToPolling = options?.fallbackToPolling || true;
+        this.pollingIntervalInMilliseconds = options?.pollingIntervalInMilliseconds || 1250;
+        this.webSocketInactivityTimeoutInMilliseconds = options?.webSocketInactivityTimeoutInMilliseconds || 2000;
+        this.fallbackToPolling = options?.fallbackToPolling ?? true;
+        this.forcePolling = options?.forcePolling ?? false;
+        // this.forcePolling = true;
 
         // Initialize WebSocket service
         this.webSocketService = new FlowWebSocketService(
@@ -190,8 +199,7 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
         );
 
         // Initialize polling service
-        this.pollingService = new FlowPollingService({
-            pollingIntervalInMilliseconds: this.pollingIntervalInMilliseconds,
+        this.pollingService = new FlowPollingService(this.pollingIntervalInMilliseconds, {
             onPollResult: this.processFlowExecution.bind(this),
             onPollError: (error: Error) => this.handleError(error, FlowServiceErrors.PollingError.code),
         });
@@ -232,7 +240,7 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
                 FlowServiceErrors.ExecutionFailed.code,
             );
 
-            // Re-throw to allow concrete implementations to handle specific errors
+            // Re-throw to allow implementations to handle specific errors
             throw error;
         }
     }
@@ -243,28 +251,76 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
     // Function to start the WebSocket and polling services
     protected startServices(flowExecutionId: string) {
         // Set execution ID in services
-        this.webSocketService.setFlowExecutionId(flowExecutionId);
-        this.pollingService.setFlowExecutionId(flowExecutionId);
 
-        // Start WebSocket handler
-        this.webSocketService.registerMessageHandler();
+        // If force polling is not enabled, configure the WebSocket service
+        if(!this.forcePolling) {
+            this.webSocketService.setFlowExecutionId(flowExecutionId);
+            this.webSocketService.registerMessageHandler();
+        }
+
+        // Set execution ID in polling service
+        this.pollingService.setFlowExecutionId(flowExecutionId);
 
         // Start polling if configured to do so
         const isWebSocketConnected = this.webSocketService.isWebSocketConnected();
         // console.log('[FlowService] WebSocket connected status:', isWebSocketConnected);
-        // console.log('[FlowService] fallbackToPolling setting:', this.fallbackToPolling);
 
-        // Fallback to polling if WebSocket is not connected
-        if(this.fallbackToPolling && !isWebSocketConnected) {
-            console.log('[FlowService] Starting polling service as fallback');
+        // Use polling if forced, or fallback to polling if WebSocket is not connected
+        if(this.forcePolling || (this.fallbackToPolling && !isWebSocketConnected)) {
+            console.log('[FlowService] Starting polling service', this.forcePolling ? 'by force' : 'as fallback');
             this.pollingService.startPolling();
         }
+        else if(this.fallbackToPolling && isWebSocketConnected) {
+            // console.log('[FlowService] Using WebSocket with inactivity fallback');
+            this.setupWebSocketInactivityTimeout();
+        }
         else {
-            // console.log('[FlowService] Using WebSocket only, polling not started');
+            console.log('[FlowService] Using WebSocket only, polling not started');
         }
 
         // Set up timeout monitor
         this.setupTimeoutMonitor(this.timeoutInMilliseconds);
+    }
+
+    // Function to setup a timeout for detecting inactive WebSocket connections
+    protected setupWebSocketInactivityTimeout() {
+        // Clear any existing inactivity timeout
+        this.clearWebSocketInactivityTimeout();
+
+        // Set up a timeout to check WebSocket activity
+        this.webSocketInactivityTimeout = setTimeout(() => {
+            if(!this.lastWebSocketMessageReceivedAt) {
+                // Initial case: We haven't received any messages yet
+                console.log(
+                    `[FlowService] No WebSocket messages received in last ${this.webSocketInactivityTimeoutInMilliseconds}ms, starting polling`,
+                );
+                this.pollingService.startPolling();
+            }
+            else {
+                const millisecondsSinceLastWebSocketMessage =
+                    new Date().getTime() - this.lastWebSocketMessageReceivedAt.getTime();
+
+                // Check if the WebSocket has been inactive for too long
+                if(millisecondsSinceLastWebSocketMessage >= this.webSocketInactivityTimeoutInMilliseconds) {
+                    console.log(
+                        `[FlowService] WebSocket inactive for ${millisecondsSinceLastWebSocketMessage}ms, starting polling as fallback`,
+                    );
+                    this.pollingService.startPolling();
+                }
+                // Activity detected, set another timeout to keep monitoring
+                else {
+                    this.setupWebSocketInactivityTimeout();
+                }
+            }
+        }, this.webSocketInactivityTimeoutInMilliseconds);
+    }
+
+    // Function to clear the WebSocket inactivity timeout
+    protected clearWebSocketInactivityTimeout() {
+        if(this.webSocketInactivityTimeout) {
+            clearTimeout(this.webSocketInactivityTimeout);
+            this.webSocketInactivityTimeout = undefined;
+        }
     }
 
     // Function to setup a timeout monitor to automatically fail the flow after a specified time
@@ -301,6 +357,8 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
             if(isFlowWebSocketEventMessage(event)) {
                 // console.log('isFlowWebSocketEventMessage', event);
 
+                let isForCurrentFlow = false;
+
                 // Handle Flow execution message
                 if(isFlowExecutionWebSocketMessage(event.data)) {
                     // console.log('isFlowExecutionWebSocketMessage', event.data);
@@ -320,7 +378,7 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
                     if(this.flowExecutionId === flowExecution.id) {
                         // console.log('Flow execution ID matches', this.flowExecutionId, flowExecution.id);
                         this.processFlowExecution(flowExecution);
-                        return true;
+                        isForCurrentFlow = true;
                     }
                     else {
                         // console.log('Flow execution ID does not match', this.flowExecutionId, flowExecution.id);
@@ -333,6 +391,8 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
 
                     // Check if this step belongs to our flow execution
                     if(this.flowExecutionId === flowStepExecution.flowExecutionId) {
+                        isForCurrentFlow = true;
+
                         // Ignore step executions if the flow is already complete
                         if(
                             this.status === FlowServiceStatusType.Success ||
@@ -354,9 +414,22 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
                         // Process the step if we should
                         if(this.shouldProcessFlowStep(flowStepExecution)) {
                             this.processFlowStepExecution(flowStepExecution);
-                            return true;
                         }
                     }
+                }
+
+                // If this message is for our flow, update the timestamp and handle polling
+                if(isForCurrentFlow) {
+                    // Update timestamp of last received message
+                    this.lastWebSocketMessageReceivedAt = new Date();
+
+                    // If polling is active, stop it since WebSocket is working
+                    if(this.pollingService && this.pollingService.isPolling()) {
+                        console.log('[FlowService] Received WebSocket message, stopping active polling');
+                        this.pollingService.stopPolling();
+                    }
+
+                    return true;
                 }
             }
         }
@@ -483,6 +556,7 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
     // Function to clean up resources when a flow is complete
     protected cleanupFlowResources(): void {
         this.clearTimeoutMonitor();
+        this.clearWebSocketInactivityTimeout();
         this.pollingService.stopPolling();
         this.webSocketService.unregisterMessageHandler();
     }
