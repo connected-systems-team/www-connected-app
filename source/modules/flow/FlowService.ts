@@ -190,6 +190,7 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
         this.webSocketInactivityTimeoutInMilliseconds = options?.webSocketInactivityTimeoutInMilliseconds || 2500;
         this.fallbackToPolling = options?.fallbackToPolling ?? true;
         this.forcePolling = options?.forcePolling ?? false;
+        // this.forcePolling = true; // Testing
 
         // Initialize WebSocket service
         this.webSocketService = new FlowWebSocketService(
@@ -355,32 +356,19 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
             // Use the new event message type guard for cleaner code
             if(isFlowWebSocketEventMessage(event)) {
                 // console.log('isFlowWebSocketEventMessage', event);
-
                 let isForCurrentFlow = false;
 
                 // Handle Flow execution message
                 if(isFlowExecutionWebSocketMessage(event.data)) {
                     // console.log('isFlowExecutionWebSocketMessage', event.data);
-
                     const flowExecution = event.data.arguments[0];
-                    // console.log(
-                    //     '[FlowService-WebSocket] Received flow execution:',
-                    //     flowExecution.status,
-                    //     'Has output:',
-                    //     !!flowExecution.output,
-                    // );
-
-                    // console.log('Flow execution ID', this.flowExecutionId, 'vs', flowExecution.id);
 
                     // Make sure the flow execution ID matches
                     // This is important to avoid processing messages from other flows
+                    // console.log('Flow execution ID', this.flowExecutionId, 'vs', flowExecution.id);
                     if(this.flowExecutionId === flowExecution.id) {
-                        // console.log('Flow execution ID matches', this.flowExecutionId, flowExecution.id);
                         this.processFlowExecution(flowExecution);
                         isForCurrentFlow = true;
-                    }
-                    else {
-                        // console.log('Flow execution ID does not match', this.flowExecutionId, flowExecution.id);
                     }
                 }
 
@@ -393,20 +381,7 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
                         isForCurrentFlow = true;
 
                         // Ignore step executions if the flow is already complete
-                        if(
-                            this.status === FlowServiceStatusType.Success ||
-                            this.status === FlowServiceStatusType.Failed ||
-                            this.status === FlowServiceStatusType.Canceled
-                        ) {
-                            console.log(
-                                '[FlowService] Ignoring late step execution for completed flow:',
-                                'flowId:',
-                                flowStepExecution.flowExecutionId,
-                                'stepId:',
-                                flowStepExecution.stepId,
-                                'current flow status:',
-                                this.status,
-                            );
+                        if(this.isInTerminalState()) {
                             return false;
                         }
 
@@ -429,11 +404,8 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
                     }
 
                     // Reset WebSocket inactivity timeout since we received a message
-                    // Only reset the timeout if we're still processing this flow
-                    if(
-                        this.status === FlowServiceStatusType.Running ||
-                        this.status === FlowServiceStatusType.Starting
-                    ) {
+                    // Only reset the timeout if we are not in a terminal state
+                    if(!this.isInTerminalState()) {
                         this.setupWebSocketInactivityTimeout();
                     }
 
@@ -453,11 +425,7 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
         // console.log('[FlowService].processFlowExecution() flowExecution.output', flowExecution.output);
 
         // Check if we've already completed this flow (in a terminal state)
-        if(
-            this.status === FlowServiceStatusType.Success ||
-            this.status === FlowServiceStatusType.Failed ||
-            this.status === FlowServiceStatusType.Canceled
-        ) {
+        if(this.isInTerminalState()) {
             console.warn(
                 `[FlowService] Already completed flow with status: ${this.status}, ignoring duplicate completion (a poll or WebSocket result came in right after another)`,
             );
@@ -470,22 +438,8 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
         // Process all step executions
         this.processFlowStepExecutions(flowExecution);
 
-        // If the flow is complete, finish processing
-        if(
-            this.status === FlowServiceStatusType.Success ||
-            this.status === FlowServiceStatusType.Failed ||
-            this.status === FlowServiceStatusType.Canceled
-        ) {
-            // console.log('[FlowService] Flow completed with status:', this.status);
-            // console.log('[FlowService] Has flow output:', !!flowExecution.output);
-
-            // If this is a WebSocket message with complete output data, stop polling immediately
-            // to prevent duplicate completion messages from polling
-            if(flowExecution.output) {
-                // console.log('[FlowService] Preemptively stopping polling due to complete WebSocket data');
-                this.pollingService.stopPolling();
-            }
-
+        // If the flow is in a terminal state complete, finish processing
+        if(this.isInTerminalState()) {
             // Clean up resources (this will stop polling and WebSockets)
             this.cleanupFlowResources();
 
@@ -520,13 +474,8 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
 
     // Function to stop the currently executing flow
     public stopExecution() {
-        // If the flow is already not started or completed, do nothing
-        if(
-            this.status === FlowServiceStatusType.NotStarted ||
-            this.status === FlowServiceStatusType.Success ||
-            this.status === FlowServiceStatusType.Failed ||
-            this.status === FlowServiceStatusType.Canceled
-        ) {
+        // If the flow is already not started or in a terminal state, do nothing
+        if(this.status === FlowServiceStatusType.NotStarted || this.isInTerminalState()) {
             return;
         }
 
@@ -562,8 +511,18 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
     }
 
     // Function to check if a flow is currently executing
-    public isFlowExecuting(): boolean {
+    public isExecuting(): boolean {
         return this.status === FlowServiceStatusType.Starting || this.status === FlowServiceStatusType.Running;
+    }
+
+    // Function to check if a flow is in a terminal state
+    public isInTerminalState(): boolean {
+        return (
+            this.status === FlowServiceStatusType.Success ||
+            this.status === FlowServiceStatusType.Failed ||
+            this.status === FlowServiceStatusType.Canceled ||
+            this.status === FlowServiceStatusType.TimedOut
+        );
     }
 
     // Function to clean up resources when a flow is complete
