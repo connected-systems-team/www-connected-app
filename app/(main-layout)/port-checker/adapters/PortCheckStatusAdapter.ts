@@ -243,8 +243,31 @@ export class PortCheckStatusAdapter {
     }
 
     // Function to handle flow errors
-    private onFlowExecutionError(error: FlowExecutionErrorInterface): void {
-        console.error('Flow execution error:', error);
+    private onFlowExecutionError(
+        error: FlowExecutionErrorInterface,
+        flowExecution?: PortCheckFlowExecutionInterface,
+    ): void {
+        console.error('Flow execution error:', error, 'Flow execution:', flowExecution);
+
+        if(flowExecution && flowExecution.errors) {
+            // Loop through and log the errors
+            for(const error of flowExecution.errors) {
+                console.log('Flow execution error item:', error);
+            }
+        }
+
+        // If we have a flow execution with output data, use the normal flow completion handler
+        // This handles cases where the flow "failed" but we still got useful output
+        if(flowExecution?.output) {
+            console.log('Using flow execution output for error handling');
+            this.onFlowExecutionComplete(flowExecution);
+            return;
+        }
+
+        // No flow execution with output, fall back to basic error handling
+        // Extract host and port from the input if available
+        const host = this.portCheckFlowInput?.host;
+        const port = this.portCheckFlowInput?.port;
 
         // Process error message for better user experience
         let message = error.message || PortCheckFlowServiceErrors.UnknownError.message;
@@ -285,6 +308,8 @@ export class PortCheckStatusAdapter {
             portState: PortStateType.Unknown,
             systemError: true,
             errorMessage: error.message,
+            host: host,
+            port: port,
             isFinal: true, // Mark as final since this is a terminal error
         };
 

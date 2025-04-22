@@ -114,7 +114,10 @@ export interface FlowServiceEventHandlersInterface<TFlowInput, TFlowOutput> {
     // Flow Execution events
     onFlowExecutionUpdate?: (flowExecutionResult: FlowExecutionInterface<TFlowInput, TFlowOutput>) => void;
     onFlowExecutionComplete?: (flowExecutionResult: FlowExecutionInterface<TFlowInput, TFlowOutput>) => void;
-    onFlowExecutionError?: (flowExecutionError: FlowExecutionErrorInterface) => void;
+    onFlowExecutionError?: (
+        flowExecutionError: FlowExecutionErrorInterface,
+        flowExecution?: FlowExecutionInterface<TFlowInput, TFlowOutput>,
+    ) => void;
 
     // Flow Step Execution events
     onFlowStepExecutionUpdate?: (flowStepExecution: FlowStepExecutionGraphQlInterface) => void;
@@ -338,7 +341,7 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
                 // Clean up resources
                 this.cleanupFlowResources();
 
-                // Optionally, call the error handler
+                // Optionally, call the error handler - only with error, no flow execution
                 this.eventHandlers.onFlowExecutionError?.({
                     message: FlowServiceErrors.FlowTimedOut.message,
                     code: FlowServiceErrors.FlowTimedOut.code,
@@ -445,12 +448,12 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
 
             // Check if we're processing a Success status
             if(this.status === FlowServiceStatusType.Success) {
-                // Process successful completion
-                const result = this.processFlowCompletion(flowExecution);
+                // Get a typed version of the flow execution
+                const typedFlowExecution = this.createTypedFlowExecution(flowExecution);
                 // console.log('[FlowService] Calling completion handler with result:', result);
 
                 // Call the completion handler if provided
-                this.eventHandlers.onFlowExecutionComplete?.(result);
+                this.eventHandlers.onFlowExecutionComplete?.(typedFlowExecution);
             }
             // If the flow is failed, handle the failure
             else if(this.status === FlowServiceStatusType.Failed) {
@@ -543,26 +546,13 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
 
     // Function to handle flow failure - should be overridden by subclasses
     protected handleFlowFailure(flowExecution: FlowExecutionGraphQlInterface): void {
-        // Default implementation sends a generic error message
-        const errorMessage = this.extractErrorMessageFromExecution(flowExecution);
+        // Get a typed version of the flow execution
+        const typedFlowExecution = this.createTypedFlowExecution(flowExecution);
 
-        this.eventHandlers.onFlowExecutionError?.({
-            message: errorMessage,
-            code: FlowServiceErrors.FlowError.code,
-            createdAt: new Date(),
-        });
-    }
-
-    // Function to extract an error message from a flow execution
-    protected extractErrorMessageFromExecution(flowExecution: FlowExecutionGraphQlInterface): string {
-        // Default error message
+        // Extract an error message from the flow execution
         let errorMessage = 'Flow execution failed.';
-
-        // Try to extract errors from the flow execution
         if(flowExecution.errors && Array.isArray(flowExecution.errors) && flowExecution.errors.length > 0) {
-            // Get the first error
             const firstError = flowExecution.errors[0];
-
             if(typeof firstError === 'string') {
                 errorMessage = firstError;
             }
@@ -571,7 +561,15 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
             }
         }
 
-        return errorMessage;
+        // Create an error object
+        const error: FlowExecutionErrorInterface = {
+            message: errorMessage,
+            code: FlowServiceErrors.FlowError.code,
+            createdAt: new Date(),
+        };
+
+        // Call the error handler with both the error and the typed flow execution
+        this.eventHandlers.onFlowExecutionError?.(error, typedFlowExecution);
     }
 
     // Function to process a flow step execution
@@ -635,8 +633,8 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
         return flowStep.output;
     }
 
-    // Function to process the flow completion with a default implementation
-    protected processFlowCompletion(
+    // Function to create a typed flow execution
+    protected createTypedFlowExecution(
         flowExecution: FlowExecutionGraphQlInterface,
     ): FlowExecutionInterface<TFlowInput, TFlowOutput> {
         if(!this.input || !this.flowExecutionId) {
@@ -667,7 +665,7 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
         // Update status
         this.status = FlowServiceStatusType.Failed;
 
-        // Call the error handler if available
+        // Call the error handler if available - only with error, no flow execution
         this.eventHandlers.onFlowExecutionError?.({
             code: errorCode,
             message: errorMessage,
@@ -685,7 +683,7 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
         // Clean up resources
         this.cleanupFlowResources();
 
-        // Optionally call the error handler
+        // Optionally call the error handler - only with error, no flow execution
         this.eventHandlers.onFlowExecutionError?.({
             message: error.message,
             code: code || FlowServiceErrors.FlowError.code,
