@@ -396,6 +396,45 @@ function getPortStateInformation(
                     ),
                 };
 
+            // Network connectivity error
+            case FlowServiceErrors.NetworkConnectionError.code:
+                return {
+                    title: 'Network Connection Error',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>Unable to connect to our servers to perform the port check.</p>
+                            <ul className="list-disc space-y-1 pl-5">
+                                <li>Your Internet connection appears to be offline or unstable.</li>
+                                <li>Please check your network connection and try again.</li>
+                                <li>
+                                    If you&apos;re connected to a network but still seeing this error, your connection
+                                    might be restricted or our servers might be experiencing issues.
+                                </li>
+                            </ul>
+                            <p>
+                                This error typically occurs when your device can&apos;t reach our servers due to
+                                connectivity issues.
+                            </p>
+                        </div>
+                    ),
+                };
+
+            // Generic execution failed
+            case FlowServiceErrors.ExecutionFailed.code:
+                return {
+                    title: 'Service Error',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>Our service encountered an error while processing your request.</p>
+                            <ul className="list-disc space-y-1 pl-5">
+                                <li>This could be a temporary issue with our service.</li>
+                                <li>The error has been logged and our team has been notified.</li>
+                            </ul>
+                            <p>Please try again in a few minutes. If the issue persists, please contact support.</p>
+                        </div>
+                    ),
+                };
+
             // Default case for unknown error codes
             default:
                 return {

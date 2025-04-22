@@ -100,33 +100,21 @@ export class PortCheckStatusAdapter {
             country: country,
         };
 
-        try {
-            // Create initial status message
-            const countryEmoji = getCountryEmoji(country);
+        // Create initial status message first (this will be shown regardless of success/failure)
+        const countryEmoji = getCountryEmoji(country);
 
-            // Send initial port check status item
-            this.onPortCheckStatusItem({
-                portState: PortStateType.Unknown,
-                text: `Checking port ${this.portCheckFlowInput.port} on ${this.portCheckFlowInput.host} from ${countryEmoji} ${country}...`,
-                host: this.portCheckFlowInput.host,
-                port: this.portCheckFlowInput.port,
-                isFinal: false,
-            });
+        // Send initial port check status item
+        this.onPortCheckStatusItem({
+            portState: PortStateType.Unknown,
+            text: `Checking port ${this.portCheckFlowInput.port} on ${this.portCheckFlowInput.host} from ${countryEmoji} ${country}...`,
+            host: this.portCheckFlowInput.host,
+            port: this.portCheckFlowInput.port,
+            isFinal: false,
+        });
 
-            // Execute the port scan flow (validation happens inside the PortCheckFlowService)
-            await this.portCheckFlowService.executeFlow(this.portCheckFlowInput);
-        }
-        catch(error) {
-            // Send error port check status item
-            this.onPortCheckStatusItem({
-                portState: PortStateType.Unknown,
-                text: error instanceof Error ? error.message : 'Failed to start port scan. Please try again.',
-                errorCode: FlowServiceErrors.FlowError.code,
-                host: this.portCheckFlowInput.host,
-                port: this.portCheckFlowInput.port,
-                isFinal: true,
-            });
-        }
+        // Execute the port scan flow (validation happens inside the PortCheckFlowService)
+        // Error handling is done via the onFlowExecutionError callback registered in the constructor
+        await this.portCheckFlowService.executeFlow(this.portCheckFlowInput);
     }
 
     // Function to clean up resources
@@ -285,8 +273,21 @@ export class PortCheckStatusAdapter {
         // Default error code as a string to be used in the UI
         let errorCode: string = FlowServiceErrors.FlowError.code;
 
+        // Check if this is a network error
+        const isNetworkError =
+            (error.message &&
+                (error.message.includes('Failed to fetch') ||
+                    error.message.includes('network') ||
+                    error.message.includes('ERR_INTERNET_DISCONNECTED') ||
+                    error.message.includes('ERR_CONNECTION_REFUSED'))) ||
+            error.code === FlowServiceErrors.ExecutionFailed.code;
+
+        if(isNetworkError) {
+            errorCode = FlowServiceErrors.NetworkConnectionError.code;
+            message = FlowServiceErrors.NetworkConnectionError.message;
+        }
         // If we have an error code, use it directly
-        if(error.code) {
+        else if(error.code) {
             errorCode = error.code;
         }
         // Otherwise try to find a matching error from the message text

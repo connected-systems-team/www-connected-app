@@ -67,7 +67,7 @@ export function PortChecker(properties: PortCheckerInterface) {
         // Set checking state
         setIsCheckingPort(true);
 
-        // Start the scan - all validation is handled inside the flow service
+        // Start the port check
         await portCheckStatusAdapterReference.current?.checkPort(remoteAddress, remotePort, regionIdentifier);
     }
 

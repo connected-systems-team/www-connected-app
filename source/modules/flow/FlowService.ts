@@ -81,6 +81,10 @@ export const FlowServiceErrors = {
         code: 'PollingError',
         message: 'Error polling for flow updates.',
     },
+    NetworkConnectionError: {
+        code: 'NetworkConnectionError',
+        message: 'Network connection error. Please check your Internet connection.',
+    },
 
     // API errors
     ApiError: {
