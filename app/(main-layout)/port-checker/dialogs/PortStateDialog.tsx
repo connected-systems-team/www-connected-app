@@ -3,18 +3,20 @@
 // Dependencies - React and Next.js
 import React from 'react';
 
+// Dependencies - Types
+import { PortStateType } from '@project/app/(main-layout)/port-checker/adapters/PortCheckStatusAdapter';
+
 // Dependencies - Main Components
 import { DialogInterface, Dialog } from '@structure/source/common/dialogs/Dialog';
 
-// Dependencies - Types
-import { PortStateType } from '@project/app/(main-layout)/port-checker/adapters/PortCheckStatusAdapter';
+// Dependencies - Services
+import { PortCheckFlowServiceErrors } from '@project/source/modules/connected/port-check/PortCheckFlowService';
+import { FlowServiceErrors } from '@project/source/modules/flow/FlowService';
 
 // Component - PortStateDialog
 export interface PortStateDialogInterface extends DialogInterface {
     portState: PortStateType;
-    isSystemError?: boolean;
-    isTimeout?: boolean;
-    errorMessage?: string;
+    errorCode?: string; // Error code from PortCheckFlowServiceErrors or FlowServiceErrors
 }
 
 export function PortStateDialog(properties: PortStateDialogInterface) {
@@ -38,13 +40,8 @@ export function PortStateDialog(properties: PortStateDialogInterface) {
         setOpen(open);
     }
 
-    // Get the dialog title and content based on the port state
-    const { title, content } = getPortStateInformation(
-        properties.portState,
-        properties.isSystemError,
-        properties.isTimeout,
-        properties.errorMessage,
-    );
+    // Get the dialog title and content based on the port state and error code
+    const { title, content } = getPortStateInformation(properties.portState, properties.errorCode);
 
     // Render the component
     return (
@@ -60,81 +57,105 @@ export function PortStateDialog(properties: PortStateDialogInterface) {
     );
 }
 
-// Function to get the title and content for a specific port state
+// Function to get the title and content for a specific port state or error code
 function getPortStateInformation(
     portState: PortStateType,
-    isSystemError?: boolean,
-    isTimeout?: boolean,
-    errorMessage?: string,
+    errorCode?: string,
 ): { title: string; content: React.ReactNode } {
-    // Special case for system errors
-    if(isSystemError) {
-        // If we have a specific error message, show it
-        if(errorMessage) {
-            // Special handling for "Failed to resolve host" error
-            if(errorMessage.includes('Failed to resolve host')) {
+    // If we have an error code, handle it first
+    if(errorCode) {
+        // Handle different error codes with a switch statement
+        switch(errorCode) {
+            // IPv6 not supported error
+            case PortCheckFlowServiceErrors.Ipv6NotSupportedError.code:
                 return {
-                    title: 'Host Resolution Error',
+                    title: 'IPv6 Not Supported',
                     content: (
                         <div className="space-y-4 text-sm">
-                            <p>The port check service returned the following error:</p>
-                            <div className="">
-                                <code>{errorMessage}</code>
-                            </div>
-                            <p>What this means:</p>
+                            <p>IPv6 addresses are not currently supported by our port checking service.</p>
+                            <p>You can use:</p>
                             <ul className="list-disc space-y-1 pl-5">
-                                <li>The domain name you entered could not be resolved to an IP address.</li>
-                                <li>This may be because the domain does not exist or has been misspelled.</li>
-                                <li>DNS servers may be experiencing issues resolving this domain.</li>
                                 <li>
-                                    If you&apos;re using a private or internal hostname, it may not be publicly
-                                    resolvable.
+                                    Domain names (e.g., <code>example.com</code>, <code>sub.domain.co.uk</code>)
+                                </li>
+                                <li>
+                                    IPv4 addresses (e.g., <code>8.8.8.8</code>, <code>192.0.2.1</code>)
                                 </li>
                             </ul>
                             <p>
-                                Please check the hostname and try again. If using a domain name, verify that it&apos;s
-                                correctly spelled and is a valid, publicly accessible domain.
+                                If you need to check an IPv6 address, please try a domain name that resolves to that
+                                address instead. IPv6 support will be added in a future update.
                             </p>
                         </div>
                     ),
                 };
-            }
 
-            // Special handling for disallowed IP addresses/hosts
-            if(errorMessage.includes('Invalid or disallowed host')) {
+            // Invalid hostname format
+            case PortCheckFlowServiceErrors.InvalidHostError.code:
                 return {
-                    title: 'Disallowed Host',
+                    title: 'Invalid Address Format',
                     content: (
                         <div className="space-y-4 text-sm">
-                            <p>The port check service returned the following error:</p>
-                            <div className="">
-                                <code>{errorMessage}</code>
-                            </div>
-                            <p>What this means:</p>
+                            <p>The address you entered has an invalid format.</p>
+                            <p>Valid formats include:</p>
                             <ul className="list-disc space-y-1 pl-5">
                                 <li>
-                                    The host you entered resolves to an IP address that is not allowed for scanning.
+                                    Domain names (e.g., <code>example.com</code>, <code>sub.domain.co.uk</code>)
                                 </li>
-                                <li>This may be an internal IP address or a host that is restricted by our service.</li>
                                 <li>
-                                    For security reasons, our service does not allow scanning of our own infrastructure
-                                    or certain protected networks.
+                                    IPv4 addresses (e.g., <code>8.8.8.8</code>, <code>192.0.2.1</code>)
                                 </li>
                             </ul>
-                            <p>Please try scanning a different public host or domain.</p>
+                            <p>Please check your input and try again with a valid domain name or IP address.</p>
                         </div>
                     ),
                 };
-            }
 
-            // Special handling for private IP addresses
-            if(errorMessage === 'Private IP Address') {
+            // Invalid IP address format
+            case PortCheckFlowServiceErrors.InvalidIpError.code:
+                return {
+                    title: 'Invalid IP Address',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>The IP address you entered is not valid.</p>
+                            <ul className="list-disc space-y-1 pl-5">
+                                <li>Each part (octet) of an IPv4 address must be a number between 0 and 255.</li>
+                                <li>
+                                    Example of a valid IP address: <code>192.168.1.1</code>
+                                </li>
+                                <li>
+                                    Example of an invalid IP address: <code>192.168.1.256</code> (256 is greater than
+                                    255)
+                                </li>
+                            </ul>
+                            <p>Please check your input and try again with a valid IP address.</p>
+                        </div>
+                    ),
+                };
+
+            // Invalid port number
+            case PortCheckFlowServiceErrors.InvalidPortError.code:
+                return {
+                    title: 'Invalid Port Number',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>The port number you entered is invalid.</p>
+                            <ul className="list-disc space-y-1 pl-5">
+                                <li>Port numbers must be between 1 and 65535.</li>
+                                <li>Common ports include 80 (HTTP), 443 (HTTPS), 22 (SSH), and 21 (FTP).</li>
+                            </ul>
+                            <p>Please try again with a valid port number.</p>
+                        </div>
+                    ),
+                };
+
+            // Private IP address error
+            case PortCheckFlowServiceErrors.PrivateIpError.code:
                 return {
                     title: 'Private IP Address',
                     content: (
                         <div className="space-y-4 text-sm">
                             <p>The IP address you entered is a private/internal network address.</p>
-
                             <p>Private IP addresses include:</p>
                             <ul className="list-disc space-y-1 pl-5">
                                 <li>
@@ -150,8 +171,7 @@ function getPortStateInformation(
                                     <code>127.0.0.0</code> to <code>127.255.255.255</code> (localhost)
                                 </li>
                             </ul>
-
-                            <p>Why can&apos;t we scan these addresses?</p>
+                            <p>Why can&apos;t we check these addresses?</p>
                             <ul className="list-disc space-y-1 pl-5">
                                 <li>Private IP addresses are only accessible within your local network.</li>
                                 <li>Our servers are on the public Internet and cannot reach your internal network.</li>
@@ -160,32 +180,53 @@ function getPortStateInformation(
                                     reasons.
                                 </li>
                             </ul>
-
                             <p>What you can do instead:</p>
                             <ul className="list-disc space-y-1 pl-5">
-                                <li>Use a local port scanning tool from within your network, such as nmap.</li>
+                                <li>Use a local port checking tool from within your network, such as nmap.</li>
                                 <li>Check your firewall or router settings to see port configurations.</li>
                                 <li>Use our tool to check public IP addresses or domains instead.</li>
                             </ul>
                         </div>
                     ),
                 };
-            }
 
-            // Special handling for "Host is down" error
-            if(errorMessage && errorMessage.includes('Host is down')) {
+            // Host resolution failed
+            case PortCheckFlowServiceErrors.HostResolutionFailed.code:
+                return {
+                    title: 'Host Resolution Error',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>The domain name you entered could not be resolved to an IP address.</p>
+                            <ul className="list-disc space-y-1 pl-5">
+                                <li>The domain may not exist or may have been misspelled.</li>
+                                <li>DNS servers may be experiencing issues resolving this domain.</li>
+                                <li>
+                                    If you&apos;re using a private or internal hostname, it may not be publicly
+                                    resolvable.
+                                </li>
+                            </ul>
+                            <p>
+                                Please check the hostname and try again. If using a domain name, verify that it&apos;s
+                                correctly spelled and is a valid, publicly accessible domain.
+                            </p>
+                        </div>
+                    ),
+                };
+
+            // Host down error
+            case PortCheckFlowServiceErrors.HostDown.code:
                 return {
                     title: 'Host Down Error',
                     content: (
                         <div className="space-y-4 text-sm">
                             <p>
-                                Port check result: <strong>Host is down or not responding</strong>
+                                <strong>Host is down or not responding</strong>
                             </p>
                             <p>What this means:</p>
                             <ul className="list-disc space-y-1 pl-5">
-                                <li>The host you&apos;re trying to reach did not respond to our scan.</li>
+                                <li>The host you&apos;re trying to reach did not respond to our check.</li>
                                 <li>The host might be offline or unreachable from our network.</li>
-                                <li>The host might be configured to block or ignore our scan packets.</li>
+                                <li>The host might be configured to block or ignore our check packets.</li>
                                 <li>The host exists but may have firewalls preventing any response.</li>
                             </ul>
                             <p>
@@ -195,95 +236,181 @@ function getPortStateInformation(
                         </div>
                     ),
                 };
-            }
 
-            // Special handling for invalid format errors
-            if(errorMessage && errorMessage.includes('Invalid format')) {
+            // Connection timeout
+            case PortCheckFlowServiceErrors.ConnectionTimeout.code:
                 return {
-                    title: 'Invalid Address Format',
+                    title: 'Connection Timeout',
                     content: (
                         <div className="space-y-4 text-sm">
-                            <p>The address you entered has an invalid format.</p>
-                            <p>Valid formats include:</p>
+                            <p>The connection to the target host timed out.</p>
                             <ul className="list-disc space-y-1 pl-5">
-                                <li>
-                                    Domain names (e.g., <code>example.com</code>, <code>sub.domain.co.uk</code>)
-                                </li>
-                                <li>
-                                    IPv4 addresses (e.g., <code>8.8.8.8</code>, <code>192.0.2.1</code>)
-                                </li>
-                                <li>
-                                    IPv6 addresses (e.g., <code>2001:4860:4860::8888</code>,{' '}
-                                    <code>2606:4700:4700::1111</code>)
-                                </li>
+                                <li>The host may be blocking port check requests.</li>
+                                <li>The host may be behind a firewall that drops connection attempts.</li>
+                                <li>The network path to the host might be experiencing high latency.</li>
                             </ul>
-                            <p>Please check your input and try again with a valid domain name or IP address.</p>
+                            <p>
+                                This usually indicates the host exists but either is not accepting connections on this
+                                port or deliberately not responding to check requests.
+                            </p>
                         </div>
                     ),
                 };
-            }
 
-            // Regular error handling for other cases
-            return {
-                title: 'Error Information',
-                content: (
-                    <div className="space-y-4 text-sm">
-                        <p>The port check service returned the following error:</p>
-                        <div className="">
-                            <code>{errorMessage}</code>
-                        </div>
-                        <p>What this means:</p>
-                        {errorMessage.toLowerCase().includes('no regions available') ? (
+            // Disallowed host error
+            case PortCheckFlowServiceErrors.DisallowedHost.code:
+                return {
+                    title: 'Disallowed Host',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>The host you entered is not allowed for checking.</p>
                             <ul className="list-disc space-y-1 pl-5">
-                                <li>All of our regions are currently unavailable.</li>
+                                <li>
+                                    The host you entered resolves to an IP address that is not allowed for checking.
+                                </li>
+                                <li>This may be an internal IP address or a host that is restricted by our service.</li>
+                                <li>
+                                    For security reasons, our service does not allow checking of our own infrastructure
+                                    or certain protected networks.
+                                </li>
+                            </ul>
+                            <p>Please try checking a different public host or domain.</p>
+                        </div>
+                    ),
+                };
+
+            // Regions unavailable error
+            case PortCheckFlowServiceErrors.RegionsUnavailable.code:
+                return {
+                    title: 'Regions Unavailable',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>All of our regions are currently unavailable.</p>
+                            <ul className="list-disc space-y-1 pl-5">
                                 <li>Our servers in this region may be down or at capacity.</li>
                                 <li>Try again later when regions become available.</li>
                             </ul>
-                        ) : (
+                            <p>Please try again in a few minutes.</p>
+                        </div>
+                    ),
+                };
+
+            // Internal server error
+            case PortCheckFlowServiceErrors.InternalServerError.code:
+                return {
+                    title: 'Internal Server Error',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>The port check service is currently experiencing issues.</p>
                             <ul className="list-disc space-y-1 pl-5">
-                                <li>This is likely a temporary issue with our service.</li>
-                                <li>Our team has been notified of this error.</li>
+                                <li>This is a temporary issue with our service.</li>
+                                <li>Our team has been notified of this issue.</li>
                             </ul>
-                        )}
-                        <p>Please try again in a few minutes, or try using a different region.</p>
-                    </div>
-                ),
-            };
+                            <p>Please try again in a few minutes, or try using a different region.</p>
+                        </div>
+                    ),
+                };
+
+            // Connection error
+            case PortCheckFlowServiceErrors.ConnectionError.code:
+                return {
+                    title: 'Connection Error',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>A connection error occurred during the port check.</p>
+                            <ul className="list-disc space-y-1 pl-5">
+                                <li>There may be network issues between our servers and the target host.</li>
+                                <li>The target host might be experiencing high load or connectivity problems.</li>
+                                <li>Network routing issues could be preventing a successful connection.</li>
+                            </ul>
+                            <p>Please try again in a few minutes, or try using a different region.</p>
+                        </div>
+                    ),
+                };
+
+            // Host unreachable error
+            case PortCheckFlowServiceErrors.HostUnreachable.code:
+                return {
+                    title: 'Host Unreachable',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>The host exists but cannot be reached.</p>
+                            <ul className="list-disc space-y-1 pl-5">
+                                <li>The host may be behind a firewall that blocks our checking packets.</li>
+                                <li>Network routing issues may be preventing our servers from reaching the host.</li>
+                                <li>The host may be configured to not respond to certain types of traffic.</li>
+                            </ul>
+                            <p>You can try again later or try a different region.</p>
+                        </div>
+                    ),
+                };
+
+            // Missing data error
+            case PortCheckFlowServiceErrors.MissingData.code:
+                return {
+                    title: 'Incomplete Scan Results',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>The port check completed but could not determine the exact status.</p>
+                            <ul className="list-disc space-y-1 pl-5">
+                                <li>We received partial or unclear results from the check.</li>
+                                <li>This could be due to network inconsistencies or timing issues.</li>
+                                <li>Some firewalls or security systems may return ambiguous results.</li>
+                            </ul>
+                            <p>You can try checking again or try a different region.</p>
+                        </div>
+                    ),
+                };
+
+            // General system errors
+            case PortCheckFlowServiceErrors.UnknownError.code:
+            case FlowServiceErrors.FlowError.code:
+                return {
+                    title: 'System Error',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>The service encountered an error while processing your request.</p>
+                            <ul className="list-disc space-y-1 pl-5">
+                                <li>This is a temporary issue with our system.</li>
+                                <li>The error is not related to the port or host you are checking.</li>
+                                <li>Our team has been notified of this issue.</li>
+                            </ul>
+                            <p>Please try again in a few minutes, or try using a different region.</p>
+                        </div>
+                    ),
+                };
+
+            // Request timeout
+            case FlowServiceErrors.FlowTimedOut.code:
+                return {
+                    title: 'Request Timeout',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>Your request timed out without receiving a response.</p>
+                            <ul className="list-disc space-y-1 pl-5">
+                                <li>Your Internet connection might be unavailable or unstable.</li>
+                                <li>Our servers may be down or experiencing connectivity issues.</li>
+                            </ul>
+                            <p>Please verify your Internet connection or try again in a few minutes.</p>
+                        </div>
+                    ),
+                };
+
+            // Default case for unknown error codes
+            default:
+                return {
+                    title: 'Error',
+                    content: (
+                        <div className="space-y-4 text-sm">
+                            <p>An error occurred while checking the port (Code: {errorCode}).</p>
+                            <p>Please try again in a few minutes, or try using a different region.</p>
+                        </div>
+                    ),
+                };
         }
-
-        // Default system error case
-        return {
-            title: 'System Error',
-            content: (
-                <div className="space-y-4 text-sm">
-                    <p>The service encountered an error while processing your request.</p>
-                    <ul className="list-disc space-y-1 pl-5">
-                        <li>This is a temporary issue with our system.</li>
-                        <li>The error is not related to the port or host you are checking.</li>
-                        <li>Our team has been notified of this issue.</li>
-                    </ul>
-                    <p>Please try again in awhile, or try using a different region.</p>
-                </div>
-            ),
-        };
     }
 
-    // Special case for timeouts
-    if(isTimeout) {
-        return {
-            title: 'Request Timeout',
-            content: (
-                <div className="space-y-4 text-sm">
-                    <p>Your request timed out without receiving a response.</p>
-                    <ul className="list-disc space-y-1 pl-5">
-                        <li>Your Internet connection might be unavailable or unstable.</li>
-                        <li>Our servers may be down or experiencing connectivity issues.</li>
-                    </ul>
-                    <p>Please verify your Internet connection or try again in awhile.</p>
-                </div>
-            ),
-        };
-    }
+    // If no error code is provided, handle the port state
     switch(portState) {
         case PortStateType.Open:
             return {
@@ -413,13 +540,13 @@ function getPortStateInformation(
                             could happen for several reasons:
                         </p>
                         <ul className="list-disc space-y-1 pl-5">
-                            <li>The scanning server may have experienced connectivity issues</li>
-                            <li>The target host may be unreachable or may have blocked the scanning IP address</li>
-                            <li>The port scan may have timed out due to high network latency</li>
-                            <li>The scan may have been rejected by an intermediate firewall or security device</li>
+                            <li>The server checking may have experienced connectivity issues</li>
+                            <li>The target host may be unreachable or may have blocked the checking IP address</li>
+                            <li>The port check may have timed out due to high network latency</li>
+                            <li>The check may have been rejected by an intermediate firewall or security device</li>
                             <li>There may have been an internal system error in the port checking service</li>
                         </ul>
-                        <p>You can try scanning again, or try from a different region to see if the issue persists.</p>
+                        <p>You can try checking again, or try from a different region to see if the issue persists.</p>
                     </div>
                 ),
             };

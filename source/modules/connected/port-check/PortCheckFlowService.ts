@@ -25,6 +25,7 @@ export type NmapPortStateType =
     | 'unknown';
 
 // Type - PortCheckFlowServiceErrors
+// These error codes are used for displaying specific error messages in the UI
 export const PortCheckFlowServiceErrors = {
     // Validation errors
     PrivateIpError: {
@@ -33,11 +34,19 @@ export const PortCheckFlowServiceErrors = {
     },
     InvalidHostError: {
         code: 'InvalidHostError',
-        message: 'Invalid hostname format.',
+        message: 'Invalid hostname or IP address format.',
+    },
+    InvalidIpError: {
+        code: 'InvalidIpError',
+        message: 'Invalid IP address format. IP octets must be between 0-255.',
     },
     InvalidPortError: {
         code: 'InvalidPortError',
         message: 'Invalid port number. Port must be between 1 and 65535.',
+    },
+    Ipv6NotSupportedError: {
+        code: 'Ipv6NotSupportedError',
+        message: 'IPv6 addresses are not currently supported. Contact us if you need this feature.',
     },
 
     // Host resolution errors
@@ -72,6 +81,14 @@ export const PortCheckFlowServiceErrors = {
     InternalServerError: {
         code: 'InternalServerError',
         message: 'Internal server error: The port check service is currently experiencing issues.',
+    },
+    DisallowedHost: {
+        code: 'DisallowedHost',
+        message: 'The host you entered resolves to an IP address that is not allowed for scanning.',
+    },
+    RegionsUnavailable: {
+        code: 'RegionsUnavailable',
+        message: 'All of our scanning regions are currently unavailable.',
     },
 
     // Results issues
@@ -132,27 +149,49 @@ export interface PortCheckFlowExecutionInterface
 export class PortCheckFlowService extends FlowService<PortCheckFlowInputInterface, PortCheckFlowOutputInterface> {
     // Function to override validateInput to add port scan specific validation
     protected validateInput(input: PortCheckFlowClientInputInterface): FlowInputValidationResultInterface {
-        // Validate host - Check for private IP addresses (only for IPv4)
-        if(isIpV4Address(input.host) && isPrivateIpAddress(input.host)) {
+        // Check for IPv6 addresses - not currently supported
+        if(isIpV6Address(input.host)) {
             return {
                 isValid: false,
                 error: {
-                    code: PortCheckFlowServiceErrors.PrivateIpError.code,
-                    message: `${input.host} is a private IP address and cannot be scanned.`,
+                    code: PortCheckFlowServiceErrors.Ipv6NotSupportedError.code,
+                    message: PortCheckFlowServiceErrors.Ipv6NotSupportedError.message,
                 },
             };
         }
 
-        // Validate hostname format if not IPv6
-        if(!isIpV6Address(input.host)) {
-            const domainPattern = /^[a-zA-Z0-9][-a-zA-Z0-9.]{0,253}[a-zA-Z0-9](\.[a-zA-Z]{2,})+$/;
-            const ipPattern = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
+        // Check first if it's a valid IPv4 address
+        if(isIpV4Address(input.host)) {
+            // Then check if it's private
+            if(isPrivateIpAddress(input.host)) {
+                return {
+                    isValid: false,
+                    error: {
+                        code: PortCheckFlowServiceErrors.PrivateIpError.code,
+                        message: `${input.host} is a private IP address and cannot be scanned.`,
+                    },
+                };
+            }
+        }
+        // If it looks like an IP but isn't valid, report it as invalid
+        else if(input.host.match(/^(\d{1,3}\.){3}\d{1,3}$/)) {
+            return {
+                isValid: false,
+                error: {
+                    code: PortCheckFlowServiceErrors.InvalidIpError.code,
+                    message: `${input.host} is not a valid IP address. IP octets must be between 0-255.`,
+                },
+            };
+        }
 
-            // This is not a valid domain name or IPv4 pattern
-            if(!domainPattern.test(input.host) && !ipPattern.test(input.host)) {
+        // Validate hostname format for non-IP addresses
+        if(!isIpV4Address(input.host)) {
+            const domainPattern = /^[a-zA-Z0-9][-a-zA-Z0-9.]{0,253}[a-zA-Z0-9](\.[a-zA-Z]{2,})+$/;
+
+            // This is not a valid domain name pattern
+            if(!domainPattern.test(input.host)) {
                 // Only show this if it's likely to fail host resolution
-                // Allow IPv6 addresses which often don't have dots
-                if(!input.host.includes('.') && !input.host.includes(':')) {
+                if(!input.host.includes('.')) {
                     return {
                         isValid: false,
                         error: {

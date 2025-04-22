@@ -28,9 +28,7 @@ export interface PortCheckStatusItemInterface {
     text: string;
     host?: string;
     port?: number;
-    timeout?: boolean;
-    errorMessage?: string;
-    systemError?: boolean;
+    errorCode?: string; // Error code from PortCheckFlowServiceErrors or FlowServiceErrors
     isFinal?: boolean;
 }
 
@@ -45,21 +43,12 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
     // State for dialog
     const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>(false);
     const [currentPortState, setCurrentPortState] = React.useState<PortStateType>(PortStateType.Open);
-    const [isSystemError, setIsSystemError] = React.useState<boolean>(false);
-    const [isTimeout, setIsTimeout] = React.useState<boolean>(false);
-    const [errorMessage, setErrorMessage] = React.useState<string | undefined>(undefined);
+    const [currentErrorCode, setCurrentErrorCode] = React.useState<string | undefined>(undefined);
 
     // Function to open port state info dialog
-    function openPortStateDialog(
-        portState: PortStateType,
-        systemError?: boolean,
-        timeout?: boolean,
-        errorMsg?: string,
-    ) {
+    function openPortStateDialog(portState: PortStateType, errorCode?: string) {
         setCurrentPortState(portState);
-        setIsSystemError(!!systemError);
-        setIsTimeout(!!timeout);
-        setErrorMessage(errorMsg);
+        setCurrentErrorCode(errorCode);
         setIsDialogOpen(true);
     }
 
@@ -116,27 +105,20 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
                                         onClick={(event) => {
                                             event.preventDefault();
                                             event.stopPropagation();
-                                            openPortStateDialog(
-                                                item.portState,
-                                                item.systemError,
-                                                item.timeout,
-                                                item.errorMessage,
-                                            );
+                                            openPortStateDialog(item.portState, item.errorCode);
                                         }}
                                     >
                                         <InformationCircledIcon className="h-3.5 w-3.5" />
                                     </Button>
-                                    {!item.systemError && !item.timeout && (
-                                        <CopyButton
-                                            className="ml-1.5"
-                                            iconClassName="h-3.5 w-3.5"
-                                            value={displayText}
-                                            notice={{
-                                                title: 'Copied to Clipboard',
-                                                content: '"' + displayText + '"',
-                                            }}
-                                        />
-                                    )}
+                                    <CopyButton
+                                        className="ml-1.5"
+                                        iconClassName="h-3.5 w-3.5"
+                                        value={displayText}
+                                        notice={{
+                                            title: 'Copied to Clipboard',
+                                            content: '"' + displayText + '"',
+                                        }}
+                                    />
                                 </span>
                             </span>
                         );
@@ -150,7 +132,8 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
                         item.portState === PortStateType.Closed ||
                         item.portState === PortStateType.Filtered ||
                         item.portState === PortStateType.ClosedFiltered ||
-                        item.portState === PortStateType.Unknown;
+                        item.portState === PortStateType.Unknown ||
+                        !!item.errorCode;
 
                     return {
                         content: content,
@@ -172,9 +155,7 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
                 open={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
                 portState={currentPortState}
-                isSystemError={isSystemError}
-                isTimeout={isTimeout}
-                errorMessage={errorMessage}
+                errorCode={currentErrorCode}
             />
         </>
     );

@@ -22,6 +22,7 @@ import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/p
 // Dependencies - API
 import { PortCheckStatusAdapter } from '@project/app/(main-layout)/port-checker/adapters/PortCheckStatusAdapter';
 import { PortCheckFlowExecutionInterface } from '@project/source/modules/connected/port-check/PortCheckFlowService';
+import { FlowServiceErrors } from '@project/source/modules/flow/FlowService';
 
 // Test case interface
 interface PortCheckerTestCase {
@@ -92,13 +93,13 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
                 // which contains most of the important information about the port check
                 const result = {
                     output: {
-                        status: status.systemError ? 'error' : 'success',
+                        status: status.errorCode ? 'error' : 'success',
                         port: {
                             number: status.port || -1,
                             state: status.portState.toLowerCase(),
                         },
                         hostIpAddress: status.host,
-                        error: status.errorMessage ? { message: status.errorMessage } : undefined,
+                        error: status.errorCode ? { message: status.text, code: status.errorCode } : undefined,
                     },
                 } as PortCheckFlowExecutionInterface;
 
@@ -142,7 +143,7 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
                     text: 'Failed to start port check. Our service encountered an internal error.',
                     portState: PortStateType.Unknown,
                     isFinal: true,
-                    systemError: true,
+                    errorCode: FlowServiceErrors.FlowError.code,
                 },
             ]);
             setCheckingPort(false);

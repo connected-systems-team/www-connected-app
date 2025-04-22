@@ -10,6 +10,7 @@ import { PortCheckStatusItemInterface } from '@project/app/(main-layout)/port-ch
 import { WebSocketViaSharedWorkerContextInterface } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
 
 // Dependencies - Services
+import { FlowServiceErrors } from '@project/source/modules/flow/FlowService';
 import {
     PortCheckFlowService,
     PortCheckFlowClientInputInterface,
@@ -120,8 +121,7 @@ export class PortCheckStatusAdapter {
             this.onPortCheckStatusItem({
                 portState: PortStateType.Unknown,
                 text: error instanceof Error ? error.message : 'Failed to start port scan. Please try again.',
-                errorMessage: error instanceof Error ? error.message : undefined,
-                systemError: true,
+                errorCode: FlowServiceErrors.FlowError.code,
                 host: this.portCheckFlowInput.host,
                 port: this.portCheckFlowInput.port,
                 isFinal: true,
@@ -149,8 +149,7 @@ export class PortCheckStatusAdapter {
             this.onPortCheckStatusItem({
                 portState: PortStateType.Unknown,
                 text: PortCheckFlowServiceErrors.HostResolutionFailed.message,
-                systemError: true,
-                errorMessage: PortCheckFlowServiceErrors.HostResolutionFailed.message,
+                errorCode: PortCheckFlowServiceErrors.HostResolutionFailed.code,
                 host: host,
                 port: port,
                 isFinal: true,
@@ -163,8 +162,20 @@ export class PortCheckStatusAdapter {
             this.onPortCheckStatusItem({
                 portState: PortStateType.Unknown,
                 text: PortCheckFlowServiceErrors.HostDown.message,
-                systemError: true,
-                errorMessage: PortCheckFlowServiceErrors.HostDown.message,
+                errorCode: PortCheckFlowServiceErrors.HostDown.code,
+                host: host,
+                port: port,
+                isFinal: true,
+            });
+            return;
+        }
+
+        // Check for "Host unreachable" error
+        if(output?.error?.message?.includes('unreachable') || output?.error?.message?.includes('cannot be reached')) {
+            this.onPortCheckStatusItem({
+                portState: PortStateType.Unknown,
+                text: PortCheckFlowServiceErrors.HostUnreachable.message,
+                errorCode: PortCheckFlowServiceErrors.HostUnreachable.code,
                 host: host,
                 port: port,
                 isFinal: true,
@@ -226,7 +237,7 @@ export class PortCheckStatusAdapter {
             this.onPortCheckStatusItem({
                 portState: PortStateType.Unknown,
                 text: PortCheckFlowServiceErrors.MissingData.message,
-                systemError: true,
+                errorCode: PortCheckFlowServiceErrors.MissingData.code,
                 isFinal: true,
             });
             return;
@@ -271,34 +282,52 @@ export class PortCheckStatusAdapter {
 
         // Process error message for better user experience
         let message = error.message || PortCheckFlowServiceErrors.UnknownError.message;
+        // Default error code as a string to be used in the UI
+        let errorCode: string = FlowServiceErrors.FlowError.code;
 
-        // Map error code to error message if we have a code
+        // If we have an error code, use it directly
         if(error.code) {
-            // Check if we have a predefined error for this code
-            const errorKey = Object.keys(PortCheckFlowServiceErrors).find(
-                (key) => PortCheckFlowServiceErrors[key as keyof typeof PortCheckFlowServiceErrors].code === error.code,
-            ) as keyof typeof PortCheckFlowServiceErrors | undefined;
-
-            if(errorKey) {
-                message = PortCheckFlowServiceErrors[errorKey].message;
-            }
+            errorCode = error.code;
         }
-        // If no code, try to identify error by message content
+        // Otherwise try to find a matching error from the message text
         else if(error.message) {
-            if(error.message.includes('Failed to resolve host')) {
+            const errorMessageLower = error.message.toLowerCase();
+
+            // Try to detect specific errors from the message text
+            if(errorMessageLower.includes('failed to resolve host')) {
+                errorCode = PortCheckFlowServiceErrors.HostResolutionFailed.code;
                 message = PortCheckFlowServiceErrors.HostResolutionFailed.message;
             }
-            else if(error.message.includes('Host is down')) {
+            else if(errorMessageLower.includes('host is down')) {
+                errorCode = PortCheckFlowServiceErrors.HostDown.code;
                 message = PortCheckFlowServiceErrors.HostDown.message;
             }
-            else if(
-                error.message.includes('Invalid or disallowed host') ||
-                error.message.includes('private IP address')
-            ) {
+            else if(errorMessageLower.includes('invalid or disallowed host')) {
+                errorCode = PortCheckFlowServiceErrors.DisallowedHost.code;
+                message = PortCheckFlowServiceErrors.DisallowedHost.message;
+            }
+            else if(errorMessageLower.includes('private ip address')) {
+                errorCode = PortCheckFlowServiceErrors.PrivateIpError.code;
                 message = PortCheckFlowServiceErrors.PrivateIpError.message;
             }
-            else if(error.message.includes('timeout')) {
+            else if(
+                errorMessageLower.includes('not a valid ip address') ||
+                errorMessageLower.includes('octets must be between')
+            ) {
+                errorCode = PortCheckFlowServiceErrors.InvalidIpError.code;
+                message = PortCheckFlowServiceErrors.InvalidIpError.message;
+            }
+            else if(errorMessageLower.includes('ipv6')) {
+                errorCode = PortCheckFlowServiceErrors.Ipv6NotSupportedError.code;
+                message = PortCheckFlowServiceErrors.Ipv6NotSupportedError.message;
+            }
+            else if(errorMessageLower.includes('timeout')) {
+                errorCode = PortCheckFlowServiceErrors.ConnectionTimeout.code;
                 message = PortCheckFlowServiceErrors.ConnectionTimeout.message;
+            }
+            else if(errorMessageLower.includes('no regions available')) {
+                errorCode = PortCheckFlowServiceErrors.RegionsUnavailable.code;
+                message = PortCheckFlowServiceErrors.RegionsUnavailable.message;
             }
         }
 
@@ -306,8 +335,7 @@ export class PortCheckStatusAdapter {
         const portCheckStatusItem: PortCheckStatusItemInterface = {
             text: message,
             portState: PortStateType.Unknown,
-            systemError: true,
-            errorMessage: error.message,
+            errorCode: errorCode,
             host: host,
             port: port,
             isFinal: true, // Mark as final since this is a terminal error
