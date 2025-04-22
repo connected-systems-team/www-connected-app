@@ -17,9 +17,11 @@ export function YourPublicIpAddress(properties: YourPublicIpAddressInterface) {
         <div>
             <div className="font-medium">Your Public IP Address</div>
             <div className="mt-2 flex items-center space-x-3">
-                <div className="flex items-center space-x-2">
-                    <div className="text-2xl">{properties.publicIpAddress}</div>
-                    <div className="flex items-center">
+                <div className="flex w-full items-center space-x-2">
+                    <div className="max-w-[220px] truncate text-2xl sm:max-w-[420px] md:max-w-full">
+                        {properties.publicIpAddress}
+                    </div>
+                    <div className="flex flex-shrink-0 items-center">
                         <CopyButton
                             value={properties.publicIpAddress ?? ''}
                             notice={{
