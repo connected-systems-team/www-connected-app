@@ -177,7 +177,7 @@ export function TestPortCheckerPage() {
         return (
             <div className="space-y-8">
                 <div>
-                    <h1 className="mb-4 text-2xl font-bold">Port Checker Automated Test Suite</h1>
+                    <h1 className="mb-4 text-2xl">Port Checker Automated Test Suite</h1>
                     <p className="mb-4">
                         This page allows you to run through test cases to verify the port checker functionality under
                         various conditions. Click on any test to run it individually, or use the &quot;Run All
@@ -192,7 +192,7 @@ export function TestPortCheckerPage() {
                 </div>
 
                 {(Object.keys(categories) as Array<keyof typeof categories>).map((category) => (
-                    <div key={category} className="rounded-lg bg-white p-4 shadow-md dark:bg-gray-800">
+                    <div key={category} className="rounded-lg border p-4">
                         <h2 className="mb-4 text-xl font-bold">{categories[category]}</h2>
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                             {testCases
@@ -200,9 +200,9 @@ export function TestPortCheckerPage() {
                                 .map((test) => (
                                     <div
                                         key={test.id}
-                                        className={`cursor-pointer rounded-lg border p-4 hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                                        className={`cursor-pointer rounded-lg border p-4 ${
                                             testResults[test.id] === undefined
-                                                ? 'border-gray-300 dark:border-gray-600'
+                                                ? 'border'
                                                 : testResults[test.id]
                                                   ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
                                                   : 'border-red-500 bg-red-50 dark:bg-red-900/20'
@@ -218,9 +218,7 @@ export function TestPortCheckerPage() {
                                                 <span className="font-medium">Port:</span> {test.port}
                                             </div>
                                         </div>
-                                        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                                            {test.description}
-                                        </p>
+                                        <p className="mt-2 text-sm">{test.description}</p>
                                         <div className="mt-2 text-sm">
                                             <span className="font-medium">Expected:</span>{' '}
                                             <span className="italic">{test.expectedResult}</span>
@@ -293,17 +291,17 @@ export function TestPortCheckerPage() {
 
         return (
             <div className="space-y-6">
-                <div className="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
-                    <h2 className="mb-2 text-xl font-bold">
+                <div className="rounded-lg border p-6">
+                    <h2 className="mb-2 text-xl">
                         Batch Testing: {currentBatchTestIndex + 1} of {testCases.length}
                     </h2>
                     <div className="mb-4 flex items-center justify-between">
                         <span className="text-lg font-semibold">{currentTest.name}</span>
-                        <div className="text-sm text-gray-500">{Object.keys(batchResults).length} tests completed</div>
+                        <div className="text-sm">{Object.keys(batchResults).length} tests completed</div>
                     </div>
-                    <div className="mb-6 h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+                    <div className="mb-6 h-2 w-full rounded-full">
                         <div
-                            className="bg-blue-500 h-2 rounded-full"
+                            className="h-2 rounded-full border"
                             style={{ width: `${(currentBatchTestIndex / testCases.length) * 100}%` }}
                         ></div>
                     </div>
@@ -338,7 +336,7 @@ export function TestPortCheckerPage() {
                     </div>
                 </div>
 
-                <div className="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
+                <div className="rounded-lg border p-6">
                     <h3 className="mb-4 text-lg font-semibold">Automated Port Checker</h3>
                     <AutomatedPortChecker
                         testCase={{
@@ -368,7 +366,7 @@ export function TestPortCheckerPage() {
 
         return (
             <div className="space-y-6">
-                <div className="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
+                <div className="rounded-lg border p-6">
                     <h2 className="mb-2 text-xl font-bold">Running Test: {selectedTest.name}</h2>
                     <div className="mb-4 grid grid-cols-2 gap-4">
                         <div>
@@ -413,7 +411,7 @@ export function TestPortCheckerPage() {
                     </div>
                 </div>
 
-                <div className="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
+                <div className="rounded-lg border p-6">
                     <h3 className="mb-4 text-lg font-semibold">Automated Port Checker</h3>
                     <AutomatedPortChecker
                         testCase={{

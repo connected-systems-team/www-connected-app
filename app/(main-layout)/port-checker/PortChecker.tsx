@@ -95,6 +95,7 @@ export function PortChecker(properties: PortCheckerInterface) {
                 <YourPublicIpAddress publicIpAddress={properties.publicIpAddress ?? ''} />
 
                 <PortCheckForm
+                    className="mt-8"
                     publicIpAddress={properties.publicIpAddress ?? ''}
                     remoteAddressFormInputReference={portCheckFormRemoteAddressFormInputReference}
                     remotePortFormInputReference={portCheckFormRemotePortFormInputReference}

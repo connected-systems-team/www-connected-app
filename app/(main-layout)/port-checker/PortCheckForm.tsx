@@ -16,10 +16,12 @@ import { GridRegionLevelsDocument, GridRegionLevel } from '@project/source/api/G
 import ArrowUpIcon from '@structure/assets/icons/interface/ArrowUpIcon.svg';
 
 // Dependencies - Utilities
+import { mergeClassNames } from '@structure/source/utilities/Style';
 import { getCountryEmoji } from '@project/source/modules/connected/grid/utilities/GridUtilities';
 
 // Component - PortCheckForm
 export interface PortCheckFormInterface {
+    className?: string;
     publicIpAddress: string;
     remoteAddressFormInputReference: React.RefObject<FormInputReferenceInterface>;
     remotePortFormInputReference: React.RefObject<FormInputReferenceInterface>;
@@ -50,7 +52,7 @@ export function PortCheckForm(properties: PortCheckFormInterface) {
 
     // Render the component
     return (
-        <div className="mt-8 flex flex-col md:flex-row">
+        <div className={mergeClassNames('flex flex-col md:flex-row', properties.className)}>
             {/* Remote Address */}
             <FormInputText
                 ref={properties.remoteAddressFormInputReference}

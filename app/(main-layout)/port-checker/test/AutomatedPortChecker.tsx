@@ -207,7 +207,7 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
                 </div>
             </div>
 
-            <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
+            <div className="rounded-lg border p-4">
                 <PortCheckForm
                     publicIpAddress={''}
                     remoteAddressFormInputReference={portCheckFormRemoteAddressFormInputReference}

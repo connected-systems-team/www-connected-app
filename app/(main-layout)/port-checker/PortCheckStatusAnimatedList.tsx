@@ -111,7 +111,7 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
                                 <span>
                                     {renderHostLink(item, displayText)}{' '}
                                     <Button
-                                        className="inline-flex h-auto p-0"
+                                        className="inline-flex h-auto p-0 text-neutral hover:text-dark dark:text-neutral+6 dark:hover:text-light"
                                         variant="unstyled"
                                         onClick={(event) => {
                                             event.preventDefault();
