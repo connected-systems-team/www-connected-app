@@ -276,6 +276,8 @@ npm run dev
 npm run build
 ```
 
+-   IMPORTANT: Use `npm run build` (not `npm run typecheck`) whenever checking types.
+
 ### GraphQL
 
 ```bash
