@@ -17,11 +17,8 @@ import ArrowUpIcon from '@structure/assets/icons/interface/ArrowUpIcon.svg';
 
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';
-import { getCountryEmoji } from '@project/source/modules/connected/grid/utilities/GridUtilities';
-import {
-    filterCountriesByCountryNames,
-    getClosestAvailableCountryUsingCountryCode,
-} from '@structure/source/utilities/geo/Geo';
+import { getCountryEmojiByCountryName, filterCountriesByCountryNames } from '@structure/source/utilities/geo/Countries';
+import { getClosestAvailableCountryUsingCountryCode } from '@structure/source/utilities/geo/Geo';
 
 // Component - PortCheckForm
 export interface PortCheckFormInterface {
@@ -159,7 +156,10 @@ export function PortCheckForm(properties: PortCheckFormInterface) {
                         gridRegionLevelsQueryState.data?.gridRegionLevels.map(function (gridRegionLevel) {
                             return {
                                 value: gridRegionLevel.country!,
-                                content: getCountryEmoji(gridRegionLevel.country) + ' ' + gridRegionLevel.country,
+                                content:
+                                    getCountryEmojiByCountryName(gridRegionLevel.country) +
+                                    ' ' +
+                                    gridRegionLevel.country,
                             };
                         }) || [
                             {

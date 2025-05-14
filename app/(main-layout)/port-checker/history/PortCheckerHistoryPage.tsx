@@ -32,9 +32,8 @@ import ErrorCircledRedBorderIcon from '@project/assets/icons/status/ErrorCircled
 
 // Dependencies - Utilities
 import { uppercaseFirstCharacter } from '@structure/source/utilities/String';
-import { CountryInterface } from '@structure/source/utilities/geo/Countries';
-import { getCountryByName } from '@structure/source/utilities/geo/Geo';
 import { iso8601DateWithTime, timeAgo } from '@structure/source/utilities/Time';
+import { CountryInterface, getCountryByName } from '@structure/source/utilities/geo/Countries';
 import {
     getPortStateDescription,
     mapNmapPortStateToPortStateType,

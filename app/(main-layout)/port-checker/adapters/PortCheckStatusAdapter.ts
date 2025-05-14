@@ -18,7 +18,7 @@ import {
 } from '@project/source/modules/connected/port-check/PortCheckFlowService';
 
 // Dependencies - Utilities
-import { getCountryEmoji } from '@project/source/modules/connected/grid/utilities/GridUtilities';
+import { getCountryEmojiByCountryName } from '@structure/source/utilities/geo/Countries';
 
 // Type - PortStateType
 export enum PortStateType {
@@ -101,7 +101,7 @@ export class PortCheckStatusAdapter {
         };
 
         // Create initial status message first (this will be shown regardless of success/failure)
-        const countryEmoji = getCountryEmoji(country);
+        const countryEmoji = getCountryEmojiByCountryName(country);
 
         // Send initial port check status item
         this.onPortCheckStatusItem({
