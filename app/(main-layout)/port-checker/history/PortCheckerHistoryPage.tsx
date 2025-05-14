@@ -5,7 +5,10 @@ import React from 'react';
 import { useUrlSearchParameters } from '@structure/source/utilities/next/NextNavigation';
 
 // Dependencies - Types
-import { NmapPortStateType } from '@project/source/modules/connected/port-check/PortCheckFlowService';
+import {
+    NmapPortStateType,
+    PortCheckFlowOutputInterface,
+} from '@project/source/modules/connected/port-check/PortCheckFlowService';
 
 // Dependencies - Main Components
 import { AuthorizationLayout } from '@structure/source/layouts/AuthorizationLayout';
@@ -15,7 +18,12 @@ import { PlaceholderAnimation } from '@structure/source/common/animations/Placeh
 
 // Dependencies - API
 import { useQuery } from '@apollo/client';
-import { PortCheckHistoryDocument, OrderByDirection } from '@project/source/api/GraphQlGeneratedCode';
+import {
+    PortCheckHistoryDocument,
+    OrderByDirection,
+    FlowExecution,
+    FlowStepExecution,
+} from '@project/source/api/GraphQlGeneratedCode';
 
 // Dependencies - Assets
 import ArrowLeftIcon from '@structure/assets/icons/interface/ArrowLeftIcon.svg';
@@ -23,24 +31,48 @@ import CheckCircledGreenBorderIcon from '@project/assets/icons/status/CheckCircl
 import ErrorCircledRedBorderIcon from '@project/assets/icons/status/ErrorCircledRedBorderIcon.svg';
 
 // Dependencies - Utilities
-import { getCountryEmoji } from '@project/source/modules/connected/grid/utilities/GridUtilities';
-import { iso8601Date, timeAgo } from '@structure/source/utilities/Time';
 import { uppercaseFirstCharacter } from '@structure/source/utilities/String';
-// import { getPortStateDescription } from '@project/app/(main-layout)/port-checker/adapters/PortCheckStatusAdapter';
+import { CountryInterface } from '@structure/source/utilities/geo/Countries';
+import { getCountryByName } from '@structure/source/utilities/geo/Geo';
+import { iso8601DateWithTime, timeAgo } from '@structure/source/utilities/Time';
+import {
+    getPortStateDescription,
+    mapNmapPortStateToPortStateType,
+} from '@project/app/(main-layout)/port-checker/adapters/PortCheckStatusAdapter';
 
-// Define a minimal type for compatibility with GraphQL result
-interface FlowExecutionMinimal {
-    id: string;
-    status: string;
-    createdAt: string;
-    input?: any;
-    stepExecutions?: Array<{
-        stepId?: string;
-        id?: string;
-        actionType: string;
-        status: string | any;
-        output?: any;
-    }>;
+// Type - PortCheckFlowExecutionStepOutput
+// Based on PortCheckFlowInputInterface but with GraphQL response field structure
+interface PortCheckFlowStepExecutionInputInterface {
+    host: string;
+    port: number; // Required in GraphQL response
+    region: string; // Region ID in GraphQL response
+    maxAttempts: number; // Note: GraphQL response has 'maxAttempts' not 'maxAttemps'
+}
+
+// Type - PortCheckFlowOutputInterface
+type PortCheckFlowStepExecutionOutputInterface = PortCheckFlowOutputInterface;
+
+// Type - PortCheckFlowStepExecutionInterface
+interface PortCheckFlowStepExecutionInterface extends Omit<FlowStepExecution, 'input' | 'output'> {
+    input: PortCheckFlowStepExecutionInputInterface;
+    output: PortCheckFlowStepExecutionOutputInterface;
+}
+
+// Region metadata structure from the API response
+interface RegionMetadata {
+    region: {
+        site: string | null;
+        region: string;
+        country: string;
+        division: string;
+        locality: string;
+    };
+}
+
+// GraphQL FlowExecution extended with our specific step execution type
+interface PortCheckFlowExecutionInterface extends Omit<FlowExecution, 'stepExecutions'> {
+    stepExecutions: PortCheckFlowStepExecutionInterface[];
+    metadata?: RegionMetadata;
 }
 
 // Type - Extracted Port Check History Data
@@ -51,16 +83,12 @@ export interface ExtractedPortCheckHistoryDataInterface {
     portState: NmapPortStateType;
     portIsOpen: boolean;
     latencyInMilliseconds: string;
-    country: string;
+    country?: CountryInterface;
 }
 
-/**
- * Extract port scan data from a flow execution
- * @param flowExecution The flow execution to extract data from
- * @returns Structured data for displaying port scan history
- */
+// Function to extract port check history data from a flow execution
 export function extractPortCheckHistoryData(
-    flowExecution: FlowExecutionMinimal,
+    flowExecution: PortCheckFlowExecutionInterface,
 ): ExtractedPortCheckHistoryDataInterface {
     // Default values
     let hostName = 'Unknown';
@@ -68,7 +96,9 @@ export function extractPortCheckHistoryData(
     let port = 'Unknown';
     let portState: NmapPortStateType = 'unknown';
     let latencyInMilliseconds = 'N/A';
-    let country = '';
+    const country = flowExecution.metadata?.region?.country
+        ? getCountryByName(flowExecution.metadata?.region?.country)
+        : undefined;
 
     // Extract step executions
     const stepExecutions = flowExecution.stepExecutions || [];
@@ -79,38 +109,37 @@ export function extractPortCheckHistoryData(
         if(step.actionType === 'PortCheck' && step.output) {
             // Try to extract the step output
             try {
-                const output = typeof step.output === 'string' ? JSON.parse(step.output) : step.output;
+                // Parse output if it's a string, otherwise use as is
+                const output =
+                    typeof step.output === 'string'
+                        ? (JSON.parse(step.output) as PortCheckFlowStepExecutionOutputInterface)
+                        : (step.output as PortCheckFlowStepExecutionOutputInterface);
 
                 // Extract host name and IP
                 hostName = output.hostName || hostName;
-                hostIp = output.ipAddress || hostIp;
+                hostIp = output.hostIpAddress || hostIp;
 
                 // Extract port data if available
-                if(output.ports && output.ports.length > 0) {
-                    const portInfo = output.ports[0];
-                    port = portInfo.port || port;
-                    portState = (portInfo.state as NmapPortStateType) || portState;
+                if(output.port) {
+                    port = output.port.number ? output.port.number.toString() : port;
+                    portState = (output.port.state as NmapPortStateType) || portState;
                 }
 
-                // Extract latency data
-                latencyInMilliseconds = output.latency || latencyInMilliseconds;
+                // Extract latency data and format as milliseconds with commas
+                if(output.latency) {
+                    // Remove 's' suffix if present (e.g., "0.0012s")
+                    const latencyValue = output.latency.replace('s', '');
+                    // Convert from seconds to milliseconds and format with commas
+                    const latencyInMs = parseFloat(latencyValue) * 1000;
+                    latencyInMilliseconds = latencyInMs.toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' ms';
+                }
+                else {
+                    latencyInMilliseconds = 'N/A';
+                }
             }
             catch(error) {
                 console.error('Error parsing port scan step output', error);
             }
-        }
-    }
-
-    // Extract region from input
-    if(flowExecution.input) {
-        try {
-            const input =
-                typeof flowExecution.input === 'string' ? JSON.parse(flowExecution.input) : flowExecution.input;
-
-            country = input.region || '';
-        }
-        catch(error) {
-            console.error('Error parsing flow execution input', error);
         }
     }
 
@@ -165,8 +194,9 @@ export function PortCheckerHistoryPage() {
         [portCheckHistoryQuery.data?.portCheckHistory.pagination?.itemsTotal],
     );
 
-    // Data
-    const flowExecutions = portCheckHistoryQuery.data?.portCheckHistory.items || [];
+    // Data - Cast the flowExecutions as PortCheckFlowExecutionInterface[]
+    const flowExecutions = (portCheckHistoryQuery.data?.portCheckHistory.items ||
+        []) as PortCheckFlowExecutionInterface[];
 
     // Render the component
     return (
@@ -189,41 +219,41 @@ export function PortCheckerHistoryPage() {
                         <div className="text-red-500">Error: {portCheckHistoryQuery.error.message}</div>
                     ) : portCheckHistoryQuery.loading ? (
                         <div className="divide-y divide-neutral/10">
-                            <div className="grid grid-cols-[1fr] items-center gap-3 py-4 md:grid-cols-[160px_160px_72px_110px_100px_110px_160px]">
+                            <div className="grid grid-cols-[1fr] items-center gap-3 py-4 md:grid-cols-[160px_160px_160px_72px_110px_100px_110px]">
+                                <div className="font-medium">Time</div>
                                 <div className="font-medium">Host</div>
                                 <div className="font-medium">IP</div>
                                 <div className="font-medium">Port</div>
                                 <div className="font-medium">Status</div>
                                 <div className="font-medium">Latency</div>
                                 <div className="font-medium">Region</div>
-                                <div className="font-medium">Time</div>
                             </div>
                             {[...Array(itemsPerPage)].map((_, index) => (
                                 <div
                                     key={index}
-                                    className="grid grid-cols-[1fr] gap-3 py-4 md:grid-cols-[160px_160px_72px_110px_100px_110px_160px]"
+                                    className="grid grid-cols-[1fr] gap-3 py-4 md:grid-cols-[160px_160px_160px_72px_110px_100px_110px]"
                                 >
+                                    <PlaceholderAnimation className="h-5 w-32" />
                                     <PlaceholderAnimation className="h-5 w-32" />
                                     <PlaceholderAnimation className="h-5 w-32" />
                                     <PlaceholderAnimation className="h-5 w-8" />
                                     <PlaceholderAnimation className="h-5 w-16" />
                                     <PlaceholderAnimation className="h-5 w-10" />
                                     <PlaceholderAnimation className="h-5 w-16" />
-                                    <PlaceholderAnimation className="h-5 w-32" />
                                 </div>
                             ))}
                         </div>
                     ) : (
                         <>
                             <div className="divide-y divide-neutral/10">
-                                <div className="grid grid-cols-[1fr] items-center gap-3 py-4 pl-2 md:grid-cols-[160px_160px_72px_110px_100px_110px_160px]">
+                                <div className="grid grid-cols-[1fr] items-center gap-3 py-4 pl-2 md:grid-cols-[160px_160px_160px_72px_110px_100px_110px]">
+                                    <div className="font-medium">Time</div>
                                     <div className="font-medium">Host</div>
                                     <div className="font-medium">IP</div>
                                     <div className="font-medium">Port</div>
                                     <div className="font-medium">Status</div>
                                     <div className="font-medium">Latency</div>
                                     <div className="font-medium">Region</div>
-                                    <div className="font-medium">Time</div>
                                 </div>
 
                                 {flowExecutions.map(function (flowExecution) {
@@ -239,16 +269,25 @@ export function PortCheckerHistoryPage() {
                                     } = extractPortCheckHistoryData(flowExecution);
 
                                     // Map port states to user-friendly descriptions using our utility
-                                    // const fullPortStateDisplay = uppercaseFirstCharacter(
-                                    //     getPortStateDescription(portState),
-                                    // );
-                                    const fullPortStateDisplay = uppercaseFirstCharacter(portState);
+                                    const portStateTypeValue = mapNmapPortStateToPortStateType(portState);
+                                    const fullPortStateDisplay = uppercaseFirstCharacter(
+                                        getPortStateDescription(portStateTypeValue),
+                                    );
 
                                     return (
                                         <div
                                             key={flowExecution.id}
-                                            className="grid grid-cols-[1fr] items-center gap-3 py-4 pl-2 text-sm hover:bg-light-1 md:grid-cols-[160px_160px_72px_110px_100px_110px_160px] dark:hover:bg-dark-2"
+                                            className="grid grid-cols-[1fr] items-center gap-3 py-4 pl-2 text-sm hover:bg-light-1 md:grid-cols-[160px_160px_160px_72px_110px_100px_110px] dark:hover:bg-dark-2"
                                         >
+                                            {/* Time */}
+                                            <div className="">
+                                                {iso8601DateWithTime(new Date(flowExecution.createdAt))}
+                                                <br />
+                                                <span className="text-foreground-tertiary">
+                                                    {timeAgo(new Date(flowExecution.createdAt).getTime())}
+                                                </span>
+                                            </div>
+
                                             {/* Host Info */}
                                             <div className="space-y-1">
                                                 <div className="font-medium">{hostName}</div>
@@ -281,16 +320,11 @@ export function PortCheckerHistoryPage() {
                                             <div className="flex items-center space-x-1">
                                                 {country && (
                                                     <>
-                                                        <span>{getCountryEmoji(country)}</span>
-                                                        <span className="neutral">{country}</span>
+                                                        <span>{country.emoji}</span>
+                                                        <span title={country.name}>{country.code}</span>
                                                     </>
                                                 )}
-                                            </div>
-
-                                            {/* Time */}
-                                            <div className="">
-                                                {iso8601Date(new Date(flowExecution.createdAt))} (
-                                                {timeAgo(new Date(flowExecution.createdAt).getTime())})
+                                                {!country && <span className="text-foreground-tertiary">-</span>}
                                             </div>
                                         </div>
                                     );

@@ -439,7 +439,7 @@ type Mutation {
     """
     Delete a capability.
     """
-    gridCapabilityDeletePrivileged(input: GridCapabilityInput!): Boolean!
+    gridCapabilityDeletePrivileged(input: GridCapabilityInput!): OperationResult!
     """
     Update a capability.
     """
@@ -451,7 +451,7 @@ type Mutation {
     """
     Delete a grid cloud provider.
     """
-    gridCloudProviderDeletePrivileged(input: GridCloudProviderInput!): Boolean!
+    gridCloudProviderDeletePrivileged(input: GridCloudProviderInput!): OperationResult!
     """
     Update a grid cloud provider.
     """
@@ -463,7 +463,7 @@ type Mutation {
     """
     Remove a capability from a node.
     """
-    gridNodeCapabilityDeletePrivileged(input: GridNodeCapabilityRemoveInput!): Boolean!
+    gridNodeCapabilityDeletePrivileged(input: GridNodeCapabilityRemoveInput!): OperationResult!
     """
     Create a new node.
     """
@@ -471,7 +471,7 @@ type Mutation {
     """
     Delete a node.
     """
-    gridNodeDeletePrivileged(input: GridNodeInput!): Boolean!
+    gridNodeDeletePrivileged(input: GridNodeInput!): OperationResult!
     """
     Update a node.
     """
@@ -485,7 +485,7 @@ type Mutation {
     """
     Remove a capability from a provider region.
     """
-    gridProviderRegionCapabilityDeletePrivileged(input: GridProviderRegionCapabilityRemoveInput!): Boolean!
+    gridProviderRegionCapabilityDeletePrivileged(input: GridProviderRegionCapabilityRemoveInput!): OperationResult!
     """
     Create a new provider region.
     """
@@ -493,7 +493,7 @@ type Mutation {
     """
     Delete a provider region.
     """
-    gridProviderRegionDeletePrivileged(input: GridProviderRegionInput!): Boolean!
+    gridProviderRegionDeletePrivileged(input: GridProviderRegionInput!): OperationResult!
     """
     Update a provider region.
     """
@@ -505,7 +505,7 @@ type Mutation {
     """
     Delete a region.
     """
-    gridRegionDeletePrivileged(input: GridRegionInput!): Boolean!
+    gridRegionDeletePrivileged(input: GridRegionInput!): OperationResult!
     """
     Update a region.
     """
@@ -517,7 +517,7 @@ type Mutation {
     """
     Remove a capability from a task type.
     """
-    gridTaskCapabilityDeletePrivileged(input: GridTaskCapabilityDeleteInput!): Boolean!
+    gridTaskCapabilityDeletePrivileged(input: GridTaskCapabilityDeleteInput!): OperationResult!
     """
     Update a task type capability.
     """
@@ -529,7 +529,7 @@ type Mutation {
     """
     Delete a task type.
     """
-    gridTaskDeletePrivileged(input: GridTaskInput!): Boolean!
+    gridTaskDeletePrivileged(input: GridTaskInput!): OperationResult!
     """
     Assign a task type to a cloud provider.
     """
@@ -537,11 +537,15 @@ type Mutation {
     """
     Remove a task type from a cloud provider.
     """
-    gridTaskProviderSupportDeletePrivileged(input: GridTaskProviderSupportDeleteInput!): Boolean!
+    gridTaskProviderSupportDeletePrivileged(input: GridTaskProviderSupportDeleteInput!): OperationResult!
     """
     Update a task.
     """
     gridTaskUpdatePrivileged(input: GridTaskUpdateInput!): GridTask!
+}
+
+type OperationResult {
+    success: Boolean!
 }
 
 """

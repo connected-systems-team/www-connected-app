@@ -64,6 +64,7 @@ type FlowExecution {
     id: String!
     input: JSON
     logs: [JSON!]
+    metadata: JSON
     output: JSON
     startedAt: DateTimeISO!
     status: FlowExecutionStatus!

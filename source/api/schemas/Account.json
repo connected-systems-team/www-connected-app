@@ -214,6 +214,71 @@
                     }
                 ]
             },
+            "EntitlementListInput": {
+                "kind": "object",
+                "type": "EntitlementListInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "featureKey"
+                    }
+                ]
+            },
+            "EntitlementInput": {
+                "kind": "object",
+                "type": "EntitlementInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "id"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "featureKey"
+                    }
+                ]
+            },
+            "ProfileEntitlementListInput": {
+                "kind": "object",
+                "type": "ProfileEntitlementListInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "profileId"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "entitlementId"
+                    }
+                ]
+            },
+            "ProfileEntitlementInput": {
+                "kind": "object",
+                "type": "ProfileEntitlementInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "id",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            }
+                        ]
+                    }
+                ]
+            },
             "AccountProfileUpdateInput": {
                 "kind": "object",
                 "type": "AccountProfileUpdateInput",
@@ -644,6 +709,97 @@
                                 "type": "isNotEmpty"
                             }
                         ]
+                    }
+                ]
+            },
+            "EntitlementCreateInput": {
+                "kind": "object",
+                "type": "EntitlementCreateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "featureKey",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "description",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "EntitlementUpdateInput": {
+                "kind": "object",
+                "type": "EntitlementUpdateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "id",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "featureKey"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "description"
+                    }
+                ]
+            },
+            "ProfileEntitlementCreateInput": {
+                "kind": "object",
+                "type": "ProfileEntitlementCreateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "profileId",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "entitlementId",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "DateTimeISO",
+                        "required": false,
+                        "name": "expiresAt"
                     }
                 ]
             },

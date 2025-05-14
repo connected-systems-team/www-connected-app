@@ -273,6 +273,39 @@ enum EmailVerificationStatus {
     Verified
 }
 
+type Entitlement {
+    createdAt: DateTimeISO!
+    createdByAccountId: String!
+    createdByProfileId: String!
+    description: String!
+    featureKey: String!
+    id: String!
+    profiles: [ProfileEntitlement!]!
+    updatedAt: DateTimeISO!
+    updatedByAccountId: String
+    updatedByProfileId: String
+}
+
+input EntitlementCreateInput {
+    description: String!
+    featureKey: String!
+}
+
+input EntitlementInput {
+    featureKey: String
+    id: String
+}
+
+input EntitlementListInput {
+    featureKey: String
+}
+
+input EntitlementUpdateInput {
+    description: String
+    featureKey: String
+    id: String!
+}
+
 type ImageObject {
     type: MediaObjectType!
     url: String!
@@ -311,8 +344,28 @@ type Mutation {
     accountEmailMakePrimary(accountEmailId: String!): AccountEmail!
     accountEmailVerificationComplete(input: AccountEmailVerificationCompleteInput!): AccountEmail!
     accountEmailVerificationSend(input: AccountEmailVerificationSendInput!): EmailVerification!
+    """
+    Create a new entitlement.
+    """
+    accountEntitlementCreatePrivileged(input: EntitlementCreateInput!): Entitlement!
+    """
+    Delete an entitlement.
+    """
+    accountEntitlementDeletePrivileged(input: EntitlementInput!): OperationResult!
+    """
+    Update an entitlement.
+    """
+    accountEntitlementUpdatePrivileged(input: EntitlementUpdateInput!): Entitlement!
     accountMaintenanceSessionCreate: AuthenticationSession!
     accountPasswordUpdate(input: AccountPasswordUpdateInput!): OperationResult!
+    """
+    Manually grant an entitlement to a profile.
+    """
+    accountProfileEntitlementCreatePrivileged(input: ProfileEntitlementCreateInput!): ProfileEntitlement!
+    """
+    Revoke a profile entitlement.
+    """
+    accountProfileEntitlementDeletePrivileged(input: ProfileEntitlementInput!): OperationResult!
     accountProfileImageRemove: Profile!
     accountProfileUpdate(input: AccountProfileUpdateInput!): Profile!
     accountSessionDelete(input: AccountSessionDeleteInput!): OperationResult!
@@ -368,6 +421,7 @@ type Profile {
     countryCode: String
     createdAt: DateTimeISO!
     displayName: String
+    entitlements: [ProfileEntitlement!]
     familyName: String
     gender: String
     givenName: String
@@ -376,10 +430,42 @@ type Profile {
     Profile asset URL
     """
     images: [ImageObject!]
+    locale: String
     middleName: String
     preferredName: String
+    timezone: String
     updatedAt: DateTimeISO!
     username: String!
+}
+
+type ProfileEntitlement {
+    createdAt: DateTimeISO!
+    createdByAccountId: String!
+    createdByProfileId: String!
+    entitlement: Entitlement!
+    entitlementId: String!
+    expiresAt: DateTimeISO
+    id: String!
+    profile: Profile!
+    profileId: String!
+    updatedAt: DateTimeISO!
+    updatedByAccountId: String
+    updatedByProfileId: String
+}
+
+input ProfileEntitlementCreateInput {
+    entitlementId: String!
+    expiresAt: DateTimeISO
+    profileId: String!
+}
+
+input ProfileEntitlementInput {
+    id: String!
+}
+
+input ProfileEntitlementListInput {
+    entitlementId: String
+    profileId: String
 }
 
 type PublicProfile {
@@ -397,7 +483,23 @@ type Query {
     accountAvailableAccessRolesPrivileged: [String!]!
     accountEmailAddresses: AccountEmailAddressesResult!
     accountEmailVerification: EmailVerification!
+    """
+    Get a single entitlement by ID or featureKey.
+    """
+    accountEntitlementPrivileged(input: EntitlementInput!): Entitlement
+    """
+    Get all entitlements.
+    """
+    accountEntitlementsPrivileged(input: EntitlementListInput): [Entitlement!]!
     accountPrivileged(input: AccountInput!): Account
+    """
+    Get a single profile entitlement by ID.
+    """
+    accountProfileEntitlementPrivileged(input: ProfileEntitlementInput!): ProfileEntitlement
+    """
+    Get all profile entitlements.
+    """
+    accountProfileEntitlementsPrivileged(input: ProfileEntitlementListInput): [ProfileEntitlement!]!
     accountProfilePublic(username: String!): PublicProfile
     accountProfileUsernameValidate(username: String!): UniqueFieldValidationResult!
     accountSessions: [AccountSession!]!

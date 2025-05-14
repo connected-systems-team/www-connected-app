@@ -52,7 +52,7 @@ enum MediaObjectType {
 
 type Mutation {
     postCommentCreate(input: PostCommentCreateInput!): PostComment!
-    postCommentDelete(id: String!): Boolean!
+    postCommentDelete(id: String!): OperationResult!
     postCreatePrivileged(input: PostCreateInput!): Post!
     postDelete(id: String!, note: String): String!
     postDeletePrivileged(id: String!, note: String): String!

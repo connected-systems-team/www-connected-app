@@ -67,6 +67,7 @@ query PortCheckHistory($pagination: PaginationInput!) {
                 createdAt
                 errors
             }
+            metadata
             flowVersionId
             elapsedTimeMs
             startedAt

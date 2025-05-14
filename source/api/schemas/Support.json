@@ -199,12 +199,7 @@
                         "kind": "scalar",
                         "type": "String",
                         "required": true,
-                        "name": "ticketIdentifier",
-                        "validation": [
-                            {
-                                "type": "isUuid"
-                            }
-                        ]
+                        "name": "ticketIdentifier"
                     },
                     {
                         "kind": "scalar",
