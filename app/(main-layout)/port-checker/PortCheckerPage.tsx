@@ -20,6 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
 // Component - PortCheckerPage
 export interface PortCheckerPageInterface {
     publicIpAddress?: string;
+    countryCode?: string;
 }
 export function PortCheckerPage(properties: PortCheckerPageInterface) {
     // State

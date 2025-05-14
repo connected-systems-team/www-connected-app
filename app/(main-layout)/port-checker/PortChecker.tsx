@@ -24,6 +24,7 @@ import { PortCheckStatusAdapter } from '@project/app/(main-layout)/port-checker/
 // Component - PortChecker
 export interface PortCheckerInterface {
     publicIpAddress?: string;
+    countryCode?: string;
 }
 export function PortChecker(properties: PortCheckerInterface) {
     // State
@@ -68,7 +69,12 @@ export function PortChecker(properties: PortCheckerInterface) {
         setIsCheckingPort(true);
 
         // Start the port check
-        await portCheckStatusAdapterReference.current?.checkPort(remoteAddress, remotePort, regionIdentifier);
+        try {
+            await portCheckStatusAdapterReference.current?.checkPort(remoteAddress, remotePort, regionIdentifier);
+        }
+        catch(error) {
+            console.error('Port check error:', error);
+        }
     }
 
     // On mount
@@ -97,6 +103,7 @@ export function PortChecker(properties: PortCheckerInterface) {
                 <PortCheckForm
                     className="mt-8"
                     publicIpAddress={properties.publicIpAddress ?? ''}
+                    countryCode={properties.countryCode}
                     remoteAddressFormInputReference={portCheckFormRemoteAddressFormInputReference}
                     remotePortFormInputReference={portCheckFormRemotePortFormInputReference}
                     regionFormInputReference={portCheckFormRegionFormInputReference}

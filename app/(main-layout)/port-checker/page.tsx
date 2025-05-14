@@ -23,6 +23,9 @@ export function PortCheckerRoutePage() {
     const trueClientIp = header.get('true-client-ip');
     const forwardedFor = header.get('x-forwarded-for');
 
+    // Get the country code from the request headers
+    const countryCode = header.get('cf-ipcountry') || header.get('x-country-code');
+
     // Prioritize headers that are working correctly in production
     // Use Cloudflare IPs first, then real-ip, then others
     let publicIpAddress = cfConnectingIp || realIp || trueClientIp;
@@ -45,7 +48,7 @@ export function PortCheckerRoutePage() {
     }
 
     // Render the component
-    return <PortCheckerPage publicIpAddress={publicIpAddress ?? undefined} />;
+    return <PortCheckerPage publicIpAddress={publicIpAddress ?? undefined} countryCode={countryCode ?? undefined} />;
 }
 
 // Export - Default

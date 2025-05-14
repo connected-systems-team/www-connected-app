@@ -18,11 +18,16 @@ import ArrowUpIcon from '@structure/assets/icons/interface/ArrowUpIcon.svg';
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';
 import { getCountryEmoji } from '@project/source/modules/connected/grid/utilities/GridUtilities';
+import {
+    filterCountriesByCountryNames,
+    getClosestAvailableCountryUsingCountryCode,
+} from '@structure/source/utilities/geo/Geo';
 
 // Component - PortCheckForm
 export interface PortCheckFormInterface {
     className?: string;
     publicIpAddress: string;
+    countryCode?: string;
     remoteAddressFormInputReference: React.RefObject<FormInputReferenceInterface>;
     remotePortFormInputReference: React.RefObject<FormInputReferenceInterface>;
     regionFormInputReference: React.RefObject<FormInputReferenceInterface>;
@@ -40,6 +45,35 @@ export function PortCheckForm(properties: PortCheckFormInterface) {
         },
     });
     // console.log('gridRegionsQueryState', gridRegionsQueryState);
+
+    // Function to get the default country based on user's country code
+    function getDefaultCountry(gridRegionLevels?: { country?: string | null }[], countryCode?: string): string {
+        let defaultCountry = 'United States';
+
+        if(!gridRegionLevels || gridRegionLevels.length === 0) {
+            return defaultCountry;
+        }
+
+        // Get the available country names from the grid region levels
+        const availableCountryNames = gridRegionLevels
+            .map(function (level) {
+                return level.country;
+            })
+            .filter(function (country): country is string {
+                return !!country;
+            });
+        // console.log('availableCountryNames', availableCountryNames);
+
+        // Filter countries by the available country names
+        const availableCountries = filterCountriesByCountryNames(availableCountryNames);
+        // console.log('availableCountries', availableCountries);
+
+        // Get the closest available country
+        defaultCountry = getClosestAvailableCountryUsingCountryCode(availableCountries, countryCode, 'US').name;
+        // console.log('defaultCountry', defaultCountry);
+
+        return defaultCountry;
+    }
 
     // Function to check the port
     function checkPort() {
@@ -135,7 +169,10 @@ export function PortCheckForm(properties: PortCheckFormInterface) {
                         ]
                     }
                     placeholder="Loading regions..."
-                    defaultValue={'United States'}
+                    defaultValue={getDefaultCountry(
+                        gridRegionLevelsQueryState.data?.gridRegionLevels,
+                        properties.countryCode,
+                    )}
                 />
             </div>
 
