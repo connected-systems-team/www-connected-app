@@ -10,6 +10,7 @@ import { CopyButton } from '@structure/source/common/buttons/CopyButton';
 // Component - YourPublicIpAddress
 export interface YourPublicIpAddressInterface {
     publicIpAddress: string;
+    countryCode?: string;
 }
 export function YourPublicIpAddress(properties: YourPublicIpAddressInterface) {
     // Render the component
@@ -19,7 +20,8 @@ export function YourPublicIpAddress(properties: YourPublicIpAddressInterface) {
             <div className="mt-2 flex items-center space-x-3">
                 <div className="flex w-full items-center space-x-2">
                     <div className="max-w-[220px] truncate text-2xl sm:max-w-[420px] md:max-w-full">
-                        {properties.publicIpAddress}
+                        {properties.publicIpAddress} {/* Show the country code */}
+                        {properties.countryCode && properties.countryCode !== 'US' && <>({properties.countryCode})</>}
                     </div>
                     <div className="flex flex-shrink-0 items-center">
                         <CopyButton

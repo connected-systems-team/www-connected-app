@@ -83,7 +83,10 @@ export function PortCheckerPage(properties: PortCheckerPageInterface) {
                     </div>
                 )}
 
-                <PortChecker publicIpAddress={properties.publicIpAddress ?? undefined} />
+                <PortChecker
+                    publicIpAddress={properties.publicIpAddress ?? undefined}
+                    countryCode={properties.countryCode}
+                />
             </div>
         </AuthorizationLayout>
     );

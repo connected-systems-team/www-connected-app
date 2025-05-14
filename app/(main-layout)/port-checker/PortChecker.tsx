@@ -98,7 +98,10 @@ export function PortChecker(properties: PortCheckerInterface) {
     return (
         <div className="flex flex-col md:flex-row">
             <div>
-                <YourPublicIpAddress publicIpAddress={properties.publicIpAddress ?? ''} />
+                <YourPublicIpAddress
+                    publicIpAddress={properties.publicIpAddress ?? ''}
+                    countryCode={properties.countryCode}
+                />
 
                 <PortCheckForm
                     className="mt-8"
