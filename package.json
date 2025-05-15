@@ -14,9 +14,9 @@
         "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
         "lint": "eslint",
         "preview": "opennextjs-cloudflare && wrangler dev --var STRUCTURE_ENV:development --local-protocol \"https\" --port 2666 --ip localhost.connected.app --https-key-path \"./certificates/localhost-key.pem\" --https-cert-path \"./certificates/localhost.pem\"",
-        "build": "eslint && opennextjs-cloudflare",
+        "build": "eslint . && opennextjs-cloudflare",
         "build:websocketsharedworker": "node libraries/structure/source/api/web-sockets/shared-worker/scripts/BuildWebSocketSharedWorker.mjs",
-        "deploy": "opennextjs-cloudflare && wrangler deploy"
+        "deploy": "npm run build && wrangler deploy"
     },
     "dependencies": {
         "@apollo/client": "^3.11.8",
