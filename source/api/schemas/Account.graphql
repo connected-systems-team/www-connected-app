@@ -4,6 +4,21 @@ schema {
 }
 
 type AccessRole {
+    assignments: AccessRoleAssignment!
+    createdAt: DateTimeISO!
+    createdByAccountId: String!
+    createdByProfileId: String!
+    description: String
+    id: String!
+    type: String!
+    updatedAt: DateTimeISO!
+    updatedByAccountId: String
+    updatedByProfileId: String
+}
+
+type AccessRoleAssignment {
+    accessRole: AccessRole!
+    accessRoleId: String!
     createdAt: DateTimeISO!
     createdByAccountId: String!
     createdByProfileId: String!
@@ -12,10 +27,36 @@ type AccessRole {
     id: String!
     profile: Profile!
     status: AccessRoleStatus!
-    type: String!
     updatedAt: DateTimeISO!
     updatedByAccountId: String
     updatedByProfileId: String
+}
+
+input AccessRoleAssignmentCreateInput {
+    accessRole: String!
+    emailAddress: String!
+    expiresAt: DateTimeISO
+    username: String!
+}
+
+input AccessRoleAssignmentRevokeInput {
+    accessRole: String!
+    emailAddress: String!
+    username: String!
+}
+
+input AccessRoleCreateInput {
+    description: String!
+    type: String!
+}
+
+input AccessRoleInput {
+    id: String
+    type: String
+}
+
+input AccessRoleListInput {
+    type: String
 }
 
 """
@@ -25,6 +66,12 @@ enum AccessRoleStatus {
     Active
     Expired
     Revoked
+}
+
+input AccessRoleUpdateInput {
+    description: String
+    id: String!
+    type: String
 }
 
 type Account {
@@ -40,22 +87,6 @@ type Account {
     session: AccountSession
     status: AccountStatus!
     updatedAt: DateTimeISO!
-}
-
-input AccountAccessRoleGrantInput {
-    emailAddress: String!
-    expiresAt: DateTimeISO
-    type: String!
-    username: String!
-}
-
-input AccountAccessRoleRevokeInput {
-    accessRoleId: String!
-}
-
-input AccountAccessRoleUpdateInput {
-    expiresAt: DateTimeISO
-    roleId: String!
 }
 
 input AccountDeleteInput {
@@ -143,6 +174,7 @@ input AccountRegistrationOrSignInCreateInput {
 }
 
 type AccountSession {
+    accessRoles: AccessRoleAssignment!
     createdAt: DateTimeISO!
     id: String!
     lastUsed: DateTimeISO
@@ -324,9 +356,26 @@ enum MediaObjectType {
 }
 
 type Mutation {
-    accountAccessRoleGrantPrivileged(input: AccountAccessRoleGrantInput!): AccessRole!
-    accountAccessRoleRevokePrivileged(input: AccountAccessRoleRevokeInput!): OperationResult!
-    accountAccessRoleUpdatePrivileged(input: AccountAccessRoleUpdateInput!): OperationResult!
+    """
+    Grant an access role to an account.
+    """
+    accountAccessRoleAssignmentCreatePrivileged(input: AccessRoleAssignmentCreateInput!): AccessRoleAssignment!
+    """
+    Revoke an access role from an account.
+    """
+    accountAccessRoleAssignmentRevokePrivileged(input: AccessRoleAssignmentRevokeInput!): OperationResult!
+    """
+    Create a new access role.
+    """
+    accountAccessRoleCreatePrivileged(input: AccessRoleCreateInput!): AccessRole!
+    """
+    Delete an access role.
+    """
+    accountAccessRoleDeletePrivileged(input: AccessRoleInput!): OperationResult!
+    """
+    Update an access role.
+    """
+    accountAccessRoleUpdatePrivileged(input: AccessRoleUpdateInput!): AccessRole!
     accountAdministratorSessionCreate: AuthenticationSession!
     accountAuthenticationEmailVerificationSend: AuthenticationEmailVerification!
     accountAuthenticationEmailVerificationVerify(
@@ -389,8 +438,8 @@ input OrderByInput {
     key: String!
 }
 
-type PagedAccessRoles {
-    items: [AccessRole!]!
+type PagedAccessRoleAssignments {
+    items: [AccessRoleAssignment!]!
     pagination: Pagination!
 }
 
@@ -477,10 +526,23 @@ type PublicProfile {
 
 type Query {
     account: Account!
-    accountAssignedAccessRolesPrivileged(pagination: PaginationInput!, statuses: [AccessRoleStatus!]): PagedAccessRoles!
+    """
+    Get all access roles assigned to an account.
+    """
+    accountAccessRoleAssignmentsPrivileged(
+        pagination: PaginationInput!
+        statuses: [AccessRoleStatus!]
+    ): PagedAccessRoleAssignments!
+    """
+    Get a single access role by ID or type.
+    """
+    accountAccessRolePrivileged(input: AccessRoleInput!): AccessRole
+    """
+    Get all access roles.
+    """
+    accountAccessRolesPrivileged(input: AccessRoleListInput): [AccessRole!]!
     accountAuthentication: AuthenticationSession
     accountAuthenticationEmailVerification: AuthenticationEmailVerification
-    accountAvailableAccessRolesPrivileged: [String!]!
     accountEmailAddresses: AccountEmailAddressesResult!
     accountEmailVerification: EmailVerification!
     """

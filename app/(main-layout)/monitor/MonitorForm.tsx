@@ -15,8 +15,8 @@
 
 // // Dependencies - API
 // import { useMutation, useQuery } from '@apollo/client';
-// import { GridRegionsDocument, PortMonitorCreateDocument } from '@project/source/api/GraphQlGeneratedCode';
-// import { PortStateValue, PortCheckFlowNodeResultStatus } from '@project/source/api/GraphQlGeneratedCode';
+// import { GridRegionsDocument, PortMonitorCreateDocument } from '@project/source/api/graphql/GraphQlGeneratedCode';
+// import { PortStateValue, PortCheckFlowNodeResultStatus } from '@project/source/api/graphql/GraphQlGeneratedCode';
 
 // // Dependencies - SVGs
 // import InfoCircledFilledIcon from '@structure/assets/icons/status/InformationCircledFilledIcon.svg';

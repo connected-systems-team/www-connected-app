@@ -13,7 +13,7 @@
 
 // // Dependencies - API
 // import { useMutation } from '@apollo/client';
-// import { PortMonitorDeleteDocument } from '@project/source/api/GraphQlGeneratedCode';
+// import { PortMonitorDeleteDocument } from '@project/source/api/graphql/GraphQlGeneratedCode';
 
 // // Component - DeleteMonitorDialog
 // export interface DeleteMonitorDialogInterface extends DialogInterface {

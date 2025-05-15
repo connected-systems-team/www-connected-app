@@ -19,7 +19,7 @@
 
 // // Dependencies - Utilities
 // import { mergeClassNames } from '@structure/source/utilities/Style';
-// import { PortMonitorQuery } from '@project/source/api/GraphQlGeneratedCode';
+// import { PortMonitorQuery } from '@project/source/api/graphql/GraphQlGeneratedCode';
 
 // // Component - MonitorListItem
 // export interface MonitorListItemInterface {

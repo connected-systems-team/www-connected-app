@@ -6,7 +6,7 @@ import React from 'react';
 // Dependencies - Main Components
 import { Popover } from '@structure/source/common/popovers/Popover';
 import { Tip } from '@structure/source/common/popovers/Tip';
-import { TipIcon } from '@structure/source/common/popovers/TipIcon';
+// import { TipIcon } from '@structure/source/common/popovers/TipIcon';
 
 // Dependencies - Animation
 import { useSpring, useSprings, animated, config as springConfiguration } from '@react-spring/web';

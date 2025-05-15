@@ -9,7 +9,7 @@ import {
 
 // Dependencies - API
 import { apolloClient } from '@structure/source/api/apollo/ApolloClient';
-import { PortCheckCreateDocument } from '@project/source/api/GraphQlGeneratedCode';
+import { PortCheckCreateDocument } from '@project/source/api/graphql/GraphQlGeneratedCode';
 
 // Dependencies - Utilities
 import { isIpV4Address, isIpV6Address, isPrivateIpAddress } from '@structure/source/utilities/network/IpAddress';

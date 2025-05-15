@@ -168,6 +168,36 @@
                 "description": "The order direction of a query",
                 "values": ["Ascending", "Descending"]
             },
+            "AccessRoleListInput": {
+                "kind": "object",
+                "type": "AccessRoleListInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "type"
+                    }
+                ]
+            },
+            "AccessRoleInput": {
+                "kind": "object",
+                "type": "AccessRoleInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "id"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "type"
+                    }
+                ]
+            },
             "EmailVerificationStatus": {
                 "kind": "enum",
                 "type": "EmailVerificationStatus",
@@ -394,9 +424,9 @@
                     }
                 ]
             },
-            "AccountAccessRoleGrantInput": {
+            "AccessRoleAssignmentCreateInput": {
                 "kind": "object",
-                "type": "AccountAccessRoleGrantInput",
+                "type": "AccessRoleAssignmentCreateInput",
                 "fields": [
                     {
                         "kind": "scalar",
@@ -408,7 +438,7 @@
                         "kind": "scalar",
                         "type": "String",
                         "required": true,
-                        "name": "type"
+                        "name": "accessRole"
                     },
                     {
                         "kind": "scalar",
@@ -429,48 +459,89 @@
                     }
                 ]
             },
-            "AccountAccessRoleRevokeInput": {
+            "AccessRoleAssignmentRevokeInput": {
                 "kind": "object",
-                "type": "AccountAccessRoleRevokeInput",
+                "type": "AccessRoleAssignmentRevokeInput",
                 "fields": [
                     {
                         "kind": "scalar",
                         "type": "String",
                         "required": true,
-                        "name": "accessRoleId",
-                        "validation": [
-                            {
-                                "type": "isUuid"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "AccountAccessRoleUpdateInput": {
-                "kind": "object",
-                "type": "AccountAccessRoleUpdateInput",
-                "fields": [
+                        "name": "accessRole"
+                    },
                     {
                         "kind": "scalar",
                         "type": "String",
                         "required": true,
-                        "name": "roleId",
+                        "name": "emailAddress",
                         "validation": [
                             {
-                                "type": "isUuid"
+                                "type": "isEmail"
                             }
                         ]
                     },
                     {
                         "kind": "scalar",
-                        "type": "DateTimeISO",
-                        "required": false,
-                        "name": "expiresAt",
+                        "type": "String",
+                        "required": true,
+                        "name": "username"
+                    }
+                ]
+            },
+            "AccessRoleCreateInput": {
+                "kind": "object",
+                "type": "AccessRoleCreateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "type",
                         "validation": [
                             {
-                                "type": "isDate"
+                                "type": "isNotEmpty"
                             }
                         ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "description",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "AccessRoleUpdateInput": {
+                "kind": "object",
+                "type": "AccessRoleUpdateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "id",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "type"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "description"
                     }
                 ]
             },

@@ -9,7 +9,7 @@
             "PaymentProcessorType": {
                 "kind": "enum",
                 "type": "PaymentProcessorType",
-                "values": ["StripeProxy", "StripeEmbedded", "AppleInAppPurchase", "ShopPay"]
+                "values": ["Stripe", "StripeEmbedded", "AppleInAppPurchase", "Test"]
             },
             "String": {
                 "kind": "scalar",
@@ -26,15 +26,70 @@
                 "type": "CreditCardType",
                 "values": ["Visa", "Mastercard", "Amex", "Discover", "Unknown"]
             },
-            "DateTimeISO": {
+            "MonetaryDecimal": {
                 "kind": "scalar",
-                "type": "DateTimeISO",
-                "description": "A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.This scalar is serialized to a string in ISO 8601 format and parsed from a string in ISO 8601 format."
+                "type": "MonetaryDecimal",
+                "description": "Monetary decimal custom scalar type, we stored and operate the value in cents, and this scalar will convert the value to dollar when read and convert the value to cents when write."
             },
-            "Boolean": {
-                "kind": "scalar",
-                "type": "Boolean",
-                "description": "The `Boolean` scalar type represents `true` or `false`."
+            "LabelColorOption": {
+                "kind": "enum",
+                "type": "LabelColorOption",
+                "description": "The label color to be used for display",
+                "values": ["Blue", "Green"]
+            },
+            "QueryCommerceOrderPriceInput": {
+                "kind": "object",
+                "type": "QueryCommerceOrderPriceInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "emailAddress"
+                    },
+                    {
+                        "kind": "object",
+                        "type": "OrderLineItemInput",
+                        "required": true,
+                        "name": "lineItems"
+                    },
+                    {
+                        "kind": "object",
+                        "type": "StreetAddressInput",
+                        "required": false,
+                        "name": "shippingAddress"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "JSON",
+                        "required": false,
+                        "name": "metadata"
+                    }
+                ]
+            },
+            "OrderLineItemInput": {
+                "kind": "object",
+                "type": "OrderLineItemInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "Int",
+                        "required": true,
+                        "name": "indexId"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Int",
+                        "required": true,
+                        "name": "quantity"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "productVariantId"
+                    }
+                ]
             },
             "StreetAddressInput": {
                 "kind": "object",
@@ -102,15 +157,74 @@
                     }
                 ]
             },
-            "Decimal": {
-                "kind": "scalar",
-                "type": "Decimal",
-                "description": "Decimal custom scalar type"
-            },
             "JSON": {
                 "kind": "scalar",
                 "type": "JSON",
                 "description": "The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf)."
+            },
+            "DateTimeISO": {
+                "kind": "scalar",
+                "type": "DateTimeISO",
+                "description": "A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.This scalar is serialized to a string in ISO 8601 format and parsed from a string in ISO 8601 format."
+            },
+            "CommerceOrderStatus": {
+                "kind": "enum",
+                "type": "CommerceOrderStatus",
+                "description": "The status of the order",
+                "values": ["WaitPayment", "Pending", "Open", "Complete", "Cancelled", "OutOfStock", "Refunded"]
+            },
+            "PaymentStatus": {
+                "kind": "enum",
+                "type": "PaymentStatus",
+                "description": "The status of the payment",
+                "values": ["Pending", "Confirmed", "Authorized", "Captured", "FailToAuthorize", "Cancelled"]
+            },
+            "CommerceOrderFulfillmentStatus": {
+                "kind": "enum",
+                "type": "CommerceOrderFulfillmentStatus",
+                "description": "The fulfillment status of the order",
+                "values": ["NotStart", "Unfulfilled", "PartiallyFulfilled", "Fulfilled", "Shipped", "Cancelled"]
+            },
+            "CommerceOrderLineItemStatus": {
+                "kind": "enum",
+                "type": "CommerceOrderLineItemStatus",
+                "description": "The status of the order line item",
+                "values": ["Pending", "Shipped", "Cancelled"]
+            },
+            "ShipmentStatus": {
+                "kind": "enum",
+                "type": "ShipmentStatus",
+                "description": "The status of the shipping",
+                "values": ["Pending", "LabelPurchased", "LabelPrinted", "Shipped", "Delivered", "Cancelled"]
+            },
+            "DeliveryStatus": {
+                "kind": "enum",
+                "type": "DeliveryStatus",
+                "description": "The status of the delivery",
+                "values": ["AttemptedDelivery", "ReadyForPickup", "InTransit", "OutForDelivery", "Delivered"]
+            },
+            "ShippingServiceType": {
+                "kind": "enum",
+                "type": "ShippingServiceType",
+                "values": [
+                    "USPSFirstClassMail",
+                    "USPSPriorityMail",
+                    "USPSPriorityMailExpress",
+                    "USPSParcelSelect",
+                    "USPSMediaMail",
+                    "UPSGround"
+                ]
+            },
+            "Float": {
+                "kind": "scalar",
+                "type": "Float",
+                "description": "The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point)."
+            },
+            "RefundStatus": {
+                "kind": "enum",
+                "type": "RefundStatus",
+                "description": "The status of a refund.",
+                "values": ["Pending", "Rejected", "Created", "Issued", "Failed", "Cancelled", "RequiresAction"]
             },
             "PaginationInput": {
                 "kind": "object",
@@ -191,6 +305,11 @@
                     "IsNotNull"
                 ]
             },
+            "Boolean": {
+                "kind": "scalar",
+                "type": "Boolean",
+                "description": "The `Boolean` scalar type represents `true` or `false`."
+            },
             "OrderByInput": {
                 "kind": "object",
                 "type": "OrderByInput",
@@ -215,175 +334,15 @@
                 "description": "The order direction of a query",
                 "values": ["Ascending", "Descending"]
             },
-            "MonetaryDecimal": {
-                "kind": "scalar",
-                "type": "MonetaryDecimal",
-                "description": "Monetary decimal custom scalar type, we stored and operate the value in cents, and this scalar will convert the value to dollar when read and convert the value to cents when write."
-            },
-            "EstimateOrderPriceInput": {
-                "kind": "object",
-                "type": "EstimateOrderPriceInput",
-                "fields": [
-                    {
-                        "kind": "object",
-                        "type": "OrderLineItemInput",
-                        "required": true,
-                        "name": "lineItems"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "StreetAddressInput",
-                        "required": false,
-                        "name": "shippingAddress"
-                    }
-                ]
-            },
-            "OrderLineItemInput": {
-                "kind": "object",
-                "type": "OrderLineItemInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": true,
-                        "name": "indexId"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": true,
-                        "name": "quantity"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "productVariantId"
-                    }
-                ]
-            },
-            "CommerceOrderStatus": {
-                "kind": "enum",
-                "type": "CommerceOrderStatus",
-                "description": "The status of the order",
-                "values": [
-                    "WaitPayment",
-                    "Pending",
-                    "FailToConfirm",
-                    "Open",
-                    "Complete",
-                    "Archived",
-                    "Cancelled",
-                    "OutOfStock"
-                ]
-            },
-            "PaymentStatus": {
-                "kind": "enum",
-                "type": "PaymentStatus",
-                "description": "The status of the payment",
-                "values": ["Pending", "Confirmed", "Authorized", "Captured", "FailToAuthorize", "Cancelled"]
-            },
-            "CommerceOrderFulfillmentStatus": {
-                "kind": "enum",
-                "type": "CommerceOrderFulfillmentStatus",
-                "description": "The fulfillment status of the order",
-                "values": ["NotStart", "Unfulfilled", "PartiallyFulfilled", "Fulfilled", "Shipped", "Cancelled"]
-            },
-            "CommerceOrderLineItemStatus": {
-                "kind": "enum",
-                "type": "CommerceOrderLineItemStatus",
-                "description": "The status of the order line item",
-                "values": ["Pending", "Shipped", "Cancelled"]
-            },
-            "ShipmentStatus": {
-                "kind": "enum",
-                "type": "ShipmentStatus",
-                "description": "The status of the shipping",
-                "values": ["Pending", "LabelPurchased", "LabelPrinted", "Shipped", "Delivered", "Cancelled"]
-            },
-            "DeliveryStatus": {
-                "kind": "enum",
-                "type": "DeliveryStatus",
-                "description": "The status of the delivery",
-                "values": ["AttemptedDelivery", "ReadyForPickup", "InTransit", "OutForDelivery", "Delivered"]
-            },
-            "ShippingServiceType": {
-                "kind": "enum",
-                "type": "ShippingServiceType",
-                "values": [
-                    "USPSFirstClassMail",
-                    "USPSPriorityMail",
-                    "USPSPriorityMailExpress",
-                    "USPSParcelSelect",
-                    "USPSMediaMail",
-                    "UPSGround"
-                ]
-            },
-            "Float": {
-                "kind": "scalar",
-                "type": "Float",
-                "description": "The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point)."
-            },
             "CommerceCheckoutSessionStatus": {
                 "kind": "enum",
                 "type": "CommerceCheckoutSessionStatus",
                 "values": ["Pending", "Complete", "Failed", "Closed", "Expired"]
             },
-            "DiscountType": {
-                "kind": "enum",
-                "type": "DiscountType",
-                "description": "The type of the discount.",
-                "values": ["Automatic", "Code"]
-            },
-            "DiscountAllocationTarget": {
-                "kind": "enum",
-                "type": "DiscountAllocationTarget",
-                "values": ["Each", "Across", "ShippingAmount", "ShippingBreakdown"]
-            },
-            "DiscountValueType": {
-                "kind": "enum",
-                "type": "DiscountValueType",
-                "values": ["FixedAmount", "Percentage"]
-            },
-            "DiscountAllocationMethod": {
-                "kind": "enum",
-                "type": "DiscountAllocationMethod",
-                "values": ["Flat", "BuyXGetY", "BuyXGetFollowing"]
-            },
-            "DiscountConditionType": {
-                "kind": "enum",
-                "type": "DiscountConditionType",
-                "values": ["Vendors", "Products", "ProductVariants"]
-            },
-            "DiscountConditionTarget": {
-                "kind": "enum",
-                "type": "DiscountConditionTarget",
-                "values": ["EntireOrder", "LineItem"]
-            },
-            "WalletEntryStatus": {
-                "kind": "enum",
-                "type": "WalletEntryStatus",
-                "values": ["Pending", "Confirmed", "RequiresUserAction"]
-            },
-            "WalletEntryTier": {
-                "kind": "enum",
-                "type": "WalletEntryTier",
-                "values": ["Primary", "Secondary"]
-            },
             "ProductBundleVisibility": {
                 "kind": "enum",
                 "type": "ProductBundleVisibility",
                 "values": ["Public", "Unlisted"]
-            },
-            "LengthUnit": {
-                "kind": "enum",
-                "type": "LengthUnit",
-                "values": ["Inch", "Foot", "Centimeter", "Meter"]
-            },
-            "WeightUnit": {
-                "kind": "enum",
-                "type": "WeightUnit",
-                "values": ["Gram", "Kilogram", "Ounces", "Pounds"]
             },
             "ProductVariantStatus": {
                 "kind": "enum",
@@ -417,237 +376,18 @@
                 "type": "VendorStatus",
                 "values": ["Active", "Inactive", "Archived"]
             },
-            "QueryShipmentBatchInput": {
+            "CreateOrderRefundInput": {
                 "kind": "object",
-                "type": "QueryShipmentBatchInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": true,
-                        "name": "itemsPerPage"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": false,
-                        "name": "itemIndex"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "ColumnFilterInput",
-                        "required": true,
-                        "name": "filters"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "OrderByInput",
-                        "required": true,
-                        "name": "orderBy"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "status"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "DateTimeISO",
-                        "required": false,
-                        "name": "startAt"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "DateTimeISO",
-                        "required": false,
-                        "name": "endAt"
-                    }
-                ]
-            },
-            "AddressBookEntryTier": {
-                "kind": "enum",
-                "type": "AddressBookEntryTier",
-                "description": "The tier of a saved address book entry",
-                "values": ["Primary", "Secondary"]
-            },
-            "CreateOrderInput": {
-                "kind": "object",
-                "type": "CreateOrderInput",
+                "type": "CreateOrderRefundInput",
                 "fields": [
                     {
                         "kind": "scalar",
                         "type": "String",
                         "required": true,
-                        "name": "emailAddress"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "OrderLineItemInput",
-                        "required": true,
-                        "name": "lineItems"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "StreetAddressInput",
-                        "required": false,
-                        "name": "shippingAddress"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "CreateOrderPaymentMethodInput",
-                        "required": false,
-                        "name": "paymentMethod"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "JSON",
-                        "required": false,
-                        "name": "metadata"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "beneficiaryEmailAddress"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "source"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "baseUrl"
-                    }
-                ]
-            },
-            "CreateOrderPaymentMethodInput": {
-                "kind": "object",
-                "type": "CreateOrderPaymentMethodInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "walletEntryId"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "PaymentMethodInput",
-                        "required": false,
-                        "name": "newPaymentMethod"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "saveToWalletAs"
-                    }
-                ]
-            },
-            "PaymentMethodInput": {
-                "kind": "object",
-                "type": "PaymentMethodInput",
-                "fields": [
-                    {
-                        "kind": "enum",
-                        "type": "PaymentMethodType",
-                        "required": true,
-                        "name": "type"
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "PaymentProcessorType",
-                        "required": true,
-                        "name": "paymentProcessorType"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "CreditCardInput",
-                        "required": false,
-                        "name": "creditCard"
-                    }
-                ]
-            },
-            "CreditCardInput": {
-                "kind": "object",
-                "type": "CreditCardInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "cardNumber"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "cardholderName"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": true,
-                        "name": "expirationMonth"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": true,
-                        "name": "expirationYear"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "cvc"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "StreetAddressInput",
-                        "required": true,
-                        "name": "billingAddress"
-                    }
-                ]
-            },
-            "MakePaymentToOrderInput": {
-                "kind": "object",
-                "type": "MakePaymentToOrderInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "orderId"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "CreateOrderPaymentMethodInput",
-                        "required": true,
-                        "name": "paymentMethod"
-                    }
-                ]
-            },
-            "CommerceCheckoutSessionCreateInput": {
-                "kind": "object",
-                "type": "CommerceCheckoutSessionCreateInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "itemIds",
+                        "name": "orderId",
                         "validation": [
                             {
-                                "type": "arrayUnique"
-                            },
-                            {
-                                "type": "arrayNotEmpty"
+                                "type": "isUuid"
                             }
                         ]
                     },
@@ -655,22 +395,45 @@
                         "kind": "scalar",
                         "type": "String",
                         "required": false,
-                        "name": "emailAddress"
+                        "name": "reason",
+                        "validation": [
+                            {
+                                "type": "maxLength",
+                                "constraints": [512]
+                            }
+                        ]
                     },
                     {
-                        "kind": "enum",
-                        "type": "PaymentProcessorType",
+                        "kind": "object",
+                        "type": "CreateOrderRefundLineItemInput",
                         "required": true,
-                        "name": "paymentProcessorType"
+                        "name": "lineItems",
+                        "validation": [
+                            {
+                                "type": "arrayNotEmpty"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "CreateOrderRefundLineItemInput": {
+                "kind": "object",
+                "type": "CreateOrderRefundLineItemInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "Float",
+                        "required": true,
+                        "name": "orderLineItemId"
                     },
                     {
                         "kind": "scalar",
-                        "type": "String",
+                        "type": "Float",
                         "required": true,
-                        "name": "returnBaseUrl",
+                        "name": "quantity",
                         "validation": [
                             {
-                                "type": "isUrl"
+                                "type": "isPositive"
                             }
                         ]
                     }
@@ -713,6 +476,12 @@
                                 "type": "isUrl"
                             }
                         ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "JSON",
+                        "required": false,
+                        "name": "orderMetadata"
                     }
                 ]
             },
@@ -741,268 +510,6 @@
                                 "type": "isPositive"
                             }
                         ]
-                    }
-                ]
-            },
-            "CreateDiscountInput": {
-                "kind": "object",
-                "type": "CreateDiscountInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "code",
-                        "validation": [
-                            {
-                                "type": "maxLength",
-                                "constraints": [64]
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "DateTimeISO",
-                        "required": false,
-                        "name": "startsAt",
-                        "validation": [
-                            {
-                                "type": "isDate"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "DateTimeISO",
-                        "required": false,
-                        "name": "endsAt",
-                        "validation": [
-                            {
-                                "type": "isDate"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "DiscountType",
-                        "required": true,
-                        "name": "type"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "ruleId"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "CreateDiscountRuleInput",
-                        "required": false,
-                        "name": "newRule"
-                    }
-                ]
-            },
-            "CreateDiscountRuleInput": {
-                "kind": "object",
-                "type": "CreateDiscountRuleInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "title",
-                        "validation": [
-                            {
-                                "type": "maxLength",
-                                "constraints": [128]
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "displayTitle",
-                        "validation": [
-                            {
-                                "type": "maxLength",
-                                "constraints": [128]
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Boolean",
-                        "required": false,
-                        "name": "oncePerCustomer"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "DiscountAllocationInput",
-                        "required": true,
-                        "name": "allocation"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "DiscountRuleConditionInput",
-                        "required": true,
-                        "name": "conditions"
-                    }
-                ]
-            },
-            "DiscountAllocationInput": {
-                "kind": "object",
-                "type": "DiscountAllocationInput",
-                "fields": [
-                    {
-                        "kind": "enum",
-                        "type": "DiscountAllocationTarget",
-                        "required": true,
-                        "name": "target"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Float",
-                        "required": true,
-                        "name": "maxAllocationLimit"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "MonetaryDecimal",
-                        "required": true,
-                        "name": "value"
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "DiscountValueType",
-                        "required": true,
-                        "name": "valueType"
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "DiscountAllocationMethod",
-                        "required": true,
-                        "name": "method"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": false,
-                        "name": "buyThisGetY"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "MonetaryDecimal",
-                        "required": false,
-                        "name": "buyThisGetYAmount"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": false,
-                        "name": "buyXGetThis"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "MonetaryDecimal",
-                        "required": false,
-                        "name": "buyXAmountGetThis"
-                    }
-                ]
-            },
-            "DiscountRuleConditionInput": {
-                "kind": "object",
-                "type": "DiscountRuleConditionInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "discountRuleId"
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "DiscountConditionTarget",
-                        "required": true,
-                        "name": "target"
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "DiscountConditionType",
-                        "required": true,
-                        "name": "type"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "referenceId"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "DiscountConditionRequirementInput",
-                        "required": false,
-                        "name": "quantityRequirement"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "DiscountConditionRequirementInput",
-                        "required": false,
-                        "name": "subtotalRequirement"
-                    }
-                ]
-            },
-            "DiscountConditionRequirementInput": {
-                "kind": "object",
-                "type": "DiscountConditionRequirementInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": false,
-                        "name": "minValue"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": false,
-                        "name": "maxValue"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": false,
-                        "name": "requiredValue"
-                    }
-                ]
-            },
-            "UpsertWalletEntryInput": {
-                "kind": "object",
-                "type": "UpsertWalletEntryInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "id"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "identifier"
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "WalletEntryTier",
-                        "required": false,
-                        "name": "tier"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "PaymentMethodInput",
-                        "required": false,
-                        "name": "paymentMethod"
                     }
                 ]
             },
@@ -1360,12 +867,6 @@
                     },
                     {
                         "kind": "object",
-                        "type": "ProductVariantUnitInfoInput",
-                        "required": false,
-                        "name": "unitInfo"
-                    },
-                    {
-                        "kind": "object",
                         "type": "ProductVariantPriceInput",
                         "required": true,
                         "name": "price"
@@ -1483,60 +984,6 @@
                                 "type": "isUuid"
                             }
                         ]
-                    }
-                ]
-            },
-            "ProductVariantUnitInfoInput": {
-                "kind": "object",
-                "type": "ProductVariantUnitInfoInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "Float",
-                        "required": false,
-                        "name": "length"
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "LengthUnit",
-                        "required": false,
-                        "name": "lengthUnit"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Float",
-                        "required": false,
-                        "name": "width"
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "LengthUnit",
-                        "required": false,
-                        "name": "widthUnit"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Float",
-                        "required": false,
-                        "name": "height"
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "LengthUnit",
-                        "required": false,
-                        "name": "heightUnit"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Float",
-                        "required": false,
-                        "name": "weight"
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "WeightUnit",
-                        "required": false,
-                        "name": "weightUnit"
                     }
                 ]
             },
@@ -1730,12 +1177,6 @@
                     },
                     {
                         "kind": "object",
-                        "type": "ProductVariantUnitInfoInput",
-                        "required": false,
-                        "name": "unitInfo"
-                    },
-                    {
-                        "kind": "object",
                         "type": "ProductVariantPriceInput",
                         "required": false,
                         "name": "price"
@@ -1852,7 +1293,7 @@
                     {
                         "kind": "object",
                         "type": "ProductVariantAttributeInput",
-                        "required": true,
+                        "required": false,
                         "name": "attributeToUpsert"
                     },
                     {
@@ -1902,12 +1343,6 @@
                                 "constraints": [512]
                             }
                         ]
-                    },
-                    {
-                        "kind": "object",
-                        "type": "StreetAddressInput",
-                        "required": true,
-                        "name": "address"
                     }
                 ]
             },
@@ -2157,200 +1592,92 @@
                     }
                 ]
             },
-            "PurchaseOrderLabelsInput": {
+            "CreateFulfillmentInput": {
                 "kind": "object",
-                "type": "PurchaseOrderLabelsInput",
+                "type": "CreateFulfillmentInput",
                 "fields": [
                     {
                         "kind": "scalar",
                         "type": "String",
                         "required": true,
-                        "name": "identifiers",
-                        "validation": [
-                            {
-                                "type": "arrayUnique"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "ShoppingBagItemInput": {
-                "kind": "object",
-                "type": "ShoppingBagItemInput",
-                "fields": [
+                        "name": "orderIdentifier"
+                    },
                     {
                         "kind": "scalar",
                         "type": "String",
                         "required": true,
-                        "name": "id"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "productVariantId",
-                        "validation": [
-                            {
-                                "type": "isUuid"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Float",
-                        "required": false,
-                        "name": "quantity",
-                        "validation": [
-                            {
-                                "type": "isInt"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "productBundleId",
-                        "validation": [
-                            {
-                                "type": "isUuid"
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "relationship",
-                        "validation": [
-                            {
-                                "type": "isIn",
-                                "constraints": [
-                                    ["Spouse", "Self", "Parent", "Child", "Friend", "Family", "Co-Worker", "Other"]
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "emailAddress",
-                        "validation": [
-                            {
-                                "type": "isEmail"
-                            }
-                        ]
+                        "name": "baseUrl"
                     },
                     {
                         "kind": "object",
-                        "type": "StreetAddressInput",
-                        "required": false,
-                        "name": "shippingAddress"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "firstName"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "lastName"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "bagItemGroupKey"
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "ShoppingBagEditionAction",
+                        "type": "CreateFulfillmentItemInput",
                         "required": true,
-                        "name": "action"
-                    }
-                ]
-            },
-            "ShoppingBagEditionAction": {
-                "kind": "enum",
-                "type": "ShoppingBagEditionAction",
-                "description": "The action to perform on the shopping bag item",
-                "values": ["IncreaseQuantity", "DecreaseQuantity", "SetQuantity", "RemoveItem", "AddItem", "UpdateItem"]
-            },
-            "UpsertShoppingBagInput": {
-                "kind": "object",
-                "type": "UpsertShoppingBagInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "identifier",
+                        "name": "items",
                         "validation": [
-                            {
-                                "type": "maxLength",
-                                "constraints": [24]
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "title",
-                        "validation": [
-                            {
-                                "type": "maxLength",
-                                "constraints": [128]
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "description"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "ShoppingBagItemInput",
-                        "required": true,
-                        "name": "items"
-                    }
-                ]
-            },
-            "ShoppingBagCheckoutInput": {
-                "kind": "object",
-                "type": "ShoppingBagCheckoutInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "itemIds",
-                        "validation": [
-                            {
-                                "type": "arrayUnique"
-                            },
                             {
                                 "type": "arrayNotEmpty"
                             }
                         ]
                     },
                     {
-                        "kind": "scalar",
-                        "type": "String",
+                        "kind": "object",
+                        "type": "StreetAddressInput",
                         "required": true,
-                        "name": "emailAddress"
+                        "name": "originAddress"
                     },
                     {
                         "kind": "object",
-                        "type": "CreateOrderPaymentMethodInput",
+                        "type": "CreateFulfillmentTrackingInfoInput",
                         "required": true,
-                        "name": "paymentMethod"
+                        "name": "trackingInfo"
+                    }
+                ]
+            },
+            "CreateFulfillmentItemInput": {
+                "kind": "object",
+                "type": "CreateFulfillmentItemInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "Float",
+                        "required": true,
+                        "name": "id"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Float",
+                        "required": true,
+                        "name": "quantity"
+                    }
+                ]
+            },
+            "CreateFulfillmentTrackingInfoInput": {
+                "kind": "object",
+                "type": "CreateFulfillmentTrackingInfoInput",
+                "fields": [
+                    {
+                        "kind": "enum",
+                        "type": "ShippingServiceType",
+                        "required": true,
+                        "name": "serviceType"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "company"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "number"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "url"
                     }
                 ]
             },

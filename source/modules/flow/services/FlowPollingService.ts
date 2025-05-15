@@ -1,11 +1,15 @@
 'use client'; // This service uses client-only features
 
 // Dependencies - Types
-import { FlowExecution, FlowExecutionInput, FlowExecutionStatus } from '@project/source/api/GraphQlGeneratedCode';
+import {
+    FlowExecution,
+    FlowExecutionInput,
+    FlowExecutionStatus,
+} from '@project/source/api/graphql/GraphQlGeneratedCode';
 
 // Dependencies - API
 import { apolloClient } from '@structure/source/api/apollo/ApolloClient';
-import { FlowExecutionDocument } from '@project/source/api/GraphQlGeneratedCode';
+import { FlowExecutionDocument } from '@project/source/api/graphql/GraphQlGeneratedCode';
 
 // Class - FlowPollingService
 export class FlowPollingService {

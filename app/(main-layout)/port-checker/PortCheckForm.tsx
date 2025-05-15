@@ -10,7 +10,7 @@ import { FormInputSelect } from '@structure/source/common/forms/FormInputSelect'
 
 // Dependencies - API
 import { useQuery } from '@apollo/client';
-import { GridRegionLevelsDocument, GridRegionLevel } from '@project/source/api/GraphQlGeneratedCode';
+import { GridRegionLevelsDocument, GridRegionLevel } from '@project/source/api/graphql/GraphQlGeneratedCode';
 
 // Dependencies - Assets
 import ArrowUpIcon from '@structure/assets/icons/interface/ArrowUpIcon.svg';
@@ -76,7 +76,7 @@ export function PortCheckForm(properties: PortCheckFormInterface) {
     function checkPort() {
         properties.checkPort(
             properties.remoteAddressFormInputReference.current?.getValue() || '',
-            properties.remotePortFormInputReference.current?.getValue(),
+            Number(properties.remotePortFormInputReference.current?.getValue() || 0),
             properties.regionFormInputReference.current?.getValue() || '',
         );
     }
@@ -86,7 +86,7 @@ export function PortCheckForm(properties: PortCheckFormInterface) {
         <div className={mergeClassNames('flex flex-col md:flex-row', properties.className)}>
             {/* Remote Address */}
             <FormInputText
-                ref={properties.remoteAddressFormInputReference}
+                ref={properties.remoteAddressFormInputReference as React.Ref<FormInputReferenceInterface>}
                 className="flex-grow md:mr-4"
                 id="remoteAddress"
                 label="IP Address or Domain"
@@ -121,7 +121,7 @@ export function PortCheckForm(properties: PortCheckFormInterface) {
             <div className="flex">
                 {/* Remote Port */}
                 <FormInputText
-                    ref={properties.remotePortFormInputReference}
+                    ref={properties.remotePortFormInputReference as React.Ref<FormInputReferenceInterface>}
                     className="mr-4 mt-4 w-full min-w-20 md:mt-0 md:w-20"
                     id="remotePort"
                     label="Port"
@@ -140,7 +140,7 @@ export function PortCheckForm(properties: PortCheckFormInterface) {
 
                 {/* Region */}
                 <FormInputSelect
-                    ref={properties.regionFormInputReference}
+                    ref={properties.regionFormInputReference as React.Ref<FormInputReferenceInterface>}
                     key={
                         gridRegionLevelsQueryState.data?.gridRegionLevels?.map((level) => level.region).join('-') ||
                         'loading-regions'

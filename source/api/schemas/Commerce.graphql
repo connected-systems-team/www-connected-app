@@ -3,30 +3,6 @@ schema {
     mutation: Mutation
 }
 
-type AddressBookEntry {
-    city: String!
-    company: String
-    country: String!
-    createdAt: DateTimeISO!
-    firstName: String!
-    id: String!
-    lastName: String!
-    line1: String!
-    line2: String
-    phoneNumber: String
-    postalCode: String!
-    state: String!
-    updatedAt: DateTimeISO!
-}
-
-"""
-The tier of a saved address book entry
-"""
-enum AddressBookEntryTier {
-    Primary
-    Secondary
-}
-
 input CheckoutSessionCreateDirectItemInput {
     productVariantId: String!
     quantity: Int!
@@ -58,28 +34,25 @@ input ColumnFilterInput {
 }
 
 type CommerceCheckoutSession {
+    appliedDiscounts: [CommerceOrderDiscount!]
     closedAt: DateTimeISO
     completedAt: DateTimeISO
     createdAt: DateTimeISO!
     externalMetadata: JSON
     failedCount: Float!
     id: String!
-    orders: [CommerceOrder!]
+    order: CommerceOrder
+    orderMetadata: JSON
     paymentProcessorType: PaymentProcessorType!
+    priceInfo: CommerceOrderPrice
     status: CommerceCheckoutSessionStatus!
 }
 
 input CommerceCheckoutSessionCreateDirectInput {
     emailAddress: String
     items: [CheckoutSessionCreateDirectItemInput!]!
-    paymentProcessorType: PaymentProcessorType! = StripeEmbedded
-    returnBaseUrl: String!
-}
-
-input CommerceCheckoutSessionCreateInput {
-    emailAddress: String
-    itemIds: [String!]!
-    paymentProcessorType: PaymentProcessorType! = StripeProxy
+    orderMetadata: JSON
+    paymentProcessorType: PaymentProcessorType! = Stripe
     returnBaseUrl: String!
 }
 
@@ -92,8 +65,7 @@ enum CommerceCheckoutSessionStatus {
 }
 
 type CommerceOrder {
-    batchIdentifier: String!
-    beneficiaryEmailAddress: String
+    appliedDiscounts: [CommerceOrderDiscount!]
     createdAt: DateTimeISO!
     emailAddress: String!
     fulfillmentSource: String
@@ -105,12 +77,20 @@ type CommerceOrder {
     payment: Payment
     paymentStatus: PaymentStatus
     priceInfo: CommerceOrderPrice!
+    refunds: [Refund!]
     shipments: [Shipment!]
     shippingInfo: CommerceOrderShippingInfo
     source: String!
     status: CommerceOrderStatus!
-    statusRecords: [CommerceOrderStatusRecord!]
+    statusRecords: [StatusRecord!]
     updatedAt: DateTimeISO!
+}
+
+type CommerceOrderDiscount {
+    amount: MonetaryDecimal!
+    code: String
+    colorOption: LabelColorOption
+    items: [CommerceOrderLineItemDiscount!]
 }
 
 """
@@ -129,18 +109,26 @@ type CommerceOrderLineItem {
     createdAt: DateTimeISO!
     id: String!
     indexId: Int!
+    originalQuantity: Int
     productVariantId: String!
     quantity: Int!
     status: CommerceOrderLineItemStatus!
+    statusRecords: [StatusRecord!]
     updatedAt: DateTimeISO!
 }
 
-type CommerceOrderLineItemPrice {
+type CommerceOrderLineItemDiscount {
     amount: MonetaryDecimal!
     indexId: Int!
+    unitAmount: MonetaryDecimal
+}
+
+type CommerceOrderLineItemPrice {
+    indexId: Int!
     originalSubtotal: MonetaryDecimal!
+    originalUnitPrice: MonetaryDecimal
     subtotal: MonetaryDecimal!
-    tax: MonetaryDecimal!
+    unitPrice: MonetaryDecimal
 }
 
 """
@@ -170,41 +158,20 @@ type CommerceOrderShippingInfo {
 
 type CommerceOrderShippingRate {
     amount: MonetaryDecimal!
-    breakdown: [CommerceOrderShippingRateBreakdown!]!
     originalAmount: MonetaryDecimal!
-}
-
-type CommerceOrderShippingRateBreakdown {
-    freeShipping: Boolean!
-    items: [CommerceOrderShippingRateBreakdownItem!]!
-    originalShippingRate: MonetaryDecimal!
-    packageIndexId: Int!
-    shippingRate: MonetaryDecimal!
-}
-
-type CommerceOrderShippingRateBreakdownItem {
-    indexId: Int!
-    quantity: Int!
 }
 
 """
 The status of the order
 """
 enum CommerceOrderStatus {
-    Archived
     Cancelled
     Complete
-    FailToConfirm
     Open
     OutOfStock
     Pending
+    Refunded
     WaitPayment
-}
-
-type CommerceOrderStatusRecord {
-    description: String
-    status: String!
-    timestamp: DateTimeISO!
 }
 
 type CommerceOrderTax {
@@ -212,38 +179,35 @@ type CommerceOrderTax {
     total: MonetaryDecimal!
 }
 
-input CreateDiscountInput {
-    code: String
-    endsAt: DateTimeISO
-    newRule: CreateDiscountRuleInput
-    ruleId: String
-    startsAt: DateTimeISO
-    type: DiscountType!
+input CreateFulfillmentInput {
+    baseUrl: String!
+    items: [CreateFulfillmentItemInput!]!
+    orderIdentifier: String!
+    originAddress: StreetAddressInput!
+    trackingInfo: CreateFulfillmentTrackingInfoInput!
 }
 
-input CreateDiscountRuleInput {
-    allocation: DiscountAllocationInput!
-    conditions: [DiscountRuleConditionInput!]
-    displayTitle: String!
-    oncePerCustomer: Boolean
-    title: String!
+input CreateFulfillmentItemInput {
+    id: Float!
+    quantity: Float!
 }
 
-input CreateOrderInput {
-    baseUrl: String
-    beneficiaryEmailAddress: String
-    emailAddress: String!
-    lineItems: [OrderLineItemInput!]!
-    metadata: JSON
-    paymentMethod: CreateOrderPaymentMethodInput
-    shippingAddress: StreetAddressInput
-    source: String
+input CreateFulfillmentTrackingInfoInput {
+    company: String!
+    number: String!
+    serviceType: ShippingServiceType!
+    url: String!
 }
 
-input CreateOrderPaymentMethodInput {
-    newPaymentMethod: PaymentMethodInput
-    saveToWalletAs: String
-    walletEntryId: String
+input CreateOrderRefundInput {
+    lineItems: [CreateOrderRefundLineItemInput!]!
+    orderId: String!
+    reason: String
+}
+
+input CreateOrderRefundLineItemInput {
+    orderLineItemId: Float!
+    quantity: Float!
 }
 
 input CreateProductBundleInput {
@@ -286,23 +250,12 @@ input CreateProductVariantInput {
     sku: String
     status: ProductVariantStatus
     taxCode: String
-    unitInfo: ProductVariantUnitInfoInput
 }
 
 input CreateVendorInput {
-    address: StreetAddressInput!
     description: String
     identifier: String
     name: String!
-}
-
-input CreditCardInput {
-    billingAddress: StreetAddressInput!
-    cardNumber: String!
-    cardholderName: String!
-    cvc: String!
-    expirationMonth: Int!
-    expirationYear: Int!
 }
 
 enum CreditCardType {
@@ -319,11 +272,6 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `dat
 scalar DateTimeISO
 
 """
-Decimal custom scalar type
-"""
-scalar Decimal
-
-"""
 The status of the delivery
 """
 enum DeliveryStatus {
@@ -332,132 +280,6 @@ enum DeliveryStatus {
     InTransit
     OutForDelivery
     ReadyForPickup
-}
-
-type Discount {
-    code: String
-    conditions: [DiscountCondition!]!
-    createdAt: DateTimeISO!
-    endsAt: DateTimeISO
-    id: String!
-    rule: DiscountRule
-    startsAt: DateTimeISO
-    type: DiscountType!
-    updatedAt: DateTimeISO!
-    usageCount: Int!
-}
-
-input DiscountAllocationInput {
-    buyThisGetY: Int
-    buyThisGetYAmount: MonetaryDecimal
-    buyXAmountGetThis: MonetaryDecimal
-    buyXGetThis: Int
-    maxAllocationLimit: Float!
-    method: DiscountAllocationMethod!
-    target: DiscountAllocationTarget!
-    value: MonetaryDecimal!
-    valueType: DiscountValueType!
-}
-
-enum DiscountAllocationMethod {
-    BuyXGetFollowing
-    BuyXGetY
-    Flat
-}
-
-type DiscountAllocationObject {
-    buyThisGetY: Int
-    buyThisGetYAmount: MonetaryDecimal
-    buyXAmountGetThis: MonetaryDecimal
-    buyXGetThis: Int
-    maxAllocationLimit: Float!
-    method: DiscountAllocationMethod!
-    target: DiscountAllocationTarget!
-    value: MonetaryDecimal!
-    valueType: DiscountValueType!
-}
-
-enum DiscountAllocationTarget {
-    Across
-    Each
-    ShippingAmount
-    ShippingBreakdown
-}
-
-type DiscountCondition {
-    createdAt: DateTimeISO!
-    discountRuleId: String
-    id: String!
-    quantityRequirement: DiscountConditionRequirementObject
-    referenceId: String!
-    subtotalRequirement: DiscountConditionRequirementObject
-    target: DiscountConditionTarget!
-    type: DiscountConditionType!
-    updatedAt: DateTimeISO!
-}
-
-input DiscountConditionRequirementInput {
-    maxValue: Int
-    minValue: Int
-    requiredValue: Int
-}
-
-type DiscountConditionRequirementObject {
-    maxValue: Int
-    minValue: Int
-    requiredValue: Int
-}
-
-enum DiscountConditionTarget {
-    EntireOrder
-    LineItem
-}
-
-enum DiscountConditionType {
-    ProductVariants
-    Products
-    Vendors
-}
-
-type DiscountRule {
-    allocation: DiscountAllocationObject!
-    conditions: [DiscountCondition!]!
-    createdAt: DateTimeISO!
-    displayTitle: String!
-    id: String!
-    oncePerCustomer: Boolean!
-    title: String!
-    updatedAt: DateTimeISO!
-}
-
-input DiscountRuleConditionInput {
-    discountRuleId: String
-    quantityRequirement: DiscountConditionRequirementInput
-    """
-    The id of the typed entity, e.g. product id, product variant id, etc.
-    """
-    referenceId: String!
-    subtotalRequirement: DiscountConditionRequirementInput
-    target: DiscountConditionTarget!
-    type: DiscountConditionType!
-}
-
-"""
-The type of the discount.
-"""
-enum DiscountType {
-    Automatic
-    Code
-}
-
-enum DiscountValueType {
-    FixedAmount
-    Percentage
-}
-
-input EstimateOrderPriceInput {
-    lineItems: [OrderLineItemInput!]!
-    shippingAddress: StreetAddressInput
 }
 
 type FulfillmentOrder {
@@ -471,12 +293,10 @@ type FulfillmentOrder {
 }
 
 type FulfillmentOrderLineItem {
-    fulfilledQuantity: Int!
     orderLineItemId: String!
     productVariant: FulfillmentProductVariant!
     productVariantId: String!
     quantity: Int!
-    shippedQuantity: Int!
 }
 
 type FulfillmentProductVariant {
@@ -493,16 +313,12 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 """
 scalar JSON
 
-enum LengthUnit {
-    Centimeter
-    Foot
-    Inch
-    Meter
-}
-
-input MakePaymentToOrderInput {
-    orderId: String!
-    paymentMethod: CreateOrderPaymentMethodInput!
+"""
+The label color to be used for display
+"""
+enum LabelColorOption {
+    Blue
+    Green
 }
 
 type MediaObject {
@@ -523,38 +339,18 @@ Monetary decimal custom scalar type, we stored and operate the value in cents, a
 scalar MonetaryDecimal
 
 type Mutation {
-    commerceAddressBookEntryCreate(
-        address: StreetAddressInput!
-        alias: String
-        tier: AddressBookEntryTier
-    ): AddressBookEntry!
-    commerceCartUpdate(items: [ShoppingBagItemInput!]!): ShoppingBag!
-    commerceCheckoutSessionCreate(input: CommerceCheckoutSessionCreateInput!): CommerceCheckoutSession!
     commerceCheckoutSessionCreateDirect(input: CommerceCheckoutSessionCreateDirectInput!): CommerceCheckoutSession!
-    commerceDiscountCreate(input: CreateDiscountInput!): Discount!
-    commerceDiscountRuleCreate(input: CreateDiscountRuleInput!): DiscountRule!
-    commerceGenerateManifest(shipmentIds: [String!]!): ShipmentManifest!
-    commerceMarkOrdersAsShipped(baseUrl: String!, orderIdentifiers: [String!]!): [CommerceOrder!]!
-    commerceMarkShipmentBatchPrinted(id: String!): ShipmentBatch!
-    commerceMarkShipmentBatchReadyToProcess(id: String!): ShipmentBatch!
-    commerceOrderCancel(orderId: String!): CommerceOrder!
-    commerceOrderCreate(input: CreateOrderInput!, paymentRequired: Boolean): CommerceOrder!
-    commerceOrderSetPayment(input: MakePaymentToOrderInput!): CommerceOrder!
+    commerceCreateFulfillment(input: CreateFulfillmentInput!): Shipment!
+    commerceOrderCancel(orderId: String!): OperationResult!
+    commerceOrderRefund(input: CreateOrderRefundInput!): Refund!
     commerceProductBundleCreate(input: CreateProductBundleInput!): ProductBundle!
     commerceProductBundleDelete(id: String!): OperationResult!
     commerceProductBundleUpdate(input: UpdateProductBundleInput!): ProductBundle!
     commerceProductCreate(input: CreateProductInput!): Product!
     commerceProductUpdate(input: UpdateProductInput!): Product!
-    commercePurchaseLabelForOrders(input: PurchaseOrderLabelsInput!): String!
-    commerceSavedItemsUpdate(items: [ShoppingBagItemInput!]!): ShoppingBag!
-    commerceShoppingBagCheckout(input: ShoppingBagCheckoutInput!): [CommerceOrder!]!
-    commerceShoppingBagClear(identifier: String!): ShoppingBag!
-    commerceShoppingBagTransform(fromIdentifier: String!, toIdentifier: String!): TransformShoppingBagResult!
-    commerceShoppingBagUpsert(input: UpsertShoppingBagInput!): ShoppingBag!
+    commerceRefundRequestRejectPrivileged(id: String!, reason: String): Refund!
     commerceVendorCreate(input: CreateVendorInput!): Vendor!
     commerceVendorUpdate(input: UpdateVendorInput!): Vendor!
-    commerceWalletEntryDelete(id: String!): OperationResult!
-    commerceWalletEntryUpsert(input: UpsertWalletEntryInput!): WalletEntry!
     productVariantRemoveGalleryAsset(assetId: String!, id: String!): ProductVariant!
     productVariantReorderGallery(assetIds: [String!]!, id: String!): ProductVariant!
     warehouseCreate(input: WarehouseCreateInput!): Warehouse!
@@ -598,16 +394,6 @@ type Pagination {
     pagesTotal: Int!
 }
 
-type PaginationDiscountResult {
-    items: [Discount!]!
-    pagination: Pagination!
-}
-
-type PaginationDiscountRuleResult {
-    items: [DiscountRule!]!
-    pagination: Pagination!
-}
-
 type PaginationFulfillmentOrderResult {
     items: [FulfillmentOrder!]!
     pagination: Pagination!
@@ -625,8 +411,8 @@ type PaginationOrderResult {
     pagination: Pagination!
 }
 
-type PaginationShipmentBatchResult {
-    items: [ShipmentBatch!]!
+type PaginationRefundResult {
+    items: [Refund!]!
     pagination: Pagination!
 }
 
@@ -644,7 +430,6 @@ type Payment {
     paymentProcessorType: PaymentProcessorType!
     status: PaymentStatus!
     updatedAt: DateTimeISO!
-    walletEntryId: String
 }
 
 interface PaymentMethod {
@@ -670,12 +455,6 @@ type PaymentMethodCreditCard implements PaymentMethod {
     type: PaymentMethodType!
 }
 
-input PaymentMethodInput {
-    creditCard: CreditCardInput
-    paymentProcessorType: PaymentProcessorType!
-    type: PaymentMethodType!
-}
-
 enum PaymentMethodType {
     AppleInAppPurchase
     CreditCard
@@ -683,9 +462,9 @@ enum PaymentMethodType {
 
 enum PaymentProcessorType {
     AppleInAppPurchase
-    ShopPay
+    Stripe
     StripeEmbedded
-    StripeProxy
+    Test
 }
 
 """
@@ -774,7 +553,6 @@ type ProductVariant {
     sku: String
     status: ProductVariantStatus!
     taxCode: String
-    unitInfo: ProductVariantUnitInfoObject
     updatedAt: DateTimeISO!
     updatedByAccountId: String
     updatedByProfileId: String
@@ -836,35 +614,13 @@ enum ProductVariantStatus {
     Draft
 }
 
-input ProductVariantUnitInfoInput {
-    height: Float
-    heightUnit: LengthUnit
-    length: Float
-    lengthUnit: LengthUnit
-    weight: Float
-    weightUnit: WeightUnit
-    width: Float
-    widthUnit: LengthUnit
-}
-
-type ProductVariantUnitInfoObject {
-    height: Float
-    heightUnit: LengthUnit
-    length: Float
-    lengthUnit: LengthUnit
-    weight: Float
-    weightUnit: WeightUnit
-    width: Float
-    widthUnit: LengthUnit
-}
-
 type ProductsPaginationResult {
     items: [Product!]!
     pagination: Pagination!
 }
 
 type PublicCommerceOrder {
-    batchIdentifier: String!
+    appliedDiscounts: [CommerceOrderDiscount!]
     createdAt: DateTimeISO!
     fulfillmentStatus: CommerceOrderFulfillmentStatus!
     identifier: String!
@@ -877,12 +633,10 @@ type PublicCommerceOrder {
 }
 
 type PublicCommerceOrderLineItem {
-    fulfilledQuantity: Int!
     id: String!
     indexId: Int!
     productVariantId: String!
     quantity: Int!
-    shippedQuantity: Int!
     status: CommerceOrderLineItemStatus!
 }
 
@@ -898,54 +652,71 @@ type PublicShipment {
     status: ShipmentStatus!
 }
 
-input PurchaseOrderLabelsInput {
-    identifiers: [String!]!
-}
-
 type Query {
-    commerceAddressBookEntries: [AddressBookEntry!]!
-    commerceCart: ShoppingBag!
     commerceCheckoutSession(id: String!): CommerceCheckoutSession!
     commerceCheckoutSessionLatest: CommerceCheckoutSession!
-    commerceDiscountRules(pagination: PaginationInput!): PaginationDiscountRuleResult!
-    commerceDiscounts(pagination: PaginationInput!): PaginationDiscountResult!
-    commerceOrder(emailAddress: String, identifier: String!): CommerceOrderResult!
-    commerceOrderPriceEstimate(input: EstimateOrderPriceInput!): CommerceOrderPrice!
-    commerceOrderPrivileged(id: String!): CommerceOrder!
+    commerceOrder(identifier: String!): CommerceOrderResult!
+    commerceOrderPrivileged(id: String, identifier: String): CommerceOrder!
     commerceOrders(pagination: PaginationInput!): PaginationOrderResult!
     commerceOrdersByCheckoutSession(checkoutSessionId: String!): [CommerceOrderResult!]!
-    commerceOrdersByGroupIdentifier(emailAddress: String, identifier: String!): [CommerceOrderResult!]!
     commerceOrdersPrivileged(pagination: PaginationInput!): PaginationOrderResult!
     commerceOrdersReadyToFulfill(pagination: PaginationInput!): PaginationFulfillmentOrderResult!
-    commerceOrdersReadyToShip(pagination: PaginationInput!): PaginationFulfillmentOrderResult!
     commerceProduct(id: String, identifier: String, name: String): Product!
     commerceProductBundle(id: String, identifier: String): ProductBundle!
     commerceProductBundles(pagination: PaginationInput!): ProductBundlesPaginationResult!
     commerceProductPrivileged(id: String, identifier: String, name: String): Product!
     commerceProducts(pagination: PaginationInput!): ProductsPaginationResult!
     commerceProductsPrivileged(pagination: PaginationInput!): ProductsPaginationResult!
-    commerceSavedItems: ShoppingBag!
-    commerceShipmentBatches(input: QueryShipmentBatchInput!): PaginationShipmentBatchResult!
-    commerceShoppingBag(createIfNotExists: Boolean, identifier: String!): ShoppingBag!
-    commerceShoppingBagPriceEstimate(itemIds: [String!]!): [CommerceOrderPrice!]!
-    commerceStreetAddressValidate(address: StreetAddressInput!): ValidateAddressResult!
-    commerceTaxRate(postalCode: String!, syncRemote: Boolean): TaxRate!
-    commerceTaxRates(pagination: PaginationInput!): TaxRatesResult!
+    commerceRefundRequestsPrivileged(pagination: PaginationInput!): PaginationRefundResult!
     commerceVendor(id: String, identifier: String): Vendor!
     commerceVendors(pagination: PaginationInput!): VendorsResult!
-    commerceWalletEntries: [WalletEntry!]!
+    queryOrderPrice(input: QueryCommerceOrderPriceInput!): QueryCommerceOrderPriceResult!
     warehouse(id: String!): Warehouse!
     warehouses: [Warehouse!]!
 }
 
-input QueryShipmentBatchInput {
-    endAt: DateTimeISO
-    filters: [ColumnFilterInput!]
-    itemIndex: Int
-    itemsPerPage: Int!
-    orderBy: [OrderByInput!]
-    startAt: DateTimeISO
-    status: String
+input QueryCommerceOrderPriceInput {
+    emailAddress: String
+    lineItems: [OrderLineItemInput!]!
+    metadata: JSON
+    shippingAddress: StreetAddressInput
+}
+
+type QueryCommerceOrderPriceResult {
+    appliedDiscounts: [CommerceOrderDiscount!]!
+    orderPrice: CommerceOrderPrice!
+}
+
+type Refund {
+    amount: MonetaryDecimal
+    commerceOrder: CommerceOrder
+    commerceOrderId: String!
+    createdAt: DateTimeISO!
+    id: String!
+    items: [RefundItem!]!
+    metadata: JSON
+    reason: String
+    status: RefundStatus!
+    statusRecords: [StatusRecord!]
+    updatedAt: DateTimeISO!
+}
+
+type RefundItem {
+    lineItemId: Float!
+    quantity: Float!
+}
+
+"""
+The status of a refund.
+"""
+enum RefundStatus {
+    Cancelled
+    Created
+    Failed
+    Issued
+    Pending
+    Rejected
+    RequiresAction
 }
 
 type Shipment {
@@ -958,34 +729,14 @@ type Shipment {
     id: String!
     label: ShippingLabel
     orderIndexId: Int!
-    orderSlip: ShippingOrderSlip
     packageInfo: ShippingPackageInfo!
     shippedAt: DateTimeISO
     source: String!
     status: ShipmentStatus!
-    statusDescription: String
     toAddress: StreetAddressObject!
     updatedAt: DateTimeISO!
     updatedByAccountId: String
     updatedByProfileId: String
-}
-
-type ShipmentBatch {
-    batchKey: String!
-    closedAt: DateTimeISO
-    createdAt: DateTimeISO!
-    id: String!
-    printedAt: DateTimeISO
-    processedAt: DateTimeISO
-    shipmentCount: Float!
-    status: String!
-    statusDescription: String
-    updatedAt: DateTimeISO!
-}
-
-type ShipmentManifest {
-    createdAt: DateTimeISO!
-    id: String!
 }
 
 """
@@ -1007,14 +758,9 @@ type ShippingLabel {
     trackingUrl: String
 }
 
-type ShippingOrderSlip {
-    storedObjectUrl: String
-}
-
 type ShippingPackageInfo {
     items: [ShippingPackageItem!]!
     packageIndexId: Float!
-    packageType: String!
 }
 
 type ShippingPackageItem {
@@ -1031,62 +777,10 @@ enum ShippingServiceType {
     USPSPriorityMailExpress
 }
 
-type ShoppingBag {
-    createdAt: DateTimeISO!
+type StatusRecord {
     description: String
-    id: String!
-    identifier: String!
-    items: [ShoppingBagItem!]!
-    profileId: String!
-    title: String
-    updatedAt: DateTimeISO!
-}
-
-input ShoppingBagCheckoutInput {
-    emailAddress: String!
-    itemIds: [String!]!
-    paymentMethod: CreateOrderPaymentMethodInput!
-}
-
-"""
-The action to perform on the shopping bag item
-"""
-enum ShoppingBagEditionAction {
-    AddItem
-    DecreaseQuantity
-    IncreaseQuantity
-    RemoveItem
-    SetQuantity
-    UpdateItem
-}
-
-type ShoppingBagItem {
-    bagItemGroupKey: String!
-    emailAddress: String
-    firstName: String
-    id: String!
-    lastName: String
-    productBundle: ProductBundle
-    productBundleId: String
-    productVariant: ProductVariant
-    productVariantId: String
-    quantity: Float!
-    relationship: String
-    shippingAddress: StreetAddressObject
-}
-
-input ShoppingBagItemInput {
-    action: ShoppingBagEditionAction!
-    bagItemGroupKey: String
-    emailAddress: String
-    firstName: String
-    id: String!
-    lastName: String
-    productBundleId: String
-    productVariantId: String
-    quantity: Float
-    relationship: String
-    shippingAddress: StreetAddressInput
+    status: String!
+    timestamp: DateTimeISO!
 }
 
 input StreetAddressInput {
@@ -1113,26 +807,6 @@ type StreetAddressObject {
     phoneNumber: String
     postalCode: String!
     state: String!
-}
-
-type TaxRate {
-    createdAt: DateTimeISO!
-    id: String!
-    lastSyncedAt: DateTimeISO!
-    postalCode: String!
-    rate: Decimal!
-    rateDetail: JSON!
-    updatedAt: DateTimeISO!
-}
-
-type TaxRatesResult {
-    items: [TaxRate!]!
-    pagination: Pagination!
-}
-
-type TransformShoppingBagResult {
-    from: ShoppingBag!
-    to: ShoppingBag!
 }
 
 input UpdateProductBundleInput {
@@ -1163,7 +837,7 @@ input UpdateProductInput {
 }
 
 input UpdateProductVariantAttributeInput {
-    attributeToUpsert: ProductVariantAttributeInput!
+    attributeToUpsert: ProductVariantAttributeInput
     idToDelete: String
 }
 
@@ -1182,7 +856,6 @@ input UpdateProductVariantInput {
     sku: String
     status: ProductVariantStatus
     taxCode: String
-    unitInfo: ProductVariantUnitInfoInput
 }
 
 input UpdateVendorInput {
@@ -1193,34 +866,7 @@ input UpdateVendorInput {
     status: VendorStatus
 }
 
-input UpsertShoppingBagInput {
-    description: String
-    identifier: String!
-    """
-    The item array could be empty
-    """
-    items: [ShoppingBagItemInput!]!
-    title: String
-}
-
-input UpsertWalletEntryInput {
-    id: String
-    identifier: String
-    paymentMethod: PaymentMethodInput
-    tier: WalletEntryTier
-}
-
-type ValidateAddressResult {
-    candidateAddresses: [StreetAddressObject!]
-    isApoFpo: Boolean
-    isPoBox: Boolean
-    isValid: Boolean!
-    message: String
-    originalAddress: StreetAddressObject!
-}
-
 type Vendor {
-    address: AddressBookEntry
     createdAt: DateTimeISO!
     createdByAccountId: String!
     createdByProfileId: String!
@@ -1245,28 +891,6 @@ enum VendorStatus {
 type VendorsResult {
     items: [Vendor!]!
     pagination: Pagination!
-}
-
-type WalletEntry {
-    createdAt: DateTimeISO!
-    id: String!
-    identifier: String!
-    paymentMethod: PaymentMethod!
-    status: WalletEntryStatus!
-    statusDescription: String
-    tier: WalletEntryTier!
-    updatedAt: DateTimeISO!
-}
-
-enum WalletEntryStatus {
-    Confirmed
-    Pending
-    RequiresUserAction
-}
-
-enum WalletEntryTier {
-    Primary
-    Secondary
 }
 
 type Warehouse {
@@ -1319,11 +943,4 @@ input WarehouseUpdateInput {
     address: StreetAddressInput
     id: String!
     name: String
-}
-
-enum WeightUnit {
-    Gram
-    Kilogram
-    Ounces
-    Pounds
 }

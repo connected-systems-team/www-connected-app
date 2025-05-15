@@ -23,7 +23,7 @@ import {
     OrderByDirection,
     FlowExecution,
     FlowStepExecution,
-} from '@project/source/api/GraphQlGeneratedCode';
+} from '@project/source/api/graphql/GraphQlGeneratedCode';
 
 // Dependencies - Assets
 import ArrowLeftIcon from '@structure/assets/icons/interface/ArrowLeftIcon.svg';

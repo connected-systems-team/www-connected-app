@@ -5,7 +5,7 @@ import {
     FlowExecution as FlowExecutionGraphQlInterface,
     FlowStepExecution as FlowStepExecutionGraphQlInterface,
     FlowStepExecutionStatus as FlowStepExecutionStatusGraphQlType,
-} from '@project/source/api/GraphQlGeneratedCode';
+} from '@project/source/api/graphql/GraphQlGeneratedCode';
 import {
     WebSocketViaSharedWorkerContextInterface,
     WebSocketMessageEventInterface,
@@ -619,9 +619,10 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
     }
 
     // Function to determine if a flow step should be processed
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected shouldProcessFlowStep(flowStep: FlowStepExecutionGraphQlInterface): boolean {
-        if(flowStep) {
-        }
+        // This method is designed to be overridden by subclasses
+        // The flowStep parameter is intentionally unused in the base implementation
 
         // Default implementation processes all steps
         return true;

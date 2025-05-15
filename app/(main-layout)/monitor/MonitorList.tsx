@@ -18,7 +18,7 @@
 //     ColumnFilterConditionOperator,
 //     OrderByDirection,
 //     PortMonitorDocument,
-// } from '@project/source/api/GraphQlGeneratedCode';
+// } from '@project/source/api/graphql/GraphQlGeneratedCode';
 
 // // Dependencies - SVGs
 // // import SearchIcon from '@structure/assets/icons/navigation/SearchIcon.svg';
