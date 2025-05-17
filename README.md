@@ -85,7 +85,7 @@ In this project, we are utilizing Next.js `App Router`. The `App Router` determi
 
 ## Styling with Tailwind CSS
 
-This project uses Tailwind CSS, a utility-first CSS framework, for styling. The configuration file for Tailwind CSS is `tailwind.config.js`. As part of the development process, you may need to customize this file according to your feature needs.
+This project uses Tailwind CSS, a utility-first CSS framework, for styling. The configuration file for Tailwind CSS is `tailwind.config.ts`. As part of the development process, you may need to customize this file according to your feature needs.
 
 ## More Resources
 

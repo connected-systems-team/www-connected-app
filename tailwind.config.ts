@@ -1,5 +1,5 @@
 // Dependencies - Project
-// Have to use relative paths for tailwind.config.js
+// Have to use relative paths for tailwind.config.ts
 // import ProjectSettings from './ProjectSettings';
 import StructureTailwindConfiguration from './libraries/structure/source/theme/TailwindConfiguration';
 
