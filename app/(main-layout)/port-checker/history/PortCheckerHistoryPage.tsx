@@ -45,7 +45,7 @@ interface PortCheckFlowStepExecutionInputInterface {
     host: string;
     port: number; // Required in GraphQL response
     region: string; // Region ID in GraphQL response
-    maxAttempts: number; // Note: GraphQL response has 'maxAttempts' not 'maxAttemps'
+    maxAttempts: number; // GraphQL field name is 'maxAttempts'
 }
 
 // Type - PortCheckFlowOutputInterface

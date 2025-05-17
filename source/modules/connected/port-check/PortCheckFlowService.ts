@@ -110,7 +110,7 @@ export interface PortCheckFlowInputInterface {
     host: string;
     port?: number;
     country?: string;
-    maxAttemps?: number;
+    maxAttempts?: number;
 }
 
 // Server Type - PortCheckFlowOutputInterface - Output for a port scan flow
