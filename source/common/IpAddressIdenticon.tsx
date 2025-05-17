@@ -70,7 +70,7 @@ export function IpAddressIdenticon(properties: IpAddressIdenticonInterface) {
             align="start"
             content={
                 <div className="px-5 py-4 text-sm shadow-xl md:max-w-96">
-                    <p className="mb-1 font-medium">IP Address Indenticon</p>
+                    <p className="mb-1 font-medium">IP Address Identicon</p>
                     <p className="mb-0.5">
                         The IP Address Identicon is a visual representation of an IP address using the color spectrum of
                         the rainbow{' '}
