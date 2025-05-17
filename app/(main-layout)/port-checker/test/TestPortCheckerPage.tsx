@@ -302,7 +302,7 @@ export function TestPortCheckerPage() {
                     <div className="mb-6 h-2 w-full rounded-full">
                         <div
                             className="h-2 rounded-full border"
-                            style={{ width: `${(currentBatchTestIndex / testCases.length) * 100}%` }}
+                            style={{ width: `${((currentBatchTestIndex + 1) / testCases.length) * 100}%` }}
                         ></div>
                     </div>
                     <div className="mb-4 grid grid-cols-2 gap-4">
