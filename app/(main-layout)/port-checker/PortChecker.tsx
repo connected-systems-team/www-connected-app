@@ -134,6 +134,3 @@ export function PortChecker(properties: PortCheckerProperties) {
         </div>
     );
 }
-
-// Export - Default
-export default PortChecker;

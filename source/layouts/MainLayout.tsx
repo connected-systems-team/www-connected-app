@@ -65,6 +65,3 @@ export function MainLayout(properties: MainLayoutProperties) {
         </>
     );
 }
-
-// Export - Default
-export default MainLayout;

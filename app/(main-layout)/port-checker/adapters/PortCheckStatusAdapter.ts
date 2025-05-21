@@ -346,6 +346,3 @@ export class PortCheckStatusAdapter {
         this.onPortCheckStatusItem(portCheckStatusItem);
     }
 }
-
-// Export - Default
-export default PortCheckStatusAdapter;

@@ -1,5 +1,5 @@
 // Dependencies - Structure
-import ProjectSettings from '@project/ProjectSettings';
+import { ProjectSettings } from '@project/ProjectSettings';
 
 // Dependencies - React and Next.js
 import React from 'react';
@@ -85,7 +85,7 @@ export function Footer() {
     // Render the component
     return (
         <footer className="mt-32 w-full">
-            <div className="bg-border-secondary border-b border-t">
+            <div className="border-b border-t bg-border-secondary">
                 <div className="container flex items-center justify-between py-phi-base-0.75">
                     {/* Logo and Socials */}
                     <Link href="/" className="transition-opacity hover:opacity-70">
@@ -178,6 +178,3 @@ export function Footer() {
         </footer>
     );
 }
-
-// Export - Default
-export default Footer;

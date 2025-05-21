@@ -110,6 +110,3 @@ export class FlowWebSocketService {
         this.flowExecutionId = undefined;
     }
 }
-
-// Export - Default
-export default FlowWebSocketService;

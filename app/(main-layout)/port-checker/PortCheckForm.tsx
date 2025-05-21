@@ -190,6 +190,3 @@ export function PortCheckForm(properties: PortCheckFormProperties) {
         </div>
     );
 }
-
-// Export - Default
-export default PortCheckForm;

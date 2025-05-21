@@ -71,6 +71,3 @@ export function CommonPorts(properties: CommonPortsProperties) {
         </div>
     );
 }
-
-// Export - Default
-export default CommonPorts;

@@ -110,6 +110,8 @@ export default [
             'structure/react-properties-parameter-name': 'error',
             'structure/react-no-arrow-functions-as-hook-parameters': 'error',
             'structure/react-properties-type-naming': 'error',
+            'structure/react-function-style': 'error',
+            'structure/react-no-default-export': 'error',
 
             // More permissive rules for Node.js/scripts
             'no-console': 'off', // Allow console logs
@@ -164,6 +166,8 @@ export default [
             'structure/react-properties-parameter-name': 'error',
             'structure/react-no-arrow-functions-as-hook-parameters': 'error',
             'structure/react-properties-type-naming': 'error',
+            'structure/react-function-style': 'error',
+            'structure/react-no-default-export': 'error',
         },
     },
 

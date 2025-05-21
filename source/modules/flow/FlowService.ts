@@ -696,6 +696,3 @@ export abstract class FlowService<TFlowInput, TFlowOutput> {
         });
     }
 }
-
-// Export - Default
-export default FlowService;

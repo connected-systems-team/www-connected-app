@@ -160,6 +160,3 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
         </>
     );
 }
-
-// Export - Default
-export default PortCheckStatusAnimatedList;

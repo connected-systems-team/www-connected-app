@@ -435,6 +435,3 @@ export function TestPortCheckerPage() {
         </div>
     );
 }
-
-// Export - Default
-export default TestPortCheckerPage;

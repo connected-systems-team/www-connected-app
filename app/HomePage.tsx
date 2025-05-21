@@ -1,7 +1,7 @@
 'use client'; // This component uses client-only features
 
 // Dependencies - Project
-import ProjectSettings from '@project/ProjectSettings';
+import { ProjectSettings } from '@project/ProjectSettings';
 
 // Dependencies - React and Next.js
 import React from 'react';
@@ -33,7 +33,7 @@ export function HomePage() {
                 return (
                     <span key={index}>
                         {index > 0 && ' • '}
-                        <Link href={platform.url} target="_blank" className="link-blue underline">
+                        <Link href={platform.url} target="_blank" className="underline link-blue">
                             {platform.title}
                         </Link>
                     </span>
@@ -50,7 +50,7 @@ export function HomePage() {
                 <div className="absolute right-4 top-4 z-20">{<AccountMenuButton />}</div>
 
                 {/* Primary div, shows up on left side of screen on medium displays */}
-                <div className="scrollbar-hide flex-grow items-center justify-center md:flex md:overflow-auto md:border-r md:border-primary">
+                <div className="scrollbar-hide md:border-primary flex-grow items-center justify-center md:flex md:overflow-auto md:border-r">
                     <div className="max-w-[680px] p-8 md:max-h-screen">
                         {/* Show the logo on small screens */}
                         <div
@@ -87,7 +87,7 @@ export function HomePage() {
                         {/* Footer */}
                         <p className="mt-6 text-sm font-light">
                             &copy;{currentYear}{' '}
-                            <Link href={ProjectSettings.url} target="_blank" className="link-blue underline">
+                            <Link href={ProjectSettings.url} target="_blank" className="underline link-blue">
                                 {ProjectSettings.ownerDisplayName}
                             </Link>
                             {' • '}
@@ -123,6 +123,3 @@ export function HomePage() {
         </>
     );
 }
-
-// Export - Default
-export default HomePage;

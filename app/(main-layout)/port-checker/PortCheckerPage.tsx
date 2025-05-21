@@ -91,6 +91,3 @@ export function PortCheckerPage(properties: PortCheckerPageProperties) {
         </AuthorizationLayout>
     );
 }
-
-// Export - Default
-export default PortCheckerPage;

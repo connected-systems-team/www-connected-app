@@ -67,7 +67,7 @@ export function PortPage() {
             </div>
 
             <div className="container mt-10">
-                <div className="rounded-medium float-end flex flex-col items-center border px-4 py-2.5">
+                <div className="float-end flex flex-col items-center rounded-medium border px-4 py-2.5">
                     <div className="text-sm uppercase text-neutral">Port</div>
                     <div className="text-4xl leading-none">{urlParameters.port}</div>
                 </div>
@@ -84,7 +84,7 @@ export function PortPage() {
                     <ul className="flex">
                         <li>
                             <Link
-                                className="rounded-medium flex border bg-[#006EFC] px-2 py-0.5"
+                                className="flex rounded-medium border bg-[#006EFC] px-2 py-0.5"
                                 href="/protocols/http"
                             >
                                 HTTP
@@ -97,7 +97,7 @@ export function PortPage() {
                         <ul className="flex space-x-2">
                             <li>
                                 <Link
-                                    className="rounded-medium flex border bg-[#006EFC] px-2 py-0.5"
+                                    className="flex rounded-medium border bg-[#006EFC] px-2 py-0.5"
                                     href="/protocols/http"
                                 >
                                     Apache Web Server
@@ -105,7 +105,7 @@ export function PortPage() {
                             </li>
                             <li>
                                 <Link
-                                    className="rounded-medium flex border bg-[#006EFC] px-2 py-0.5"
+                                    className="flex rounded-medium border bg-[#006EFC] px-2 py-0.5"
                                     href="/protocols/http"
                                 >
                                     NGINX
@@ -193,6 +193,3 @@ export function PortPage() {
         </div>
     );
 }
-
-// Export - Default
-export default PortPage;

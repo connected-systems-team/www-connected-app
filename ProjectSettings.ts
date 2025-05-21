@@ -74,6 +74,3 @@ export const ProjectSettings: StructureSettingsInterface = {
         },
     },
 };
-
-// Export - Default
-export default ProjectSettings;

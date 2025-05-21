@@ -44,6 +44,3 @@ export function YourPublicIpAddress(properties: YourPublicIpAddressProperties) {
         </div>
     );
 }
-
-// Export - Default
-export default YourPublicIpAddress;

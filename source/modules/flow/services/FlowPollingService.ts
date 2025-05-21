@@ -158,6 +158,3 @@ export class FlowPollingService {
         this.flowExecutionId = null;
     }
 }
-
-// Export - Default
-export default FlowPollingService;

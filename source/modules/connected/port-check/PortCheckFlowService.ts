@@ -243,6 +243,3 @@ export class PortCheckFlowService extends FlowService<PortCheckFlowInputInterfac
         return portCheckMutation.data.portCheckCreate;
     }
 }
-
-// Export - Default
-export default PortCheckFlowService;

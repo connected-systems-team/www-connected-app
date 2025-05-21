@@ -90,6 +90,3 @@ export function NavigationMobile() {
         </NavigationDrawer>
     );
 }
-
-// Export - Default
-export default NavigationMobile;

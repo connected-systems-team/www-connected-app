@@ -84,6 +84,3 @@ export function AboutPage() {
         </div>
     );
 }
-
-// Export - Default
-export default AboutPage;

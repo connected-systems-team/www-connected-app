@@ -128,6 +128,3 @@ export function NavigationDrawer(properties: NavigationDrawerProperties) {
         </DialogPrimitive.Root>
     );
 }
-
-// Export - Default
-export default NavigationDrawer;

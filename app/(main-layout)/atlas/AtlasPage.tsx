@@ -52,6 +52,3 @@ export function AtlasPage() {
         </div>
     );
 }
-
-// Export - Default
-export default AtlasPage;

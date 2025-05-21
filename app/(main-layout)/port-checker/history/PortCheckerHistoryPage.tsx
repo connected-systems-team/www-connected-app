@@ -352,6 +352,3 @@ export function PortCheckerHistoryPage() {
         </AuthorizationLayout>
     );
 }
-
-// Export - Default
-export default PortCheckerHistoryPage;

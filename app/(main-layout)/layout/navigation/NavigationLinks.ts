@@ -6,6 +6,3 @@ export const NavigationLinks: {
     // { href: '/port-checker', title: 'Port Checker' },
     // { href: '/support', title: 'Support' },
 ];
-
-// Export - Default
-export default NavigationLinks;

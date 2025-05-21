@@ -300,6 +300,3 @@ export function ParticleSystem(properties: ParticleSystemProperties) {
         </group>
     );
 }
-
-// Export - Default
-export default ParticleSystem;

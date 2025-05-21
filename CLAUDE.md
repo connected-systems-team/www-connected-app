@@ -169,16 +169,6 @@ This document provides guidelines and preferences for Claude when assisting with
     import { useQuery, useMutation } from '@apollo/client';
     ```
 
--   Use appropriate comments for exports:
-
-    ```
-    // Export - Default
-    export default ComponentName;
-
-    // Export - Named
-    export { ComponentName };
-    ```
-
 ### CSS & Styling
 
 -   Use Tailwind CSS utility classes for styling

@@ -168,6 +168,3 @@ export function AtlasScene(properties: AtlasSceneProperties) {
         </>
     );
 }
-
-// Export - Default
-export default AtlasScene;

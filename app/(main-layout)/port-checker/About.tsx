@@ -18,6 +18,3 @@ export function About() {
         </>
     );
 }
-
-// Export - Default
-export default About;

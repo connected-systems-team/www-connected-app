@@ -38,6 +38,3 @@ export function AnimatedList(properties: AnimatedListProperties) {
         </div>
     );
 }
-
-// Export - Default
-export default AnimatedList;

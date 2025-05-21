@@ -116,6 +116,3 @@ export function Atlas(properties: AtlasProperties) {
         </div>
     );
 }
-
-// Export - Default
-export default Atlas;

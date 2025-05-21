@@ -76,6 +76,3 @@ export function AtlasCircle(properties: AtlasCircleProperties) {
         </group>
     );
 }
-
-// Export - Default
-export default AtlasCircle;

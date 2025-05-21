@@ -112,6 +112,3 @@ export function IpAddressIdenticon(properties: IpAddressIdenticonProperties) {
         </Popover>
     );
 }
-
-// Export - Default
-export default IpAddressIdenticon;

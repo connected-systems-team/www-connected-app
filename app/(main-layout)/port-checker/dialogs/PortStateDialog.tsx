@@ -603,6 +603,3 @@ function getPortStateInformation(
             };
     }
 }
-
-// Export - Default
-export default PortStateDialog;

@@ -177,6 +177,3 @@ export function PrivacyPolicyPage() {
         </div>
     );
 }
-
-// Export - Default
-export default PrivacyPolicyPage;

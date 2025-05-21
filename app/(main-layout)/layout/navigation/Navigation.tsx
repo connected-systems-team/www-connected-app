@@ -80,5 +80,3 @@ export function Navigation(properties: NavigationProperties) {
         </nav>
     );
 }
-
-export default Navigation;

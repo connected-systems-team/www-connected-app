@@ -55,7 +55,7 @@ export function IpAddressPage() {
                 <div className="mb-1 text-sm uppercase text-neutral">Version</div>
                 <ul className="flex">
                     <li>
-                        <Link className="rounded-medium flex border bg-[#006EFC] px-2 py-0.5" href="/protocols/http">
+                        <Link className="flex rounded-medium border bg-[#006EFC] px-2 py-0.5" href="/protocols/http">
                             4
                         </Link>
                     </li>
@@ -203,6 +203,3 @@ export function IpAddressPage() {
         </div>
     );
 }
-
-// Export - Default
-export default IpAddressPage;

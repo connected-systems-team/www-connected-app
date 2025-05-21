@@ -226,6 +226,3 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerProperties)
         </div>
     );
 }
-
-// Export - Default
-export default AutomatedPortChecker;

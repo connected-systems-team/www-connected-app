@@ -38,6 +38,3 @@ export function MonitorPage() {
         </div>
     );
 }
-
-// Export - Default
-export default MonitorPage;
