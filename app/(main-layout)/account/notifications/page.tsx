@@ -1,5 +1,5 @@
-// Shim the default export from Structure
+// Import from Structure
 export {
     generateMetadata,
-    default,
+    NotificationsPage as default,
 } from '@structure/source/modules/account/pages/profile/notifications/NotificationsPage';

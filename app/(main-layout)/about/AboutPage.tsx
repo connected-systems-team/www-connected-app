@@ -1,8 +1,16 @@
 // Dependencies - React and Next.js
 import React from 'react';
+import { Metadata } from 'next';
 
 // Dependencies - Main Components
 import { Link } from '@structure/source/common/navigation/Link';
+
+// Metadata
+export async function generateMetadata(): Promise<Metadata> {
+    return {
+        title: 'About',
+    };
+}
 
 // Component - AboutPage
 export function AboutPage() {

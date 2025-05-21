@@ -1,2 +1,5 @@
-// Shim the default export from Structure
-export { generateMetadata, default } from '@structure/source/modules/account/pages/profile/profile/ProfilePage';
+// Import from Structure
+export {
+    generateMetadata,
+    ProfilePage as default,
+} from '@structure/source/modules/account/pages/profile/profile/ProfilePage';

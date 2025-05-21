@@ -1,2 +1,2 @@
-// Shim the default export from Structure
-export { generateMetadata, default } from '@structure/source/layouts/RootLayout';
+// Import from Structure
+export { generateMetadata, RootLayout as default, viewport } from '@structure/source/layouts/RootLayout';

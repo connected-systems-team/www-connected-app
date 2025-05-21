@@ -1,5 +1,5 @@
-// Shim the default export from Structure
+// Import from Structure
 export {
     generateMetadata,
-    default,
+    EmailAddressesPage as default,
 } from '@structure/source/modules/account/pages/profile/email-addresses/EmailAddressesPage';

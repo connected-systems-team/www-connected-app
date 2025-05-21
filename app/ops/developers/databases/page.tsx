@@ -8,5 +8,5 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-// Shim the default export from Structure
-export { DevelopersDatabasesPage as default } from '@structure/source/ops/pages/developers/DevelopersDatabasesPage';
+// Import from Structure
+export { DevelopersDatabasePage as default } from '@structure/source/ops/pages/developers/DevelopersDatabasesPage';

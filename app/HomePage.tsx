@@ -9,7 +9,7 @@ import React from 'react';
 // Dependencies - Main Components
 import { Link } from '@structure/source/common/navigation/Link';
 import { Button } from '@structure/source/common/buttons/Button';
-import AccountMenuButton from '@structure/source/modules/account/components/AccountMenuButton';
+import { AccountMenuButton } from '@structure/source/modules/account/components/AccountMenuButton';
 
 // Dependencies - Account
 import { useAccount } from '@structure/source/modules/account/providers/AccountProvider';

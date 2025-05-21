@@ -1,2 +1,5 @@
-// Shim the default export from Structure
-export { generateMetadata, default } from '@structure/source/modules/account/pages/authentication/SignInPage';
+// Import from Structure
+export {
+    generateMetadata,
+    SignInPage as default,
+} from '@structure/source/modules/account/pages/authentication/SignInPage';
