@@ -13,6 +13,7 @@
         "graphql:generate": "graphql-codegen --config libraries/structure/source/api/graphql/GraphQlCodeGeneratorConfiguration.ts",
         "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
         "lint": "eslint",
+        "lint:open": "npx eslint . --format json | jq -r '.[] | select(.errorCount > 0 or .warningCount > 0) | .filePath' | xargs -r code-insiders",
         "preview": "opennextjs-cloudflare && wrangler dev --var STRUCTURE_ENV:development --local-protocol \"https\" --port 2666 --ip localhost.connected.app --https-key-path \"./certificates/localhost-key.pem\" --https-cert-path \"./certificates/localhost.pem\"",
         "build": "eslint . && opennextjs-cloudflare",
         "build:websocketsharedworker": "node libraries/structure/source/api/web-sockets/shared-worker/scripts/BuildWebSocketSharedWorker.mjs",
