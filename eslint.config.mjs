@@ -12,7 +12,7 @@ import EsLintPluginReactHooks from 'eslint-plugin-react-hooks';
 import EsLintConfigurationPrettier from 'eslint-config-prettier';
 
 // Structure
-import StructureRules from './libraries/structure/linting/StructureRules.mjs';
+import StructureLintRules from './libraries/structure/linting/StructureLintRules.mjs';
 
 // Export - Default
 export default [
@@ -88,7 +88,7 @@ export default [
             '@next/next': EsLintPluginNext,
             react: EsLintPluginReact,
             'react-hooks': EsLintPluginReactHooks,
-            structure: StructureRules,
+            structure: StructureLintRules,
         },
 
         // Rules
@@ -105,11 +105,11 @@ export default [
             'no-empty': ['error', { allowEmptyCatch: true }],
             'structure/no-internal-imports': 'error',
             'structure/no-structure-project-imports': 'error',
-            'structure/no-properties-destructuring': 'error',
-            'structure/no-react-destructuring': 'error',
-            'structure/use-properties-name': 'error',
-            'structure/no-arrow-functions-in-react-hooks': 'error',
-            'structure/react-component-properties-type-naming': 'error',
+            'structure/react-no-destructuring-properties': 'error',
+            'structure/react-no-destructuring-import': 'error',
+            'structure/react-properties-parameter-name': 'error',
+            'structure/react-no-arrow-functions-as-hook-parameters': 'error',
+            'structure/react-properties-type-naming': 'error',
 
             // More permissive rules for Node.js/scripts
             'no-console': 'off', // Allow console logs
@@ -137,7 +137,7 @@ export default [
             '@next/next': EsLintPluginNext,
             react: EsLintPluginReact,
             'react-hooks': EsLintPluginReactHooks,
-            structure: StructureRules,
+            structure: StructureLintRules,
         },
 
         // Rules
@@ -159,11 +159,11 @@ export default [
             'no-empty': ['error', { allowEmptyCatch: true }],
             'structure/no-internal-imports': 'error',
             'structure/no-structure-project-imports': 'error',
-            'structure/no-properties-destructuring': 'error',
-            'structure/no-react-destructuring': 'error',
-            'structure/use-properties-name': 'error',
-            'structure/no-arrow-functions-in-react-hooks': 'error',
-            'structure/react-component-properties-type-naming': 'error',
+            'structure/react-no-destructuring-properties': 'error',
+            'structure/react-no-destructuring-import': 'error',
+            'structure/react-properties-parameter-name': 'error',
+            'structure/react-no-arrow-functions-as-hook-parameters': 'error',
+            'structure/react-properties-type-naming': 'error',
         },
     },
 
