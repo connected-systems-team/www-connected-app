@@ -9,4 +9,4 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 // Shim the default export from Structure
-export { default } from '@structure/source/ops/pages/developers/web-sockets/WebSocketsPage';
+export { WebSocketsPage as default } from '@structure/source/ops/pages/developers/web-sockets/WebSocketsPage';

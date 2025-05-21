@@ -21,4 +21,4 @@ export async function generateMetadata(properties: unknown, parentMetadata: Reso
 }
 
 // Page - Home
-export { default } from '@project/app/(main-layout)/domains/[domain]/DomainPage';
+export { DomainPage as default } from '@project/app/(main-layout)/domains/[domain]/DomainPage';

@@ -9,4 +9,4 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 // Shim the default export from Structure
-export { default } from '@structure/source/modules/account/pages/ops/UsersSegmentsPage';
+export { UsersSegmentsPage as default } from '@structure/source/modules/account/pages/ops/UsersSegmentsPage';

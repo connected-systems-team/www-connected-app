@@ -9,4 +9,4 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 // Page - Fun
-export { default } from '@project/app/(main-layout)/atlas/AtlasPage';
+export { AtlasPage as default } from '@project/app/(main-layout)/atlas/AtlasPage';

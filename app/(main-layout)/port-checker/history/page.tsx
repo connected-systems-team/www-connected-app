@@ -9,4 +9,4 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 // Page - Home
-export { default } from '@project/app/(main-layout)/port-checker/history/PortCheckerHistoryPage';
+export { PortCheckerHistoryPage as default } from '@project/app/(main-layout)/port-checker/history/PortCheckerHistoryPage';

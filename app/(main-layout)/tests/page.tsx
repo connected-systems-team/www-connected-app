@@ -9,4 +9,4 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 // Page - Home
-export { default } from '@project/app/(main-layout)/tests/TestsPage';
+export { TestsPage as default } from '@project/app/(main-layout)/tests/TestsPage';
