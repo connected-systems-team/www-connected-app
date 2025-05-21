@@ -11,7 +11,7 @@ import EsLintPluginReactHooks from 'eslint-plugin-react-hooks';
 // Turn off Prettier-conflicting rules (must come LAST)
 import EsLintConfigurationPrettier from 'eslint-config-prettier';
 
-// Your in-house "structure" rules
+// Structure
 import StructureRules from './libraries/structure/linting/StructureRules.mjs';
 
 // Export - Default
@@ -105,6 +105,11 @@ export default [
             'no-empty': ['error', { allowEmptyCatch: true }],
             'structure/no-internal-imports': 'error',
             'structure/no-structure-project-imports': 'error',
+            'structure/no-properties-destructuring': 'error',
+            'structure/no-react-destructuring': 'error',
+            'structure/use-properties-name': 'error',
+            'structure/no-arrow-functions-in-react-hooks': 'error',
+            'structure/react-component-properties-type-naming': 'error',
 
             // More permissive rules for Node.js/scripts
             'no-console': 'off', // Allow console logs
@@ -154,6 +159,11 @@ export default [
             'no-empty': ['error', { allowEmptyCatch: true }],
             'structure/no-internal-imports': 'error',
             'structure/no-structure-project-imports': 'error',
+            'structure/no-properties-destructuring': 'error',
+            'structure/no-react-destructuring': 'error',
+            'structure/use-properties-name': 'error',
+            'structure/no-arrow-functions-in-react-hooks': 'error',
+            'structure/react-component-properties-type-naming': 'error',
         },
     },
 

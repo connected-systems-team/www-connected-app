@@ -11,10 +11,10 @@ import { PerspectiveCamera } from '@react-three/drei';
 import { AtlasScene } from '@project/app/(main-layout)/atlas/components/AtlasScene';
 
 // Component - Atlas
-export interface AtlasInterface {
+export interface AtlasProperties {
     particlesEnabled?: boolean;
 }
-export function Atlas(properties: AtlasInterface) {
+export function Atlas(properties: AtlasProperties) {
     // State
     const [mousePosition, setMousePosition] = React.useState({ x: 0, y: 0 });
 

@@ -14,13 +14,13 @@ import CloseIcon from '@structure/assets/icons/navigation/CloseIcon.svg';
 import { useTransition, animated, config as reactSpringConfiguration, useSpring } from '@react-spring/web';
 
 // Component - NavigationDrawer
-export interface NavigationDrawerInterface {
+export interface NavigationDrawerProperties {
     children: React.ReactNode;
     open?: boolean;
     setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
     onOpen?: () => void;
 }
-export function NavigationDrawer(properties: NavigationDrawerInterface) {
+export function NavigationDrawer(properties: NavigationDrawerProperties) {
     // State
     const internalOpenState = React.useState(false);
     const [open, setOpen] =

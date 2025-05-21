@@ -15,8 +15,8 @@ import { NavigationMobile } from '@project/app/(main-layout)/layout/navigation/N
 import { mergeClassNames } from '@structure/source/utilities/Style';
 
 // Component - Navigation
-interface NavigationInterface extends React.HTMLProps<HTMLElement> {}
-export function Navigation(properties: NavigationInterface) {
+interface NavigationProperties extends React.HTMLProps<HTMLElement> {}
+export function Navigation(properties: NavigationProperties) {
     // Render the component
     return (
         <nav

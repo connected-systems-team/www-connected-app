@@ -14,7 +14,7 @@ import { mergeClassNames } from '@structure/source/utilities/Style';
 import useMeasure from 'react-use-measure';
 
 // Component - AnimatedListItem
-export interface AnimatedListItemInterface {
+export interface AnimatedListItemProperties {
     content: React.ReactNode;
 
     // Final item
@@ -28,7 +28,7 @@ export interface AnimatedListItemInterface {
     isActive: boolean;
     hasNextItem: boolean;
 }
-export function AnimatedListItem(properties: AnimatedListItemInterface) {
+export function AnimatedListItem(properties: AnimatedListItemProperties) {
     // State
     const [showContent, setShowContent] = React.useState(properties.isFirst);
 

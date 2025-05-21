@@ -10,10 +10,10 @@ import ConnectedOutlineIconSvg from '@project/assets/icons/ConnectedOutlineIcon.
 import { mergeClassNames } from '@structure/source/utilities/Style';
 
 // Component - ConnectedOutlineIcon
-export interface ConnectedOutlineIconInterface {
+export interface ConnectedOutlineIconProperties {
     className?: string;
 }
-export function ConnectedOutlineIcon(properties: ConnectedOutlineIconInterface) {
+export function ConnectedOutlineIcon(properties: ConnectedOutlineIconProperties) {
     // Render the component
     return (
         <ConnectedOutlineIconSvg

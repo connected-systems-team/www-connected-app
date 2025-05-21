@@ -20,11 +20,11 @@ export interface ParticleInterface {
 let particleIdCounter = 0;
 
 // Component - ParticleSystem
-export interface ParticleSystemInterface {
+export interface ParticleSystemProperties {
     enabled?: boolean;
     onTrackParticle?: (position: { x: number; y: number }) => void;
 }
-export function ParticleSystem(properties: ParticleSystemInterface) {
+export function ParticleSystem(properties: ParticleSystemProperties) {
     // State
     const [particles, setParticles] = React.useState<ParticleInterface[]>([]);
 

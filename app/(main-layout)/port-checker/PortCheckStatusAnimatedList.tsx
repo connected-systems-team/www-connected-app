@@ -23,7 +23,7 @@ import ErrorCircledRedBorderIcon from '@project/assets/icons/status/ErrorCircled
 import InformationCircledIcon from '@structure/assets/icons/status/InformationCircledIcon.svg';
 
 // Interface for status item with associated port state
-export interface PortCheckStatusItemInterface {
+export interface PortCheckStatusItemProperties {
     portState: PortStateType;
     text: string;
     host?: string;
@@ -33,10 +33,10 @@ export interface PortCheckStatusItemInterface {
 }
 
 // Component - PortCheckStatusAnimatedList
-export interface PortCheckStatusAnimatedListInterface {
-    portCheckStatusItems: PortCheckStatusItemInterface[];
+export interface PortCheckStatusAnimatedListProperties {
+    portCheckStatusItems: PortCheckStatusItemProperties[];
 }
-export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedListInterface) {
+export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedListProperties) {
     // Hooks
     const { theme } = useTheme();
 
@@ -53,7 +53,7 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
     }
 
     // Function to render host link if applicable
-    function renderHostLink(item: PortCheckStatusItemInterface, displayText: string): React.ReactNode {
+    function renderHostLink(item: PortCheckStatusItemProperties, displayText: string): React.ReactNode {
         let content: React.ReactNode = displayText;
 
         // If the port is 80 or 443 and there is a host, render a link

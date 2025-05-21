@@ -18,11 +18,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 // Component - PortCheckerPage
-export interface PortCheckerPageInterface {
+export interface PortCheckerPageProperties {
     publicIpAddress?: string;
     countryCode?: string;
 }
-export function PortCheckerPage(properties: PortCheckerPageInterface) {
+export function PortCheckerPage(properties: PortCheckerPageProperties) {
     // State
     const [isMounted, setIsMounted] = React.useState(false);
     const [isNoticeVisible, setIsNoticeVisible] = React.useState(false);

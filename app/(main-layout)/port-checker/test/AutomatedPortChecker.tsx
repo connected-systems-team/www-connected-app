@@ -12,7 +12,7 @@ import { FormInputReferenceInterface } from '@structure/source/common/forms/Form
 import { PortCheckForm } from '@project/app/(main-layout)/port-checker/PortCheckForm';
 import {
     PortCheckStatusAnimatedList,
-    PortCheckStatusItemInterface,
+    PortCheckStatusItemProperties,
 } from '@project/app/(main-layout)/port-checker/PortCheckStatusAnimatedList';
 import { ButtonElementType } from '@structure/source/common/buttons/Button';
 
@@ -31,16 +31,15 @@ interface PortCheckerTestCase {
 }
 
 // Component - AutomatedPortChecker
-export interface AutomatedPortCheckerInterface {
+export interface AutomatedPortCheckerProperties {
     testCase: PortCheckerTestCase;
     onTestComplete?: (result: PortCheckFlowExecutionInterface) => void;
     autoRun?: boolean;
 }
-
-export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) {
+export function AutomatedPortChecker(properties: AutomatedPortCheckerProperties) {
     // State
     const [checkingPort, setCheckingPort] = React.useState<boolean>(false);
-    const [statusItems, setStatusItems] = React.useState<PortCheckStatusItemInterface[]>([]);
+    const [statusItems, setStatusItems] = React.useState<PortCheckStatusItemProperties[]>([]);
 
     // Hooks
     const webSocketViaSharedWorker = useWebSocketViaSharedWorker();
@@ -55,9 +54,9 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
     const portCheckerAdapterReference = React.useRef<PortCheckStatusAdapter | null>(null);
 
     // Function to handle port check status updates
-    function handlePortCheckStatusUpdate(status: PortCheckStatusItemInterface): void {
+    function handlePortCheckStatusUpdate(status: PortCheckStatusItemProperties): void {
         // Create a function to update the status items with the proper return type
-        function updateStatusItems(previousItems: PortCheckStatusItemInterface[]): PortCheckStatusItemInterface[] {
+        function updateStatusItems(previousItems: PortCheckStatusItemProperties[]): PortCheckStatusItemProperties[] {
             // If we have previous items and the new status is final
             if(previousItems.length > 0 && status.isFinal) {
                 // Check if this exact message already exists
@@ -170,19 +169,22 @@ export function AutomatedPortChecker(properties: AutomatedPortCheckerInterface) 
     }
 
     // Run the test automatically if autoRun is true
-    React.useEffect(() => {
-        if(properties.autoRun) {
-            const timer = setTimeout(() => {
-                runTest();
-            }, 500); // Short delay to ensure form is ready
+    React.useEffect(
+        function () {
+            if(properties.autoRun) {
+                const timer = setTimeout(() => {
+                    runTest();
+                }, 500); // Short delay to ensure form is ready
 
-            return () => clearTimeout(timer);
-        }
+                return () => clearTimeout(timer);
+            }
+        },
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [properties.testCase, properties.autoRun]);
+        [properties.testCase, properties.autoRun],
+    );
 
     // Cleanup on component unmount
-    React.useEffect(() => {
+    React.useEffect(function () {
         return () => {
             if(portCheckerAdapterReference.current) {
                 portCheckerAdapterReference.current.dispose();

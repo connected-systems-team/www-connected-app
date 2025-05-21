@@ -4,20 +4,20 @@
 import React from 'react';
 
 // Dependencies - Main Components
-import { AnimatedListItemInterface, AnimatedListItem } from '@project/source/common/animations/AnimatedListItem';
+import { AnimatedListItemProperties, AnimatedListItem } from '@project/source/common/animations/AnimatedListItem';
 
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';
 
 // Type - ExcludedAnimatedListItemInterface
-export type ExcludedAnimatedListItemInterface = Pick<AnimatedListItemInterface, 'content' | 'isFinal'>;
+export type ExcludedAnimatedListItemProperties = Pick<AnimatedListItemProperties, 'content' | 'isFinal'>;
 
 // Component - AnimatedList
-export interface AnimatedListInterface {
+export interface AnimatedListProperties {
     className?: string;
-    items?: ExcludedAnimatedListItemInterface[];
+    items?: ExcludedAnimatedListItemProperties[];
 }
-export function AnimatedList(properties: AnimatedListInterface) {
+export function AnimatedList(properties: AnimatedListProperties) {
     // Render the component
     return (
         <div className={mergeClassNames('space-y-1', properties.className)}>

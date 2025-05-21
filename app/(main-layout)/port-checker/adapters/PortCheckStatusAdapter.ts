@@ -6,7 +6,7 @@ import {
     NmapPortStateType,
     PortCheckFlowExecutionInterface,
 } from '@project/source/modules/connected/port-check/PortCheckFlowService';
-import { PortCheckStatusItemInterface } from '@project/app/(main-layout)/port-checker/PortCheckStatusAnimatedList';
+import { PortCheckStatusItemProperties } from '@project/app/(main-layout)/port-checker/PortCheckStatusAnimatedList';
 import { WebSocketViaSharedWorkerContextInterface } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
 
 // Dependencies - Services
@@ -75,11 +75,11 @@ export function mapNmapPortStateToPortStateType(nmapPortState: NmapPortStateType
 export class PortCheckStatusAdapter {
     private portCheckFlowInput?: PortCheckFlowClientInputInterface;
     private portCheckFlowService: PortCheckFlowService;
-    private onPortCheckStatusItem: (status: PortCheckStatusItemInterface) => void;
+    private onPortCheckStatusItem: (status: PortCheckStatusItemProperties) => void;
 
     constructor(
         webSocketViaSharedWorker: WebSocketViaSharedWorkerContextInterface,
-        onPortCheckStatusItem: (status: PortCheckStatusItemInterface) => void,
+        onPortCheckStatusItem: (status: PortCheckStatusItemProperties) => void,
     ) {
         // Set the event handler
         this.onPortCheckStatusItem = onPortCheckStatusItem;
@@ -333,7 +333,7 @@ export class PortCheckStatusAdapter {
         }
 
         // Create an error status item
-        const portCheckStatusItem: PortCheckStatusItemInterface = {
+        const portCheckStatusItem: PortCheckStatusItemProperties = {
             text: message,
             portState: PortStateType.Unknown,
             errorCode: errorCode,

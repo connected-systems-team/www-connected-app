@@ -12,10 +12,10 @@ import Footer from '@project/app/(main-layout)/layout/footer/Footer';
 import LineLoadingAnimation from '@structure/source/common/animations/LineLoadingAnimation';
 
 // Component - MainLayout
-export interface MainLayoutInterface {
+export interface MainLayoutProperties {
     children: React.ReactNode;
 }
-export function MainLayout(properties: MainLayoutInterface) {
+export function MainLayout(properties: MainLayoutProperties) {
     // Hooks
     const urlPath = useUrlPath();
 
@@ -44,7 +44,7 @@ export function MainLayout(properties: MainLayoutInterface) {
             <div ref={scrollTargetReference} className="absolute top-[-100px] h-4 w-4 opacity-0" />
 
             {/* Navigation */}
-            <div className="bg-background-secondary sticky top-0 z-40 border-b">
+            <div className="sticky top-0 z-40 border-b bg-background-secondary">
                 <Navigation />
             </div>
 

@@ -17,11 +17,11 @@ import { useTheme } from '@structure/source/theme/hooks/useTheme';
 import { getAtlasEyeColors } from '@project/app/(main-layout)/atlas/components/AtlasTheme';
 
 // Component - AtlasScene
-export interface AtlasSceneInterface {
+export interface AtlasSceneProperties {
     mousePosition?: { x: number; y: number };
     particlesEnabled?: boolean;
 }
-export function AtlasScene(properties: AtlasSceneInterface) {
+export function AtlasScene(properties: AtlasSceneProperties) {
     // Hooks
     const { themeClassName } = useTheme();
 

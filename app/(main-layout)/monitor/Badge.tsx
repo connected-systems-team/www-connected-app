@@ -7,14 +7,14 @@ import React from 'react';
 import { mergeClassNames } from '@structure/source/utilities/Style';
 
 // Component - Badge
-export interface BadgeInterface {
+export interface BadgeProperties {
     className?: string;
     children: React.ReactNode;
     color?: 'default' | 'primary' | 'secondary' | 'green' | 'red' | 'yellow' | 'gray';
     icon?: React.ComponentType<{ className?: string }>;
 }
 
-export function Badge(properties: BadgeInterface) {
+export function Badge(properties: BadgeProperties) {
     const colorClasses = {
         default: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
         primary: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',

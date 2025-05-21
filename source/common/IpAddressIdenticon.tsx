@@ -15,11 +15,11 @@ import { useSpring, useSprings, animated, config as springConfiguration } from '
 import { mergeClassNames } from '@structure/source/utilities/Style';
 
 // Component - IpAddressIdenticon
-export interface IpAddressIdenticonInterface {
+export interface IpAddressIdenticonProperties {
     className?: string;
     ipAddress: string;
 }
-export function IpAddressIdenticon(properties: IpAddressIdenticonInterface) {
+export function IpAddressIdenticon(properties: IpAddressIdenticonProperties) {
     // State
     const [shouldAnimate, setShouldAnimate] = React.useState(false);
     const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null);
@@ -90,7 +90,7 @@ export function IpAddressIdenticon(properties: IpAddressIdenticonInterface) {
         >
             <div
                 className={mergeClassNames(
-                    'rounded-extra-small flex h-14 w-28 cursor-pointer items-end justify-between overflow-hidden border bg-dark+6 px-4 py-3 hover:bg-dark+3',
+                    'flex h-14 w-28 cursor-pointer items-end justify-between overflow-hidden rounded-extra-small border bg-dark+6 px-4 py-3 hover:bg-dark+3',
                     properties.className,
                 )}
             >
@@ -103,7 +103,7 @@ export function IpAddressIdenticon(properties: IpAddressIdenticonInterface) {
                             transformOrigin: 'center',
                             scale: hoveredIndex === index ? hoverSpring.scale : 1,
                         }}
-                        className="rounded-medium h-full w-2.5"
+                        className="h-full w-2.5 rounded-medium"
                         onMouseEnter={() => setHoveredIndex(index)}
                         onMouseLeave={() => setHoveredIndex(null)}
                     />

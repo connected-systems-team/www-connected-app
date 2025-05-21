@@ -7,19 +7,18 @@ import React from 'react';
 import { PortStateType } from '@project/app/(main-layout)/port-checker/adapters/PortCheckStatusAdapter';
 
 // Dependencies - Main Components
-import { DialogInterface, Dialog } from '@structure/source/common/dialogs/Dialog';
+import { DialogProperties, Dialog } from '@structure/source/common/dialogs/Dialog';
 
 // Dependencies - Services
 import { PortCheckFlowServiceErrors } from '@project/source/modules/connected/port-check/PortCheckFlowService';
 import { FlowServiceErrors } from '@project/source/modules/flow/FlowService';
 
 // Component - PortStateDialog
-export interface PortStateDialogInterface extends DialogInterface {
+export interface PortStateDialogProperties extends DialogProperties {
     portState: PortStateType;
     errorCode?: string; // Error code from PortCheckFlowServiceErrors or FlowServiceErrors
 }
-
-export function PortStateDialog(properties: PortStateDialogInterface) {
+export function PortStateDialog(properties: PortStateDialogProperties) {
     // State
     const [open, setOpen] = React.useState(properties.open ?? false);
 

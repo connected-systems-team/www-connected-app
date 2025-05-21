@@ -21,7 +21,7 @@ import { getCountryEmojiByCountryName, filterCountriesByCountryNames } from '@st
 import { getClosestAvailableCountryUsingCountryCode } from '@structure/source/utilities/geo/Geo';
 
 // Component - PortCheckForm
-export interface PortCheckFormInterface {
+export interface PortCheckFormProperties {
     className?: string;
     publicIpAddress: string;
     countryCode?: string;
@@ -32,7 +32,7 @@ export interface PortCheckFormInterface {
     checkingPort: boolean;
     checkPort: (remoteAddress: string, port: number, country: string) => void;
 }
-export function PortCheckForm(properties: PortCheckFormInterface) {
+export function PortCheckForm(properties: PortCheckFormProperties) {
     // Hooks
     const gridRegionLevelsQueryState = useQuery(GridRegionLevelsDocument, {
         variables: {

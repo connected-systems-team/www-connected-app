@@ -30,10 +30,10 @@ const commonPorts = [
 ];
 
 // Component - CommonPorts
-export interface CommonPortsInterface {
+export interface CommonPortsProperties {
     portSelected: (port: number) => void;
 }
-export function CommonPorts(properties: CommonPortsInterface) {
+export function CommonPorts(properties: CommonPortsProperties) {
     // Render the component
     return (
         <div className="mt-4 min-w-60 md:mt-0 md:pl-12">

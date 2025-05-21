@@ -5,13 +5,13 @@ import React from 'react';
 
 // Dependencies - Main Components
 import { Button } from '@structure/source/common/buttons/Button';
-import { ExcludedAnimatedListItemInterface, AnimatedList } from '@project/source/common/animations/AnimatedList';
+import { ExcludedAnimatedListItemProperties, AnimatedList } from '@project/source/common/animations/AnimatedList';
 import ErrorCircledIcon from '@structure/assets/icons/status/ErrorCircledIcon.svg';
 
 // Component - TestsPage
 export function TestsPage() {
     // State
-    const [visibleItems, setVisibleItems] = React.useState<ExcludedAnimatedListItemInterface[]>([]);
+    const [visibleItems, setVisibleItems] = React.useState<ExcludedAnimatedListItemProperties[]>([]);
 
     const possibleItems = [
         {

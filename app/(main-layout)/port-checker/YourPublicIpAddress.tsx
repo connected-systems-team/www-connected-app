@@ -8,11 +8,11 @@ import { CopyButton } from '@structure/source/common/buttons/CopyButton';
 // import { Tip } from '@structure/source/common/popovers/Tip';
 
 // Component - YourPublicIpAddress
-export interface YourPublicIpAddressInterface {
+export interface YourPublicIpAddressProperties {
     publicIpAddress: string;
     countryCode?: string;
 }
-export function YourPublicIpAddress(properties: YourPublicIpAddressInterface) {
+export function YourPublicIpAddress(properties: YourPublicIpAddressProperties) {
     // Render the component
     return (
         <div>

@@ -7,7 +7,7 @@ import React from 'react';
 import * as Three from 'three';
 
 // Component - AtlasCircle
-export interface AtlasCircleInterface {
+export interface AtlasCircleProperties {
     color: Three.Color;
     rotation: [number, number, number];
     lineWidth?: number;
@@ -16,7 +16,7 @@ export interface AtlasCircleInterface {
     scale?: number;
     startAngle?: number; // Allow specifying where circle starts (to hide the join)
 }
-export function AtlasCircle(properties: AtlasCircleInterface) {
+export function AtlasCircle(properties: AtlasCircleProperties) {
     // References
     const groupReference = React.useRef<Three.Group>(null);
 
