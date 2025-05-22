@@ -70,3 +70,6 @@ export function PortCheckerRoutePage() {
     // Render the component
     return <PortCheckerPage publicIpAddress={publicIpAddress ?? undefined} countryCode={countryCode ?? undefined} />;
 }
+
+// Export - Default
+export default PortCheckerRoutePage;
