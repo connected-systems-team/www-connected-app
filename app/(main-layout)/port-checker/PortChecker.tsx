@@ -19,7 +19,7 @@ import { About } from '@project/app/(main-layout)/port-checker/About';
 import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
 
 // Dependencies - API
-import { PortCheckStatusAdapter } from '@project/app/(main-layout)/port-checker/adapters/PortCheckStatusAdapter';
+import { PortCheckStatusAdapter } from '@project/app/(main-layout)/port-checker/_adapters/PortCheckStatusAdapter';
 
 // Component - PortChecker
 export interface PortCheckerProperties {

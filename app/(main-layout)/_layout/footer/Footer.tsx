@@ -10,6 +10,9 @@ import { Link } from '@structure/source/common/navigation/Link';
 import { Tip } from '@structure/source/common/popovers/Tip';
 import { LocaleControl } from '@structure/source/common/navigation/locale/LocaleControl';
 
+// Dependencies - Tools
+import { Tools } from '@project/app/(main-layout)/tools/Tools';
+
 // Dependencies - Assets
 import FacebookIcon from '@structure/assets/icons/platforms/FacebookIcon.svg';
 import XIcon from '@structure/assets/icons/platforms/XIcon.svg';
@@ -24,6 +27,7 @@ import TikTokIcon from '@structure/assets/icons/platforms/TikTokIcon.svg';
 export interface FooterLink {
     title: string;
     url: string;
+    prefetch?: boolean;
 }
 
 // Interface - FooterLinkGroup
@@ -47,22 +51,14 @@ export function Footer() {
 
     const footerLinkGroups: FooterLinkGroup[] = [
         {
-            title: 'Services',
-            links: [
-                { title: 'Port Forwarding Tester', url: '/port-checker' },
-                // { title: 'Connected App', url: '/app' },
-                // { title: 'Shop', url: '/shop' },
-            ],
-        },
-        {
-            title: 'Company',
-            links: [
-                { title: 'About', url: '/about' },
-                // { title: 'News', url: '/news' },
-                // { title: 'Careers', url: '/careers' },
-                // { title: 'Owners', url: '/owners' },
-                // { title: 'Press', url: '/press' },
-            ],
+            title: 'Network Tools',
+            links: Tools.map(function (tool) {
+                return {
+                    title: tool.title,
+                    url: tool.urlPath,
+                    prefetch: false,
+                };
+            }),
         },
         {
             title: 'Help',
@@ -70,14 +66,24 @@ export function Footer() {
                 // { title: 'Support', url: '/support' },
                 // { title: 'FAQ', url: '/faq' },
                 // { title: 'Suggestions', url: '/suggestions' },
-                { title: 'Contact', url: '/contact' },
+                { title: 'Contact', url: '/contact', prefetch: false },
+            ],
+        },
+        {
+            title: 'Company',
+            links: [
+                { title: 'About', url: '/about', prefetch: false },
+                // { title: 'News', url: '/news' },
+                // { title: 'Careers', url: '/careers' },
+                // { title: 'Owners', url: '/owners' },
+                // { title: 'Press', url: '/press' },
             ],
         },
         {
             title: 'Safety',
             links: [
-                { title: 'Terms of Service', url: '/legal/terms-of-service' },
-                { title: 'Privacy Policy', url: '/legal/privacy-policy' },
+                { title: 'Terms of Service', url: '/legal/terms-of-service', prefetch: false },
+                { title: 'Privacy Policy', url: '/legal/privacy-policy', prefetch: false },
             ],
         },
     ];
@@ -146,24 +152,28 @@ export function Footer() {
             <section id="footer" className="container pb-10 md:py-12 md:pb-2">
                 <div className="relative text-lg">
                     <div className="mt-10 grid w-full grid-cols-1 space-y-12 text-[15px] md:mt-0 md:grid-cols-4 md:space-y-0">
-                        {footerLinkGroups.map((group, index) => (
-                            <div key={index} className="col-span-1 w-full md:h-full md:pb-10">
-                                <h6 className="mb-3.5 leading-[150%] text-neutral-2">{group.title}</h6>
-                                <ul className="space-y-2.5">
-                                    {group.links.map((link, index) => (
-                                        <li key={index}>
-                                            <Link
-                                                href={link.url}
-                                                className="text-sm transition-opacity ease-out hover:opacity-60"
-                                                prefetch={false}
-                                            >
-                                                {link.title}
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        ))}
+                        {footerLinkGroups.map(function (group, index) {
+                            return (
+                                <div key={index} className="col-span-1 w-full md:h-full md:pb-10">
+                                    <h3 className="mb-3.5 font-normal leading-[150%] text-foreground-secondary">
+                                        {group.title}
+                                    </h3>
+                                    <ul className="space-y-2.5">
+                                        {group.links.map((link, index) => (
+                                            <li key={index}>
+                                                <Link
+                                                    href={link.url}
+                                                    className="text-sm transition-opacity ease-out hover:opacity-60"
+                                                    prefetch={link.prefetch}
+                                                >
+                                                    {link.title}
+                                                </Link>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
                 <p className="text-right text-xs"></p>

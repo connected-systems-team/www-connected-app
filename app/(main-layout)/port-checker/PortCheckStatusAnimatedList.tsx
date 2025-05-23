@@ -2,14 +2,14 @@
 import React from 'react';
 
 // Dependencies - Types
-import { PortStateType } from '@project/app/(main-layout)/port-checker/adapters/PortCheckStatusAdapter';
+import { PortStateType } from '@project/app/(main-layout)/port-checker/_adapters/PortCheckStatusAdapter';
 
 // Dependencies - Main Components
 import { Link } from '@structure/source/common/navigation/Link';
 import { AnimatedList } from '@project/source/common/animations/AnimatedList';
 import { CopyButton } from '@structure/source/common/buttons/CopyButton';
 import { Button } from '@structure/source/common/buttons/Button';
-import { PortStateDialog } from '@project/app/(main-layout)/port-checker/dialogs/PortStateDialog';
+import { PortStateDialog } from '@project/app/(main-layout)/port-checker/_dialogs/PortStateDialog';
 
 // Dependencies - Hooks
 import { Theme } from '@structure/source/theme/ThemeTypes';

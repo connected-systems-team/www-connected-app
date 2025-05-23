@@ -5,8 +5,8 @@ import React from 'react';
 import { useUrlPath } from '@structure/source/utilities/next/NextNavigation';
 
 // Dependencies - Main Components
-import { Navigation } from '@project/app/(main-layout)/layout/navigation/Navigation';
-import { Footer } from '@project/app/(main-layout)/layout/footer/Footer';
+import { Navigation } from '@project/app/(main-layout)/_layout/navigation/Navigation';
+import { Footer } from '@project/app/(main-layout)/_layout/footer/Footer';
 
 // Dependencies - Animation
 import { LineLoadingAnimation } from '@structure/source/common/animations/LineLoadingAnimation';

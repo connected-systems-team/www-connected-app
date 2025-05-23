@@ -1,15 +1,82 @@
-I LOVE WHEN CLAUDE USES EMOJIS WHEN TALKING TO ME! 😜
-
 # Connected App - Claude Coding Guidelines
 
-This document provides guidelines and preferences for Claude when assisting with the Connected App project. It helps maintain consistency and follows the project's established patterns.
+# ESLint Rules
 
-## Code Style & Formatting
+## Import Rules
 
-### TypeScript/JavaScript
+**no-internal-imports**: Only files within a parent folder can import from its `internal/` subfolder. Prevents: `import { Button } from '@project/components/internal/Button'` or `'../../components/buttons/internal/Button'`
 
+**no-structure-project-imports**: Structure library can't use `@project` imports except: `ProjectSettings`, `source/theme/styles/theme.css`, `tailwind.config`
+
+## React Rules
+
+**react-no-destructuring-properties**: No destructuring in component parameters.
+
+```tsx
+// ❌ function Button({ color, text }) {...}
+// ✅ function Button(properties) { return <button style={{color: properties.color}}>... }
+```
+
+**react-no-destructuring-import**: No destructuring React imports.
+
+```tsx
+// ❌ import React, { useState } from 'react'; const [state, setState] = useState();
+// ✅ import React from 'react'; const [state, setState] = React.useState();
+```
+
+**react-properties-parameter-name**: Use 'properties' not 'props'.
+
+```tsx
+// ❌ function Button(props) {...}; interface ButtonProps {...}
+// ✅ function Button(properties) {...}; interface ButtonProperties {...}
+```
+
+**react-no-arrow-functions-as-hook-parameters**: Use regular functions with hooks.
+
+```tsx
+// ❌ React.forwardRef((props, ref) => {...}); element.addEventListener('click', () => {...})
+// ✅ React.forwardRef(function(properties, ref) {...}); element.addEventListener('click', function() {...})
+```
+
+**react-properties-type-naming**: Type names must end with "Properties".
+
+```tsx
+// ❌ interface ButtonProps {...}; function Button(properties: ButtonProps) {...}
+// ✅ interface ButtonProperties {...}; function Button(properties: ButtonProperties) {...}
+```
+
+**react-function-style**: Use function declarations for components.
+
+```tsx
+// ❌ export const Button = function(properties) {...}; export const Card = (properties) => {...}
+// ✅ export function Button(properties) {...}
+```
+
+**react-export-rules**: Named exports for components, default exports for pages.
+
+```tsx
+// ❌ export default function Button(properties) {...}
+// ❌ export function Page(properties) {...} // in page.tsx
+// ✅ export function Button(properties) {...}
+// ✅ export default function Page(properties) {...} // in page.tsx
+```
+
+## Best Practices
+
+-   Use relative imports within modules, aliased imports (`@project/...`) across modules
+-   Don't import from `internal/` outside parent folder
+-   Keep structure library self-contained
+-   Use `properties` not `props`
+-   No destructuring of React imports or component properties
+-   Use function declarations for components
+-   Use named exports for components, default exports for Next.js pages
+-   Component property type names end with `Properties`
+
+-   **Unused Variables**: Always remove or comment out unused variables; the linter will flag them
 -   **Variable Naming**: Use camelCase for variables, functions, and properties
 -   **TypeScript**: Required for all new code; avoid using `any` type
+-   **State Management**: Use React's built-in state management where appropriate
+-   **Property Naming**: Use complete descriptive names like `minimum`/`maximum` instead of abbreviated `min`/`max`
 -   **Function Style**: Prefer regular functions over arrow functions:
 
     ```typescript
@@ -36,7 +103,7 @@ This document provides guidelines and preferences for Claude when assisting with
 
     ```typescript
     // Use this:
-    export function MyComponent(properties: MyComponentInterface) {
+    export function MyComponent(properties: MyComponentProperties) {
         // Direct property access with inline defaults
         return (
             <div className={properties.className || ''}>
@@ -53,7 +120,7 @@ This document provides guidelines and preferences for Claude when assisting with
     }
 
     // Don't use this with destructuring:
-    export function MyComponent(properties: MyComponentInterface) {
+    export function MyComponent(properties: MyComponentProperties) {
         // No destructuring - AVOID THIS
         const {
             className = '',
@@ -92,8 +159,6 @@ This document provides guidelines and preferences for Claude when assisting with
     }
     ```
 
--   **State Management**: Use React's built-in state management where appropriate
--   **Property Naming**: Use complete descriptive names like `minimum`/`maximum` instead of abbreviated `min`/`max`
 -   **Reference Naming**: Always use the full word `Reference` instead of abbreviated `Ref` when naming React refs:
 
     ```typescript
@@ -105,8 +170,6 @@ This document provides guidelines and preferences for Claude when assisting with
     const buttonRef = React.useRef<HTMLButtonElement>(null);
     const inputRef = React.useRef<HTMLInputElement>(null);
     ```
-
--   **Unused Variables**: Always remove unused variables; the linter will flag them
 
 ### React Components
 
@@ -172,7 +235,6 @@ This document provides guidelines and preferences for Claude when assisting with
 ### CSS & Styling
 
 -   Use Tailwind CSS utility classes for styling
--   Follow the dark mode pattern with dark: prefixes for dark mode variations
 -   Keep the order of Tailwind classes consistent and grouped by type
 
 ## Component Interfaces
@@ -197,23 +259,6 @@ export function ComponentName(properties: ComponentNameInterface) {
 
 Avoid multi-line comments for each property in interfaces. Instead, use descriptive property names that are self-explanatory. Add brief inline comments only when additional clarity is needed.
 
-For complex interfaces where documentation is necessary, consider using JSDoc above the interface:
-
-```typescript
-/**
- * Interface for the ImageUploader component
- * @property uploadUrl - The endpoint to send the upload request to
- * @property maxFileSize - Maximum file size in bytes (default: 10MB)
- * @property variant - The visual style of the uploader
- */
-export interface ImageUploaderInterface {
-    uploadUrl: string;
-    maximumFileSize?: number;
-    variant?: 'Button' | 'DropZone' | 'Simple';
-    // additional properties...
-}
-```
-
 ## Project Architecture
 
 ### File Organization
@@ -221,14 +266,7 @@ export interface ImageUploaderInterface {
 -   Components should be placed in the appropriate directories:
     -   Common components: `/libraries/structure/source/common/`
     -   Module-specific components: `/libraries/structure/source/modules/[module]/`
-    -   Pages: `/app/`
-
-### API & Data Fetching
-
--   Use GraphQL for API requests
--   Define GraphQL documents in `.graphql` files
--   Prefer Apollo Client hooks for data fetching
--   Keep GraphQL queries and mutations organized
+    -   Pages and routes: `/app/`
 
 ## Documentation & Comments
 
@@ -247,9 +285,6 @@ export interface ImageUploaderInterface {
 -   Run code quality tools before committing:
 
     ```bash
-    # Check for type errors
-    npm run typecheck
-
     # Run linting
     npm run lint
     ```
@@ -262,11 +297,11 @@ export interface ImageUploaderInterface {
 # Start development server
 npm run dev
 
-# Build the project (includes typechecking)
+# Build the project (includes linting and typechecking)
 npm run build
 ```
 
--   IMPORTANT: Use `npm run build` (not `npm run typecheck`) whenever checking types.
+-   IMPORTANT: Use `npm run build` whenever checking types.
 
 ### GraphQL
 
@@ -283,42 +318,8 @@ The project is organized into the following main modules:
 -   `common`: Shared UI components and utilities
 -   `modules`: Domain-specific functionality
 
-## UI Component Guidelines
-
-### Forms
-
--   Use FormInput components for form fields
--   Implement proper validation and error states
-
-### Dialogs & Modals
-
--   Use the Dialog component for modal dialogs
--   Ensure proper focus management and accessibility
-
-### Images
-
--   Use the new image processing utilities for image manipulation
--   Implement proper loading states and error handling for images
-
-### Responsive Design
-
--   Design for mobile-first, then adapt for larger screens
--   Use Tailwind's responsive prefixes (sm:, md:, lg:, etc.)
-
-## State Management
-
--   Use React's useState and useEffect for component-level state
--   Use context for sharing state between components when appropriate
--   Avoid prop drilling by using context or state management libraries
-
-## Utility Functions
-
 Use the established utility functions whenever possible:
 
 -   `mergeClassNames`: For combining Tailwind classes
--   `createImagePreview`/`revokeImagePreview`: For image preview management
--   `cropImage`/`resizeImage`: For image processing
-
----
 
 This document will be updated as the project evolves and new patterns or requirements emerge.

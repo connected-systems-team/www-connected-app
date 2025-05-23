@@ -164,33 +164,33 @@ export const TailwindConfiguration = {
             plugin.addBase({
                 // Typography settings for heading elements
                 h1: {
-                    fontSize: '2em',
-                    fontWeight: plugin.theme('fontWeight.base'),
+                    fontSize: '24px',
+                    fontWeight: plugin.theme('fontWeight.medium'),
                     lineHeight: '1',
                 },
                 h2: {
-                    fontSize: '1.75em',
-                    fontWeight: plugin.theme('fontWeight.base'),
+                    fontSize: '20px',
+                    fontWeight: plugin.theme('fontWeight.medium'),
                     lineHeight: '1',
                 },
                 h3: {
-                    fontSize: '1.35em',
-                    fontWeight: plugin.theme('fontWeight.base'),
+                    fontSize: '16px',
+                    fontWeight: plugin.theme('fontWeight.medium'),
                     lineHeight: '1.25',
                 },
                 h4: {
-                    fontSize: '1.2em',
-                    fontWeight: plugin.theme('fontWeight.base'),
+                    fontSize: '14px',
+                    fontWeight: plugin.theme('fontWeight.medium'),
                     lineHeight: '1.25',
                 },
                 h5: {
-                    fontSize: '1.1em',
-                    fontWeight: plugin.theme('fontWeight.base'),
+                    fontSize: '12px',
+                    fontWeight: plugin.theme('fontWeight.medium'),
                     lineHeight: '1.25',
                 },
                 h6: {
-                    fontSize: '1em',
-                    fontWeight: plugin.theme('fontWeight.base'),
+                    fontSize: '10px',
+                    fontWeight: plugin.theme('fontWeight.medium'),
                     lineHeight: '1.25',
                 },
 

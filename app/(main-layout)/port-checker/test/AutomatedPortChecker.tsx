@@ -4,7 +4,7 @@
 import React from 'react';
 
 // Dependencies - Types
-import { PortStateType } from '@project/app/(main-layout)/port-checker/adapters/PortCheckStatusAdapter';
+import { PortStateType } from '@project/app/(main-layout)/port-checker/_adapters/PortCheckStatusAdapter';
 
 // Dependencies - Main Components
 import { Button } from '@structure/source/common/buttons/Button';
@@ -20,7 +20,7 @@ import { ButtonElementType } from '@structure/source/common/buttons/Button';
 import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
 
 // Dependencies - API
-import { PortCheckStatusAdapter } from '@project/app/(main-layout)/port-checker/adapters/PortCheckStatusAdapter';
+import { PortCheckStatusAdapter } from '@project/app/(main-layout)/port-checker/_adapters/PortCheckStatusAdapter';
 import { PortCheckFlowExecutionInterface } from '@project/source/modules/connected/port-check/PortCheckFlowService';
 import { FlowServiceErrors } from '@project/source/modules/flow/FlowService';
 
