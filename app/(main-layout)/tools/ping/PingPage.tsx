@@ -15,7 +15,8 @@ export function PingPage() {
                 <span>Ping</span>
                 <CellTower size={24} weight="regular" className="text-content" />
             </h1>
-            <p className="mt-5 text-foreground-secondary">Test the reachability of a host and measure response time.</p>
+            <p className="mt-4 text-foreground-secondary">Test the reachability of a host and measure response time.</p>
+            <hr className="my-6" />
             <div className="mt-10">
                 <p>Tool goes here</p>
             </div>

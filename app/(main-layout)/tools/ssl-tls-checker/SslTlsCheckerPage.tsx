@@ -15,9 +15,10 @@ export function SslTlsCheckerPage() {
                 <span>SSL/TLS Checker</span>
                 <FingerprintSimple size={24} weight="regular" className="text-content" />
             </h1>
-            <p className="mt-5 text-foreground-secondary">
+            <p className="mt-4 text-foreground-secondary">
                 Inspect the validity and security of a domain&apos;s SSL certificate.
             </p>
+            <hr className="my-6" />
             <div className="mt-10">
                 <p>Tool goes here</p>
             </div>

@@ -14,8 +14,10 @@ export function AgentsPage() {
     // Render the component
     return (
         <div className="container pt-12">
-            <h2 className="flex items-center gap-3">Agents</h2>
+            <h1>Agents</h1>
             <p className="mt-5 text-foreground-secondary">Agents!!!</p>
+
+            <hr className="my-6" />
 
             <div className="mt-10">Agents</div>
         </div>

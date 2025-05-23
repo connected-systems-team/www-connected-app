@@ -15,9 +15,10 @@ export function SubnetCalculatorPage() {
                 <span>Subnet Calculator</span>
                 <Network size={24} weight="regular" className="text-content" />
             </h1>
-            <p className="mt-5 text-foreground-secondary">
+            <p className="mt-4 text-foreground-secondary">
                 Calculate subnet information including network address, broadcast address, and host range.
             </p>
+            <hr className="my-6" />
             <div className="mt-10">
                 <p>Tool goes here</p>
             </div>

@@ -31,9 +31,10 @@ export function ToolsPage() {
     return (
         <div className="container pt-12">
             <h1 className="">Network Tools</h1>
-            <p className="mt-5 text-foreground-secondary">
+            <p className="mt-4 text-foreground-secondary">
                 Diagnose, monitor, and troubleshoot networks with essential Internet and IP utilities.
             </p>
+            <hr className="my-6" />
 
             {/* Tool Cards */}
             <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">

@@ -15,7 +15,8 @@ export function WhoisLookupPage() {
                 <span>WHOIS Lookup</span>
                 <Binoculars size={24} weight="regular" className="text-content" />
             </h1>
-            <p className="mt-5 text-foreground-secondary">Fetch domain registration and ownership details.</p>
+            <p className="mt-4 text-foreground-secondary">Fetch domain registration and ownership details.</p>
+            <hr className="my-6" />
             <div className="mt-10">
                 <p>Tool goes here</p>
             </div>

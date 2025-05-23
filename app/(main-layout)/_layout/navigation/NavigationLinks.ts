@@ -5,5 +5,5 @@ export const NavigationLinks: {
 }[] = [
     { href: '/tools', title: 'Tools' },
     { href: '/agents', title: 'Agents' },
-    { href: '/support', title: 'Support' },
+    { href: '/contact', title: 'Support' },
 ];
