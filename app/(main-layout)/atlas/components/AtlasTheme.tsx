@@ -9,7 +9,7 @@ import { ThemeClassName } from '@structure/source/theme/ThemeTypes';
 // Centralized color definitions - single source of truth
 export const ATLAS_EYE_COLORS = {
     [ThemeClassName.Light]: {
-        sphereColor: '#000000', // Pure black sphere
+        sphereColor: '#444444', // Pure black sphere
         lineColor: '#ffffff', // Pure white lines
     },
     [ThemeClassName.Dark]: {

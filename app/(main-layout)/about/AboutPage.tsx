@@ -37,8 +37,8 @@ export function AboutPage() {
             <h4 className="mb-3 mt-6">Our Story</h4>
             <div className="text-foreground-secondary">
                 <p>
-                    Connected Systems, LLC was founded by Kirk Ouimet and Kameron Sheffield, who both have passion for
-                    technology. The journey began over 15 years ago with Kirk&apos;s creation of{' '}
+                    Connected was founded by Kirk Ouimet and Kameron Sheffield, who both have passion for technology.
+                    The journey began over 15 years ago with Kirk&apos;s creation of{' '}
                     <Link href="https://www.yougetsignal.com/" target="_blank" className="link-blue">
                         YouGetSignal
                     </Link>
@@ -47,8 +47,8 @@ export function AboutPage() {
                     connected.app.
                 </p>
                 <p className="mt-2">
-                    Connected.app is designed to be the successor to YouGetSignal, incorporating advanced features such
-                    as port checking, port monitoring, uptime tracking, and various network management tools.
+                    Connected is designed to be the successor to YouGetSignal, incorporating advanced features such as
+                    port checking, port monitoring, uptime tracking, and various network management tools.
                 </p>
             </div>
         </div>
