@@ -12,6 +12,9 @@ import { AtlasScene } from '@project/app/(main-layout)/atlas/components/AtlasSce
 
 // Component - Atlas
 export interface AtlasProperties {
+    className?: string;
+    style?: React.CSSProperties;
+    scale: number;
     particlesEnabled?: boolean;
 }
 export function Atlas(properties: AtlasProperties) {
@@ -101,17 +104,14 @@ export function Atlas(properties: AtlasProperties) {
 
     // Render the component
     return (
-        <div
-            ref={containerReference}
-            className="relative w-full"
-            style={{
-                minHeight: '75vh',
-                maxHeight: '90vh',
-            }}
-        >
+        <div ref={containerReference} className={properties.className} style={properties.style}>
             <Canvas className="h-full w-full" gl={{ alpha: true }} ref={canvasReference}>
                 <PerspectiveCamera makeDefault position={[0, 0, cameraZ]} fov={fov} near={0.1} far={1000} />
-                <AtlasScene mousePosition={mousePosition} particlesEnabled={properties.particlesEnabled} />
+                <AtlasScene
+                    mousePosition={mousePosition}
+                    particlesEnabled={properties.particlesEnabled}
+                    scale={properties.scale}
+                />
             </Canvas>
         </div>
     );

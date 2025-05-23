@@ -41,7 +41,15 @@ export function AtlasPage() {
     return (
         <div className="flex flex-col items-center">
             <div className="w-full">
-                <Atlas particlesEnabled={particlesEnabled} />
+                <Atlas
+                    particlesEnabled={particlesEnabled}
+                    className="relative w-full"
+                    style={{
+                        minHeight: '75vh',
+                        maxHeight: '90vh',
+                    }}
+                    scale={0.25}
+                />
             </div>
 
             <div className="mb-8 mt-4">

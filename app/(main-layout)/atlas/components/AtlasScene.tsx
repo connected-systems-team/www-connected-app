@@ -20,6 +20,7 @@ import { getAtlasEyeColors } from '@project/app/(main-layout)/atlas/components/A
 export interface AtlasSceneProperties {
     mousePosition?: { x: number; y: number };
     particlesEnabled?: boolean;
+    scale: number;
 }
 export function AtlasScene(properties: AtlasSceneProperties) {
     // Hooks
@@ -129,7 +130,7 @@ export function AtlasScene(properties: AtlasSceneProperties) {
                 rotation={[0, 0, 0]} // Base rotation (will be updated by animation)
                 onClick={handleClick}
                 onDoubleClick={handleDoubleClick}
-                scale={0.25} // Make the entire eye 60% smaller
+                scale={properties.scale} // Make the entire eye 60% smaller
             >
                 {/* Sphere */}
                 <mesh
