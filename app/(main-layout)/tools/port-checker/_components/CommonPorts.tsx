@@ -41,8 +41,8 @@ export function CommonPorts(properties: CommonPortsProperties) {
     // Render the component
     return (
         <div className={mergeClassNames('rounded-xl border px-5 pb-4 pt-3 md:mt-0', properties.className)}>
-            <p className="font-medium">Common Ports</p>
-            <ul className="mt-1 text-sm">
+            <h4>Common Ports</h4>
+            <ul className="mt-2.5 text-sm">
                 {commonPorts.map(function (commonPort, commonPortIndex) {
                     return (
                         <li key={commonPortIndex} className="flex select-none items-center space-x-1.5">
