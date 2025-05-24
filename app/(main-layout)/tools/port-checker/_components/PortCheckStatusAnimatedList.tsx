@@ -52,18 +52,19 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
                     {item.content.map(function (part, partIndex) {
                         if(part.type === 'badge') {
                             return (
-                                <AnimatedListItemBadge
-                                    key={partIndex}
-                                    variant={part.variant}
-                                    href={part.href}
-                                    target={part.target}
-                                >
-                                    {part.content}
-                                </AnimatedListItemBadge>
+                                <div key={partIndex} className="flex min-h-[28px] items-center">
+                                    <AnimatedListItemBadge
+                                        variant={part.variant}
+                                        href={part.href}
+                                        target={part.target}
+                                    >
+                                        {part.content}
+                                    </AnimatedListItemBadge>
+                                </div>
                             );
                         }
                         else {
-                            return <span key={partIndex} className="mr-1.5 flex-shrink">{part.content}</span>;
+                            return <div key={partIndex} className="mr-1.5 flex min-h-[28px] flex-shrink items-center">{part.content}</div>;
                         }
                     })}
                 </>
@@ -72,7 +73,7 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
 
         // Fallback to legacy text rendering for backward compatibility
         const displayText = item.text || '';
-        let content: React.ReactNode = <span className="mr-1.5 flex-shrink">{displayText}</span>;
+        let content: React.ReactNode = <div className="mr-1.5 flex min-h-[28px] flex-shrink items-center">{displayText}</div>;
 
         // If the port is 80 or 443 and there is a host, render a link
         if((item.port == 80 || item.port == 443) && item.host && item.host.length > 0) {
@@ -87,11 +88,13 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
 
                 content = (
                     <>
-                        <span className="mr-1.5 flex-shrink">{textBeforeHost}</span>
-                        <AnimatedListItemBadge variant="host" href={url} target="_blank">
-                            {item.host}
-                        </AnimatedListItemBadge>
-                        <span className="mr-1.5 flex-shrink">{textAfterHost}</span>
+                        <div className="mr-1.5 flex min-h-[28px] flex-shrink items-center">{textBeforeHost}</div>
+                        <div className="flex min-h-[28px] items-center">
+                            <AnimatedListItemBadge variant="host" href={url} target="_blank">
+                                {item.host}
+                            </AnimatedListItemBadge>
+                        </div>
+                        <div className="mr-1.5 flex min-h-[28px] flex-shrink items-center">{textAfterHost}</div>
                     </>
                 );
             }
@@ -125,7 +128,7 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
                     // Allow users to copy the last text and show info button for final results
                     if(item.isFinal) {
                         content = (
-                            <div className="flex min-w-0 flex-wrap items-center">
+                            <>
                                 {renderContent(item)}{' '}
                                 <Button
                                     className="ml-1 inline-flex h-auto p-0 text-neutral hover:text-dark dark:text-neutral+6 dark:hover:text-light"
@@ -147,7 +150,7 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
                                         content: '"' + displayText + '"',
                                     }}
                                 />
-                            </div>
+                            </>
                         );
                     }
                     else {

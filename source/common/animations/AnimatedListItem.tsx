@@ -37,9 +37,10 @@ export function AnimatedListItem(properties: AnimatedListItemProperties) {
 
     // Defaults
     const discScaleMaximum = 1.5;
-    const oneLineContentHeight = 24;
-    const lines = contentDivHeight ? contentDivHeight / oneLineContentHeight : 1;
-    const lineHeight = oneLineContentHeight * lines + 4;
+    // Account for badges which are taller than regular text (badge height is ~32px with padding)
+    const oneLineContentHeight = 32;
+    const lines = contentDivHeight ? Math.max(1, Math.round(contentDivHeight / oneLineContentHeight)) : 1;
+    const lineHeight = oneLineContentHeight * lines;
     const finalClassName = properties.finalDiscClassName;
     const FinalIcon = properties.finalDiscIcon || CheckCircledIcon;
     const finalIconClassName = properties.finalDiscIconClassName;
@@ -131,16 +132,18 @@ export function AnimatedListItem(properties: AnimatedListItemProperties) {
 
     // Render the component
     return (
-        <div className="flex items-start">
+        <div className={mergeClassNames('flex items-start', !properties.isFirst && '')}>
             {/* Left Line and Discs */}
-            <div className="relative mt-0.5 flex h-[24px] items-center">
-                {/* Disc */}
+            <div className={mergeClassNames('relative flex h-[28px] items-center')}>
+                {/* Disc - Not Final */}
                 {!properties.isFinal && (
                     <animated.div
                         style={discSpring}
                         className="flex h-[7px] w-[7px] rounded-full bg-dark dark:bg-light"
                     />
                 )}
+
+                {/* Disc - Final Item */}
                 {properties.isFinal && (
                     <animated.div
                         style={discSpring}

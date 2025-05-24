@@ -22,7 +22,7 @@ export function PortCheckerPage(properties: PortCheckerPageProperties) {
                 <span>Port Checker</span>
                 <Broadcast size={22} weight="regular" className="text-content" />
             </h1>
-            <div className="mt-4 text-sm text-foreground-secondary">
+            <div className="mt-4 max-w-xl text-sm text-foreground-secondary">
                 <p>Check the state of ports on any IP address or domain using our servers around the world.</p>
             </div>
 
@@ -35,7 +35,7 @@ export function PortCheckerPage(properties: PortCheckerPageProperties) {
             <div className="mt-6">
                 <h3 className="">About</h3>
 
-                <div className="mt-4 text-sm text-foreground-secondary">
+                <div className="mt-4 max-w-xl text-sm text-foreground-secondary">
                     <p>
                         Whether you are setting up port forwarding, troubleshooting server application issues, or
                         protecting your network, this tool helps ensure your configurations are correct.
