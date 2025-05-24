@@ -17,7 +17,7 @@ export interface PortCheckerPageProperties {
 export function PortCheckerPage(properties: PortCheckerPageProperties) {
     // Render the component
     return (
-        <div className="container max-w-screen-md pt-12">
+        <div className="container pt-12">
             <h1 className="flex items-center justify-between gap-3">
                 <span>Port Checker</span>
                 <Broadcast size={22} weight="regular" className="text-content" />
@@ -27,7 +27,7 @@ export function PortCheckerPage(properties: PortCheckerPageProperties) {
             </div>
 
             <PortChecker
-                className="mt-6"
+                className=""
                 publicIpAddress={properties.publicIpAddress ?? undefined}
                 countryCode={properties.countryCode}
             />

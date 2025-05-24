@@ -285,8 +285,8 @@ Avoid multi-line comments for each property in interfaces. Instead, use descript
 -   Run code quality tools before committing:
 
     ```bash
-    # Run linting
-    npm run lint
+    # Check linting and types (recommended during development)
+    npm run compile
     ```
 
 ## Common Commands
@@ -297,11 +297,14 @@ Avoid multi-line comments for each property in interfaces. Instead, use descript
 # Start development server
 npm run dev
 
-# Build the project (includes linting and typechecking)
+# Check linting and types (won't break dev server)
+npm run compile
+
+# Full build with Next.js compilation (use when ready to deploy)
 npm run build
 ```
 
--   IMPORTANT: Use `npm run build` whenever checking types.
+-   **IMPORTANT**: Use `npm run compile` for quick type checking during development. Only use `npm run build` when you need a full production build, as it will break your running dev server.
 
 ### GraphQL
 

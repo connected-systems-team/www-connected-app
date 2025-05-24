@@ -20,7 +20,7 @@ export interface AnimatedListProperties {
 export function AnimatedList(properties: AnimatedListProperties) {
     // Render the component
     return (
-        <div className={mergeClassNames('space-y-1', properties.className)}>
+        <div className={mergeClassNames('space-y-3', properties.className)}>
             {properties.items?.map(function (item, itemIndex) {
                 const propertiesItemsLength = properties.items ? properties.items.length : 0;
                 const isActive = itemIndex === propertiesItemsLength - 1;

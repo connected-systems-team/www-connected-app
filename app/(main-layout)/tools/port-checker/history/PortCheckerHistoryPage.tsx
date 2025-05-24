@@ -37,7 +37,7 @@ import { CountryInterface, getCountryByName } from '@structure/source/utilities/
 import {
     getPortStateDescription,
     mapNmapPortStateToPortStateType,
-} from '@project/app/(main-layout)/port-checker/_adapters/PortCheckStatusAdapter';
+} from '@project/app/(main-layout)/tools/port-checker/_adapters/PortCheckStatusAdapter';
 
 // Type - PortCheckFlowExecutionStepOutput
 // Based on PortCheckFlowInputInterface but with GraphQL response field structure

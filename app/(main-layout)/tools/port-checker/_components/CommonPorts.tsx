@@ -5,6 +5,9 @@ import React from 'react';
 import { Link } from '@structure/source/common/navigation/Link';
 // import { ConnectedOutlineIcon } from '@project/source/common/ConnectedOutlineIcon';
 
+// Dependencies - Utilities
+import { mergeClassNames } from '@structure/source/utilities/Style';
+
 // Common ports
 const commonPorts = [
     { port: 21, service: 'FTP' },
@@ -31,12 +34,13 @@ const commonPorts = [
 
 // Component - CommonPorts
 export interface CommonPortsProperties {
+    className?: string;
     portSelected: (port: number) => void;
 }
 export function CommonPorts(properties: CommonPortsProperties) {
     // Render the component
     return (
-        <div className="mt-4 min-w-60 md:mt-0 md:pl-12">
+        <div className={mergeClassNames('rounded-xl border px-5 pb-4 pt-3 md:mt-0', properties.className)}>
             <p className="font-medium">Common Ports</p>
             <ul className="mt-1 text-sm">
                 {commonPorts.map(function (commonPort, commonPortIndex) {

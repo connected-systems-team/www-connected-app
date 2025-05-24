@@ -7,17 +7,15 @@ import React from 'react';
 import { ButtonElementType } from '@structure/source/common/buttons/Button';
 import { FormInputReferenceInterface } from '@structure/source/common/forms/FormInput';
 import { PortCheckForm } from '@project/app/(main-layout)/tools/port-checker/_components/PortCheckForm';
-// import { CommonPorts } from '@project/app/(main-layout)/port-checker/CommonPorts';
-import {
-    PortCheckStatusItemProperties,
-    PortCheckStatusAnimatedList,
-} from '@project/app/(main-layout)/port-checker/PortCheckStatusAnimatedList';
+import { CommonPorts } from '@project/app/(main-layout)/tools/port-checker/_components/CommonPorts';
+import { PortCheckStatusAnimatedList } from '@project/app/(main-layout)/tools/port-checker/_components/PortCheckStatusAnimatedList';
+import { PortCheckStatusItemProperties } from '@project/app/(main-layout)/tools/port-checker/_types/PortCheckTypes';
 
 // Dependencies - Hooks
 import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
 
 // Dependencies - API
-import { PortCheckStatusAdapter } from '@project/app/(main-layout)/port-checker/_adapters/PortCheckStatusAdapter';
+import { PortCheckStatusAdapter } from '@project/app/(main-layout)/tools/port-checker/_adapters/PortCheckStatusAdapter';
 
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';
@@ -98,32 +96,34 @@ export function PortChecker(properties: PortCheckerProperties) {
 
     // Render the component
     return (
-        <div className="flex flex-col">
-            <PortCheckForm
-                className={mergeClassNames('mt-6', properties.className)}
-                publicIpAddress={properties.publicIpAddress ?? ''}
-                countryCode={properties.countryCode}
-                remoteAddressFormInputReference={portCheckFormRemoteAddressFormInputReference}
-                remotePortFormInputReference={portCheckFormRemotePortFormInputReference}
-                regionFormInputReference={portCheckFormRegionFormInputReference}
-                buttonReference={portCheckFormSubmitButtonReference}
-                checkingPort={isCheckingPort}
-                checkPort={checkPort}
+        <div className="mt-6 flex flex-col gap-6 md:flex-row">
+            <div className="flex flex-grow flex-col gap-6">
+                <PortCheckForm
+                    className={mergeClassNames('', properties.className)}
+                    publicIpAddress={properties.publicIpAddress ?? ''}
+                    countryCode={properties.countryCode}
+                    remoteAddressFormInputReference={portCheckFormRemoteAddressFormInputReference}
+                    remotePortFormInputReference={portCheckFormRemotePortFormInputReference}
+                    regionFormInputReference={portCheckFormRegionFormInputReference}
+                    buttonReference={portCheckFormSubmitButtonReference}
+                    checkingPort={isCheckingPort}
+                    checkPort={checkPort}
+                />
+
+                <PortCheckStatusAnimatedList portCheckStatusItems={portCheckStatusItems} />
+            </div>
+            <CommonPorts
+                className=""
+                portSelected={function (port) {
+                    // Set the port in the form input
+                    portCheckFormRemotePortFormInputReference.current?.setValue(port.toString());
+
+                    // Immediately check the port if not already checking
+                    if(!isCheckingPort) {
+                        portCheckFormSubmitButtonReference.current?.click();
+                    }
+                }}
             />
-
-            <PortCheckStatusAnimatedList portCheckStatusItems={portCheckStatusItems} />
-
-            {/* <CommonPorts
-                    portSelected={function (port) {
-                        // Set the port in the form input
-                        portCheckFormRemotePortFormInputReference.current?.setValue(port.toString());
-
-                        // Immediately check the port if not already checking
-                        if(!isCheckingPort) {
-                            portCheckFormSubmitButtonReference.current?.click();
-                        }
-                    }}
-                /> */}
         </div>
     );
 }

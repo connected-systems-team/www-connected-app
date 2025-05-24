@@ -2,14 +2,15 @@
 import React from 'react';
 
 // Dependencies - Types
-import { PortStateType } from '@project/app/(main-layout)/port-checker/_adapters/PortCheckStatusAdapter';
+import { PortStateType } from '@project/app/(main-layout)/tools/port-checker/_adapters/PortCheckStatusAdapter';
+import { PortCheckStatusItemProperties } from '@project/app/(main-layout)/tools/port-checker/_types/PortCheckTypes';
 
 // Dependencies - Main Components
-import { Link } from '@structure/source/common/navigation/Link';
 import { AnimatedList } from '@project/source/common/animations/AnimatedList';
+import { AnimatedListItemBadge } from '@project/source/common/animations/AnimatedListItemBadge';
 import { CopyButton } from '@structure/source/common/buttons/CopyButton';
 import { Button } from '@structure/source/common/buttons/Button';
-import { PortStateDialog } from '@project/app/(main-layout)/port-checker/_dialogs/PortStateDialog';
+import { PortStateDialog } from '@project/app/(main-layout)/tools/port-checker/_dialogs/PortStateDialog';
 
 // Dependencies - Hooks
 import { Theme } from '@structure/source/theme/ThemeTypes';
@@ -21,16 +22,6 @@ import CheckCircledIcon from '@structure/assets/icons/status/CheckCircledIcon.sv
 import CheckCircledGreenBorderIcon from '@project/assets/icons/status/CheckCircledGreenBorderIcon.svg';
 import ErrorCircledRedBorderIcon from '@project/assets/icons/status/ErrorCircledRedBorderIcon.svg';
 import InformationCircledIcon from '@structure/assets/icons/status/InformationCircledIcon.svg';
-
-// Interface for status item with associated port state
-export interface PortCheckStatusItemProperties {
-    portState: PortStateType;
-    text: string;
-    host?: string;
-    port?: number;
-    errorCode?: string; // Error code from PortCheckFlowServiceErrors or FlowServiceErrors
-    isFinal?: boolean;
-}
 
 // Component - PortCheckStatusAnimatedList
 export interface PortCheckStatusAnimatedListProperties {
@@ -52,9 +43,36 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
         setIsDialogOpen(true);
     }
 
-    // Function to render host link if applicable
-    function renderHostLink(item: PortCheckStatusItemProperties, displayText: string): React.ReactNode {
-        let content: React.ReactNode = displayText;
+    // Function to render structured content
+    function renderContent(item: PortCheckStatusItemProperties): React.ReactNode {
+        // If we have structured content, use it
+        if(item.content && item.content.length > 0) {
+            return (
+                <>
+                    {item.content.map(function (part, partIndex) {
+                        if(part.type === 'badge') {
+                            return (
+                                <AnimatedListItemBadge
+                                    key={partIndex}
+                                    variant={part.variant}
+                                    href={part.href}
+                                    target={part.target}
+                                >
+                                    {part.content}
+                                </AnimatedListItemBadge>
+                            );
+                        }
+                        else {
+                            return <span key={partIndex}>{part.content}</span>;
+                        }
+                    })}
+                </>
+            );
+        }
+
+        // Fallback to legacy text rendering for backward compatibility
+        const displayText = item.text || '';
+        let content: React.ReactNode = <span>{displayText}</span>;
 
         // If the port is 80 or 443 and there is a host, render a link
         if((item.port == 80 || item.port == 443) && item.host && item.host.length > 0) {
@@ -69,11 +87,11 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
 
                 content = (
                     <>
-                        {textBeforeHost}
-                        <Link href={url} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">
+                        <span>{textBeforeHost}</span>
+                        <AnimatedListItemBadge variant="host" href={url} target="_blank">
                             {item.host}
-                        </Link>
-                        {textAfterHost}
+                        </AnimatedListItemBadge>
+                        <span>{textAfterHost}</span>
                     </>
                 );
             }
@@ -86,46 +104,55 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
     return (
         <>
             <AnimatedList
-                className="ml-[8px] mt-4"
+                className={
+                    properties.portCheckStatusItems.length
+                        ? 'rounded-xl border bg-background-secondary px-5 py-4 text-sm'
+                        : ''
+                }
                 items={properties.portCheckStatusItems.map(function (item) {
-                    // Clean the text for display by removing explanations in parentheses
-                    const displayText = item.text;
+                    // Get the display text for copy functionality (fallback to legacy text or join content)
+                    const displayText =
+                        item.text ||
+                        item.content
+                            ?.map(function (part) {
+                                return part.content;
+                            })
+                            .join('') ||
+                        '';
 
                     let content;
 
                     // Allow users to copy the last text and show info button for final results
                     if(item.isFinal) {
                         content = (
-                            <span>
-                                <span>
-                                    {renderHostLink(item, displayText)}{' '}
-                                    <Button
-                                        className="inline-flex h-auto p-0 text-neutral hover:text-dark dark:text-neutral+6 dark:hover:text-light"
-                                        variant="unstyled"
-                                        onClick={(event) => {
-                                            event.preventDefault();
-                                            event.stopPropagation();
-                                            openPortStateDialog(item.portState, item.errorCode);
-                                        }}
-                                    >
-                                        <InformationCircledIcon className="h-3.5 w-3.5" />
-                                    </Button>
-                                    <CopyButton
-                                        className="ml-1.5"
-                                        iconClassName="h-3.5 w-3.5"
-                                        value={displayText}
-                                        notice={{
-                                            title: 'Copied to Clipboard',
-                                            content: '"' + displayText + '"',
-                                        }}
-                                    />
-                                </span>
-                            </span>
+                            <div className="flex items-center">
+                                {renderContent(item)}{' '}
+                                <Button
+                                    className="ml-1 inline-flex h-auto p-0 text-neutral hover:text-dark dark:text-neutral+6 dark:hover:text-light"
+                                    variant="unstyled"
+                                    onClick={(event) => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        openPortStateDialog(item.portState, item.errorCode);
+                                    }}
+                                >
+                                    <InformationCircledIcon className="h-3.5 w-3.5" />
+                                </Button>
+                                <CopyButton
+                                    className="ml-1.5"
+                                    iconClassName="h-3.5 w-3.5"
+                                    value={displayText}
+                                    notice={{
+                                        title: 'Copied to Clipboard',
+                                        content: '"' + displayText + '"',
+                                    }}
+                                />
+                            </div>
                         );
                     }
                     else {
-                        // For all loading states, still try to render host link
-                        content = <span>{renderHostLink(item, displayText)}</span>;
+                        // For all loading states, render the structured content
+                        content = renderContent(item);
                     }
 
                     const isNegativeState =

@@ -6,7 +6,10 @@ import {
     NmapPortStateType,
     PortCheckFlowExecutionInterface,
 } from '@project/source/modules/connected/port-check/PortCheckFlowService';
-import { PortCheckStatusItemProperties } from '@project/app/(main-layout)/port-checker/PortCheckStatusAnimatedList';
+import {
+    PortCheckStatusItemProperties,
+    PortCheckContentPart,
+} from '@project/app/(main-layout)/tools/port-checker/_types/PortCheckTypes';
 import { WebSocketViaSharedWorkerContextInterface } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
 
 // Dependencies - Services
@@ -71,6 +74,7 @@ export function mapNmapPortStateToPortStateType(nmapPortState: NmapPortStateType
     }
 }
 
+
 // Class - PortCheckStatusAdapter
 export class PortCheckStatusAdapter {
     private portCheckFlowInput?: PortCheckFlowClientInputInterface;
@@ -103,10 +107,35 @@ export class PortCheckStatusAdapter {
         // Create initial status message first (this will be shown regardless of success/failure)
         const countryEmoji = getCountryEmojiByCountryName(country);
 
+        // Create link for host if applicable (port 80 or 443)
+        const shouldCreateInitialHostLink = (this.portCheckFlowInput.port === 80 || this.portCheckFlowInput.port === 443);
+        const initialHostUrl = shouldCreateInitialHostLink
+            ? this.portCheckFlowInput.port === 80
+                ? `http://${this.portCheckFlowInput.host}`
+                : `https://${this.portCheckFlowInput.host}`
+            : undefined;
+
+        // Create structured content with badges
+        const initialContent: PortCheckContentPart[] = [
+            { type: 'text', content: 'Checking port ' },
+            { type: 'badge', variant: 'port', content: this.portCheckFlowInput.port.toString() },
+            { type: 'text', content: ' on ' },
+            { 
+                type: 'badge', 
+                variant: 'host', 
+                content: this.portCheckFlowInput.host,
+                href: initialHostUrl,
+                target: '_blank'
+            },
+            { type: 'text', content: ' from ' },
+            { type: 'badge', variant: 'region', content: `${countryEmoji} ${country}` },
+        ];
+
         // Send initial port check status item
         this.onPortCheckStatusItem({
             portState: PortStateType.Unknown,
-            text: `Checking port ${this.portCheckFlowInput.port} on ${this.portCheckFlowInput.host} from ${countryEmoji} ${country}...`,
+            content: initialContent,
+            text: `Checking port ${this.portCheckFlowInput.port} on ${this.portCheckFlowInput.host} from ${countryEmoji} ${country}`,
             host: this.portCheckFlowInput.host,
             port: this.portCheckFlowInput.port,
             isFinal: false,
@@ -134,8 +163,12 @@ export class PortCheckStatusAdapter {
 
         // Check if this is a domain resolution failure (hostsUp=0, addressesCheckned=0)
         if(output?.hostsUp === 0 && output?.addressesScanned === 0) {
+            const errorContent: PortCheckContentPart[] = [
+                { type: 'text', content: PortCheckFlowServiceErrors.HostResolutionFailed.message },
+            ];
             this.onPortCheckStatusItem({
                 portState: PortStateType.Unknown,
+                content: errorContent,
                 text: PortCheckFlowServiceErrors.HostResolutionFailed.message,
                 errorCode: PortCheckFlowServiceErrors.HostResolutionFailed.code,
                 host: host,
@@ -147,8 +180,12 @@ export class PortCheckStatusAdapter {
 
         // Check for "Host is down" error with hostsUp=0
         if(output?.hostsUp === 0 && output?.error?.message?.includes('Host is down')) {
+            const errorContent: PortCheckContentPart[] = [
+                { type: 'text', content: PortCheckFlowServiceErrors.HostDown.message },
+            ];
             this.onPortCheckStatusItem({
                 portState: PortStateType.Unknown,
+                content: errorContent,
                 text: PortCheckFlowServiceErrors.HostDown.message,
                 errorCode: PortCheckFlowServiceErrors.HostDown.code,
                 host: host,
@@ -160,8 +197,12 @@ export class PortCheckStatusAdapter {
 
         // Check for "Host unreachable" error
         if(output?.error?.message?.includes('unreachable') || output?.error?.message?.includes('cannot be reached')) {
+            const errorContent: PortCheckContentPart[] = [
+                { type: 'text', content: PortCheckFlowServiceErrors.HostUnreachable.message },
+            ];
             this.onPortCheckStatusItem({
                 portState: PortStateType.Unknown,
+                content: errorContent,
                 text: PortCheckFlowServiceErrors.HostUnreachable.message,
                 errorCode: PortCheckFlowServiceErrors.HostUnreachable.code,
                 host: host,
@@ -190,6 +231,7 @@ export class PortCheckStatusAdapter {
 
         // Create a descriptive status message
         let text = '';
+        let finalContent: PortCheckContentPart[] = [];
 
         // Debug output status
         // console.log('Output status:', output?.status);
@@ -198,6 +240,15 @@ export class PortCheckStatusAdapter {
         // If we have an error
         if(output?.status === 'error' && output?.error?.message) {
             text = `Error scanning ${host}:${port} - ${output.error.message}`;
+            finalContent = [
+                { type: 'text', content: 'Error scanning ' },
+                { type: 'badge', variant: 'host', content: host || '' },
+                { type: 'text', content: ':' },
+                { type: 'badge', variant: 'port', content: port?.toString() || '' },
+                { type: 'text', content: ' - ' },
+                { type: 'badge', variant: 'port-state-negative', content: 'Error' },
+                { type: 'text', content: `: ${output.error.message}` },
+            ];
         }
         // If scan completed successfully
         else {
@@ -215,6 +266,38 @@ export class PortCheckStatusAdapter {
 
             // Construct the main message
             text = `Port ${port} on ${hostDisplay} is ${portStateWithService}.`;
+
+            // Create structured content with link for host if applicable
+            const shouldCreateHostLink = (port === 80 || port === 443) && hostDisplay;
+            const hostUrl = shouldCreateHostLink
+                ? port === 80
+                    ? `http://${hostDisplay}`
+                    : `https://${hostDisplay}`
+                : undefined;
+
+            // Determine port state badge variant
+            const isNegativeState = 
+                portState === PortStateType.Closed ||
+                portState === PortStateType.Filtered ||
+                portState === PortStateType.ClosedFiltered ||
+                portState === PortStateType.Unknown;
+            const portStateBadgeVariant = isNegativeState ? 'port-state-negative' : 'port-state-positive';
+
+            finalContent = [
+                { type: 'text', content: 'Port ' },
+                { type: 'badge', variant: 'port', content: port?.toString() || '' },
+                { type: 'text', content: ' on ' },
+                {
+                    type: 'badge',
+                    variant: 'host',
+                    content: hostDisplay || '',
+                    href: hostUrl,
+                    target: '_blank',
+                },
+                { type: 'text', content: ' is ' },
+                { type: 'badge', variant: portStateBadgeVariant, content: portStateWithService },
+                { type: 'text', content: '.' },
+            ];
         }
 
         // Debug final message
@@ -222,8 +305,12 @@ export class PortCheckStatusAdapter {
 
         // If we don't have enough data but the flow completed
         if(!host || !port) {
+            const errorContent: PortCheckContentPart[] = [
+                { type: 'text', content: PortCheckFlowServiceErrors.MissingData.message },
+            ];
             this.onPortCheckStatusItem({
                 portState: PortStateType.Unknown,
+                content: errorContent,
                 text: PortCheckFlowServiceErrors.MissingData.message,
                 errorCode: PortCheckFlowServiceErrors.MissingData.code,
                 isFinal: true,
@@ -234,6 +321,7 @@ export class PortCheckStatusAdapter {
         // Send the port check status item with the formatted text
         this.onPortCheckStatusItem({
             portState: portState,
+            content: finalContent,
             text: text,
             host: host,
             port: port,
@@ -333,7 +421,9 @@ export class PortCheckStatusAdapter {
         }
 
         // Create an error status item
+        const errorContent: PortCheckContentPart[] = [{ type: 'text', content: message }];
         const portCheckStatusItem: PortCheckStatusItemProperties = {
+            content: errorContent,
             text: message,
             portState: PortStateType.Unknown,
             errorCode: errorCode,

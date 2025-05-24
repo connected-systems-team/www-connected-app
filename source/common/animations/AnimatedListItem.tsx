@@ -131,7 +131,7 @@ export function AnimatedListItem(properties: AnimatedListItemProperties) {
 
     // Render the component
     return (
-        <div className="flex items-start">
+        <div className="flex items-center">
             {/* Left Line and Discs */}
             <div className="relative flex h-[24px] items-center">
                 {/* Disc */}
@@ -163,7 +163,7 @@ export function AnimatedListItem(properties: AnimatedListItemProperties) {
             </div>
 
             {/* Content */}
-            <animated.div ref={contentDivReference} style={textSpring} className="ml-3.5 flex items-center">
+            <animated.div ref={contentDivReference} style={textSpring} className="ml-4 flex items-center">
                 {properties.content}
                 {/* {JSON.stringify(properties)} */}
             </animated.div>

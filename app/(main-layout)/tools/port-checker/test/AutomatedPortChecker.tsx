@@ -4,23 +4,21 @@
 import React from 'react';
 
 // Dependencies - Types
-import { PortStateType } from '@project/app/(main-layout)/port-checker/_adapters/PortCheckStatusAdapter';
+import { PortStateType } from '@project/app/(main-layout)/tools/port-checker/_adapters/PortCheckStatusAdapter';
+import { PortCheckStatusItemProperties } from '@project/app/(main-layout)/tools/port-checker/_types/PortCheckTypes';
 
 // Dependencies - Main Components
 import { Button } from '@structure/source/common/buttons/Button';
 import { FormInputReferenceInterface } from '@structure/source/common/forms/FormInput';
-import { PortCheckForm } from '@project/app/(main-layout)/port-checker/PortCheckForm';
-import {
-    PortCheckStatusAnimatedList,
-    PortCheckStatusItemProperties,
-} from '@project/app/(main-layout)/port-checker/PortCheckStatusAnimatedList';
+import { PortCheckForm } from '@project/app/(main-layout)/tools/port-checker/_components/PortCheckForm';
+import { PortCheckStatusAnimatedList } from '@project/app/(main-layout)/tools/port-checker/_components/PortCheckStatusAnimatedList';
 import { ButtonElementType } from '@structure/source/common/buttons/Button';
 
 // Dependencies - Hooks
 import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
 
 // Dependencies - API
-import { PortCheckStatusAdapter } from '@project/app/(main-layout)/port-checker/_adapters/PortCheckStatusAdapter';
+import { PortCheckStatusAdapter } from '@project/app/(main-layout)/tools/port-checker/_adapters/PortCheckStatusAdapter';
 import { PortCheckFlowExecutionInterface } from '@project/source/modules/connected/port-check/PortCheckFlowService';
 import { FlowServiceErrors } from '@project/source/modules/flow/FlowService';
 

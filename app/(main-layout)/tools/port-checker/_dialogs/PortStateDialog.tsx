@@ -4,7 +4,7 @@
 import React from 'react';
 
 // Dependencies - Types
-import { PortStateType } from '@project/app/(main-layout)/port-checker/_adapters/PortCheckStatusAdapter';
+import { PortStateType } from '@project/app/(main-layout)/tools/port-checker/_adapters/PortCheckStatusAdapter';
 
 // Dependencies - Main Components
 import { DialogProperties, Dialog } from '@structure/source/common/dialogs/Dialog';

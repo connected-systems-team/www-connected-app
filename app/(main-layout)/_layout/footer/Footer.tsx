@@ -3,7 +3,7 @@ import { ProjectSettings } from '@project/ProjectSettings';
 
 // Dependencies - React and Next.js
 import React from 'react';
-import Image from 'next/image';
+// import Image from 'next/image';
 
 // Dependencies - Main Components
 import { Link } from '@structure/source/common/navigation/Link';
@@ -14,6 +14,7 @@ import { LocaleControl } from '@structure/source/common/navigation/locale/Locale
 import { Tools } from '@project/app/(main-layout)/tools/Tools';
 
 // Dependencies - Assets
+import ConnectedLogoWithWordmark from '@project/public/images/logo/connected-logo-with-wordmark.svg';
 import FacebookIcon from '@structure/assets/icons/platforms/FacebookIcon.svg';
 import XIcon from '@structure/assets/icons/platforms/XIcon.svg';
 import InstagramIcon from '@structure/assets/icons/platforms/InstagramIcon.svg';
@@ -95,14 +96,15 @@ export function Footer() {
                 <div className="container flex items-center justify-between py-phi-base-0.75">
                     {/* Logo and Socials */}
                     <Link href="/" className="transition-opacity hover:opacity-70">
-                        <Image
+                        <ConnectedLogoWithWordmark className="w-32 text-foreground-secondary dark:text-foreground-primary" />
+                        {/* <Image
                             src={'/images/logo/connected-logo-with-wordmark.svg'}
                             alt="Connected"
                             width={0}
                             height={0}
                             priority
                             className="pointer-events-none h-[22px] w-auto select-none object-contain dark:invert"
-                        />
+                        /> */}
                     </Link>
 
                     <div className="flex items-center space-x-phi">
@@ -139,7 +141,7 @@ export function Footer() {
                                             className="transition-opacity hover:opacity-70"
                                             target="_blank"
                                         >
-                                            <Icon className="h-5 w-5" />
+                                            <Icon className="h-5 w-5 text-foreground-secondary dark:text-foreground-primary" />
                                         </Link>
                                     </Tip>
                                 );

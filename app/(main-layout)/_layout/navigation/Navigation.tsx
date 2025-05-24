@@ -2,7 +2,7 @@
 
 // Dependencies - React and Next.js
 import React from 'react';
-import Image from 'next/image';
+// import Image from 'next/image';
 
 // Dependencies - Main Components
 import { Link } from '@structure/source/common/navigation/Link';
@@ -10,6 +10,9 @@ import { AccountMenuButton } from '@structure/source/modules/account/components/
 import { NavigationLinks } from '@project/app/(main-layout)/_layout/navigation/NavigationLinks';
 import { NavigationMobile } from '@project/app/(main-layout)/_layout/navigation/NavigationMobile';
 // import { Dialog as SearchDialog } from './NavigationSearch';
+
+// Dependencies - Assets
+import ConnectedLogo from '@project/public/images/logo/connected-logo.svg';
 
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';
@@ -53,13 +56,7 @@ export function Navigation(properties: NavigationProperties) {
                 // Matches the height and width of the logo in the footer
                 className="pointer-events-auto relative z-10 m-phi-base-0.5 block aspect-square w-phi shrink-0 transition-opacity hover:opacity-70 md:ml-0"
             >
-                <Image
-                    src="/images/logo/connected-logo.svg"
-                    alt="Phi"
-                    fill
-                    className="object-contain dark:invert"
-                    priority
-                />
+                <ConnectedLogo className="text-foreground-secondary dark:text-foreground-primary" />
             </Link>
 
             {/* Utility Buttons */}
