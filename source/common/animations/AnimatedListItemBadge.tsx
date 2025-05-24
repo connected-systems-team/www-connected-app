@@ -6,6 +6,10 @@ import { Link } from '@structure/source/common/navigation/Link';
 
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';
+import { getCountryByName } from '@structure/source/utilities/geo/Countries';
+
+// Dependencies - Icons
+import { Flag } from '@project/source/common/icons/flags/Flag';
 
 // Component - AnimatedListItemBadge
 export interface AnimatedListItemBadgeProperties {
@@ -21,7 +25,7 @@ export interface AnimatedListItemBadgeProperties {
 export function AnimatedListItemBadge(properties: AnimatedListItemBadgeProperties) {
     // Base classes for all badges
     const baseClasses = 'mr-1.5 rounded-xl px-2.5 py-1 flex-shrink-0';
-    
+
     // Variant-specific classes
     const variantClasses = {
         default: 'bg-background-quartary hover:bg-background-tertiary',
@@ -36,11 +40,29 @@ export function AnimatedListItemBadge(properties: AnimatedListItemBadgePropertie
     const finalClasses = mergeClassNames(
         baseClasses,
         variantClasses[properties.variant || 'default'],
-        properties.className
+        properties.className,
     );
 
+    // For region badges, check if we can render with a flag
+    const shouldRenderWithFlag = properties.variant === 'region' && typeof properties.children === 'string';
+    let content = properties.children;
+
+    if(shouldRenderWithFlag) {
+        const countryName = properties.children as string;
+        const country = getCountryByName(countryName);
+
+        if(country) {
+            content = (
+                <div className="flex items-center gap-1">
+                    <Flag countryCode={country.code} />
+                    <span>{countryName}</span>
+                </div>
+            );
+        }
+    }
+
     // If href is provided, render as Link
-    if (properties.href) {
+    if(properties.href) {
         return (
             <Link
                 href={properties.href}
@@ -48,27 +70,23 @@ export function AnimatedListItemBadge(properties: AnimatedListItemBadgePropertie
                 rel={properties.rel || 'noreferrer'}
                 className={finalClasses}
             >
-                {properties.children}
+                {content}
             </Link>
         );
     }
 
     // If onClick is provided, render as button
-    if (properties.onClick) {
+    if(properties.onClick) {
         return (
             <button
                 className={mergeClassNames(finalClasses, 'cursor-pointer transition-colors')}
                 onClick={properties.onClick}
             >
-                {properties.children}
+                {content}
             </button>
         );
     }
 
     // Otherwise render as span
-    return (
-        <span className={finalClasses}>
-            {properties.children}
-        </span>
-    );
+    return <span className={finalClasses}>{content}</span>;
 }

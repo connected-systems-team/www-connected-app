@@ -23,11 +23,11 @@ import {
 
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';
-import { getCountryEmojiByCountryName, filterCountriesByCountryNames, getCountryByName } from '@structure/source/utilities/geo/Countries';
+import { filterCountriesByCountryNames, getCountryByName } from '@structure/source/utilities/geo/Countries';
 import { getClosestAvailableCountryUsingCountryCode } from '@structure/source/utilities/geo/Geo';
 
 // Dependencies - Icons
-import { Flag } from '@project/source/common/icons/Flag';
+import { Flag } from '@project/source/common/icons/flags/Flag';
 
 // Component - PortCheckForm
 export interface PortCheckFormProperties {
@@ -121,10 +121,7 @@ export function PortCheckForm(properties: PortCheckFormProperties) {
                                 <span>Use Current IP ({properties.publicIpAddress}</span>
                                 {properties.countryCode && (
                                     <>
-                                        <Flag 
-                                            countryCode={properties.countryCode} 
-                                            className="mx-1"
-                                        />
+                                        <Flag countryCode={properties.countryCode} className="mx-1" />
                                         <span>{properties.countryCode}</span>
                                     </>
                                 )}
@@ -204,11 +201,8 @@ export function PortCheckForm(properties: PortCheckFormProperties) {
                             return {
                                 value: gridRegionLevel.country!,
                                 content: (
-                                    <div className="flex items-center gap-2">
-                                        <Flag 
-                                            countryCode={country?.code || ''} 
-                                            className="flex-shrink-0"
-                                        />
+                                    <div className="flex items-center gap-1">
+                                        <Flag countryCode={country?.code || ''} className="flex-shrink-0" />
                                         <span>{gridRegionLevel.country}</span>
                                     </div>
                                 ),
@@ -217,7 +211,7 @@ export function PortCheckForm(properties: PortCheckFormProperties) {
                             {
                                 value: 'United States',
                                 content: (
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-1">
                                         <Flag countryCode="US" className="flex-shrink-0" />
                                         <span>United States</span>
                                     </div>
