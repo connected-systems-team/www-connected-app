@@ -63,7 +63,7 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
                             );
                         }
                         else {
-                            return <span key={partIndex}>{part.content}</span>;
+                            return <span key={partIndex} className="mr-1.5 flex-shrink">{part.content}</span>;
                         }
                     })}
                 </>
@@ -72,7 +72,7 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
 
         // Fallback to legacy text rendering for backward compatibility
         const displayText = item.text || '';
-        let content: React.ReactNode = <span>{displayText}</span>;
+        let content: React.ReactNode = <span className="mr-1.5 flex-shrink">{displayText}</span>;
 
         // If the port is 80 or 443 and there is a host, render a link
         if((item.port == 80 || item.port == 443) && item.host && item.host.length > 0) {
@@ -87,11 +87,11 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
 
                 content = (
                     <>
-                        <span>{textBeforeHost}</span>
+                        <span className="mr-1.5 flex-shrink">{textBeforeHost}</span>
                         <AnimatedListItemBadge variant="host" href={url} target="_blank">
                             {item.host}
                         </AnimatedListItemBadge>
-                        <span>{textAfterHost}</span>
+                        <span className="mr-1.5 flex-shrink">{textAfterHost}</span>
                     </>
                 );
             }
@@ -125,7 +125,7 @@ export function PortCheckStatusAnimatedList(properties: PortCheckStatusAnimatedL
                     // Allow users to copy the last text and show info button for final results
                     if(item.isFinal) {
                         content = (
-                            <div className="flex items-center">
+                            <div className="flex min-w-0 flex-wrap items-center">
                                 {renderContent(item)}{' '}
                                 <Button
                                     className="ml-1 inline-flex h-auto p-0 text-neutral hover:text-dark dark:text-neutral+6 dark:hover:text-light"

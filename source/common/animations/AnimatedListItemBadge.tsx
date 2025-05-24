@@ -20,7 +20,7 @@ export interface AnimatedListItemBadgeProperties {
 
 export function AnimatedListItemBadge(properties: AnimatedListItemBadgeProperties) {
     // Base classes for all badges
-    const baseClasses = 'mx-1.5 rounded-xl px-2.5 py-1';
+    const baseClasses = 'mr-1.5 rounded-xl px-2.5 py-1 flex-shrink-0';
     
     // Variant-specific classes
     const variantClasses = {

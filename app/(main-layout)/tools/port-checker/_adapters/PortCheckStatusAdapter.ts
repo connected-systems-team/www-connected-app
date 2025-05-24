@@ -74,7 +74,6 @@ export function mapNmapPortStateToPortStateType(nmapPortState: NmapPortStateType
     }
 }
 
-
 // Class - PortCheckStatusAdapter
 export class PortCheckStatusAdapter {
     private portCheckFlowInput?: PortCheckFlowClientInputInterface;
@@ -108,7 +107,7 @@ export class PortCheckStatusAdapter {
         const countryEmoji = getCountryEmojiByCountryName(country);
 
         // Create link for host if applicable (port 80 or 443)
-        const shouldCreateInitialHostLink = (this.portCheckFlowInput.port === 80 || this.portCheckFlowInput.port === 443);
+        const shouldCreateInitialHostLink = this.portCheckFlowInput.port === 80 || this.portCheckFlowInput.port === 443;
         const initialHostUrl = shouldCreateInitialHostLink
             ? this.portCheckFlowInput.port === 80
                 ? `http://${this.portCheckFlowInput.host}`
@@ -120,22 +119,23 @@ export class PortCheckStatusAdapter {
             { type: 'text', content: 'Checking port ' },
             { type: 'badge', variant: 'port', content: this.portCheckFlowInput.port.toString() },
             { type: 'text', content: ' on ' },
-            { 
-                type: 'badge', 
-                variant: 'host', 
+            {
+                type: 'badge',
+                variant: 'host',
                 content: this.portCheckFlowInput.host,
                 href: initialHostUrl,
-                target: '_blank'
+                target: '_blank',
             },
             { type: 'text', content: ' from ' },
             { type: 'badge', variant: 'region', content: `${countryEmoji} ${country}` },
+            { type: 'text', content: '...' },
         ];
 
         // Send initial port check status item
         this.onPortCheckStatusItem({
             portState: PortStateType.Unknown,
             content: initialContent,
-            text: `Checking port ${this.portCheckFlowInput.port} on ${this.portCheckFlowInput.host} from ${countryEmoji} ${country}`,
+            text: `Checking port ${this.portCheckFlowInput.port} on ${this.portCheckFlowInput.host} from ${countryEmoji} ${country}...`,
             host: this.portCheckFlowInput.host,
             port: this.portCheckFlowInput.port,
             isFinal: false,
@@ -276,7 +276,7 @@ export class PortCheckStatusAdapter {
                 : undefined;
 
             // Determine port state badge variant
-            const isNegativeState = 
+            const isNegativeState =
                 portState === PortStateType.Closed ||
                 portState === PortStateType.Filtered ||
                 portState === PortStateType.ClosedFiltered ||

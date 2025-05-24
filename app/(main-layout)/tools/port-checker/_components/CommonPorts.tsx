@@ -69,7 +69,7 @@ export function CommonPorts(properties: CommonPortsProperties) {
                 })}
             </ul>
 
-            <Link className="mt-4 block text-sm link-blue" href="/port-checker/history" prefetch={false}>
+            <Link className="mt-4 block text-sm link-blue" href="/tools/port-checker/history" prefetch={false}>
                 History
             </Link>
         </div>

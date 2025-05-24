@@ -185,7 +185,7 @@ export function TestPortCheckerPage() {
                     </p>
                     <div className="mb-8 flex space-x-4">
                         <Button onClick={() => runAllTests()}>Run All Tests</Button>
-                        <Link href="/port-checker">
+                        <Link href="/tools/port-checker">
                             <Button variant="default">Return to Port Checker</Button>
                         </Link>
                     </div>

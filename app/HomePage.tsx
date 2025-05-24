@@ -78,7 +78,7 @@ export function HomePage() {
 
                             <Button
                                 className="max-w mb-4 mt-4 w-full"
-                                href={signedIn ? '/port-checker' : '/sign-in?redirectUrl=%2Fport-checker'}
+                                href={signedIn ? '/tools/port-checker' : '/sign-in?redirectUrl=%2Ftools%2Fport-checker'}
                             >
                                 {signedIn ? 'Continue' : 'Access the Alpha for Free'}
                             </Button>

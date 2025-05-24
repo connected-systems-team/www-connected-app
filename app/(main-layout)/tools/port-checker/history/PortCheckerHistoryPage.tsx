@@ -206,7 +206,7 @@ export function PortCheckerHistoryPage() {
                     iconPosition="left"
                     iconClassName="h-3 w-3"
                     variant="ghost"
-                    href="/port-checker"
+                    href="/tools/port-checker"
                 >
                     Back to Port Checker
                 </Button>
