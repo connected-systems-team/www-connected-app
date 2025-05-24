@@ -23,8 +23,11 @@ import {
 
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';
-import { getCountryEmojiByCountryName, filterCountriesByCountryNames } from '@structure/source/utilities/geo/Countries';
+import { getCountryEmojiByCountryName, filterCountriesByCountryNames, getCountryByName } from '@structure/source/utilities/geo/Countries';
 import { getClosestAvailableCountryUsingCountryCode } from '@structure/source/utilities/geo/Geo';
+
+// Dependencies - Icons
+import { Flag } from '@project/source/common/icons/Flag';
 
 // Component - PortCheckForm
 export interface PortCheckFormProperties {
@@ -114,12 +117,18 @@ export function PortCheckForm(properties: PortCheckFormProperties) {
                             <div>
                                 <ArrowUpIcon className="h-3 w-3" />
                             </div>
-                            <div>
-                                Use Current IP ({properties.publicIpAddress}
-                                {properties.countryCode && properties.countryCode !== 'US' && (
-                                    <> {properties.countryCode}</>
+                            <div className="flex items-center gap-1">
+                                <span>Use Current IP ({properties.publicIpAddress}</span>
+                                {properties.countryCode && (
+                                    <>
+                                        <Flag 
+                                            countryCode={properties.countryCode} 
+                                            className="mx-1"
+                                        />
+                                        <span>{properties.countryCode}</span>
+                                    </>
                                 )}
-                                )
+                                <span>)</span>
                             </div>
                         </div>
                         <TipIcon
@@ -191,17 +200,28 @@ export function PortCheckForm(properties: PortCheckFormProperties) {
                     }}
                     items={
                         gridRegionLevelsQueryState.data?.gridRegionLevels.map(function (gridRegionLevel) {
+                            const country = getCountryByName(gridRegionLevel.country || '');
                             return {
                                 value: gridRegionLevel.country!,
-                                content:
-                                    getCountryEmojiByCountryName(gridRegionLevel.country) +
-                                    ' ' +
-                                    gridRegionLevel.country,
+                                content: (
+                                    <div className="flex items-center gap-2">
+                                        <Flag 
+                                            countryCode={country?.code || ''} 
+                                            className="flex-shrink-0"
+                                        />
+                                        <span>{gridRegionLevel.country}</span>
+                                    </div>
+                                ),
                             };
                         }) || [
                             {
                                 value: 'United States',
-                                content: '🇺🇸 United States',
+                                content: (
+                                    <div className="flex items-center gap-2">
+                                        <Flag countryCode="US" className="flex-shrink-0" />
+                                        <span>United States</span>
+                                    </div>
+                                ),
                             },
                         ]
                     }
