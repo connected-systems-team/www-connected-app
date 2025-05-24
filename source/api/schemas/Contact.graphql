@@ -34,7 +34,7 @@ type Contact {
     createdByProfileId: String!
     fields: [ContactField!]
     id: String!
-    metadata: JSON!
+    metadata: JSON
     name: String!
     note: String
     source: String!

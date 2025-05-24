@@ -1,11 +1,6 @@
 {
     "types": {
         "input": {
-            "Int": {
-                "kind": "scalar",
-                "type": "Int",
-                "description": "The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
-            },
             "String": {
                 "kind": "scalar",
                 "type": "String",
@@ -16,144 +11,45 @@
                 "type": "DateTimeISO",
                 "description": "A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.This scalar is serialized to a string in ISO 8601 format and parsed from a string in ISO 8601 format."
             },
-            "Boolean": {
+            "Float": {
                 "kind": "scalar",
-                "type": "Boolean",
-                "description": "The `Boolean` scalar type represents `true` or `false`."
+                "type": "Float",
+                "description": "The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point)."
             },
-            "PaginationInput": {
-                "kind": "object",
-                "type": "PaginationInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": true,
-                        "name": "itemsPerPage"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Int",
-                        "required": false,
-                        "name": "itemIndex"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "ColumnFilterInput",
-                        "required": true,
-                        "name": "filters"
-                    },
-                    {
-                        "kind": "object",
-                        "type": "OrderByInput",
-                        "required": true,
-                        "name": "orderBy"
-                    }
-                ]
-            },
-            "ColumnFilterInput": {
-                "kind": "object",
-                "type": "ColumnFilterInput",
-                "fields": [
-                    {
-                        "kind": "enum",
-                        "type": "ColumnFilterConditionOperator",
-                        "required": true,
-                        "name": "operator"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "Boolean",
-                        "required": false,
-                        "name": "caseSensitive"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "column"
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "JSON",
-                        "required": true,
-                        "name": "value"
-                    }
-                ]
-            },
-            "ColumnFilterConditionOperator": {
+            "StripeMeteredEventLogStatus": {
                 "kind": "enum",
-                "type": "ColumnFilterConditionOperator",
-                "description": "The operator of a field filter",
-                "values": [
-                    "Equal",
-                    "NotEqual",
-                    "GreaterThan",
-                    "GreaterThanOrEqual",
-                    "LessThan",
-                    "LessThanOrEqual",
-                    "Like",
-                    "NotLike",
-                    "In",
-                    "NotIn",
-                    "IsNull",
-                    "IsNotNull"
-                ]
+                "type": "StripeMeteredEventLogStatus",
+                "description": "The status of the Stripe metered event log.",
+                "values": ["Pending", "Success", "Failed"]
             },
-            "JSON": {
-                "kind": "scalar",
-                "type": "JSON",
-                "description": "The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf)."
-            },
-            "OrderByInput": {
+            "StripeBillableActionListInput": {
                 "kind": "object",
-                "type": "OrderByInput",
+                "type": "StripeBillableActionListInput",
                 "fields": [
                     {
                         "kind": "scalar",
                         "type": "String",
-                        "required": true,
-                        "name": "key"
-                    },
-                    {
-                        "kind": "enum",
-                        "type": "OrderByDirection",
                         "required": false,
-                        "name": "direction"
+                        "name": "stripeEventName"
                     }
                 ]
             },
-            "OrderByDirection": {
-                "kind": "enum",
-                "type": "OrderByDirection",
-                "description": "The order direction of a query",
-                "values": ["Ascending", "Descending"]
-            },
-            "WaitListCreationInput": {
+            "StripeBillableActionInput": {
                 "kind": "object",
-                "type": "WaitListCreationInput",
+                "type": "StripeBillableActionInput",
                 "fields": [
                     {
                         "kind": "scalar",
                         "type": "String",
                         "required": false,
-                        "name": "identifier",
+                        "name": "id",
                         "validation": [
                             {
-                                "type": "maxLength",
-                                "constraints": [16]
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "title",
-                        "validation": [
+                                "type": "isUuid"
+                            },
                             {
-                                "type": "maxLength",
-                                "constraints": [256]
+                                "type": "unknown",
+                                "constraints": [null]
                             }
                         ]
                     },
@@ -161,24 +57,97 @@
                         "kind": "scalar",
                         "type": "String",
                         "required": false,
+                        "name": "billableAction",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            },
+                            {
+                                "type": "unknown",
+                                "constraints": [null]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "StripeBillableActionCreateInput": {
+                "kind": "object",
+                "type": "StripeBillableActionCreateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "billableAction",
+                        "validation": [
+                            {
+                                "type": "isLength",
+                                "constraints": [1, 128]
+                            },
+                            {
+                                "type": "isNotEmpty"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
                         "name": "description",
                         "validation": [
                             {
-                                "type": "maxLength",
-                                "constraints": [512]
+                                "type": "isLength",
+                                "constraints": [1, 255]
+                            },
+                            {
+                                "type": "isNotEmpty"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Float",
+                        "required": true,
+                        "name": "unitValue",
+                        "validation": [
+                            {
+                                "type": "max",
+                                "constraints": [1000]
+                            },
+                            {
+                                "type": "min",
+                                "constraints": [1]
+                            },
+                            {
+                                "type": "isInt"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "stripeEventName",
+                        "validation": [
+                            {
+                                "type": "isLength",
+                                "constraints": [1, 128]
+                            },
+                            {
+                                "type": "isNotEmpty"
                             }
                         ]
                     }
                 ]
             },
-            "WaitListUpdateInput": {
+            "StripeBillableActionUpdateInput": {
                 "kind": "object",
-                "type": "WaitListUpdateInput",
+                "type": "StripeBillableActionUpdateInput",
                 "fields": [
                     {
                         "kind": "scalar",
                         "type": "String",
-                        "required": false,
+                        "required": true,
                         "name": "id",
                         "validation": [
                             {
@@ -190,23 +159,11 @@
                         "kind": "scalar",
                         "type": "String",
                         "required": false,
-                        "name": "identifier",
+                        "name": "billableAction",
                         "validation": [
                             {
-                                "type": "maxLength",
-                                "constraints": [16]
-                            }
-                        ]
-                    },
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": false,
-                        "name": "title",
-                        "validation": [
-                            {
-                                "type": "maxLength",
-                                "constraints": [256]
+                                "type": "isLength",
+                                "constraints": [1, 128]
                             }
                         ]
                     },
@@ -217,12 +174,48 @@
                         "name": "description",
                         "validation": [
                             {
-                                "type": "maxLength",
-                                "constraints": [512]
+                                "type": "isLength",
+                                "constraints": [1, 255]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "stripeEventName",
+                        "validation": [
+                            {
+                                "type": "isLength",
+                                "constraints": [1, 128]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Float",
+                        "required": false,
+                        "name": "unitValue",
+                        "validation": [
+                            {
+                                "type": "max",
+                                "constraints": [1000]
+                            },
+                            {
+                                "type": "min",
+                                "constraints": [1]
+                            },
+                            {
+                                "type": "isInt"
                             }
                         ]
                     }
                 ]
+            },
+            "Boolean": {
+                "kind": "scalar",
+                "type": "Boolean",
+                "description": "The `Boolean` scalar type represents `true` or `false`."
             },
             "__TypeKind": {
                 "kind": "enum",

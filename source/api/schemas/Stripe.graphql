@@ -1,0 +1,119 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.This scalar is serialized to a string in ISO 8601 format and parsed from a string in ISO 8601 format.
+"""
+scalar DateTimeISO
+
+type Mutation {
+    """
+    Create a new billable action.
+    """
+    stripeBillableActionCreatePrivileged(input: StripeBillableActionCreateInput!): StripeBillableAction!
+    """
+    Delete a billable action.
+    """
+    stripeBillableActionDeletePrivileged(input: StripeBillableActionInput!): OperationResult!
+    """
+    Update a billable action.
+    """
+    stripeBillableActionUpdatePrivileged(input: StripeBillableActionUpdateInput!): StripeBillableAction!
+}
+
+type OperationResult {
+    success: Boolean!
+}
+
+type Query {
+    """
+    Get a single billable action by ID or billableAction.
+    """
+    stripeBillableActionPrivileged(input: StripeBillableActionInput!): StripeBillableAction
+    """
+    List all billable actions.
+    """
+    stripeBillableActionsPrivileged(input: StripeBillableActionListInput): [StripeBillableAction!]!
+}
+
+type StripeBillableAction {
+    billableAction: String!
+    billableActionLogs: [StripeBillableActionLog!]!
+    createdAt: DateTimeISO!
+    createdByAccountId: String!
+    createdByProfileId: String!
+    description: String!
+    id: String!
+    stripeEventName: String!
+    unitValue: Float!
+    updatedAt: DateTimeISO!
+    updatedByAccountId: String
+    updatedByProfileId: String
+}
+
+input StripeBillableActionCreateInput {
+    billableAction: String!
+    description: String!
+    stripeEventName: String!
+    unitValue: Float!
+}
+
+input StripeBillableActionInput {
+    billableAction: String
+    id: String
+}
+
+input StripeBillableActionListInput {
+    stripeEventName: String
+}
+
+type StripeBillableActionLog {
+    billableAction: StripeBillableAction!
+    billableActionId: String!
+    createdAt: DateTimeISO!
+    id: String!
+    meteredEventLog: StripeMeteredEventLog!
+    meteredEventLogId: String!
+    sourceId: String!
+    sourceType: String!
+    timestamp: DateTimeISO!
+    value: Float!
+}
+
+input StripeBillableActionUpdateInput {
+    billableAction: String
+    description: String
+    id: String!
+    stripeEventName: String
+    unitValue: Float
+}
+
+type StripeCustomer {
+    createdAt: DateTimeISO!
+    id: String!
+    stripeCustomerId: String!
+}
+
+type StripeMeteredEventLog {
+    createdAt: DateTimeISO!
+    customerId: String!
+    eventName: String!
+    id: String!
+    idempotencyKey: String!
+    requestId: String!
+    status: StripeMeteredEventLogStatus!
+    stripeCustomer: StripeCustomer!
+    timestamp: DateTimeISO!
+    value: Float!
+}
+
+"""
+The status of the Stripe metered event log.
+"""
+enum StripeMeteredEventLogStatus {
+    Failed
+    Pending
+    Success
+}

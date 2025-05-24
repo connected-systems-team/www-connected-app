@@ -55,6 +55,7 @@ type FlowExecution {
     createdByAccountId: String!
     createdByProfileId: String!
     elapsedTimeMs: Float
+    entryPointId: String!
     errors: [JSON!]
     flowEntity: FlowEntity
     flowType: FlowType!
