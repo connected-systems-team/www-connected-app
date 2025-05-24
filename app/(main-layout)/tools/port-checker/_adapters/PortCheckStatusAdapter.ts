@@ -361,16 +361,26 @@ export class PortCheckStatusAdapter {
         // Default error code as a string to be used in the UI
         let errorCode: string = FlowServiceErrors.FlowError.code;
 
+        // Check if this is an unauthorized error
+        const isUnauthorizedError =
+            error.message &&
+            (error.message.includes('Unauthorized') ||
+                error.message.includes('unauthorized') ||
+                error.message.includes('401'));
+
+        if(isUnauthorizedError) {
+            errorCode = 'Unauthorized';
+            message = 'Please sign in to use this tool.';
+        }
         // Check if this is a network error
-        const isNetworkError =
+        else if(
             (error.message &&
                 (error.message.includes('Failed to fetch') ||
                     error.message.includes('network') ||
                     error.message.includes('ERR_INTERNET_DISCONNECTED') ||
                     error.message.includes('ERR_CONNECTION_REFUSED'))) ||
-            error.code === FlowServiceErrors.ExecutionFailed.code;
-
-        if(isNetworkError) {
+            error.code === FlowServiceErrors.ExecutionFailed.code
+        ) {
             errorCode = FlowServiceErrors.NetworkConnectionError.code;
             message = FlowServiceErrors.NetworkConnectionError.message;
         }

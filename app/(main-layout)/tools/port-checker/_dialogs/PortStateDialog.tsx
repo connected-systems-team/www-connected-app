@@ -440,8 +440,8 @@ function getPortStateInformation(
                     title: 'Error',
                     content: (
                         <div className="space-y-4 text-sm">
-                            <p>An error occurred while checking the port (Code: {errorCode}).</p>
-                            <p>Please try again in a few minutes, or try using a different region.</p>
+                            <p>An error occurred while checking the port:</p>
+                            <p className="font-medium">{errorCode}</p>
                         </div>
                     ),
                 };
