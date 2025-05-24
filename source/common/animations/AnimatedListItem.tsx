@@ -139,7 +139,7 @@ export function AnimatedListItem(properties: AnimatedListItemProperties) {
                 {!properties.isFinal && (
                     <animated.div
                         style={discSpring}
-                        className="flex h-[7px] w-[7px] rounded-full bg-dark dark:bg-light"
+                        className="flex h-[7px] w-[7px] rounded-full bg-foreground-secondary dark:bg-light"
                     />
                 )}
 
@@ -160,7 +160,7 @@ export function AnimatedListItem(properties: AnimatedListItemProperties) {
                 {properties.hasNextItem && (
                     <animated.div
                         style={lineSpring}
-                        className="absolute left-[3px] top-[12px] w-[1px] bg-dark dark:bg-light"
+                        className="absolute left-[3px] top-[12px] w-[1px] bg-foreground-secondary dark:bg-light"
                     />
                 )}
             </div>
