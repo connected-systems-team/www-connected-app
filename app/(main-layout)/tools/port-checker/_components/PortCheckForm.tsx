@@ -93,7 +93,7 @@ export function PortCheckForm(properties: PortCheckFormProperties) {
             {/* Remote Address */}
             <FormInputText
                 ref={properties.remoteAddressFormInputReference as React.Ref<FormInputReferenceInterface>}
-                className=""
+                componentClassName="dark:bg-background-tertiary"
                 id="remoteAddress"
                 label="IP Address or Domain"
                 labelTip="This can either be a domain name or IP address."
@@ -158,6 +158,7 @@ export function PortCheckForm(properties: PortCheckFormProperties) {
                 <FormInputText
                     ref={properties.remotePortFormInputReference as React.Ref<FormInputReferenceInterface>}
                     className="w-full"
+                    componentClassName="dark:bg-background-tertiary"
                     id="remotePort"
                     label="Port"
                     labelTip="This can be a number between 1 and 65,535."
@@ -181,6 +182,7 @@ export function PortCheckForm(properties: PortCheckFormProperties) {
                         'loading-regions'
                     }
                     className="w-full"
+                    componentClassName="dark:bg-background-tertiary"
                     id="region"
                     label="Region"
                     labelTip="The region of the server used to check the port."
