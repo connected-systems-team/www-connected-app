@@ -15,7 +15,7 @@ export function AgentsPage() {
     return (
         <div className="container pt-12">
             <h1>Agents</h1>
-            <p className="mt-5 text-foreground-secondary">Agents!!!</p>
+            <p className="mt-4 text-sm text-foreground-secondary">Agents!!!</p>
 
             <hr className="my-6" />
 
