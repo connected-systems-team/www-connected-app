@@ -188,7 +188,7 @@ export function PortCheckForm(properties: PortCheckFormProperties) {
                         'loading-regions'
                     }
                     className="w-full"
-                    componentClassName="dark:bg-background-tertiary"
+                    componentClassName="dark:bg-background-tertiary dark:border-dark-4 dark:hover:bg-background-secondary"
                     id="region"
                     label="Region"
                     labelTip="The region of the server used to check the port."
