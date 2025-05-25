@@ -33,6 +33,21 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `dat
 """
 scalar DateTimeISO
 
+"""
+DNS Record Types
+"""
+enum DnsRecordType {
+    A
+    AAAA
+    CNAME
+    MX
+    NS
+    PTR
+    SOA
+    SRV
+    TXT
+}
+
 type FlowEntity {
     activeVersion: FlowVersionEntity
     activeVersionId: String
@@ -55,6 +70,7 @@ type FlowExecution {
     createdByAccountId: String!
     createdByProfileId: String!
     elapsedTimeMs: Float
+    entryPointId: String!
     errors: [JSON!]
     flowEntity: FlowEntity
     flowType: FlowType!
@@ -145,7 +161,58 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 scalar JSON
 
 type Mutation {
-    portCheckCreate(input: PortCheckCreateInput!): String!
+    networkToolDnsCreate(input: NetworkToolDnsCreateInput!): String!
+    networkToolPingCreate(input: NetworkToolPingCreateInput!): String!
+    networkToolPortCheckCreate(input: NetworkToolPortCheckCreateInput!): String!
+    networkToolTlsCertificateCreate(input: NetworkToolTlsCertificateCreateInput!): String!
+    networkToolTracerouteCreate(input: NetworkToolTracerouteCreateInput!): String!
+    networkToolWhoisCreate(input: NetworkToolWhoisCreateInput!): String!
+}
+
+input NetworkToolDnsCreateInput {
+    domain: String!
+    region: GridRegionLevelsInput!
+    types: [DnsRecordType!]
+}
+
+input NetworkToolHistoryInput {
+    networkTool: String!
+}
+
+input NetworkToolPingCreateInput {
+    count: Float!
+    host: String!
+    region: GridRegionLevelsInput!
+    timeoutMs: Float
+}
+
+input NetworkToolPortCheckCreateInput {
+    host: String!
+    port: Float!
+    region: GridRegionLevelsInput!
+    timeoutMs: Float
+}
+
+input NetworkToolTlsCertificateCreateInput {
+    host: String!
+    port: Float!
+    region: GridRegionLevelsInput!
+    timeoutMs: Float
+}
+
+input NetworkToolTracerouteCreateInput {
+    host: String!
+    maxHops: Float
+    queryCount: Float
+    region: GridRegionLevelsInput!
+    timeoutMs: Float
+    waitTime: Float
+}
+
+input NetworkToolWhoisCreateInput {
+    host: String!
+    region: GridRegionLevelsInput!
+    timeoutMs: Float
 }
 
 """
@@ -178,22 +245,14 @@ input PaginationInput {
     orderBy: [OrderByInput!]
 }
 
-type PaginationPortCheckResult {
+type PaginationNetworkToolHistoryResult {
     items: [FlowExecution!]!
     pagination: Pagination!
 }
 
-input PortCheckCreateInput {
-    host: String!
-    port: Float!
-    region: GridRegionLevelsInput!
-}
-
-input PortCheckInput {
-    executionId: String!
-}
-
 type Query {
-    portCheck(input: PortCheckInput!): FlowExecution
-    portCheckHistory(pagination: PaginationInput!): PaginationPortCheckResult!
+    networkToolHistory(
+        input: NetworkToolHistoryInput!
+        pagination: PaginationInput!
+    ): PaginationNetworkToolHistoryResult!
 }

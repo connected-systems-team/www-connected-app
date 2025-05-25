@@ -1,6 +1,11 @@
 {
     "types": {
         "input": {
+            "Int": {
+                "kind": "scalar",
+                "type": "Int",
+                "description": "The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
+            },
             "String": {
                 "kind": "scalar",
                 "type": "String",
@@ -40,31 +45,6 @@
                 "kind": "enum",
                 "type": "FlowTriggerType",
                 "values": ["Manual", "Recurring", "Webhook"]
-            },
-            "PortCheckInput": {
-                "kind": "object",
-                "type": "PortCheckInput",
-                "fields": [
-                    {
-                        "kind": "scalar",
-                        "type": "String",
-                        "required": true,
-                        "name": "executionId",
-                        "validation": [
-                            {
-                                "type": "isNotEmpty"
-                            },
-                            {
-                                "type": "isString"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "Int": {
-                "kind": "scalar",
-                "type": "Int",
-                "description": "The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1."
             },
             "PaginationInput": {
                 "kind": "object",
@@ -174,9 +154,175 @@
                 "description": "The order direction of a query",
                 "values": ["Ascending", "Descending"]
             },
-            "PortCheckCreateInput": {
+            "NetworkToolHistoryInput": {
                 "kind": "object",
-                "type": "PortCheckCreateInput",
+                "type": "NetworkToolHistoryInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "networkTool",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            },
+                            {
+                                "type": "isString"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "NetworkToolDnsCreateInput": {
+                "kind": "object",
+                "type": "NetworkToolDnsCreateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "domain",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            },
+                            {
+                                "type": "isString"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "enum",
+                        "type": "DnsRecordType",
+                        "required": true,
+                        "name": "types"
+                    },
+                    {
+                        "kind": "object",
+                        "type": "GridRegionLevelsInput",
+                        "required": true,
+                        "name": "region"
+                    }
+                ]
+            },
+            "DnsRecordType": {
+                "kind": "enum",
+                "type": "DnsRecordType",
+                "description": "DNS Record Types",
+                "values": ["A", "AAAA", "CNAME", "MX", "TXT", "NS", "PTR", "SRV", "SOA"]
+            },
+            "GridRegionLevelsInput": {
+                "kind": "object",
+                "type": "GridRegionLevelsInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "region"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "country"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "division"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "locality"
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "site"
+                    }
+                ]
+            },
+            "NetworkToolPingCreateInput": {
+                "kind": "object",
+                "type": "NetworkToolPingCreateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "host",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            },
+                            {
+                                "type": "isString"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Float",
+                        "required": true,
+                        "name": "count",
+                        "validation": [
+                            {
+                                "type": "max",
+                                "constraints": [10]
+                            },
+                            {
+                                "type": "min",
+                                "constraints": [1]
+                            },
+                            {
+                                "type": "isInt"
+                            },
+                            {
+                                "type": "unknown",
+                                "constraints": [null]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Float",
+                        "required": false,
+                        "name": "timeoutMs",
+                        "validation": [
+                            {
+                                "type": "max",
+                                "constraints": [60000]
+                            },
+                            {
+                                "type": "min",
+                                "constraints": [1000]
+                            },
+                            {
+                                "type": "isInt"
+                            },
+                            {
+                                "type": "unknown",
+                                "constraints": [null]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "object",
+                        "type": "GridRegionLevelsInput",
+                        "required": true,
+                        "name": "region"
+                    }
+                ]
+            },
+            "NetworkToolPortCheckCreateInput": {
+                "kind": "object",
+                "type": "NetworkToolPortCheckCreateInput",
                 "fields": [
                     {
                         "kind": "scalar",
@@ -212,6 +358,29 @@
                         ]
                     },
                     {
+                        "kind": "scalar",
+                        "type": "Float",
+                        "required": false,
+                        "name": "timeoutMs",
+                        "validation": [
+                            {
+                                "type": "max",
+                                "constraints": [60000]
+                            },
+                            {
+                                "type": "min",
+                                "constraints": [1000]
+                            },
+                            {
+                                "type": "isInt"
+                            },
+                            {
+                                "type": "unknown",
+                                "constraints": [null]
+                            }
+                        ]
+                    },
+                    {
                         "kind": "object",
                         "type": "GridRegionLevelsInput",
                         "required": true,
@@ -219,39 +388,238 @@
                     }
                 ]
             },
-            "GridRegionLevelsInput": {
+            "NetworkToolTlsCertificateCreateInput": {
                 "kind": "object",
-                "type": "GridRegionLevelsInput",
+                "type": "NetworkToolTlsCertificateCreateInput",
                 "fields": [
                     {
                         "kind": "scalar",
                         "type": "String",
+                        "required": true,
+                        "name": "host",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            },
+                            {
+                                "type": "isString"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Float",
+                        "required": true,
+                        "name": "port",
+                        "validation": [
+                            {
+                                "type": "isInt"
+                            },
+                            {
+                                "type": "max",
+                                "constraints": [65535]
+                            },
+                            {
+                                "type": "min",
+                                "constraints": [1]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Float",
                         "required": false,
+                        "name": "timeoutMs",
+                        "validation": [
+                            {
+                                "type": "max",
+                                "constraints": [60000]
+                            },
+                            {
+                                "type": "min",
+                                "constraints": [1000]
+                            },
+                            {
+                                "type": "isInt"
+                            },
+                            {
+                                "type": "unknown",
+                                "constraints": [null]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "object",
+                        "type": "GridRegionLevelsInput",
+                        "required": true,
                         "name": "region"
-                    },
+                    }
+                ]
+            },
+            "NetworkToolTracerouteCreateInput": {
+                "kind": "object",
+                "type": "NetworkToolTracerouteCreateInput",
+                "fields": [
                     {
                         "kind": "scalar",
                         "type": "String",
-                        "required": false,
-                        "name": "country"
+                        "required": true,
+                        "name": "host",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            },
+                            {
+                                "type": "isString"
+                            }
+                        ]
                     },
                     {
                         "kind": "scalar",
-                        "type": "String",
+                        "type": "Float",
                         "required": false,
-                        "name": "division"
+                        "name": "maxHops",
+                        "validation": [
+                            {
+                                "type": "max",
+                                "constraints": [255]
+                            },
+                            {
+                                "type": "min",
+                                "constraints": [1]
+                            },
+                            {
+                                "type": "isInt"
+                            },
+                            {
+                                "type": "unknown",
+                                "constraints": [null]
+                            }
+                        ]
                     },
                     {
                         "kind": "scalar",
-                        "type": "String",
+                        "type": "Float",
                         "required": false,
-                        "name": "locality"
+                        "name": "queryCount",
+                        "validation": [
+                            {
+                                "type": "max",
+                                "constraints": [10]
+                            },
+                            {
+                                "type": "min",
+                                "constraints": [1]
+                            },
+                            {
+                                "type": "isInt"
+                            },
+                            {
+                                "type": "unknown",
+                                "constraints": [null]
+                            }
+                        ]
                     },
                     {
                         "kind": "scalar",
-                        "type": "String",
+                        "type": "Float",
                         "required": false,
-                        "name": "site"
+                        "name": "waitTime",
+                        "validation": [
+                            {
+                                "type": "max",
+                                "constraints": [10]
+                            },
+                            {
+                                "type": "min",
+                                "constraints": [1]
+                            },
+                            {
+                                "type": "isInt"
+                            },
+                            {
+                                "type": "unknown",
+                                "constraints": [null]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Float",
+                        "required": false,
+                        "name": "timeoutMs",
+                        "validation": [
+                            {
+                                "type": "max",
+                                "constraints": [60000]
+                            },
+                            {
+                                "type": "min",
+                                "constraints": [1000]
+                            },
+                            {
+                                "type": "isInt"
+                            },
+                            {
+                                "type": "unknown",
+                                "constraints": [null]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "object",
+                        "type": "GridRegionLevelsInput",
+                        "required": true,
+                        "name": "region"
+                    }
+                ]
+            },
+            "NetworkToolWhoisCreateInput": {
+                "kind": "object",
+                "type": "NetworkToolWhoisCreateInput",
+                "fields": [
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": true,
+                        "name": "host",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            },
+                            {
+                                "type": "isString"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "Float",
+                        "required": false,
+                        "name": "timeoutMs",
+                        "validation": [
+                            {
+                                "type": "max",
+                                "constraints": [60000]
+                            },
+                            {
+                                "type": "min",
+                                "constraints": [1000]
+                            },
+                            {
+                                "type": "isInt"
+                            },
+                            {
+                                "type": "unknown",
+                                "constraints": [null]
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "object",
+                        "type": "GridRegionLevelsInput",
+                        "required": true,
+                        "name": "region"
                     }
                 ]
             },

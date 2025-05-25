@@ -1,5 +1,3 @@
-# Connected App - Claude Coding Guidelines
-
 # ESLint Rules
 
 ## Import Rules

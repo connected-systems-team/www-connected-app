@@ -9,7 +9,7 @@ import {
 
 // Dependencies - API
 import { apolloClient } from '@structure/source/api/apollo/ApolloClient';
-import { PortCheckCreateDocument } from '@project/source/api/graphql/GraphQlGeneratedCode';
+import { NetworkToolPortCheckCreateDocument } from '@project/source/api/graphql/GraphQlGeneratedCode';
 
 // Dependencies - Utilities
 import { isIpV4Address, isIpV6Address, isPrivateIpAddress } from '@structure/source/utilities/network/IpAddress';
@@ -222,7 +222,7 @@ export class PortCheckFlowService extends FlowService<PortCheckFlowInputInterfac
     protected async createFlowExecution(input: PortCheckFlowClientInputInterface): Promise<string> {
         // Execute the port scan mutation to create the flow
         const portCheckMutation = await apolloClient.mutate({
-            mutation: PortCheckCreateDocument,
+            mutation: NetworkToolPortCheckCreateDocument,
             variables: {
                 input: {
                     host: input.host,
@@ -235,11 +235,11 @@ export class PortCheckFlowService extends FlowService<PortCheckFlowInputInterfac
         });
 
         // If the mutation failed, throw an error
-        if(!portCheckMutation.data?.portCheckCreate) {
+        if(!portCheckMutation.data?.networkToolPortCheckCreate) {
             throw new Error('Failed to create port scan.');
         }
 
         // Return the flow execution ID
-        return portCheckMutation.data.portCheckCreate;
+        return portCheckMutation.data.networkToolPortCheckCreate;
     }
 }

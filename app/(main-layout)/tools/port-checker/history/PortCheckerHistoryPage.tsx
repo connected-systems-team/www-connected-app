@@ -19,7 +19,7 @@ import { PlaceholderAnimation } from '@structure/source/common/animations/Placeh
 // Dependencies - API
 import { useQuery } from '@apollo/client';
 import {
-    PortCheckHistoryDocument,
+    NetworkToolHistoryDocument,
     OrderByDirection,
     FlowExecution,
     FlowStepExecution,
@@ -165,8 +165,11 @@ export function PortCheckerHistoryPage() {
     const [totalChecks, setTotalChecks] = React.useState<number>(0);
 
     // Query
-    const portCheckHistoryQuery = useQuery(PortCheckHistoryDocument, {
+    const portCheckHistoryQuery = useQuery(NetworkToolHistoryDocument, {
         variables: {
+            input: {
+                networkTool: 'portCheck',
+            },
             pagination: {
                 itemsPerPage: itemsPerPage,
                 itemIndex: (page - 1) * itemsPerPage,
@@ -186,15 +189,15 @@ export function PortCheckerHistoryPage() {
     // Effects
     React.useEffect(
         function () {
-            if(portCheckHistoryQuery.data?.portCheckHistory.pagination?.itemsTotal) {
-                setTotalChecks(portCheckHistoryQuery.data.portCheckHistory.pagination.itemsTotal);
+            if(portCheckHistoryQuery.data?.networkToolHistory.pagination?.itemsTotal) {
+                setTotalChecks(portCheckHistoryQuery.data.networkToolHistory.pagination.itemsTotal);
             }
         },
-        [portCheckHistoryQuery.data?.portCheckHistory.pagination?.itemsTotal],
+        [portCheckHistoryQuery.data?.networkToolHistory.pagination?.itemsTotal],
     );
 
     // Data - Cast the flowExecutions as PortCheckFlowExecutionInterface[]
-    const flowExecutions = (portCheckHistoryQuery.data?.portCheckHistory.items ||
+    const flowExecutions = (portCheckHistoryQuery.data?.networkToolHistory.items ||
         []) as PortCheckFlowExecutionInterface[];
 
     // Render the component
@@ -339,7 +342,7 @@ export function PortCheckerHistoryPage() {
                                 page={page}
                                 itemsPerPage={itemsPerPage}
                                 itemsTotal={totalChecks}
-                                pagesTotal={portCheckHistoryQuery.data?.portCheckHistory.pagination?.pagesTotal ?? 0}
+                                pagesTotal={portCheckHistoryQuery.data?.networkToolHistory.pagination?.pagesTotal ?? 0}
                                 useLinks={true}
                                 itemsPerPageControl={false}
                                 pageInputControl={false}
