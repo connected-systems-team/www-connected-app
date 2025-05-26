@@ -119,6 +119,35 @@ export const PortErrorPatterns: ErrorPattern[] = [
     },
 ];
 
+// Common ping-specific error patterns
+export const PingErrorPatterns: ErrorPattern[] = [
+    {
+        pattern: /network.*unreachable|unreachable.*network/i,
+        errorCode: 'NetworkUnreachable',
+        message: 'Network is unreachable.',
+    },
+    {
+        pattern: /destination.*host.*unreachable|host.*unreachable/i,
+        errorCode: 'HostUnreachable',
+        message: 'Host is unreachable.',
+    },
+    {
+        pattern: /request.*timeout|ping.*timeout/i,
+        errorCode: 'PingTimeout',
+        message: 'Ping request timed out.',
+    },
+    {
+        pattern: /permission.*denied|operation.*not.*permitted/i,
+        errorCode: 'PermissionDenied',
+        message: 'Permission denied to ping this host.',
+    },
+    {
+        pattern: /100%.*packet.*loss|all.*packets.*lost/i,
+        errorCode: 'TotalPacketLoss',
+        message: 'All ping packets were lost.',
+    },
+];
+
 // Utility class for enhanced error message mapping
 export class ToolErrorMappingUtilities {
     // Function to process error using multiple pattern groups
@@ -179,6 +208,11 @@ export class ToolErrorMappingUtilities {
     // Function to create tool-specific error patterns for Port Checker
     public static getPortCheckerErrorPatterns(): ErrorPattern[] {
         return [...CommonNetworkErrorPatterns, ...CommonValidationErrorPatterns, ...PortErrorPatterns];
+    }
+
+    // Function to create tool-specific error patterns for Ping
+    public static getPingErrorPatterns(): ErrorPattern[] {
+        return [...CommonNetworkErrorPatterns, ...CommonValidationErrorPatterns, ...PingErrorPatterns];
     }
 
     // Function to create custom error patterns for a specific tool
