@@ -14,6 +14,31 @@ mutation NetworkToolPortCheckCreate($input: NetworkToolPortCheckCreateInput!) {
     networkToolPortCheckCreate(input: $input)
 }
 
+# Network Tool DNS Create Mutation
+mutation NetworkToolDnsCreate($input: NetworkToolDnsCreateInput!) {
+    networkToolDnsCreate(input: $input)
+}
+
+# Network Tool Ping Create Mutation
+mutation NetworkToolPingCreate($input: NetworkToolPingCreateInput!) {
+    networkToolPingCreate(input: $input)
+}
+
+# Network Tool TLS Certificate Create Mutation
+mutation NetworkToolTlsCertificateCreate($input: NetworkToolTlsCertificateCreateInput!) {
+    networkToolTlsCertificateCreate(input: $input)
+}
+
+# Network Tool Traceroute Create Mutation
+mutation NetworkToolTracerouteCreate($input: NetworkToolTracerouteCreateInput!) {
+    networkToolTracerouteCreate(input: $input)
+}
+
+# Network Tool Whois Create Mutation
+mutation NetworkToolWhoisCreate($input: NetworkToolWhoisCreateInput!) {
+    networkToolWhoisCreate(input: $input)
+}
+
 # Network Tool History Query
 query NetworkToolHistory($input: NetworkToolHistoryInput!, $pagination: PaginationInput!) {
     networkToolHistory(input: $input, pagination: $pagination) {

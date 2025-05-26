@@ -5346,6 +5346,41 @@ export type NetworkToolPortCheckCreateMutationVariables = Exact<{
 
 export type NetworkToolPortCheckCreateMutation = { __typename?: 'Mutation', networkToolPortCheckCreate: string };
 
+export type NetworkToolDnsCreateMutationVariables = Exact<{
+  input: NetworkToolDnsCreateInput;
+}>;
+
+
+export type NetworkToolDnsCreateMutation = { __typename?: 'Mutation', networkToolDnsCreate: string };
+
+export type NetworkToolPingCreateMutationVariables = Exact<{
+  input: NetworkToolPingCreateInput;
+}>;
+
+
+export type NetworkToolPingCreateMutation = { __typename?: 'Mutation', networkToolPingCreate: string };
+
+export type NetworkToolTlsCertificateCreateMutationVariables = Exact<{
+  input: NetworkToolTlsCertificateCreateInput;
+}>;
+
+
+export type NetworkToolTlsCertificateCreateMutation = { __typename?: 'Mutation', networkToolTlsCertificateCreate: string };
+
+export type NetworkToolTracerouteCreateMutationVariables = Exact<{
+  input: NetworkToolTracerouteCreateInput;
+}>;
+
+
+export type NetworkToolTracerouteCreateMutation = { __typename?: 'Mutation', networkToolTracerouteCreate: string };
+
+export type NetworkToolWhoisCreateMutationVariables = Exact<{
+  input: NetworkToolWhoisCreateInput;
+}>;
+
+
+export type NetworkToolWhoisCreateMutation = { __typename?: 'Mutation', networkToolWhoisCreate: string };
+
 export type NetworkToolHistoryQueryVariables = Exact<{
   input: NetworkToolHistoryInput;
   pagination: PaginationInput;
@@ -5372,6 +5407,11 @@ export type FlowExecutionHistoryQuery = { __typename?: 'Query', flowExecutionHis
 
 export const GridRegionLevelsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GridRegionLevels"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"GridRegionLevelsListInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"gridRegionLevels"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"region"}},{"kind":"Field","name":{"kind":"Name","value":"country"}},{"kind":"Field","name":{"kind":"Name","value":"division"}},{"kind":"Field","name":{"kind":"Name","value":"locality"}},{"kind":"Field","name":{"kind":"Name","value":"site"}}]}}]}}]} as unknown as DocumentNode<GridRegionLevelsQuery, GridRegionLevelsQueryVariables>;
 export const NetworkToolPortCheckCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"NetworkToolPortCheckCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"NetworkToolPortCheckCreateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"networkToolPortCheckCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}]}]}}]} as unknown as DocumentNode<NetworkToolPortCheckCreateMutation, NetworkToolPortCheckCreateMutationVariables>;
+export const NetworkToolDnsCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"NetworkToolDnsCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"NetworkToolDnsCreateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"networkToolDnsCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}]}]}}]} as unknown as DocumentNode<NetworkToolDnsCreateMutation, NetworkToolDnsCreateMutationVariables>;
+export const NetworkToolPingCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"NetworkToolPingCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"NetworkToolPingCreateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"networkToolPingCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}]}]}}]} as unknown as DocumentNode<NetworkToolPingCreateMutation, NetworkToolPingCreateMutationVariables>;
+export const NetworkToolTlsCertificateCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"NetworkToolTlsCertificateCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"NetworkToolTlsCertificateCreateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"networkToolTlsCertificateCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}]}]}}]} as unknown as DocumentNode<NetworkToolTlsCertificateCreateMutation, NetworkToolTlsCertificateCreateMutationVariables>;
+export const NetworkToolTracerouteCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"NetworkToolTracerouteCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"NetworkToolTracerouteCreateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"networkToolTracerouteCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}]}]}}]} as unknown as DocumentNode<NetworkToolTracerouteCreateMutation, NetworkToolTracerouteCreateMutationVariables>;
+export const NetworkToolWhoisCreateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"NetworkToolWhoisCreate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"NetworkToolWhoisCreateInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"networkToolWhoisCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}]}]}}]} as unknown as DocumentNode<NetworkToolWhoisCreateMutation, NetworkToolWhoisCreateMutationVariables>;
 export const NetworkToolHistoryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"NetworkToolHistory"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"NetworkToolHistoryInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"networkToolHistory"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"triggerId"}},{"kind":"Field","name":{"kind":"Name","value":"triggerType"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"stepExecutions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"stepId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"actionType"}},{"kind":"Field","name":{"kind":"Name","value":"attempt"}},{"kind":"Field","name":{"kind":"Name","value":"input"}},{"kind":"Field","name":{"kind":"Name","value":"output"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}},{"kind":"Field","name":{"kind":"Name","value":"flowVersionId"}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}}]}}]}}]}}]} as unknown as DocumentNode<NetworkToolHistoryQuery, NetworkToolHistoryQueryVariables>;
 export const FlowExecutionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FlowExecution"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"FlowExecutionInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"flowExecution"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"triggerId"}},{"kind":"Field","name":{"kind":"Name","value":"triggerType"}},{"kind":"Field","name":{"kind":"Name","value":"flowVersionId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"input"}},{"kind":"Field","name":{"kind":"Name","value":"output"}},{"kind":"Field","name":{"kind":"Name","value":"stepExecutions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"stepId"}},{"kind":"Field","name":{"kind":"Name","value":"flowExecutionId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"attempt"}},{"kind":"Field","name":{"kind":"Name","value":"actionType"}},{"kind":"Field","name":{"kind":"Name","value":"input"}},{"kind":"Field","name":{"kind":"Name","value":"output"}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<FlowExecutionQuery, FlowExecutionQueryVariables>;
 export const FlowExecutionHistoryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FlowExecutionHistory"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"FlowExecutionHistoryInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"flowExecutionHistory"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"triggerId"}},{"kind":"Field","name":{"kind":"Name","value":"triggerType"}},{"kind":"Field","name":{"kind":"Name","value":"flowVersionId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"stepExecutions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"stepId"}},{"kind":"Field","name":{"kind":"Name","value":"flowExecutionId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"attempt"}},{"kind":"Field","name":{"kind":"Name","value":"actionType"}},{"kind":"Field","name":{"kind":"Name","value":"input"}},{"kind":"Field","name":{"kind":"Name","value":"output"}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}},{"kind":"Field","name":{"kind":"Name","value":"elapsedTimeMs"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"errors"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pagination"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itemIndex"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemIndexForNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsPerPage"}},{"kind":"Field","name":{"kind":"Name","value":"itemsTotal"}},{"kind":"Field","name":{"kind":"Name","value":"page"}},{"kind":"Field","name":{"kind":"Name","value":"pagesTotal"}}]}}]}}]}}]} as unknown as DocumentNode<FlowExecutionHistoryQuery, FlowExecutionHistoryQueryVariables>;
@@ -5665,6 +5705,418 @@ export namespace GraphQLInputTypes {
     ],
   }
 
+  export const NetworkToolWhoisCreateInput: GraphQLInputObjectTypeMetadata = {
+    kind: 'object',
+    type: 'NetworkToolWhoisCreateInput',
+    fields: [
+      {
+        name: 'host',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'isNotEmpty',
+          },
+          {
+            type: 'isString',
+          }
+        ],
+      },
+      {
+        name: 'timeoutMs',
+        kind: 'scalar',
+        type: 'Float',
+        required: false,
+        validation: [
+          {
+            type: 'max',
+            constraints: [
+              60000
+            ],
+          },
+          {
+            type: 'min',
+            constraints: [
+              1000
+            ],
+          },
+          {
+            type: 'isInt',
+          },
+          {
+            type: 'unknown',
+            constraints: [
+              null
+            ],
+          }
+        ],
+      },
+      {
+        name: 'region',
+        kind: 'object',
+        type: GraphQLInputTypes.GridRegionLevelsInput,
+        required: true,
+      }
+    ],
+  }
+
+  export const NetworkToolTracerouteCreateInput: GraphQLInputObjectTypeMetadata = {
+    kind: 'object',
+    type: 'NetworkToolTracerouteCreateInput',
+    fields: [
+      {
+        name: 'host',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'isNotEmpty',
+          },
+          {
+            type: 'isString',
+          }
+        ],
+      },
+      {
+        name: 'maxHops',
+        kind: 'scalar',
+        type: 'Float',
+        required: false,
+        validation: [
+          {
+            type: 'max',
+            constraints: [
+              255
+            ],
+          },
+          {
+            type: 'min',
+            constraints: [
+              1
+            ],
+          },
+          {
+            type: 'isInt',
+          },
+          {
+            type: 'unknown',
+            constraints: [
+              null
+            ],
+          }
+        ],
+      },
+      {
+        name: 'queryCount',
+        kind: 'scalar',
+        type: 'Float',
+        required: false,
+        validation: [
+          {
+            type: 'max',
+            constraints: [
+              10
+            ],
+          },
+          {
+            type: 'min',
+            constraints: [
+              1
+            ],
+          },
+          {
+            type: 'isInt',
+          },
+          {
+            type: 'unknown',
+            constraints: [
+              null
+            ],
+          }
+        ],
+      },
+      {
+        name: 'waitTime',
+        kind: 'scalar',
+        type: 'Float',
+        required: false,
+        validation: [
+          {
+            type: 'max',
+            constraints: [
+              10
+            ],
+          },
+          {
+            type: 'min',
+            constraints: [
+              1
+            ],
+          },
+          {
+            type: 'isInt',
+          },
+          {
+            type: 'unknown',
+            constraints: [
+              null
+            ],
+          }
+        ],
+      },
+      {
+        name: 'timeoutMs',
+        kind: 'scalar',
+        type: 'Float',
+        required: false,
+        validation: [
+          {
+            type: 'max',
+            constraints: [
+              60000
+            ],
+          },
+          {
+            type: 'min',
+            constraints: [
+              1000
+            ],
+          },
+          {
+            type: 'isInt',
+          },
+          {
+            type: 'unknown',
+            constraints: [
+              null
+            ],
+          }
+        ],
+      },
+      {
+        name: 'region',
+        kind: 'object',
+        type: GraphQLInputTypes.GridRegionLevelsInput,
+        required: true,
+      }
+    ],
+  }
+
+  export const NetworkToolTlsCertificateCreateInput: GraphQLInputObjectTypeMetadata = {
+    kind: 'object',
+    type: 'NetworkToolTlsCertificateCreateInput',
+    fields: [
+      {
+        name: 'host',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'isNotEmpty',
+          },
+          {
+            type: 'isString',
+          }
+        ],
+      },
+      {
+        name: 'port',
+        kind: 'scalar',
+        type: 'Float',
+        required: true,
+        validation: [
+          {
+            type: 'isInt',
+          },
+          {
+            type: 'max',
+            constraints: [
+              65535
+            ],
+          },
+          {
+            type: 'min',
+            constraints: [
+              1
+            ],
+          }
+        ],
+      },
+      {
+        name: 'timeoutMs',
+        kind: 'scalar',
+        type: 'Float',
+        required: false,
+        validation: [
+          {
+            type: 'max',
+            constraints: [
+              60000
+            ],
+          },
+          {
+            type: 'min',
+            constraints: [
+              1000
+            ],
+          },
+          {
+            type: 'isInt',
+          },
+          {
+            type: 'unknown',
+            constraints: [
+              null
+            ],
+          }
+        ],
+      },
+      {
+        name: 'region',
+        kind: 'object',
+        type: GraphQLInputTypes.GridRegionLevelsInput,
+        required: true,
+      }
+    ],
+  }
+
+  export const NetworkToolPingCreateInput: GraphQLInputObjectTypeMetadata = {
+    kind: 'object',
+    type: 'NetworkToolPingCreateInput',
+    fields: [
+      {
+        name: 'host',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'isNotEmpty',
+          },
+          {
+            type: 'isString',
+          }
+        ],
+      },
+      {
+        name: 'count',
+        kind: 'scalar',
+        type: 'Float',
+        required: true,
+        validation: [
+          {
+            type: 'max',
+            constraints: [
+              10
+            ],
+          },
+          {
+            type: 'min',
+            constraints: [
+              1
+            ],
+          },
+          {
+            type: 'isInt',
+          },
+          {
+            type: 'unknown',
+            constraints: [
+              null
+            ],
+          }
+        ],
+      },
+      {
+        name: 'timeoutMs',
+        kind: 'scalar',
+        type: 'Float',
+        required: false,
+        validation: [
+          {
+            type: 'max',
+            constraints: [
+              60000
+            ],
+          },
+          {
+            type: 'min',
+            constraints: [
+              1000
+            ],
+          },
+          {
+            type: 'isInt',
+          },
+          {
+            type: 'unknown',
+            constraints: [
+              null
+            ],
+          }
+        ],
+      },
+      {
+        name: 'region',
+        kind: 'object',
+        type: GraphQLInputTypes.GridRegionLevelsInput,
+        required: true,
+      }
+    ],
+  }
+
+  export const DnsRecordType: GraphQLInputEnumTypeMetadata = {
+    kind: 'enum',
+    type: 'DnsRecordType',
+    values: [
+      'A',
+      'AAAA',
+      'CNAME',
+      'MX',
+      'TXT',
+      'NS',
+      'PTR',
+      'SRV',
+      'SOA'
+    ],
+  }
+
+  export const NetworkToolDnsCreateInput: GraphQLInputObjectTypeMetadata = {
+    kind: 'object',
+    type: 'NetworkToolDnsCreateInput',
+    fields: [
+      {
+        name: 'domain',
+        kind: 'scalar',
+        type: 'String',
+        required: true,
+        validation: [
+          {
+            type: 'isNotEmpty',
+          },
+          {
+            type: 'isString',
+          }
+        ],
+      },
+      {
+        name: 'types',
+        kind: 'enum',
+        type: GraphQLInputTypes.DnsRecordType,
+        required: true,
+      },
+      {
+        name: 'region',
+        kind: 'object',
+        type: GraphQLInputTypes.GridRegionLevelsInput,
+        required: true,
+      }
+    ],
+  }
+
   export const GridRegionLevelsInput: GraphQLInputObjectTypeMetadata = {
     kind: 'object',
     type: 'GridRegionLevelsInput',
@@ -5883,6 +6335,76 @@ export const NetworkToolPortCheckCreateOperation: GraphQLOperationMetadata<typeo
       required: true,
       kind: 'object',
       type: GraphQLInputTypes.NetworkToolPortCheckCreateInput,
+    },
+  ],
+}
+  
+export const NetworkToolDnsCreateOperation: GraphQLOperationMetadata<typeof NetworkToolDnsCreateDocument> = {
+  operation: 'NetworkToolDnsCreate',
+  operationType: 'mutation',
+  document: NetworkToolDnsCreateDocument,
+  parameters: [
+    {
+      parameter: 'input',
+      required: true,
+      kind: 'object',
+      type: GraphQLInputTypes.NetworkToolDnsCreateInput,
+    },
+  ],
+}
+  
+export const NetworkToolPingCreateOperation: GraphQLOperationMetadata<typeof NetworkToolPingCreateDocument> = {
+  operation: 'NetworkToolPingCreate',
+  operationType: 'mutation',
+  document: NetworkToolPingCreateDocument,
+  parameters: [
+    {
+      parameter: 'input',
+      required: true,
+      kind: 'object',
+      type: GraphQLInputTypes.NetworkToolPingCreateInput,
+    },
+  ],
+}
+  
+export const NetworkToolTlsCertificateCreateOperation: GraphQLOperationMetadata<typeof NetworkToolTlsCertificateCreateDocument> = {
+  operation: 'NetworkToolTlsCertificateCreate',
+  operationType: 'mutation',
+  document: NetworkToolTlsCertificateCreateDocument,
+  parameters: [
+    {
+      parameter: 'input',
+      required: true,
+      kind: 'object',
+      type: GraphQLInputTypes.NetworkToolTlsCertificateCreateInput,
+    },
+  ],
+}
+  
+export const NetworkToolTracerouteCreateOperation: GraphQLOperationMetadata<typeof NetworkToolTracerouteCreateDocument> = {
+  operation: 'NetworkToolTracerouteCreate',
+  operationType: 'mutation',
+  document: NetworkToolTracerouteCreateDocument,
+  parameters: [
+    {
+      parameter: 'input',
+      required: true,
+      kind: 'object',
+      type: GraphQLInputTypes.NetworkToolTracerouteCreateInput,
+    },
+  ],
+}
+  
+export const NetworkToolWhoisCreateOperation: GraphQLOperationMetadata<typeof NetworkToolWhoisCreateDocument> = {
+  operation: 'NetworkToolWhoisCreate',
+  operationType: 'mutation',
+  document: NetworkToolWhoisCreateDocument,
+  parameters: [
+    {
+      parameter: 'input',
+      required: true,
+      kind: 'object',
+      type: GraphQLInputTypes.NetworkToolWhoisCreateInput,
     },
   ],
 }
