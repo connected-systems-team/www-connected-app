@@ -8,7 +8,7 @@ import { useUrlSearchParameters } from '@structure/source/utilities/next/NextNav
 import {
     NmapPortStateType,
     PortCheckFlowOutputInterface,
-} from '@project/source/modules/connected/port-check/PortCheckFlowService';
+} from '@project/app/(main-layout)/tools/port-checker/_api/PortCheckFlowService';
 
 // Dependencies - Main Components
 import { AuthorizationLayout } from '@structure/source/layouts/AuthorizationLayout';
@@ -36,16 +36,15 @@ import { iso8601DateWithTime, timeAgo } from '@structure/source/utilities/Time';
 import { CountryInterface, getCountryByName } from '@structure/source/utilities/geo/Countries';
 import {
     getPortStateDescription,
-    mapNmapPortStateToPortStateType,
-} from '@project/app/(main-layout)/tools/port-checker/_adapters/PortCheckStatusAdapter';
+    convertNmapPortStateToPortStateType,
+} from '@project/app/(main-layout)/tools/port-checker/_api/PortCheckStatusAdapter';
 
-// Type - PortCheckFlowExecutionStepOutput
-// Based on PortCheckFlowInputInterface but with GraphQL response field structure
+// Type - PortCheckFlowExecutionStepInput
+// Based on the new GraphQL response field structure
 interface PortCheckFlowStepExecutionInputInterface {
     host: string;
-    port: number; // Required in GraphQL response
-    region: string; // Region ID in GraphQL response
-    maxAttempts: number; // GraphQL field name is 'maxAttempts'
+    port: number;
+    regionId: string; // Field is 'regionId' in the new format
 }
 
 // Type - PortCheckFlowOutputInterface
@@ -104,40 +103,57 @@ export function extractPortCheckHistoryData(
 
     // Look for port scan step
     for(const step of stepExecutions) {
-        // Check if this is a port scan step with output
-        if(step.actionType === 'PortCheck' && step.output) {
-            // Try to extract the step output
+        // Check if this is a port scan step with input
+        if(step.actionType === 'PortCheckNode' && step.input) {
+            // Try to extract the step input and output
             try {
-                // Parse output if it's a string, otherwise use as is
-                const output =
-                    typeof step.output === 'string'
-                        ? (JSON.parse(step.output) as PortCheckFlowStepExecutionOutputInterface)
-                        : (step.output as PortCheckFlowStepExecutionOutputInterface);
+                // Parse input if it's a string, otherwise use as is
+                const input =
+                    typeof step.input === 'string'
+                        ? (JSON.parse(step.input) as PortCheckFlowStepExecutionInputInterface)
+                        : (step.input as PortCheckFlowStepExecutionInputInterface);
 
-                // Extract host name and IP
-                hostName = output.hostName || hostName;
-                hostIp = output.hostIpAddress || hostIp;
+                // Extract host name and port from input
+                hostName = input.host || hostName;
+                port = input.port ? input.port.toString() : port;
 
-                // Extract port data if available
-                if(output.port) {
-                    port = output.port.number ? output.port.number.toString() : port;
-                    portState = (output.port.state as NmapPortStateType) || portState;
-                }
+                // Parse output if it exists
+                if(step.output) {
+                    const output =
+                        typeof step.output === 'string'
+                            ? (JSON.parse(step.output) as PortCheckFlowStepExecutionOutputInterface)
+                            : (step.output as PortCheckFlowStepExecutionOutputInterface);
 
-                // Extract latency data and format as milliseconds with commas
-                if(output.latency) {
-                    // Remove 's' suffix if present (e.g., "0.0012s")
-                    const latencyValue = output.latency.replace('s', '');
-                    // Convert from seconds to milliseconds and format with commas
-                    const latencyInMs = parseFloat(latencyValue) * 1000;
-                    latencyInMilliseconds = latencyInMs.toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' ms';
+                    // Extract IP from output
+                    hostIp = output.hostIpAddress || hostIp;
+
+                    // Extract port state from output
+                    if(output.port) {
+                        portState = (output.port.state as NmapPortStateType) || portState;
+                    }
+
+                    // Extract latency data and format as milliseconds with commas
+                    if(output.latency) {
+                        // Remove 's' suffix if present (e.g., "0.0012s")
+                        const latencyValue = output.latency.replace('s', '');
+                        // Convert from seconds to milliseconds and format with commas
+                        const latencyInMs = parseFloat(latencyValue) * 1000;
+                        latencyInMilliseconds =
+                            latencyInMs.toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' ms';
+                    }
+                    else {
+                        latencyInMilliseconds = 'N/A';
+                    }
                 }
                 else {
+                    // No output means the step failed - set appropriate defaults
+                    hostIp = 'Failed';
+                    portState = 'unknown';
                     latencyInMilliseconds = 'N/A';
                 }
             }
             catch(error) {
-                console.error('Error parsing port scan step output', error);
+                console.error('Error parsing port scan step input/output', error);
             }
         }
     }
@@ -271,7 +287,7 @@ export function PortCheckerHistoryPage() {
                                     } = extractPortCheckHistoryData(flowExecution);
 
                                     // Map port states to user-friendly descriptions using our utility
-                                    const portStateTypeValue = mapNmapPortStateToPortStateType(portState);
+                                    const portStateTypeValue = convertNmapPortStateToPortStateType(portState);
                                     const fullPortStateDisplay = uppercaseFirstCharacter(
                                         getPortStateDescription(portStateTypeValue),
                                     );
@@ -292,7 +308,9 @@ export function PortCheckerHistoryPage() {
 
                                             {/* Host Info */}
                                             <div className="space-y-1">
-                                                <div className="font-medium">{hostName}</div>
+                                                <div className="break-all font-medium" title={hostName}>
+                                                    {hostName}
+                                                </div>
                                             </div>
 
                                             {/* IP */}

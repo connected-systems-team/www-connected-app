@@ -15,7 +15,7 @@ import { PortCheckStatusItemProperties } from '@project/app/(main-layout)/tools/
 import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
 
 // Dependencies - API
-import { PortCheckStatusAdapter } from '@project/app/(main-layout)/tools/port-checker/_adapters/PortCheckStatusAdapter';
+import { PortCheckStatusAdapter } from '@project/app/(main-layout)/tools/port-checker/_api/PortCheckStatusAdapter';
 
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';

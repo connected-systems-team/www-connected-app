@@ -6,13 +6,9 @@ import React from 'react';
 import { ButtonElementType, Button } from '@structure/source/common/buttons/Button';
 import { FormInputReferenceInterface } from '@structure/source/common/forms/FormInput';
 import { FormInputText } from '@structure/source/common/forms/FormInputText';
-import { FormInputSelect } from '@structure/source/common/forms/FormInputSelect';
 import { CopyButton } from '@structure/source/common/buttons/CopyButton';
 import { TipIcon } from '@structure/source/common/popovers/TipIcon';
-
-// Dependencies - API
-import { useQuery } from '@apollo/client';
-import { GridRegionLevelsDocument, GridRegionLevel } from '@project/source/api/graphql/GraphQlGeneratedCode';
+import { RegionFormInputSelect } from '@project/app/(main-layout)/tools/_form/RegionFormInputSelect';
 
 // Dependencies - Assets
 import ArrowUpIcon from '@structure/assets/icons/interface/ArrowUpIcon.svg';
@@ -23,8 +19,6 @@ import {
 
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';
-import { filterCountriesByCountryNames, getCountryByName } from '@structure/source/utilities/geo/Countries';
-import { getClosestAvailableCountryUsingCountryCode } from '@structure/source/utilities/geo/Geo';
 
 // Dependencies - Icons
 import { Flag } from '@project/source/common/icons/flags/Flag';
@@ -42,45 +36,6 @@ export interface PortCheckFormProperties {
     checkPort: (remoteAddress: string, port: number, country: string) => void;
 }
 export function PortCheckForm(properties: PortCheckFormProperties) {
-    // Hooks
-    const gridRegionLevelsQueryState = useQuery(GridRegionLevelsDocument, {
-        variables: {
-            input: {
-                level: GridRegionLevel.Country,
-            },
-        },
-    });
-    // console.log('gridRegionsQueryState', gridRegionsQueryState);
-
-    // Function to get the default country based on user's country code
-    function getDefaultCountry(gridRegionLevels?: { country?: string | null }[], countryCode?: string): string {
-        let defaultCountry = 'United States';
-
-        if(!gridRegionLevels || gridRegionLevels.length === 0) {
-            return defaultCountry;
-        }
-
-        // Get the available country names from the grid region levels
-        const availableCountryNames = gridRegionLevels
-            .map(function (level) {
-                return level.country;
-            })
-            .filter(function (country): country is string {
-                return !!country;
-            });
-        // console.log('availableCountryNames', availableCountryNames);
-
-        // Filter countries by the available country names
-        const availableCountries = filterCountriesByCountryNames(availableCountryNames);
-        // console.log('availableCountries', availableCountries);
-
-        // Get the closest available country
-        defaultCountry = getClosestAvailableCountryUsingCountryCode(availableCountries, countryCode, 'US').name;
-        // console.log('defaultCountry', defaultCountry);
-
-        return defaultCountry;
-    }
-
     // Function to check the port
     function checkPort() {
         properties.checkPort(
@@ -181,49 +136,10 @@ export function PortCheckForm(properties: PortCheckFormProperties) {
                 />
 
                 {/* Region */}
-                <FormInputSelect
-                    ref={properties.regionFormInputReference as React.Ref<FormInputReferenceInterface>}
-                    key={
-                        gridRegionLevelsQueryState.data?.gridRegionLevels?.map((level) => level.region).join('-') ||
-                        'loading-regions'
-                    }
-                    className="w-full"
-                    componentClassName="dark:bg-background-tertiary dark:border-dark-4 dark:hover:bg-background-secondary"
-                    id="region"
-                    label="Region"
+                <RegionFormInputSelect
+                    formInputReference={properties.regionFormInputReference}
+                    countryCode={properties.countryCode}
                     labelTip="The region of the server used to check the port."
-                    labelTipIconProperties={{
-                        contentClassName: 'w-48',
-                    }}
-                    items={
-                        gridRegionLevelsQueryState.data?.gridRegionLevels.map(function (gridRegionLevel) {
-                            const country = getCountryByName(gridRegionLevel.country || '');
-                            return {
-                                value: gridRegionLevel.country!,
-                                content: (
-                                    <div className="flex items-center gap-1">
-                                        <Flag countryCode={country?.code || ''} className="flex-shrink-0" />
-                                        <span>{gridRegionLevel.country}</span>
-                                    </div>
-                                ),
-                            };
-                        }) || [
-                            {
-                                value: 'United States',
-                                content: (
-                                    <div className="flex items-center gap-1">
-                                        <Flag countryCode="US" className="flex-shrink-0" />
-                                        <span>United States</span>
-                                    </div>
-                                ),
-                            },
-                        ]
-                    }
-                    placeholder="Loading regions..."
-                    defaultValue={getDefaultCountry(
-                        gridRegionLevelsQueryState.data?.gridRegionLevels,
-                        properties.countryCode,
-                    )}
                 />
             </div>
 

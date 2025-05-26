@@ -4,13 +4,13 @@
 import React from 'react';
 
 // Dependencies - Types
-import { PortStateType } from '@project/app/(main-layout)/tools/port-checker/_adapters/PortCheckStatusAdapter';
+import { PortStateType } from '@project/app/(main-layout)/tools/port-checker/_api/PortCheckStatusAdapter';
 
 // Dependencies - Main Components
 import { DialogProperties, Dialog } from '@structure/source/common/dialogs/Dialog';
 
 // Dependencies - Services
-import { PortCheckFlowServiceErrors } from '@project/source/modules/connected/port-check/PortCheckFlowService';
+import { PortCheckFlowServiceErrors } from '@project/app/(main-layout)/tools/port-checker/_api/PortCheckFlowService';
 import { FlowServiceErrors } from '@project/source/modules/flow/FlowService';
 
 // Component - PortStateDialog

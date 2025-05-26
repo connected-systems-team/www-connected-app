@@ -15,7 +15,19 @@ import { Flag } from '@project/source/common/icons/flags/Flag';
 export interface AnimatedListItemBadgeProperties {
     children: React.ReactNode;
     className?: string;
-    variant?: 'default' | 'host' | 'port' | 'region' | 'port-state-positive' | 'port-state-negative';
+    variant?:
+        | 'default'
+        | 'host'
+        | 'port'
+        | 'region'
+        | 'port-state-positive'
+        | 'port-state-negative'
+        | 'domain'
+        | 'record-type'
+        | 'ip-address'
+        | 'record-value'
+        | 'result-positive'
+        | 'result-negative';
     href?: string;
     target?: '_blank' | '_self';
     rel?: string;
@@ -34,6 +46,14 @@ export function AnimatedListItemBadge(properties: AnimatedListItemBadgePropertie
         region: 'bg-background-quartary hover:bg-background-tertiary',
         'port-state-positive': 'bg-green-500 text-white hover:bg-green-600',
         'port-state-negative': 'bg-red-500 text-white hover:bg-red-600',
+        domain: 'bg-background-quartary hover:bg-background-tertiary',
+        'record-type':
+            'bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800',
+        'ip-address':
+            'bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:hover:bg-purple-800',
+        'record-value': 'bg-background-quartary hover:bg-background-tertiary',
+        'result-positive': 'bg-green-500 text-white hover:bg-green-600',
+        'result-negative': 'bg-red-500 text-white hover:bg-red-600',
     };
 
     // Merge all classes
