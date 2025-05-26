@@ -12,7 +12,12 @@ import { apolloClient } from '@structure/source/api/apollo/ApolloClient';
 import { NetworkToolPortCheckCreateDocument } from '@project/source/api/graphql/GraphQlGeneratedCode';
 
 // Dependencies - Utilities
-import { isIpV4Address, isIpV6Address, isPrivateIpAddress } from '@structure/source/utilities/network/IpAddress';
+import { isIpV6Address, isPrivateIpAddress } from '@structure/source/utilities/network/IpAddress';
+import {
+    DomainValidation,
+    IpAddressValidation,
+    PortValidation,
+} from '@project/app/(main-layout)/tools/_utilities/ToolValidationUtilities';
 
 // Server Type - NmapPortStateType - Possible states for a port from nmap
 export type NmapPortStateType =
@@ -149,6 +154,18 @@ export interface PortCheckFlowExecutionInterface
 export class PortCheckFlowService extends FlowService<PortCheckFlowInputInterface, PortCheckFlowOutputInterface> {
     // Function to override validateInput to add port scan specific validation
     protected validateInput(input: PortCheckFlowClientInputInterface): FlowInputValidationResultInterface {
+        // Validate port first using shared utility
+        const portValidation = PortValidation.validatePort(input.port);
+        if(!portValidation.isValid) {
+            return {
+                isValid: false,
+                error: {
+                    code: PortCheckFlowServiceErrors.InvalidPortError.code,
+                    message: PortCheckFlowServiceErrors.InvalidPortError.message,
+                },
+            };
+        }
+
         // Check for IPv6 addresses - not currently supported
         if(isIpV6Address(input.host)) {
             return {
@@ -160,9 +177,10 @@ export class PortCheckFlowService extends FlowService<PortCheckFlowInputInterfac
             };
         }
 
-        // Check first if it's a valid IPv4 address
-        if(isIpV4Address(input.host)) {
-            // Then check if it's private
+        // Try to validate as IPv4 first (format only, no private IP check)
+        const ipv4Validation = IpAddressValidation.validateIpv4Format(input.host);
+        if(ipv4Validation.isValid) {
+            // IP format is valid, but check if it's private using existing utility
             if(isPrivateIpAddress(input.host)) {
                 return {
                     isValid: false,
@@ -172,44 +190,37 @@ export class PortCheckFlowService extends FlowService<PortCheckFlowInputInterfac
                     },
                 };
             }
+            // Valid public IPv4 address
+            return { isValid: true };
         }
-        // If it looks like an IP but isn't valid, report it as invalid
-        else if(input.host.match(/^(\d{1,3}\.){3}\d{1,3}$/)) {
+
+        // If it failed IPv4 validation because it looks like an IP pattern but has invalid values, return specific error
+        // Only check for format errors if it actually looks like an IP (contains only numbers and dots)
+        if(input.host.match(/^[\d.]+$/) && 
+           (ipv4Validation.errorCode === 'InvalidIpv4Octet' || ipv4Validation.errorCode === 'InvalidIpv4Format')) {
             return {
                 isValid: false,
                 error: {
                     code: PortCheckFlowServiceErrors.InvalidIpError.code,
-                    message: `${input.host} is not a valid IP address. IP octets must be between 0-255.`,
+                    message: PortCheckFlowServiceErrors.InvalidIpError.message,
                 },
             };
         }
 
-        // Validate hostname format for non-IP addresses
-        if(!isIpV4Address(input.host)) {
-            const domainPattern = /^[a-zA-Z0-9][-a-zA-Z0-9.]{0,253}[a-zA-Z0-9](\.[a-zA-Z]{2,})+$/;
-
-            // This is not a valid domain name pattern
-            if(!domainPattern.test(input.host)) {
-                // Only show this if it's likely to fail host resolution
-                if(!input.host.includes('.')) {
-                    return {
-                        isValid: false,
-                        error: {
-                            code: PortCheckFlowServiceErrors.InvalidHostError.code,
-                            message: PortCheckFlowServiceErrors.InvalidHostError.message,
-                        },
-                    };
-                }
+        // Not an IP address, try to validate as hostname/domain
+        const domainValidation = DomainValidation.validateHostname(input.host);
+        if(!domainValidation.isValid) {
+            // For single words (like localhost), allow them to pass through
+            // The server will handle host resolution errors
+            if(!input.host.includes('.') && input.host.trim().length > 0) {
+                return { isValid: true };
             }
-        }
 
-        // Validate port number
-        if(input.port < 1 || input.port > 65535) {
             return {
                 isValid: false,
                 error: {
-                    code: PortCheckFlowServiceErrors.InvalidPortError.code,
-                    message: PortCheckFlowServiceErrors.InvalidPortError.message,
+                    code: PortCheckFlowServiceErrors.InvalidHostError.code,
+                    message: PortCheckFlowServiceErrors.InvalidHostError.message,
                 },
             };
         }

@@ -17,6 +17,7 @@ import { WebSocketViaSharedWorkerContextInterface } from '@structure/source/api/
 // Dependencies - Base Classes
 import { FlowErrorResult } from '@project/app/(main-layout)/tools/_adapters/FlowErrorHandler';
 import { BaseFlowAdapter } from '@project/app/(main-layout)/tools/_adapters/BaseFlowAdapter';
+import { ToolErrorMappingUtilities } from '@project/app/(main-layout)/tools/_adapters/ToolErrorMappingUtilities';
 import { FlowExecutionErrorInterface } from '@project/source/modules/flow/FlowService';
 
 // Dependencies - Utilities
@@ -240,66 +241,9 @@ export class PortCheckStatusAdapter extends BaseFlowAdapter<
 
     // Override to handle port-checker specific errors
     protected processToolSpecificError(error: FlowExecutionErrorInterface): FlowErrorResult | null {
-        if(!error.message) {
-            return null; // No message to analyze
-        }
-
-        const errorMessageLower = error.message.toLowerCase();
-
-        // Try to detect specific port-checker errors from the message text
-        if(errorMessageLower.includes('failed to resolve host')) {
-            return {
-                errorCode: PortCheckFlowServiceErrors.HostResolutionFailed.code,
-                message: PortCheckFlowServiceErrors.HostResolutionFailed.message,
-            };
-        }
-        else if(errorMessageLower.includes('host is down')) {
-            return {
-                errorCode: PortCheckFlowServiceErrors.HostDown.code,
-                message: PortCheckFlowServiceErrors.HostDown.message,
-            };
-        }
-        else if(errorMessageLower.includes('invalid or disallowed host')) {
-            return {
-                errorCode: PortCheckFlowServiceErrors.DisallowedHost.code,
-                message: PortCheckFlowServiceErrors.DisallowedHost.message,
-            };
-        }
-        else if(errorMessageLower.includes('private ip address')) {
-            return {
-                errorCode: PortCheckFlowServiceErrors.PrivateIpError.code,
-                message: PortCheckFlowServiceErrors.PrivateIpError.message,
-            };
-        }
-        else if(
-            errorMessageLower.includes('not a valid ip address') ||
-            errorMessageLower.includes('octets must be between')
-        ) {
-            return {
-                errorCode: PortCheckFlowServiceErrors.InvalidIpError.code,
-                message: PortCheckFlowServiceErrors.InvalidIpError.message,
-            };
-        }
-        else if(errorMessageLower.includes('ipv6')) {
-            return {
-                errorCode: PortCheckFlowServiceErrors.Ipv6NotSupportedError.code,
-                message: PortCheckFlowServiceErrors.Ipv6NotSupportedError.message,
-            };
-        }
-        else if(errorMessageLower.includes('timeout')) {
-            return {
-                errorCode: PortCheckFlowServiceErrors.ConnectionTimeout.code,
-                message: PortCheckFlowServiceErrors.ConnectionTimeout.message,
-            };
-        }
-        else if(errorMessageLower.includes('no regions available')) {
-            return {
-                errorCode: PortCheckFlowServiceErrors.RegionsUnavailable.code,
-                message: PortCheckFlowServiceErrors.RegionsUnavailable.message,
-            };
-        }
-
-        // No port-checker specific error found, use generic handling
-        return null;
+        return ToolErrorMappingUtilities.processErrorWithPatterns(
+            error,
+            ToolErrorMappingUtilities.getPortCheckerErrorPatterns(),
+        );
     }
 }

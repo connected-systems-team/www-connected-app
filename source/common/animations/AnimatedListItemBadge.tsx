@@ -27,7 +27,8 @@ export interface AnimatedListItemBadgeProperties {
         | 'ip-address'
         | 'record-value'
         | 'result-positive'
-        | 'result-negative';
+        | 'result-negative'
+        | 'date';
     href?: string;
     target?: '_blank' | '_self';
     rel?: string;
@@ -54,6 +55,7 @@ export function AnimatedListItemBadge(properties: AnimatedListItemBadgePropertie
         'record-value': 'bg-background-quartary hover:bg-background-tertiary',
         'result-positive': 'bg-green-500 text-white hover:bg-green-600',
         'result-negative': 'bg-red-500 text-white hover:bg-red-600',
+        date: 'bg-background-quartary hover:bg-background-tertiary',
     };
 
     // Merge all classes

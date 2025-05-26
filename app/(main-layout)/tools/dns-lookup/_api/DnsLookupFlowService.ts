@@ -12,6 +12,9 @@ import { DnsRecordType } from '@project/source/api/graphql/generated/graphql';
 import { apolloClient } from '@structure/source/api/apollo/ApolloClient';
 import { NetworkToolDnsCreateDocument } from '@project/source/api/graphql/GraphQlGeneratedCode';
 
+// Dependencies - Utilities
+import { DomainValidation } from '@project/app/(main-layout)/tools/_utilities/ToolValidationUtilities';
+
 // Type - DnsLookupFlowServiceErrors
 export const DnsLookupFlowServiceErrors = {
     // Validation errors
@@ -147,19 +150,16 @@ export interface DnsLookupFlowExecutionInterface
 export class DnsLookupFlowService extends FlowService<DnsLookupFlowInputInterface, DnsLookupFlowOutputInterface> {
     // Function to override validateInput to add DNS lookup specific validation
     protected validateInput(input: DnsLookupFlowClientInputInterface): FlowInputValidationResultInterface {
-        // Check if domain is empty
-        if(!input.domain || input.domain.trim().length === 0) {
+        // Check if at least one record type is specified first
+        if(!input.recordTypes || input.recordTypes.length === 0) {
             return {
                 isValid: false,
                 error: {
-                    code: DnsLookupFlowServiceErrors.EmptyDomainError.code,
-                    message: DnsLookupFlowServiceErrors.EmptyDomainError.message,
+                    code: DnsLookupFlowServiceErrors.InvalidRecordTypeError.code,
+                    message: 'At least one DNS record type must be specified.',
                 },
             };
         }
-
-        // Basic domain name validation
-        const domainPattern = /^[a-zA-Z0-9][-a-zA-Z0-9.]{0,253}[a-zA-Z0-9](\.[a-zA-Z]{2,})+$/;
 
         // Allow single words for certain record types (like localhost for testing)
         const isSimpleName = !input.domain.includes('.');
@@ -167,23 +167,41 @@ export class DnsLookupFlowService extends FlowService<DnsLookupFlowInputInterfac
             (type) => type === DnsRecordType.A || type === DnsRecordType.Aaaa,
         );
 
-        if(!domainPattern.test(input.domain) && !(isSimpleName && allowSimpleNames)) {
+        // If it's a simple name and we allow simple names, skip domain validation
+        if(isSimpleName && allowSimpleNames) {
+            // Still check for empty domain
+            if(!input.domain || input.domain.trim().length === 0) {
+                return {
+                    isValid: false,
+                    error: {
+                        code: DnsLookupFlowServiceErrors.EmptyDomainError.code,
+                        message: DnsLookupFlowServiceErrors.EmptyDomainError.message,
+                    },
+                };
+            }
+            return { isValid: true };
+        }
+
+        // Validate domain using shared utility
+        const domainValidation = DomainValidation.validateDomain(input.domain);
+
+        if(!domainValidation.isValid) {
+            // Map validation error codes to DNS-specific error codes
+            if(domainValidation.errorCode === 'EmptyDomain') {
+                return {
+                    isValid: false,
+                    error: {
+                        code: DnsLookupFlowServiceErrors.EmptyDomainError.code,
+                        message: DnsLookupFlowServiceErrors.EmptyDomainError.message,
+                    },
+                };
+            }
+
             return {
                 isValid: false,
                 error: {
                     code: DnsLookupFlowServiceErrors.InvalidDomainError.code,
                     message: DnsLookupFlowServiceErrors.InvalidDomainError.message,
-                },
-            };
-        }
-
-        // Check if at least one record type is specified
-        if(!input.recordTypes || input.recordTypes.length === 0) {
-            return {
-                isValid: false,
-                error: {
-                    code: DnsLookupFlowServiceErrors.InvalidRecordTypeError.code,
-                    message: 'At least one DNS record type must be specified.',
                 },
             };
         }

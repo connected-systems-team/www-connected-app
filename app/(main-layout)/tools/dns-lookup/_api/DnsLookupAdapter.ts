@@ -16,9 +16,12 @@ import {
     DnsRecordResult,
 } from '@project/app/(main-layout)/tools/dns-lookup/_types/DnsLookupTypes';
 import { WebSocketViaSharedWorkerContextInterface } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
+import { FlowExecutionErrorInterface } from '@project/source/modules/flow/FlowService';
 
 // Dependencies - Base Classes
 import { BaseFlowAdapter } from '@project/app/(main-layout)/tools/_adapters/BaseFlowAdapter';
+import { FlowErrorResult } from '@project/app/(main-layout)/tools/_adapters/FlowErrorHandler';
+import { ToolErrorMappingUtilities } from '@project/app/(main-layout)/tools/_adapters/ToolErrorMappingUtilities';
 
 // Dependencies - Utilities
 import { getCountryByName } from '@structure/source/utilities/geo/Countries';
@@ -276,5 +279,13 @@ export class DnsLookupAdapter extends BaseFlowAdapter<
             isFinal: true,
             isSuccess: dnsRecords.length > 0,
         });
+    }
+
+    // Override to handle DNS-specific errors
+    protected processToolSpecificError(error: FlowExecutionErrorInterface): FlowErrorResult | null {
+        return ToolErrorMappingUtilities.processErrorWithPatterns(
+            error,
+            ToolErrorMappingUtilities.getDnsErrorPatterns(),
+        );
     }
 }

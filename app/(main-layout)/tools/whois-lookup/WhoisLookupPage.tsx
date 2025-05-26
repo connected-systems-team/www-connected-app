@@ -3,6 +3,9 @@
 // Dependencies - React and Next.js
 import React from 'react';
 
+// Dependencies - Main Components
+import { WhoisLookup } from '@project/app/(main-layout)/tools/whois-lookup/_components/WhoisLookup';
+
 // Dependencies - Assets
 import { Binoculars } from '@phosphor-icons/react';
 
@@ -17,9 +20,8 @@ export function WhoisLookupPage() {
             </h1>
             <p className="mt-4 text-foreground-secondary">Fetch domain registration and ownership details.</p>
             <hr className="my-6" />
-            <div className="mt-10">
-                <p>Tool goes here</p>
-            </div>
+
+            <WhoisLookup />
         </div>
     );
 }

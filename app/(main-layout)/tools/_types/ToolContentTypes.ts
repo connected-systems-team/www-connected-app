@@ -14,7 +14,11 @@ export type ToolContentBadgeVariant =
     | 'ip-address'
     | 'record-value'
     | 'result-positive'
-    | 'result-negative';
+    | 'result-negative'
+    // WHOIS lookup variants
+    | 'date'
+    // Default variant for common use
+    | 'default';
 
 // Unified badge interface
 export interface ToolContentBadge {
@@ -40,4 +44,5 @@ export interface ToolResultItemBase {
     text?: string; // Keep for backward compatibility and copy functionality
     errorCode?: string;
     isFinal?: boolean;
+    isSuccess?: boolean; // Added for success state tracking
 }
