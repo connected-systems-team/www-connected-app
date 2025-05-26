@@ -18,38 +18,50 @@ import { SubnetCalculationUtilities } from '@project/app/(main-layout)/tools/sub
 // Component - SubnetCalculator
 export function SubnetCalculator() {
     // State
-    const [isProcessing, setIsProcessing] = React.useState<boolean>(false);
     const [resultItems, setResultItems] = React.useState<SubnetCalculatorResultItemInterface[]>([]);
 
     // References
     const ipAddressReference = React.useRef<FormInputReferenceInterface>(null);
     const subnetMaskReference = React.useRef<FormInputReferenceInterface>(null);
+    const debounceTimeoutReference = React.useRef<NodeJS.Timeout | null>(null);
 
-    // Function to perform subnet calculation
+    // Function to perform debounced subnet calculation
     function performSubnetCalculation(ipAddress: string, subnetMask: string): void {
-        // Clear previous results
-        setResultItems([]);
-        setIsProcessing(true);
+        // Clear any existing timeout
+        if(debounceTimeoutReference.current) {
+            clearTimeout(debounceTimeoutReference.current);
+        }
 
-        // Add initial processing state
-        const initialItem: SubnetCalculatorResultItemInterface = {
-            content: [
-                {
-                    type: 'text',
-                    content: `Calculating subnet for ${ipAddress} with mask ${subnetMask}...`,
-                },
-            ],
-            text: `Calculating subnet for ${ipAddress} with mask ${subnetMask}...`,
-            ipAddress,
-            subnetMask,
-            isFinal: false,
-            isSuccess: false,
-        };
+        // If either field is empty, clear results
+        if(!ipAddress.trim() || !subnetMask.trim()) {
+            setResultItems([]);
+            return;
+        }
 
-        setResultItems([initialItem]);
+        // Set up debounced calculation
+        debounceTimeoutReference.current = setTimeout(function () {
+            // Clear previous results
+            setResultItems([]);
 
-        // Perform calculation (simulate brief delay for better UX)
-        setTimeout(function () {
+            // Show calculating state briefly for visual feedback
+            const initialItem: SubnetCalculatorResultItemInterface = {
+                content: [
+                    {
+                        type: 'text',
+                        content: `Calculating subnet for ${ipAddress} with mask ${subnetMask}...`,
+                    },
+                ],
+                text: `Calculating subnet for ${ipAddress} with mask ${subnetMask}...`,
+                ipAddress,
+                subnetMask,
+                isFinal: false,
+                isSuccess: false,
+            };
+
+            setResultItems([initialItem]);
+
+            // Perform calculation with minimal delay for responsiveness
+            setTimeout(function () {
             try {
                 // Normalize subnet mask input
                 const normalizedSubnetMask = SubnetCalculationUtilities.normalizeSubnetMask(subnetMask);
@@ -57,209 +69,28 @@ export function SubnetCalculator() {
                 // Perform the calculation
                 const calculation = SubnetCalculationUtilities.calculateSubnet(ipAddress, normalizedSubnetMask);
 
-                // Create result content
-                const contentParts: ToolContentPart[] = [];
+                // Create simplified content for processing display
+                const contentParts: ToolContentPart[] = [
+                    {
+                        type: 'badge',
+                        variant: calculation.isValidNetwork ? 'result-positive' : 'result-negative',
+                        content: calculation.isValidNetwork ? 'Valid Network' : 'Error',
+                    },
+                    {
+                        type: 'text',
+                        content: calculation.isValidNetwork 
+                            ? ` Subnet calculated for ${calculation.inputIpAddress}${calculation.cidrNotation}`
+                            : ` ${calculation.errorMessage || 'Invalid subnet configuration'}`,
+                    },
+                ];
+
+                // Create display text for copying
                 let displayText = '';
-
                 if(calculation.isValidNetwork) {
-                    // Success case
-                    contentParts.push({
-                        type: 'badge',
-                        variant: 'result-positive',
-                        content: 'Valid Network',
-                    });
-
-                    // Network Information
-                    contentParts.push({
-                        type: 'text',
-                        content: '\n\nNetwork Information:',
-                    });
-
-                    contentParts.push({
-                        type: 'text',
-                        content: '\nNetwork Address: ',
-                    });
-                    contentParts.push({
-                        type: 'badge',
-                        variant: 'ip-address',
-                        content: calculation.networkAddress,
-                    });
-
-                    contentParts.push({
-                        type: 'text',
-                        content: '\nBroadcast Address: ',
-                    });
-                    contentParts.push({
-                        type: 'badge',
-                        variant: 'ip-address',
-                        content: calculation.broadcastAddress,
-                    });
-
-                    contentParts.push({
-                        type: 'text',
-                        content: '\nSubnet Mask: ',
-                    });
-                    contentParts.push({
-                        type: 'text',
-                        content: calculation.subnetMask,
-                    });
-
-                    contentParts.push({
-                        type: 'text',
-                        content: '\nWildcard Mask: ',
-                    });
-                    contentParts.push({
-                        type: 'text',
-                        content: calculation.wildcardMask,
-                    });
-
-                    contentParts.push({
-                        type: 'text',
-                        content: '\nCIDR Notation: ',
-                    });
-                    contentParts.push({
-                        type: 'badge',
-                        variant: 'default',
-                        content: calculation.cidrNotation,
-                    });
-
-                    // Host Information
-                    contentParts.push({
-                        type: 'text',
-                        content: '\n\nHost Information:',
-                    });
-
-                    contentParts.push({
-                        type: 'text',
-                        content: '\nFirst Host: ',
-                    });
-                    contentParts.push({
-                        type: 'badge',
-                        variant: 'ip-address',
-                        content: calculation.firstHostAddress,
-                    });
-
-                    contentParts.push({
-                        type: 'text',
-                        content: '\nLast Host: ',
-                    });
-                    contentParts.push({
-                        type: 'badge',
-                        variant: 'ip-address',
-                        content: calculation.lastHostAddress,
-                    });
-
-                    contentParts.push({
-                        type: 'text',
-                        content: '\nTotal Hosts: ',
-                    });
-                    contentParts.push({
-                        type: 'badge',
-                        variant: 'default',
-                        content: calculation.totalHosts.toLocaleString(),
-                    });
-
-                    contentParts.push({
-                        type: 'text',
-                        content: '\nUsable Hosts: ',
-                    });
-                    contentParts.push({
-                        type: 'badge',
-                        variant: 'result-positive',
-                        content: calculation.usableHosts.toLocaleString(),
-                    });
-
-                    // Network Classification
-                    contentParts.push({
-                        type: 'text',
-                        content: '\n\nNetwork Classification:',
-                    });
-
-                    contentParts.push({
-                        type: 'text',
-                        content: '\nNetwork Class: ',
-                    });
-                    contentParts.push({
-                        type: 'badge',
-                        variant: 'default',
-                        content: `Class ${calculation.networkClass}`,
-                    });
-
-                    if(calculation.isPrivate) {
-                        contentParts.push({
-                            type: 'text',
-                            content: '\nNetwork Type: ',
-                        });
-                        contentParts.push({
-                            type: 'badge',
-                            variant: 'default',
-                            content: 'Private',
-                        });
-                    }
-
-                    // Binary Information
-                    contentParts.push({
-                        type: 'text',
-                        content: '\n\nBinary Representation:',
-                    });
-
-                    contentParts.push({
-                        type: 'text',
-                        content: '\nNetwork (Binary): ',
-                    });
-                    contentParts.push({
-                        type: 'text',
-                        content: calculation.binaryNetworkAddress,
-                    });
-
-                    contentParts.push({
-                        type: 'text',
-                        content: '\nSubnet Mask (Binary): ',
-                    });
-                    contentParts.push({
-                        type: 'text',
-                        content: calculation.binarySubnetMask,
-                    });
-
-                    // Create display text for copying
-                    displayText = `Subnet Calculation Results\n\n`;
-                    displayText += `Input IP Address: ${calculation.inputIpAddress}\n`;
-                    displayText += `Input Subnet Mask: ${calculation.inputSubnetMask}\n\n`;
-                    displayText += `Network Information:\n`;
-                    displayText += `Network Address: ${calculation.networkAddress}\n`;
-                    displayText += `Broadcast Address: ${calculation.broadcastAddress}\n`;
-                    displayText += `Subnet Mask: ${calculation.subnetMask}\n`;
-                    displayText += `Wildcard Mask: ${calculation.wildcardMask}\n`;
-                    displayText += `CIDR Notation: ${calculation.cidrNotation}\n\n`;
-                    displayText += `Host Information:\n`;
-                    displayText += `First Host: ${calculation.firstHostAddress}\n`;
-                    displayText += `Last Host: ${calculation.lastHostAddress}\n`;
-                    displayText += `Total Hosts: ${calculation.totalHosts.toLocaleString()}\n`;
-                    displayText += `Usable Hosts: ${calculation.usableHosts.toLocaleString()}\n\n`;
-                    displayText += `Network Classification:\n`;
-                    displayText += `Network Class: Class ${calculation.networkClass}\n`;
-                    if(calculation.isPrivate) displayText += `Network Type: Private\n`;
-                    displayText += `\nBinary Representation:\n`;
-                    displayText += `Network (Binary): ${calculation.binaryNetworkAddress}\n`;
-                    displayText += `Subnet Mask (Binary): ${calculation.binarySubnetMask}`;
+                    displayText = `Subnet Calculation Results\n\nInput: ${calculation.inputIpAddress}${calculation.cidrNotation}\n\nNetwork Information:\nNetwork Address: ${calculation.networkAddress}\nBroadcast Address: ${calculation.broadcastAddress}\nSubnet Mask: ${calculation.subnetMask}\nWildcard Mask: ${calculation.wildcardMask}\nCIDR Notation: ${calculation.cidrNotation}\n\nHost Information:\nFirst Host: ${calculation.firstHostAddress}\nLast Host: ${calculation.lastHostAddress}\nTotal Hosts: ${calculation.totalHosts.toLocaleString()}\nUsable Hosts: ${calculation.usableHosts.toLocaleString()}\n\nClassification:\nNetwork Class: Class ${calculation.networkClass}${calculation.isPrivate ? '\nNetwork Type: Private' : ''}`;
                 }
                 else {
-                    // Error case
-                    contentParts.push({
-                        type: 'badge',
-                        variant: 'result-negative',
-                        content: 'Calculation Error',
-                    });
-
-                    contentParts.push({
-                        type: 'text',
-                        content: `\n\n${calculation.errorMessage || 'Unknown error occurred'}`,
-                    });
-
-                    displayText = `Subnet Calculation Error\n\n`;
-                    displayText += `Input IP Address: ${calculation.inputIpAddress}\n`;
-                    displayText += `Input Subnet Mask: ${calculation.inputSubnetMask}\n\n`;
-                    displayText += `Error: ${calculation.errorMessage || 'Unknown error occurred'}`;
+                    displayText = `Subnet Calculation Error\n\nInput: ${calculation.inputIpAddress} / ${calculation.inputSubnetMask}\nError: ${calculation.errorMessage || 'Unknown error occurred'}`;
                 }
 
                 // Create final result item
@@ -300,10 +131,26 @@ export function SubnetCalculator() {
 
                 setResultItems([errorItem]);
             } finally {
-                setIsProcessing(false);
+                // No processing state needed since there's no button to disable
             }
-        }, 300); // Brief delay for better UX
+            }, 100); // Brief delay for responsiveness
+        }, 500); // 500ms debounce delay
     }
+
+    // Cleanup timeout on unmount and initial calculation
+    React.useEffect(function () {
+        // Perform initial calculation with default values after a brief delay
+        const initialTimeout = setTimeout(function () {
+            performSubnetCalculation('192.168.1.100', '255.255.255.0');
+        }, 100);
+
+        return function () {
+            if(debounceTimeoutReference.current) {
+                clearTimeout(debounceTimeoutReference.current);
+            }
+            clearTimeout(initialTimeout);
+        };
+    }, []);
 
     // Render the component
     return (
@@ -311,7 +158,6 @@ export function SubnetCalculator() {
             <SubnetCalculatorForm
                 ipAddressReference={ipAddressReference}
                 subnetMaskReference={subnetMaskReference}
-                isProcessing={isProcessing}
                 performSubnetCalculation={performSubnetCalculation}
             />
             <SubnetCalculatorResultsAnimatedList resultItems={resultItems} />

@@ -2,7 +2,6 @@
 import React from 'react';
 
 // Dependencies - Main Components
-import { Button } from '@structure/source/common/buttons/Button';
 import { FormInputText } from '@structure/source/common/forms/FormInputText';
 import { FormInputReferenceInterface } from '@structure/source/common/forms/FormInput';
 
@@ -14,13 +13,15 @@ import { SubnetCalculatorFormProperties } from '@project/app/(main-layout)/tools
 
 // Component - SubnetCalculatorForm
 export function SubnetCalculatorForm(properties: SubnetCalculatorFormProperties) {
-    // Function to calculate subnet
-    function calculateSubnet() {
+    // Function to handle input changes with debouncing
+    function handleInputChange() {
         const ipAddress = properties.ipAddressReference.current?.getValue() || '';
         const subnetMask = properties.subnetMaskReference.current?.getValue() || '';
 
-        // Perform the subnet calculation
-        properties.performSubnetCalculation(ipAddress, subnetMask);
+        // Only calculate if both fields have values
+        if(ipAddress.trim() && subnetMask.trim()) {
+            properties.performSubnetCalculation(ipAddress, subnetMask);
+        }
     }
 
     // Render the component
@@ -32,17 +33,13 @@ export function SubnetCalculatorForm(properties: SubnetCalculatorFormProperties)
                 componentClassName="dark:bg-background-tertiary"
                 id="ipAddress"
                 label="IP Address"
-                labelTip="Enter an IPv4 address to calculate subnet information for."
+                labelTip="Enter an IPv4 address to calculate subnet information for. Results will update automatically as you type."
                 labelTipIconProperties={{
-                    contentClassName: 'w-48',
+                    contentClassName: 'w-60',
                 }}
                 defaultValue={'192.168.1.100'}
                 selectOnFocus={true}
-                onKeyDown={function (event) {
-                    if(event.key === 'Enter' && !properties.isProcessing) {
-                        calculateSubnet();
-                    }
-                }}
+                onChange={handleInputChange}
             />
 
             <div className="mt-4 flex gap-4">
@@ -53,30 +50,15 @@ export function SubnetCalculatorForm(properties: SubnetCalculatorFormProperties)
                     componentClassName="dark:bg-background-tertiary"
                     id="subnetMask"
                     label="Subnet Mask"
-                    labelTip="Enter a subnet mask in dotted decimal notation (e.g., 255.255.255.0) or CIDR notation (e.g., /24)."
+                    labelTip="Enter a subnet mask in dotted decimal notation (e.g., 255.255.255.0) or CIDR notation (e.g., /24). Results will update automatically as you type."
                     labelTipIconProperties={{
-                        contentClassName: 'w-52',
+                        contentClassName: 'w-64',
                     }}
                     defaultValue={'255.255.255.0'}
                     selectOnFocus={true}
-                    onKeyDown={function (event) {
-                        if(event.key === 'Enter' && !properties.isProcessing) {
-                            calculateSubnet();
-                        }
-                    }}
+                    onChange={handleInputChange}
                 />
             </div>
-
-            {/* Calculate Button */}
-            <Button
-                className="mt-6"
-                variant="primary"
-                processing={properties.isProcessing}
-                disabled={properties.isProcessing}
-                onClick={calculateSubnet}
-            >
-                Calculate Subnet
-            </Button>
 
             {/* Quick Examples */}
             <div className="mt-4 rounded-lg bg-background-secondary px-3 py-2">
@@ -87,6 +69,7 @@ export function SubnetCalculatorForm(properties: SubnetCalculatorFormProperties)
                         onClick={function () {
                             properties.ipAddressReference.current?.setValue('192.168.1.0');
                             properties.subnetMaskReference.current?.setValue('255.255.255.0');
+                            handleInputChange();
                         }}
                     >
                         Class C (/24)
@@ -96,6 +79,7 @@ export function SubnetCalculatorForm(properties: SubnetCalculatorFormProperties)
                         onClick={function () {
                             properties.ipAddressReference.current?.setValue('10.0.0.0');
                             properties.subnetMaskReference.current?.setValue('255.0.0.0');
+                            handleInputChange();
                         }}
                     >
                         Class A (/8)
@@ -105,6 +89,7 @@ export function SubnetCalculatorForm(properties: SubnetCalculatorFormProperties)
                         onClick={function () {
                             properties.ipAddressReference.current?.setValue('172.16.0.0');
                             properties.subnetMaskReference.current?.setValue('255.255.0.0');
+                            handleInputChange();
                         }}
                     >
                         Class B (/16)
@@ -114,6 +99,7 @@ export function SubnetCalculatorForm(properties: SubnetCalculatorFormProperties)
                         onClick={function () {
                             properties.ipAddressReference.current?.setValue('192.168.1.0');
                             properties.subnetMaskReference.current?.setValue('/28');
+                            handleInputChange();
                         }}
                     >
                         Small Subnet (/28)

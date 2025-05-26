@@ -62,7 +62,6 @@ export interface SubnetCalculatorFormProperties {
     className?: string;
     ipAddressReference: React.RefObject<FormInputReferenceInterface>;
     subnetMaskReference: React.RefObject<FormInputReferenceInterface>;
-    isProcessing: boolean;
     performSubnetCalculation: (ipAddress: string, subnetMask: string) => void;
 }
 
