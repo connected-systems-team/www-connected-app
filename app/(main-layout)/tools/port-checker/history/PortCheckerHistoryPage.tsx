@@ -12,9 +12,9 @@ import {
 
 // Dependencies - Main Components
 import { AuthorizationLayout } from '@structure/source/layouts/AuthorizationLayout';
-import { Button } from '@structure/source/common/buttons/Button';
 import { Pagination } from '@structure/source/common/navigation/pagination/Pagination';
 import { PlaceholderAnimation } from '@structure/source/common/animations/PlaceholderAnimation';
+import { ToolsNavigationTrail } from '@project/app/(main-layout)/tools/_navigation/ToolsNavigationTrail';
 
 // Dependencies - API
 import { useQuery } from '@apollo/client';
@@ -26,7 +26,6 @@ import {
 } from '@project/source/api/graphql/GraphQlGeneratedCode';
 
 // Dependencies - Assets
-import ArrowLeftIcon from '@structure/assets/icons/interface/ArrowLeftIcon.svg';
 import CheckCircledGreenBorderIcon from '@project/assets/icons/status/CheckCircledGreenBorderIcon.svg';
 import ErrorCircledRedBorderIcon from '@project/assets/icons/status/ErrorCircledRedBorderIcon.svg';
 
@@ -219,20 +218,12 @@ export function PortCheckerHistoryPage() {
     // Render the component
     return (
         <AuthorizationLayout>
-            <div className="container pt-4">
-                <Button
-                    icon={ArrowLeftIcon}
-                    iconPosition="left"
-                    iconClassName="h-3 w-3"
-                    variant="ghost"
-                    href="/tools/port-checker"
-                >
-                    Back to Port Checker
-                </Button>
+            <div className="container pt-10">
+                <ToolsNavigationTrail />
 
-                <h1 className="mb-6 mt-4 text-2xl font-medium">Port Checker History</h1>
+                <h1>Port Checker History</h1>
 
-                <div>
+                <div className="mt-6">
                     {portCheckHistoryQuery.error ? (
                         <div className="text-red-500">Error: {portCheckHistoryQuery.error.message}</div>
                     ) : portCheckHistoryQuery.loading ? (

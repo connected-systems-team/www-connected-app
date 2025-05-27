@@ -17,6 +17,16 @@ import {
     // Barcode,
 } from '@phosphor-icons/react';
 
+// Dependencies - Main Components
+import { NavigationTrailLinkInterface } from '@structure/source/common/navigation/trail/NavigationTrail';
+
+// Type - ToolLinkProperties
+export interface ToolLinkProperties {
+    title: string;
+    href: string;
+    role?: 'Administrator';
+}
+
 // Type - ToolProperties
 export interface ToolProperties {
     className?: string;
@@ -24,6 +34,7 @@ export interface ToolProperties {
     icon: Icon;
     title: string;
     description: string;
+    links?: ToolLinkProperties[]; // Optional sub-navigation links
 }
 
 // Tool
@@ -33,6 +44,17 @@ export const Tools: ToolProperties[] = [
         icon: Broadcast,
         title: 'Port Checker',
         description: 'Check if a specific port on a host is open and accessible.',
+        links: [
+            {
+                title: 'History',
+                href: '/tools/port-checker/history',
+            },
+            {
+                title: 'Test',
+                href: '/tools/port-checker/test',
+                role: 'Administrator',
+            },
+        ],
     },
     // {
     //     urlPath: '/tools/curl',
@@ -107,3 +129,28 @@ export const Tools: ToolProperties[] = [
     //     description: 'Look up vendor or manufacturer details of a MAC address.',
     // },
 ];
+
+// Function to generate tools navigation links from the Tools array
+export function generateToolsNavigationLinks(): NavigationTrailLinkInterface[] {
+    return Tools.map(function (tool) {
+        const navigationLink: NavigationTrailLinkInterface = {
+            title: tool.title,
+            href: tool.urlPath,
+        };
+
+        // Add sub-links if the tool has them
+        if(tool.links && tool.links.length > 0) {
+            navigationLink.links = tool.links.map(function (link) {
+                return {
+                    title: link.title,
+                    href: link.href,
+                };
+            });
+        }
+
+        return navigationLink;
+    });
+}
+
+// Tools Navigation Links
+export const ToolsNavigationLinks: NavigationTrailLinkInterface[] = generateToolsNavigationLinks();
