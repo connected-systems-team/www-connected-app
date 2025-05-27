@@ -228,14 +228,14 @@ export function PortCheckerHistoryPage() {
                         <div className="text-red-500">Error: {portCheckHistoryQuery.error.message}</div>
                     ) : portCheckHistoryQuery.loading ? (
                         <div className="divide-y divide-neutral/10">
-                            <div className="grid grid-cols-[1fr] items-center gap-3 py-4 md:grid-cols-[160px_160px_160px_72px_110px_100px_110px]">
-                                <div className="font-medium">Time</div>
-                                <div className="font-medium">Host</div>
-                                <div className="font-medium">IP</div>
-                                <div className="font-medium">Port</div>
-                                <div className="font-medium">Status</div>
-                                <div className="font-medium">Latency</div>
-                                <div className="font-medium">Region</div>
+                            <div className="grid grid-cols-[1fr] items-center gap-3 py-4 text-sm md:grid-cols-[160px_160px_160px_72px_110px_100px_110px]">
+                                <div>Time</div>
+                                <div>Host</div>
+                                <div>IP</div>
+                                <div>Port</div>
+                                <div>Status</div>
+                                <div>Latency</div>
+                                <div>Region</div>
                             </div>
                             {[...Array(itemsPerPage)].map((_, index) => (
                                 <div

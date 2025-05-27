@@ -19,6 +19,7 @@ import {
 
 // Dependencies - Main Components
 import { NavigationTrailLinkInterface } from '@structure/source/common/navigation/trail/NavigationTrail';
+import { useAccount } from '@structure/source/modules/account/providers/AccountProvider';
 
 // Type - ToolLinkProperties
 export interface ToolLinkProperties {
@@ -146,6 +147,43 @@ export function generateToolsNavigationLinks(): NavigationTrailLinkInterface[] {
                     href: link.href,
                 };
             });
+        }
+
+        return navigationLink;
+    });
+}
+
+// Hook to generate filtered tools navigation links based on user role
+export function useToolsNavigationLinks(): NavigationTrailLinkInterface[] {
+    const { accountState } = useAccount();
+
+    return Tools.map(function (tool) {
+        const navigationLink: NavigationTrailLinkInterface = {
+            title: tool.title,
+            href: tool.urlPath,
+        };
+
+        // Add sub-links if the tool has them, filtering by role
+        if(tool.links && tool.links.length > 0) {
+            const filteredLinks = tool.links.filter(function (link) {
+                // If no role is specified, include the link
+                if(!link.role) return true;
+
+                // If user is not signed in, exclude admin links
+                if(!accountState.account) return link.role !== 'Administrator';
+
+                // Check if user has the required role
+                return link.role === 'Administrator' ? accountState.account.isAdministator() : true;
+            });
+
+            if(filteredLinks.length > 0) {
+                navigationLink.links = filteredLinks.map(function (link) {
+                    return {
+                        title: link.title,
+                        href: link.href,
+                    };
+                });
+            }
         }
 
         return navigationLink;

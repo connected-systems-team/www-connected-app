@@ -10,7 +10,7 @@ import {
     NavigationTrailProperties,
     NavigationTrail,
 } from '@structure/source/common/navigation/trail/NavigationTrail';
-import { ToolsNavigationLinks } from '@project/app/(main-layout)/tools/Tools';
+import { useToolsNavigationLinks } from '@project/app/(main-layout)/tools/Tools';
 
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';
@@ -21,6 +21,9 @@ export function ToolsNavigationTrail(properties: NavigationTrailProperties) {
     // Get the current pathname from the URL using the usePathname hook
     const urlPath = useUrlPath() ?? '';
 
+    // Get filtered tools navigation links based on user role
+    const toolsNavigationLinks = useToolsNavigationLinks();
+
     // Function to get sibling navigation trail links for a given path
     const getSiblingNavigationTrailLinks = React.useCallback(function (
         path: string,
@@ -28,7 +31,7 @@ export function ToolsNavigationTrail(properties: NavigationTrailProperties) {
     ): NavigationTrailLinkInterface[] {
         const siblingNavigationTrailLinks: NavigationTrailLinkInterface[] = [];
 
-        // Loop over ToolsNavigationLinks
+        // Loop over tools navigation links
         for(const internalNavigationLink of links) {
             // Check if the link matches the path
             if(internalNavigationLink.href !== path && internalNavigationLink.href.startsWith(path)) {
@@ -41,7 +44,7 @@ export function ToolsNavigationTrail(properties: NavigationTrailProperties) {
         return siblingNavigationTrailLinks;
     }, []);
 
-    // Function to generate links from pathname using the pathname and ToolsNavigationLinks
+    // Function to generate links from pathname using the pathname and tools navigation links
     const generateNavigationTrailLinksUsingPathname = React.useCallback(
         function () {
             const urlPathSegments = urlPath.split('/').filter(Boolean);
@@ -50,7 +53,7 @@ export function ToolsNavigationTrail(properties: NavigationTrailProperties) {
             let cumulativePath = '';
 
             // Loop over each path segment
-            let lastUrlPathSegmentLinks: NavigationTrailLinkInterface[] = ToolsNavigationLinks;
+            let lastUrlPathSegmentLinks: NavigationTrailLinkInterface[] = toolsNavigationLinks;
             for(let urlPathSegmentIndex = 0; urlPathSegmentIndex < urlPathSegments.length; urlPathSegmentIndex++) {
                 const urlPathSegment = urlPathSegments[urlPathSegmentIndex]!;
                 const siblingNavigationTrailLinks = getSiblingNavigationTrailLinks(
@@ -74,7 +77,7 @@ export function ToolsNavigationTrail(properties: NavigationTrailProperties) {
                 });
             }
 
-            // Look forward to see if there are any possible ToolsNavigationLinks after this segment
+            // Look forward to see if there are any possible tools navigation links after this segment
             const siblingNavigationTrailLinks = getSiblingNavigationTrailLinks(cumulativePath, lastUrlPathSegmentLinks);
             if(siblingNavigationTrailLinks.length > 0) {
                 navigationTrailLinks.push({
@@ -86,7 +89,7 @@ export function ToolsNavigationTrail(properties: NavigationTrailProperties) {
 
             return navigationTrailLinks;
         },
-        [urlPath, getSiblingNavigationTrailLinks],
+        [urlPath, getSiblingNavigationTrailLinks, toolsNavigationLinks],
     );
 
     // Use provided links or generate from pathname
