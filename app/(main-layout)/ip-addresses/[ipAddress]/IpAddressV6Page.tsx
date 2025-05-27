@@ -1,30 +1,27 @@
-'use client'; // This component uses client-only features
-
 // Dependencies - React and Next.js
 import React from 'react';
 
 // Dependencies - Main Components
 import { Link } from '@structure/source/common/navigation/Link';
-import { IpAddressIdenticon } from '@project/source/common/IpAddressIdenticon';
+import { IpAddressIdenticon } from '@project/app/(main-layout)/ip-addresses/_components/IpAddressIdenticon';
 
-// Dependencies - Utilities
-import { useUrlParameters } from '@structure/source/utilities/next/NextNavigation';
+// Interface - IpAddressV6PageProperties
+interface IpAddressV6PageProperties {
+    ipAddress: string;
+}
 
-// Component - IpAddressPage
-export function IpAddressPage() {
-    // Hooks
-    const urlParameters = useUrlParameters() as { ipAddress: string };
-
+// Component - IpAddressV6Page
+export function IpAddressV6Page(properties: IpAddressV6PageProperties) {
     // Render the component
     return (
         <div className="container pt-8">
             <div className="float-end">
-                <IpAddressIdenticon className="" ipAddress={urlParameters.ipAddress} />
+                <IpAddressIdenticon className="" ipAddress={properties.ipAddress} />
             </div>
 
             <div className="mb-4">
-                <p className="text-sm uppercase text-neutral">IP Address</p>
-                <h1 className="">{urlParameters.ipAddress}</h1>
+                <p className="text-sm uppercase text-neutral">IPv6 Address</p>
+                <h1 className="">{properties.ipAddress}</h1>
             </div>
             <nav className="mt-16">
                 <ul className="flex space-x-3 text-sm">
@@ -55,8 +52,8 @@ export function IpAddressPage() {
                 <div className="mb-1 text-sm uppercase text-neutral">Version</div>
                 <ul className="flex">
                     <li>
-                        <Link className="flex rounded-medium border bg-[#006EFC] px-2 py-0.5" href="/protocols/http">
-                            4
+                        <Link className="flex rounded-medium border bg-[#006EFC] px-2 py-0.5" href="/protocols/ipv6">
+                            6
                         </Link>
                     </li>
                 </ul>
@@ -65,31 +62,27 @@ export function IpAddressPage() {
                     <section id="overview" className="mt-8">
                         <h2>Overview</h2>
                         <div>
-                            <p>IP Address: 73.52.159.194</p>
-                            <p>Binary: 01001001.00110100.10011111.11000010</p>
-                            <p>Hexadecimal: 49.34.9F.C2</p>
-                            <p>IP Version: 4</p>
-                            <p>Gravatar: </p>
-                            <p>User Images: </p>
-                            <p>QR Code: </p>
-                            <p>Location: New York, USA</p>
-                            <p>Latitude: 40.7128, Longitude: -74.0060</p>
-                            <div id="map">[Geolocation Map]</div>
+                            <p>IPv6 Address: {properties.ipAddress}</p>
+                            <p>Compressed: [Compressed representation]</p>
+                            <p>Expanded: [Full expanded representation]</p>
+                            <p>IP Version: 6</p>
+                            <p>Address Type: [Unicast/Multicast/Anycast]</p>
+                            <p>Scope: [Global/Link-local/Site-local]</p>
+                            <p>Location: [Geographic location if available]</p>
                             <p>Current Status: Active</p>
-                            <p>ISP: Example ISP</p>
-                            <p>Registered Organization: Example Organization</p>
+                            <p>ISP: [Internet Service Provider]</p>
+                            <p>Registered Organization: [Organization]</p>
                         </div>
                     </section>
 
                     <section id="general-info" className="mt-8">
                         <h2>General Info</h2>
                         <div>
-                            <p>Assignment: Dynamic</p>
-                            <p>Hostname: example-hostname.com</p>
-                            <p>Domains Hosted: example.com, example.org</p>
-                            <p>Public Tags: Email Spammer, Port Scanner</p>
-                            <p>IP Address Type: Unicast</p>
-                            <p>IP Address Class: Class C</p>
+                            <p>Assignment: [Static/Dynamic]</p>
+                            <p>Hostname: [Reverse DNS if available]</p>
+                            <p>Prefix Length: [Network prefix]</p>
+                            <p>Interface ID: [Interface identifier]</p>
+                            <p>Address Categories: [Global/Unique Local/Link Local]</p>
                         </div>
                     </section>
 
@@ -98,9 +91,9 @@ export function IpAddressPage() {
                         <div>
                             <p>Blacklist Status: Not blacklisted</p>
                             <p>Known Vulnerabilities: None</p>
-                            <p>Security Recommendations: Ensure firewall is active</p>
-                            <p>DNSBL Status: Not listed</p>
-                            <p>Abuse Contact Information: abuse@example.com</p>
+                            <p>Security Recommendations: Ensure firewall is configured</p>
+                            <p>Privacy Extensions: [Enabled/Disabled]</p>
+                            <p>Abuse Contact Information: [Contact details]</p>
                         </div>
                     </section>
 
@@ -108,10 +101,10 @@ export function IpAddressPage() {
                         <h2>Historical Data</h2>
                         <div>
                             <p>Historical Changes: [Timeline of changes]</p>
-                            <p>IP Ownership History: Owned by Example Corp, then Example ISP</p>
-                            <p>Last Seen: July 1, 2024</p>
-                            <p>Known Aliases: example-alias.com</p>
-                            <p>Notable Activity: Part of a significant DDoS attack in 2020</p>
+                            <p>IP Ownership History: [Ownership details]</p>
+                            <p>Last Seen: [Last activity date]</p>
+                            <p>Known Aliases: [Alternative representations]</p>
+                            <p>Notable Activity: [Significant events]</p>
                         </div>
                     </section>
 
@@ -134,7 +127,7 @@ export function IpAddressPage() {
                                 <a href="mtrreport.html">MTR Report</a>
                             </p>
                             <p>Connection Tests: [Results from various locations]</p>
-                            <p>Autonomous System Path: AS12345-AS67890</p>
+                            <p>Autonomous System Path: [AS path information]</p>
                             <p>Reverse WHOIS: [Linked domains]</p>
                         </div>
                     </section>
@@ -142,40 +135,16 @@ export function IpAddressPage() {
                     <section id="fun-features" className="mt-8">
                         <h2>Fun Features</h2>
                         <div>
-                            <p>IP Address Persona: The Guardian</p>
-                            <p>IP Address Fortune: High chance of stability</p>
-                            <p>IP Address Mood: Calm</p>
-                            <p>IP Address Spirit Animal: Owl</p>
-                            <p>IP Address Luck Score: 7/10</p>
-                            <p>Sequential Patterns: 73.52.159.194</p>
-                            <p>Palindrome Check: No palindrome sequences</p>
-                            <p>Prime Number Check: 73 (Yes), 52 (No), 159 (No), 194 (No)</p>
-                            <p>Divisibility Check: 73 (Prime), 52 (2, 4, 13), 159 (3), 194 (2)</p>
-                            <p>IP Address in Different Bases:</p>
+                            <p>IPv6 Address Persona: The Futurist</p>
+                            <p>Address Patterns: [Hexadecimal patterns]</p>
+                            <p>Zero Compression: [:: notation usage]</p>
+                            <p>Embedded IPv4: [If applicable]</p>
+                            <p>Mathematical Properties: [Numerical analysis]</p>
+                            <p>Address in Different Notations:</p>
                             <ul>
-                                <li>Binary: 01001001.00110100.10011111.11000010</li>
-                                <li>Octal: 111.64.237.302</li>
-                                <li>Hexadecimal: 49.34.9F.C2</li>
-                            </ul>
-
-                            <p>Repeating Digits: None</p>
-                            <p>Lucky Number Significance: 7 (Lucky in many cultures)</p>
-                            <p>IP Address Sum: 7 + 3 + 5 + 2 + 1 + 5 + 9 + 1 + 9 + 4 = 46</p>
-                            <p>Number Theory Facts:</p>
-                            <ul>
-                                <li>73: Prime number</li>
-                                <li>52: Composite number</li>
-                                <li>159: Composite number</li>
-                                <li>194: Composite number</li>
-                            </ul>
-
-                            <p>Magic Square Check: Cannot form a magic square</p>
-                            <p>Unique Factorization:</p>
-                            <ul>
-                                <li>73: Prime number</li>
-                                <li>52: 2^2 * 13</li>
-                                <li>159: 3 * 53</li>
-                                <li>194: 2 * 97</li>
+                                <li>Full Form: [Complete representation]</li>
+                                <li>Compressed: [Using :: notation]</li>
+                                <li>Mixed: [With embedded IPv4 if applicable]</li>
                             </ul>
                         </div>
                     </section>
