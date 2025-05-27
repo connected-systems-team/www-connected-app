@@ -76,7 +76,9 @@ type FlowExecution {
 }
 
 input FlowExecutionHistoryInput {
-    flowId: String
+    entryPointId: String
+    flowTypeId: String
+    flowVersionId: String
     status: [FlowExecutionStatus!]
     triggerId: String
 }

@@ -25,6 +25,7 @@ import {
     OrderByDirection,
     FlowExecution,
     FlowStepExecution,
+    ConnectedToolType,
 } from '@project/source/api/graphql/GraphQlGeneratedCode';
 
 // Dependencies - Assets
@@ -95,7 +96,7 @@ function createLinkForValue(value: string, displayValue?: React.ReactNode) {
     if(isIpAddress(value)) {
         return (
             <Link
-                href={`/ip-addresses/v4/${value}`}
+                href={`/ip-addresses/${value}`}
                 target="_blank"
                 prefetch={false}
                 variant="Unstyled"
@@ -232,7 +233,7 @@ export function PortCheckerHistoryPage() {
     const portCheckHistoryQuery = useQuery(NetworkToolHistoryDocument, {
         variables: {
             input: {
-                networkTool: 'portCheck',
+                networkTool: ConnectedToolType.PortCheck,
             },
             pagination: {
                 itemsPerPage: itemsPerPage,
@@ -313,32 +314,24 @@ export function PortCheckerHistoryPage() {
         return {
             cells: [
                 {
+                    value: hostName === 'Unknown' ? undefined : hostName,
                     children:
-                        hostName === 'Unknown' ? (
-                            <span className="text-foreground-secondary">-</span>
-                        ) : (
+                        hostName === 'Unknown' ? undefined : (
                             <div className="break-all" title={hostName}>
                                 {createLinkForValue(hostName, <span className="font-medium">{hostName}</span>)}
                             </div>
                         ),
                 },
                 {
-                    children:
-                        hostIp === 'Unknown' || hostIp === 'Failed' ? (
-                            <span className="text-foreground-secondary">-</span>
-                        ) : (
-                            createLinkForValue(hostIp)
-                        ),
+                    value: hostIp === 'Unknown' || hostIp === 'Failed' ? undefined : hostIp,
+                    children: hostIp === 'Unknown' || hostIp === 'Failed' ? undefined : createLinkForValue(hostIp),
                 },
                 {
-                    children:
-                        port === 'Unknown' ? (
-                            <span className="text-foreground-secondary">-</span>
-                        ) : (
-                            createPortLink(port)
-                        ),
+                    value: port === 'Unknown' ? undefined : port,
+                    children: port === 'Unknown' ? undefined : createPortLink(port),
                 },
                 {
+                    value: fullPortStateDisplay,
                     children: (
                         <div
                             className={`inline-flex items-center space-x-2 rounded-lg px-2 py-1 text-xs ${
@@ -353,24 +346,20 @@ export function PortCheckerHistoryPage() {
                     ),
                 },
                 {
-                    children:
-                        latencyInMilliseconds === 'N/A' ? (
-                            <span className="text-foreground-secondary">-</span>
-                        ) : (
-                            latencyInMilliseconds
-                        ),
+                    value: latencyInMilliseconds === 'N/A' ? undefined : latencyInMilliseconds,
+                    children: latencyInMilliseconds === 'N/A' ? undefined : latencyInMilliseconds,
                 },
                 {
+                    value: country ? `${country.name} ${country.code}` : undefined,
                     children: country ? (
                         <div className="inline-flex items-center space-x-1 rounded-lg bg-background-secondary py-1 pl-1 pr-2 text-xs">
                             <Flag countryCode={country.code} className="h-4 w-6" />
                             <span title={country.name}>{country.code}</span>
                         </div>
-                    ) : (
-                        <span className="text-foreground-secondary">-</span>
-                    ),
+                    ) : undefined,
                 },
                 {
+                    value: iso8601DateWithTime(new Date(flowExecution.createdAt)),
                     children: (
                         <div>
                             <div>{iso8601DateWithTime(new Date(flowExecution.createdAt))}</div>

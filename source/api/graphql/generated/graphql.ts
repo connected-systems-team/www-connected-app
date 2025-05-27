@@ -577,6 +577,16 @@ export type CommerceOrderTax = {
   total: Scalars['MonetaryDecimal']['output'];
 };
 
+/** Types of connected tools available for network operations */
+export enum ConnectedToolType {
+  Dns = 'Dns',
+  Ping = 'Ping',
+  PortCheck = 'PortCheck',
+  TlsCertificate = 'TlsCertificate',
+  Traceroute = 'Traceroute',
+  Whois = 'Whois'
+}
+
 export type Contact = {
   __typename?: 'Contact';
   createdAt: Scalars['DateTimeISO']['output'];
@@ -1503,7 +1513,9 @@ export type FlowExecution = {
 };
 
 export type FlowExecutionHistoryInput = {
-  flowId?: InputMaybe<Scalars['String']['input']>;
+  entryPointId?: InputMaybe<Scalars['String']['input']>;
+  flowTypeId?: InputMaybe<Scalars['String']['input']>;
+  flowVersionId?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Array<FlowExecutionStatus>>;
   triggerId?: InputMaybe<Scalars['String']['input']>;
 };
@@ -3333,7 +3345,7 @@ export type NetworkToolDnsCreateInput = {
 };
 
 export type NetworkToolHistoryInput = {
-  networkTool: Scalars['String']['input'];
+  networkTool: ConnectedToolType;
 };
 
 export type NetworkToolPingCreateInput = {
@@ -3518,12 +3530,6 @@ export type PaginationInputWithFilters = {
   filters?: InputMaybe<Array<ColumnFilter>>;
   itemIndex?: InputMaybe<Scalars['Int']['input']>;
   itemsPerPage: Scalars['Int']['input'];
-};
-
-export type PaginationNetworkToolHistoryResult = {
-  __typename?: 'PaginationNetworkToolHistoryResult';
-  items: Array<FlowExecution>;
-  pagination: Pagination;
 };
 
 export type PaginationOrderResult = {
@@ -4186,7 +4192,7 @@ export type Query = {
   gridTaskProviderSupportPrivileged: Array<GridTaskProviderSupport>;
   /** Get all task types. */
   gridTasksPrivileged: Array<GridTask>;
-  networkToolHistory: PaginationNetworkToolHistoryResult;
+  networkToolHistory: PaginationFlowExecutionResult;
   post: Post;
   postComments: PagedPostComments;
   postPrivileged: Post;
@@ -5387,7 +5393,7 @@ export type NetworkToolHistoryQueryVariables = Exact<{
 }>;
 
 
-export type NetworkToolHistoryQuery = { __typename?: 'Query', networkToolHistory: { __typename?: 'PaginationNetworkToolHistoryResult', items: Array<{ __typename?: 'FlowExecution', id: string, triggerId?: string | null, triggerType: FlowTriggerType, status: FlowExecutionStatus, metadata?: any | null, flowVersionId?: string | null, elapsedTimeMs?: number | null, startedAt: any, completedAt?: any | null, updatedAt: any, createdAt: any, errors?: Array<any> | null, stepExecutions: Array<{ __typename?: 'FlowStepExecution', stepId: string, status: FlowStepExecutionStatus, actionType: string, attempt: number, input?: any | null, output?: any | null, updatedAt: any, elapsedTimeMs?: number | null, startedAt?: any | null, completedAt?: any | null, createdAt: any, errors?: any | null }> }>, pagination: { __typename?: 'Pagination', itemIndex: number, itemIndexForPreviousPage?: number | null, itemIndexForNextPage?: number | null, itemsPerPage: number, itemsTotal: number, page: number, pagesTotal: number } } };
+export type NetworkToolHistoryQuery = { __typename?: 'Query', networkToolHistory: { __typename?: 'PaginationFlowExecutionResult', items: Array<{ __typename?: 'FlowExecution', id: string, triggerId?: string | null, triggerType: FlowTriggerType, status: FlowExecutionStatus, metadata?: any | null, flowVersionId?: string | null, elapsedTimeMs?: number | null, startedAt: any, completedAt?: any | null, updatedAt: any, createdAt: any, errors?: Array<any> | null, stepExecutions: Array<{ __typename?: 'FlowStepExecution', stepId: string, status: FlowStepExecutionStatus, actionType: string, attempt: number, input?: any | null, output?: any | null, updatedAt: any, elapsedTimeMs?: number | null, startedAt?: any | null, completedAt?: any | null, createdAt: any, errors?: any | null }> }>, pagination: { __typename?: 'Pagination', itemIndex: number, itemIndexForPreviousPage?: number | null, itemIndexForNextPage?: number | null, itemsPerPage: number, itemsTotal: number, page: number, pagesTotal: number } } };
 
 export type FlowExecutionQueryVariables = Exact<{
   input: FlowExecutionInput;
@@ -5509,6 +5515,34 @@ export namespace GraphQLInputTypes {
     type: 'FlowExecutionHistoryInput',
     fields: [
       {
+        name: 'flowTypeId',
+        kind: 'scalar',
+        type: 'String',
+        required: false,
+        validation: [
+          {
+            type: 'isNotEmpty',
+          },
+          {
+            type: 'isString',
+          }
+        ],
+      },
+      {
+        name: 'flowVersionId',
+        kind: 'scalar',
+        type: 'String',
+        required: false,
+        validation: [
+          {
+            type: 'isNotEmpty',
+          },
+          {
+            type: 'isString',
+          }
+        ],
+      },
+      {
         name: 'triggerId',
         kind: 'scalar',
         type: 'String',
@@ -5523,7 +5557,7 @@ export namespace GraphQLInputTypes {
         ],
       },
       {
-        name: 'flowId',
+        name: 'entryPointId',
         kind: 'scalar',
         type: 'String',
         required: false,
@@ -5684,21 +5718,35 @@ export namespace GraphQLInputTypes {
     ],
   }
 
+  export const ConnectedToolType: GraphQLInputEnumTypeMetadata = {
+    kind: 'enum',
+    type: 'ConnectedToolType',
+    values: [
+      'Dns',
+      'Ping',
+      'PortCheck',
+      'Traceroute',
+      'TlsCertificate',
+      'Whois'
+    ],
+  }
+
   export const NetworkToolHistoryInput: GraphQLInputObjectTypeMetadata = {
     kind: 'object',
     type: 'NetworkToolHistoryInput',
     fields: [
       {
         name: 'networkTool',
-        kind: 'scalar',
-        type: 'String',
+        kind: 'enum',
+        type: GraphQLInputTypes.ConnectedToolType,
         required: true,
         validation: [
           {
-            type: 'isNotEmpty',
-          },
-          {
-            type: 'isString',
+            type: 'isEnum',
+            constraints: [
+              {"Dns":"Dns","Ping":"Ping","PortCheck":"PortCheck","Traceroute":"Traceroute","TlsCertificate":"TlsCertificate","Whois":"Whois"},
+              ["Dns","Ping","PortCheck","Traceroute","TlsCertificate","Whois"]
+            ],
           }
         ],
       }

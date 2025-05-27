@@ -29,6 +29,18 @@ input ColumnFilterInput {
 }
 
 """
+Types of connected tools available for network operations
+"""
+enum ConnectedToolType {
+    Dns
+    Ping
+    PortCheck
+    TlsCertificate
+    Traceroute
+    Whois
+}
+
+"""
 A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.This scalar is serialized to a string in ISO 8601 format and parsed from a string in ISO 8601 format.
 """
 scalar DateTimeISO
@@ -176,7 +188,7 @@ input NetworkToolDnsCreateInput {
 }
 
 input NetworkToolHistoryInput {
-    networkTool: String!
+    networkTool: ConnectedToolType!
 }
 
 input NetworkToolPingCreateInput {
@@ -238,6 +250,11 @@ type Pagination {
     pagesTotal: Int!
 }
 
+type PaginationFlowExecutionResult {
+    items: [FlowExecution!]!
+    pagination: Pagination!
+}
+
 input PaginationInput {
     filters: [ColumnFilterInput!]
     itemIndex: Int
@@ -245,14 +262,6 @@ input PaginationInput {
     orderBy: [OrderByInput!]
 }
 
-type PaginationNetworkToolHistoryResult {
-    items: [FlowExecution!]!
-    pagination: Pagination!
-}
-
 type Query {
-    networkToolHistory(
-        input: NetworkToolHistoryInput!
-        pagination: PaginationInput!
-    ): PaginationNetworkToolHistoryResult!
+    networkToolHistory(input: NetworkToolHistoryInput!, pagination: PaginationInput!): PaginationFlowExecutionResult!
 }

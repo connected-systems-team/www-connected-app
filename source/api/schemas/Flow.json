@@ -182,6 +182,34 @@
                         "kind": "scalar",
                         "type": "String",
                         "required": false,
+                        "name": "flowTypeId",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            },
+                            {
+                                "type": "isString"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
+                        "name": "flowVersionId",
+                        "validation": [
+                            {
+                                "type": "isNotEmpty"
+                            },
+                            {
+                                "type": "isString"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "scalar",
+                        "type": "String",
+                        "required": false,
                         "name": "triggerId",
                         "validation": [
                             {
@@ -196,7 +224,7 @@
                         "kind": "scalar",
                         "type": "String",
                         "required": false,
-                        "name": "flowId",
+                        "name": "entryPointId",
                         "validation": [
                             {
                                 "type": "isNotEmpty"

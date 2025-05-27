@@ -159,20 +159,34 @@
                 "type": "NetworkToolHistoryInput",
                 "fields": [
                     {
-                        "kind": "scalar",
-                        "type": "String",
+                        "kind": "enum",
+                        "type": "ConnectedToolType",
                         "required": true,
                         "name": "networkTool",
                         "validation": [
                             {
-                                "type": "isNotEmpty"
-                            },
-                            {
-                                "type": "isString"
+                                "type": "isEnum",
+                                "constraints": [
+                                    {
+                                        "Dns": "Dns",
+                                        "Ping": "Ping",
+                                        "PortCheck": "PortCheck",
+                                        "Traceroute": "Traceroute",
+                                        "TlsCertificate": "TlsCertificate",
+                                        "Whois": "Whois"
+                                    },
+                                    ["Dns", "Ping", "PortCheck", "Traceroute", "TlsCertificate", "Whois"]
+                                ]
                             }
                         ]
                     }
                 ]
+            },
+            "ConnectedToolType": {
+                "kind": "enum",
+                "type": "ConnectedToolType",
+                "description": "Types of connected tools available for network operations",
+                "values": ["Dns", "Ping", "PortCheck", "Traceroute", "TlsCertificate", "Whois"]
             },
             "NetworkToolDnsCreateInput": {
                 "kind": "object",
