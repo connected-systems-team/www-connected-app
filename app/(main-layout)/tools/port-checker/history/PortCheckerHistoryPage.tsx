@@ -12,9 +12,11 @@ import {
 
 // Dependencies - Main Components
 import { AuthorizationLayout } from '@structure/source/layouts/AuthorizationLayout';
-import { Pagination } from '@structure/source/common/navigation/pagination/Pagination';
-import { PlaceholderAnimation } from '@structure/source/common/animations/PlaceholderAnimation';
 import { ToolsNavigationTrail } from '@project/app/(main-layout)/tools/_navigation/ToolsNavigationTrail';
+import { Table } from '@structure/source/common/tables/Table';
+import { TableColumnProperties, TableColumnType } from '@structure/source/common/tables/TableColumn';
+import { TableRowProperties } from '@structure/source/common/tables/TableRow';
+import { Link } from '@structure/source/common/navigation/Link';
 
 // Dependencies - API
 import { useQuery } from '@apollo/client';
@@ -26,13 +28,18 @@ import {
 } from '@project/source/api/graphql/GraphQlGeneratedCode';
 
 // Dependencies - Assets
-import CheckCircledGreenBorderIcon from '@project/assets/icons/status/CheckCircledGreenBorderIcon.svg';
-import ErrorCircledRedBorderIcon from '@project/assets/icons/status/ErrorCircledRedBorderIcon.svg';
+import CheckIcon from '@structure/assets/icons/status/CheckIcon.svg';
+import ErrorIcon from '@structure/assets/icons/status/ErrorIcon.svg';
+
+// Dependencies - Common Components
+import { Flag } from '@project/source/common/icons/flags/Flag';
 
 // Dependencies - Utilities
 import { uppercaseFirstCharacter } from '@structure/source/utilities/String';
 import { iso8601DateWithTime, timeAgo } from '@structure/source/utilities/Time';
 import { CountryInterface, getCountryByName } from '@structure/source/utilities/geo/Countries';
+import { isIpAddress } from '@structure/source/utilities/network/IpAddress';
+import { DomainValidation } from '@project/app/(main-layout)/tools/_utilities/ToolValidationUtilities';
 import {
     getPortStateDescription,
     convertNmapPortStateToPortStateType,
@@ -81,6 +88,48 @@ export interface ExtractedPortCheckHistoryDataInterface {
     portIsOpen: boolean;
     latencyInMilliseconds: string;
     country?: CountryInterface;
+}
+
+// Utility functions for creating links
+function createLinkForValue(value: string, displayValue?: React.ReactNode) {
+    if(isIpAddress(value)) {
+        return (
+            <Link
+                href={`/ip-addresses/v4/${value}`}
+                target="_blank"
+                prefetch={false}
+                variant="Unstyled"
+                className="font-medium hover:underline"
+            >
+                {displayValue || value}
+            </Link>
+        );
+    }
+    else if(DomainValidation.validateDomain(value).isValid) {
+        return (
+            <Link
+                href={`/domains/${value}`}
+                target="_blank"
+                prefetch={false}
+                variant="Unstyled"
+                className="font-medium hover:underline"
+            >
+                {displayValue || value}
+            </Link>
+        );
+    }
+    else {
+        // Not a valid domain or IP, just return the display value
+        return displayValue || value;
+    }
+}
+
+function createPortLink(port: string) {
+    return (
+        <Link href={`/ports/${port}`} target="_blank" prefetch={false} variant="Unstyled" className="hover:underline">
+            {port}
+        </Link>
+    );
 }
 
 // Function to extract port check history data from a flow execution
@@ -215,6 +264,126 @@ export function PortCheckerHistoryPage() {
     const flowExecutions = (portCheckHistoryQuery.data?.networkToolHistory.items ||
         []) as PortCheckFlowExecutionInterface[];
 
+    // Structure Table Data - Convert flowExecutions to table format
+    const tableColumns: TableColumnProperties[] = [
+        {
+            identifier: 'host',
+            title: 'Input',
+            type: TableColumnType.String,
+        },
+        {
+            identifier: 'ip',
+            title: 'IP Address',
+            type: TableColumnType.String,
+        },
+        {
+            identifier: 'port',
+            title: 'Port',
+            type: TableColumnType.String,
+        },
+        {
+            identifier: 'status',
+            title: 'Status',
+            type: TableColumnType.String,
+        },
+        {
+            identifier: 'latency',
+            title: 'Latency',
+            type: TableColumnType.String,
+        },
+        {
+            identifier: 'region',
+            title: 'Region',
+            type: TableColumnType.String,
+        },
+        {
+            identifier: 'time',
+            title: 'Time',
+            type: TableColumnType.DateTime,
+        },
+    ];
+
+    const tableRows: TableRowProperties[] = flowExecutions.map(function (flowExecution) {
+        const { hostName, hostIp, port, portState, portIsOpen, latencyInMilliseconds, country } =
+            extractPortCheckHistoryData(flowExecution);
+
+        const portStateTypeValue = convertNmapPortStateToPortStateType(portState);
+        const fullPortStateDisplay = uppercaseFirstCharacter(getPortStateDescription(portStateTypeValue));
+
+        return {
+            cells: [
+                {
+                    children:
+                        hostName === 'Unknown' ? (
+                            <span className="text-foreground-secondary">-</span>
+                        ) : (
+                            <div className="break-all" title={hostName}>
+                                {createLinkForValue(hostName, <span className="font-medium">{hostName}</span>)}
+                            </div>
+                        ),
+                },
+                {
+                    children:
+                        hostIp === 'Unknown' || hostIp === 'Failed' ? (
+                            <span className="text-foreground-secondary">-</span>
+                        ) : (
+                            createLinkForValue(hostIp)
+                        ),
+                },
+                {
+                    children:
+                        port === 'Unknown' ? (
+                            <span className="text-foreground-secondary">-</span>
+                        ) : (
+                            createPortLink(port)
+                        ),
+                },
+                {
+                    children: (
+                        <div
+                            className={`inline-flex items-center space-x-2 rounded-lg px-2 py-1 text-xs ${
+                                portIsOpen
+                                    ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                                    : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                            }`}
+                        >
+                            {portIsOpen ? <CheckIcon className="h-4 w-4" /> : <ErrorIcon className="h-4 w-4" />}
+                            <span>{fullPortStateDisplay}</span>
+                        </div>
+                    ),
+                },
+                {
+                    children:
+                        latencyInMilliseconds === 'N/A' ? (
+                            <span className="text-foreground-secondary">-</span>
+                        ) : (
+                            latencyInMilliseconds
+                        ),
+                },
+                {
+                    children: country ? (
+                        <div className="inline-flex items-center space-x-1 rounded-lg bg-background-secondary py-1 pl-1 pr-2 text-xs">
+                            <Flag countryCode={country.code} className="h-4 w-6" />
+                            <span title={country.name}>{country.code}</span>
+                        </div>
+                    ) : (
+                        <span className="text-foreground-secondary">-</span>
+                    ),
+                },
+                {
+                    children: (
+                        <div>
+                            <div>{iso8601DateWithTime(new Date(flowExecution.createdAt))}</div>
+                            <div className="text-sm text-foreground-tertiary">
+                                {timeAgo(new Date(flowExecution.createdAt).getTime())}
+                            </div>
+                        </div>
+                    ),
+                },
+            ],
+        };
+    });
+
     // Render the component
     return (
         <AuthorizationLayout>
@@ -224,141 +393,32 @@ export function PortCheckerHistoryPage() {
                 <h1>Port Checker History</h1>
 
                 <div className="mt-6">
-                    {portCheckHistoryQuery.error ? (
-                        <div className="text-red-500">Error: {portCheckHistoryQuery.error.message}</div>
-                    ) : portCheckHistoryQuery.loading ? (
-                        <div className="divide-y divide-neutral/10">
-                            <div className="grid grid-cols-[1fr] items-center gap-3 py-4 text-sm md:grid-cols-[160px_160px_160px_72px_110px_100px_110px]">
-                                <div>Time</div>
-                                <div>Host</div>
-                                <div>IP</div>
-                                <div>Port</div>
-                                <div>Status</div>
-                                <div>Latency</div>
-                                <div>Region</div>
-                            </div>
-                            {[...Array(itemsPerPage)].map((_, index) => (
-                                <div
-                                    key={index}
-                                    className="grid grid-cols-[1fr] gap-3 py-4 md:grid-cols-[160px_160px_160px_72px_110px_100px_110px]"
-                                >
-                                    <PlaceholderAnimation className="h-5 w-32" />
-                                    <PlaceholderAnimation className="h-5 w-32" />
-                                    <PlaceholderAnimation className="h-5 w-32" />
-                                    <PlaceholderAnimation className="h-5 w-8" />
-                                    <PlaceholderAnimation className="h-5 w-16" />
-                                    <PlaceholderAnimation className="h-5 w-10" />
-                                    <PlaceholderAnimation className="h-5 w-16" />
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <>
-                            <div className="divide-y divide-neutral/10">
-                                <div className="grid grid-cols-[1fr] items-center gap-3 py-4 pl-2 md:grid-cols-[160px_160px_160px_72px_110px_100px_110px]">
-                                    <div className="font-medium">Time</div>
-                                    <div className="font-medium">Host</div>
-                                    <div className="font-medium">IP</div>
-                                    <div className="font-medium">Port</div>
-                                    <div className="font-medium">Status</div>
-                                    <div className="font-medium">Latency</div>
-                                    <div className="font-medium">Region</div>
-                                </div>
-
-                                {flowExecutions.map(function (flowExecution) {
-                                    // Extract data from the flow execution using our utility
-                                    const {
-                                        hostName,
-                                        hostIp,
-                                        port,
-                                        portState,
-                                        portIsOpen,
-                                        latencyInMilliseconds,
-                                        country,
-                                    } = extractPortCheckHistoryData(flowExecution);
-
-                                    // Map port states to user-friendly descriptions using our utility
-                                    const portStateTypeValue = convertNmapPortStateToPortStateType(portState);
-                                    const fullPortStateDisplay = uppercaseFirstCharacter(
-                                        getPortStateDescription(portStateTypeValue),
-                                    );
-
-                                    return (
-                                        <div
-                                            key={flowExecution.id}
-                                            className="grid grid-cols-[1fr] items-center gap-3 py-4 pl-2 text-sm hover:bg-light-1 md:grid-cols-[160px_160px_160px_72px_110px_100px_110px] dark:hover:bg-dark-2"
-                                        >
-                                            {/* Time */}
-                                            <div className="">
-                                                {iso8601DateWithTime(new Date(flowExecution.createdAt))}
-                                                <br />
-                                                <span className="text-foreground-tertiary">
-                                                    {timeAgo(new Date(flowExecution.createdAt).getTime())}
-                                                </span>
-                                            </div>
-
-                                            {/* Host Info */}
-                                            <div className="space-y-1">
-                                                <div className="break-all font-medium" title={hostName}>
-                                                    {hostName}
-                                                </div>
-                                            </div>
-
-                                            {/* IP */}
-                                            <div className="flex items-center space-x-2">
-                                                <span>{hostIp}</span>
-                                            </div>
-
-                                            {/* Port */}
-                                            <div className="flex items-center space-x-2">
-                                                <span>{port}</span>
-                                            </div>
-
-                                            {/* Port Status */}
-                                            <div className="flex items-center space-x-2">
-                                                {portIsOpen ? (
-                                                    <CheckCircledGreenBorderIcon className="flex h-4 w-4 items-center justify-center rounded-full bg-green-400 text-light dark:border-none dark:text-light" />
-                                                ) : (
-                                                    <ErrorCircledRedBorderIcon className="flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-light dark:border-none dark:text-light" />
-                                                )}
-                                                <span>{fullPortStateDisplay}</span>
-                                            </div>
-
-                                            {/* Latency */}
-                                            <div className="">{latencyInMilliseconds}</div>
-
-                                            {/* Region */}
-                                            <div className="flex items-center space-x-1">
-                                                {country && (
-                                                    <>
-                                                        <span>{country.emoji}</span>
-                                                        <span title={country.name}>{country.code}</span>
-                                                    </>
-                                                )}
-                                                {!country && <span className="text-foreground-tertiary">-</span>}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </>
-                    )}
-
-                    {(portCheckHistoryQuery.loading || portCheckHistoryQuery.data) && (
-                        <div className="flex items-center space-x-4 pt-6">
-                            <Pagination
-                                className="justify-start"
-                                page={page}
-                                itemsPerPage={itemsPerPage}
-                                itemsTotal={totalChecks}
-                                pagesTotal={portCheckHistoryQuery.data?.networkToolHistory.pagination?.pagesTotal ?? 0}
-                                useLinks={true}
-                                itemsPerPageControl={false}
-                                pageInputControl={false}
-                            />
-                            {totalChecks > 0 && <div className="neutral text-sm">{totalChecks} scans</div>}
-                        </div>
-                    )}
+                    <Table
+                        className="[&_td:first-child]:pl-3 [&_th:first-child]:pl-3"
+                        columns={tableColumns}
+                        rows={tableRows}
+                        loading={portCheckHistoryQuery.loading}
+                        error={
+                            portCheckHistoryQuery.error
+                                ? {
+                                      message: portCheckHistoryQuery.error.message,
+                                  }
+                                : undefined
+                        }
+                        search={true}
+                        filter={true}
+                        columnVisibility={true}
+                        rowSelection={false}
+                        pagination={{
+                            page: page,
+                            itemsPerPage: itemsPerPage,
+                            itemsTotal: totalChecks,
+                            pagesTotal: portCheckHistoryQuery.data?.networkToolHistory.pagination?.pagesTotal ?? 0,
+                            useLinks: true,
+                            itemsPerPageControl: true,
+                            pageInputControl: false,
+                        }}
+                    />
                 </div>
             </div>
         </AuthorizationLayout>
