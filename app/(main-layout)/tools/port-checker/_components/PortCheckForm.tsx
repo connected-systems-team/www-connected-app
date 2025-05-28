@@ -20,9 +20,6 @@ import {
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';
 
-// Dependencies - Icons
-import { Flag } from '@project/app/_assets/icons/flags/Flag';
-
 // Component - PortCheckForm
 export interface PortCheckFormProperties {
     className?: string;
@@ -73,14 +70,8 @@ export function PortCheckForm(properties: PortCheckFormProperties) {
                                 <ArrowUpIcon className="h-3 w-3" />
                             </div>
                             <div className="flex items-center gap-1">
-                                <span>Use Current IP ({properties.publicIpAddress}</span>
-                                {properties.countryCode && (
-                                    <>
-                                        <Flag countryCode={properties.countryCode} className="mx-1" />
-                                        <span>{properties.countryCode}</span>
-                                    </>
-                                )}
-                                <span>)</span>
+                                Use Current IP ({properties.publicIpAddress}
+                                {properties.countryCode ? ' ' + properties.countryCode : ''})
                             </div>
                         </div>
                         <TipIcon
