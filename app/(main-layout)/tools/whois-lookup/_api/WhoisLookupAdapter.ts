@@ -117,12 +117,24 @@ export class WhoisLookupAdapter extends BaseFlowAdapter<
             return;
         }
 
-        // Extract WHOIS data from the output (direct mapping from API response)
+        // Extract WHOIS data from the output, handling the actual API response structure
         const whoisData: WhoisDataInterface = {
             matched: output.matched,
             lastUpdate: output.lastUpdate,
-            contacts: output.contacts,
-            domain: output.domain,
+            // Map TLD contacts to our expected structure
+            contacts: output.tld ? {
+                administrative: output.tld.administrativeContact,
+                technical: output.tld.technicalContact,
+                registrant: output.tld.registrantContact,
+                billing: output.tld.billingContact,
+            } : undefined,
+            // Map TLD information to domain structure
+            domain: output.tld ? {
+                registrar: output.tld.registryOrganization,
+                nameServers: output.tld.nameServers,
+                registryDomainId: output.tld.registryDomainId,
+                registrarWhoisServer: output.tld.refer,
+            } : output.domain,
         };
 
         // Create final result content

@@ -59,15 +59,24 @@ export function WhoisLookupResultsAnimatedList(properties: WhoisLookupResultsAni
             organization: { label: 'Organization' },
             email: { label: 'Email' },
             phone: { label: 'Phone' },
+            faxNo: { label: 'Fax' },
+            fax: { label: 'Fax' },
             street: { label: 'Street' },
             city: { label: 'City' },
             stateProvince: { label: 'State/Province' },
             postalCode: { label: 'Postal Code' },
             country: { label: 'Country' },
-            fax: { label: 'Fax' },
         });
 
-        return <DataSection title={title} fields={contactFields} />;
+        return (
+            <div>
+                <DataSection title={title} fields={contactFields} />
+                {/* Handle addresses array separately */}
+                {contact.addresses && contact.addresses.length > 0 && (
+                    <DataListSection title={`${title} - Addresses`} items={contact.addresses} />
+                )}
+            </div>
+        );
     }
 
     // Function to render detailed WHOIS data using shared utilities
@@ -90,18 +99,25 @@ export function WhoisLookupResultsAnimatedList(properties: WhoisLookupResultsAni
         return (
             <DataContainer>
                 {/* Basic Domain Information */}
-                <DataSection title="Domain Information" fields={domainFields} />
+                {domainFields && domainFields.length > 0 && (
+                    <DataSection title="Domain Information" fields={domainFields} />
+                )}
 
                 {/* Name Servers */}
-                {domainInfo?.nameServers && <DataListSection title="Name Servers" items={domainInfo.nameServers} />}
+                {domainInfo?.nameServers && domainInfo.nameServers.length > 0 && (
+                    <DataListSection title="Name Servers" items={domainInfo.nameServers} />
+                )}
 
                 {/* Domain Status */}
-                {domainInfo?.statuses && <DataListSection title="Domain Status" items={domainInfo.statuses} />}
+                {domainInfo?.statuses && domainInfo.statuses.length > 0 && (
+                    <DataListSection title="Domain Status" items={domainInfo.statuses} />
+                )}
 
                 {/* Contact Information Sections */}
                 {contacts?.registrant && renderContactSection('Registrant Contact', contacts.registrant)}
                 {contacts?.administrative && renderContactSection('Administrative Contact', contacts.administrative)}
                 {contacts?.technical && renderContactSection('Technical Contact', contacts.technical)}
+                {contacts?.billing && renderContactSection('Billing Contact', contacts.billing)}
 
                 {/* Last Update Information */}
                 {whoisData.lastUpdate && (

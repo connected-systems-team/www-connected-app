@@ -81,6 +81,7 @@ export interface WhoisLookupFlowInputInterface {
 export interface WhoisContactInterface {
     name?: string;
     organization?: string;
+    addresses?: string[];
     street?: string;
     city?: string;
     stateProvince?: string;
@@ -88,6 +89,7 @@ export interface WhoisContactInterface {
     country?: string;
     phone?: string;
     fax?: string;
+    faxNo?: string;
     email?: string;
 }
 
@@ -109,10 +111,25 @@ export interface WhoisDomainInterface {
     icannComplaintUrl?: string;
 }
 
+// Server Type - TLD Information Interface (from actual API response)
+export interface WhoisTldInterface {
+    registryAddresses?: string[];
+    nameServers?: string[];
+    refer?: string;
+    tld?: string;
+    registryOrganization?: string;
+    registryDomainId?: string;
+    administrativeContact?: WhoisContactInterface;
+    technicalContact?: WhoisContactInterface;
+    registrantContact?: WhoisContactInterface;
+    billingContact?: WhoisContactInterface;
+}
+
 // Server Type - WhoisLookupFlowOutputInterface - Output for a WHOIS lookup flow
 export interface WhoisLookupFlowOutputInterface {
     matched?: boolean;
     lastUpdate?: string;
+    // Legacy structure (for backward compatibility)
     contacts?: {
         registrant?: WhoisContactInterface;
         administrative?: WhoisContactInterface;
@@ -120,6 +137,8 @@ export interface WhoisLookupFlowOutputInterface {
         billing?: WhoisContactInterface;
     };
     domain?: WhoisDomainInterface;
+    // Actual API response structure
+    tld?: WhoisTldInterface;
     error?: {
         message?: string;
         domain?: string;
