@@ -45,8 +45,7 @@ export function GridPage(properties: GridPageProperties) {
             <div className="mt-4 max-w-screen-md text-sm text-foreground-secondary">
                 <p>
                     Our distributed computing infrastructure, a global network of servers and nodes that execute tasks
-                    across different cloud providers and regions. A digital frontier where computational tasks get
-                    distributed and executed across the network.
+                    across different cloud providers and regions.
                 </p>
             </div>
 
