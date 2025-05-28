@@ -6,7 +6,7 @@ import {
     WhoisLookupFlowService,
     WhoisLookupFlowClientInputInterface,
 } from '@project/app/(main-layout)/tools/whois-lookup/_api/WhoisLookupFlowService';
-import { FlowExecutionErrorInterface } from '@project/source/modules/flow/FlowService';
+import { FlowExecutionErrorInterface } from '@project/app/_modules/flow/FlowService';
 import {
     WhoisLookupResultItemProperties,
     WhoisLookupContentPart,

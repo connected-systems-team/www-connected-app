@@ -1,7 +1,7 @@
 'use client'; // This adapter uses client-only features
 
 // Dependencies - Types
-import { DnsRecordType } from '@project/source/api/graphql/generated/graphql';
+import { DnsRecordType } from '@project/app/_api/graphql/generated/graphql';
 import {
     DnsLookupFlowExecutionInterface,
     DnsLookupFlowService,
@@ -16,7 +16,7 @@ import {
     DnsRecordResult,
 } from '@project/app/(main-layout)/tools/dns-lookup/_types/DnsLookupTypes';
 import { WebSocketViaSharedWorkerContextInterface } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
-import { FlowExecutionErrorInterface } from '@project/source/modules/flow/FlowService';
+import { FlowExecutionErrorInterface } from '@project/app/_modules/flow/FlowService';
 
 // Dependencies - Base Classes
 import { BaseFlowAdapter } from '@project/app/(main-layout)/tools/_adapters/BaseFlowAdapter';

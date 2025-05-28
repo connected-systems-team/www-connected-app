@@ -1,7 +1,7 @@
 'use client'; // This service uses client-only features
 
 // Dependencies - Types
-import { FlowExecution, FlowStepExecution } from '@project/source/api/graphql/GraphQlGeneratedCode';
+import { FlowExecution, FlowStepExecution } from '@project/app/_api/graphql/GraphQlGeneratedCode';
 import {
     WebSocketViaSharedWorkerContextInterface,
     WebSocketMessageEventInterface,

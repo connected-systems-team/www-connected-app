@@ -20,7 +20,7 @@ import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/p
 // Dependencies - API
 import { PortCheckStatusAdapter } from '@project/app/(main-layout)/tools/port-checker/_api/PortCheckStatusAdapter';
 import { PortCheckFlowExecutionInterface } from '@project/app/(main-layout)/tools/port-checker/_api/PortCheckFlowService';
-import { FlowServiceErrors } from '@project/source/modules/flow/FlowService';
+import { FlowServiceErrors } from '@project/app/_modules/flow/FlowService';
 
 // Test case interface
 interface PortCheckerTestCase {

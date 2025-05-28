@@ -2,7 +2,7 @@
 import React from 'react';
 
 // Dependencies - Main Components
-import { AnimatedListItemBadge } from '@project/source/common/animations/AnimatedListItemBadge';
+import { AnimatedListItemBadge } from '@project/app/_components/animations/AnimatedListItemBadge';
 import { CopyButton } from '@structure/source/common/buttons/CopyButton';
 
 // Dependencies - Types

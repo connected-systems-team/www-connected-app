@@ -5,11 +5,11 @@ import {
     FlowExecution,
     FlowExecutionInput,
     FlowExecutionStatus,
-} from '@project/source/api/graphql/GraphQlGeneratedCode';
+} from '@project/app/_api/graphql/GraphQlGeneratedCode';
 
 // Dependencies - API
 import { apolloClient } from '@structure/source/api/apollo/ApolloClient';
-import { FlowExecutionDocument } from '@project/source/api/graphql/GraphQlGeneratedCode';
+import { FlowExecutionDocument } from '@project/app/_api/graphql/GraphQlGeneratedCode';
 
 // Class - FlowPollingService
 export class FlowPollingService {

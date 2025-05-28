@@ -9,7 +9,7 @@ import { mergeClassNames } from '@structure/source/utilities/Style';
 import { getCountryByName } from '@structure/source/utilities/geo/Countries';
 
 // Dependencies - Icons
-import { Flag } from '@project/source/common/icons/flags/Flag';
+import { Flag } from '@project/app/_assets/icons/flags/Flag';
 
 // Component - AnimatedListItemBadge
 export interface AnimatedListItemBadgeProperties {

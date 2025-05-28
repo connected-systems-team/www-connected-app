@@ -5,7 +5,7 @@ import React from 'react';
 
 // Dependencies - Main Components
 import { Button } from '@structure/source/common/buttons/Button';
-import { ExcludedAnimatedListItemProperties, AnimatedList } from '@project/source/common/animations/AnimatedList';
+import { ExcludedAnimatedListItemProperties, AnimatedList } from '@project/app/_components/animations/AnimatedList';
 import ErrorCircledIcon from '@structure/assets/icons/status/ErrorCircledIcon.svg';
 
 // Component - TestsPage

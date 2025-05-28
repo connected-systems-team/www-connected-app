@@ -5,22 +5,22 @@ import {
     FlowExecution as FlowExecutionGraphQlInterface,
     FlowStepExecution as FlowStepExecutionGraphQlInterface,
     FlowStepExecutionStatus as FlowStepExecutionStatusGraphQlType,
-} from '@project/source/api/graphql/GraphQlGeneratedCode';
+} from '@project/app/_api/graphql/GraphQlGeneratedCode';
 import {
     WebSocketViaSharedWorkerContextInterface,
     WebSocketMessageEventInterface,
 } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
 
 // Dependencies - Services
-import { FlowWebSocketService } from '@project/source/modules/flow/services/FlowWebSocketService';
-import { FlowPollingService } from '@project/source/modules/flow/services/FlowPollingService';
+import { FlowWebSocketService } from '@project/app/_modules/flow/services/FlowWebSocketService';
+import { FlowPollingService } from '@project/app/_modules/flow/services/FlowPollingService';
 
 // Dependencies - Utilities
 import {
     isFlowWebSocketEventMessage,
     isFlowExecutionWebSocketMessage,
     isFlowStepExecutionWebSocketMessage,
-} from '@project/source/modules/flow/services/utilities/FlowWebSocketServiceUtilities';
+} from '@project/app/_modules/flow/services/utilities/FlowWebSocketServiceUtilities';
 
 // Type - FlowServiceStatusType (extends from FlowExecutionStatus in GraphQL)
 // The status of the flow service, used to track the state of the flow execution

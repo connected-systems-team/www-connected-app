@@ -3,8 +3,8 @@ import React from 'react';
 
 // Dependencies - Main Components
 import { CopyButton } from '@structure/source/common/buttons/CopyButton';
-import { AnimatedListItem } from '@project/source/common/animations/AnimatedListItem';
-import { AnimatedListItemBadge } from '@project/source/common/animations/AnimatedListItemBadge';
+import { AnimatedListItem } from '@project/app/_components/animations/AnimatedListItem';
+import { AnimatedListItemBadge } from '@project/app/_components/animations/AnimatedListItemBadge';
 
 // Dependencies - Types
 import {

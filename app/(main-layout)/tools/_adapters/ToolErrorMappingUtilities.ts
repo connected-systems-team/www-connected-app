@@ -1,5 +1,5 @@
 // Dependencies - Types
-import { FlowExecutionErrorInterface } from '@project/source/modules/flow/FlowService';
+import { FlowExecutionErrorInterface } from '@project/app/_modules/flow/FlowService';
 import { FlowErrorResult } from '@project/app/(main-layout)/tools/_adapters/FlowErrorHandler';
 
 // Common error patterns that can be found across tools

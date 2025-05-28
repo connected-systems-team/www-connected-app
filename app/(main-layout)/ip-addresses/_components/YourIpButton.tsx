@@ -8,7 +8,7 @@ import { Button } from '@structure/source/common/buttons/Button';
 import ArrowUpIcon from '@structure/assets/icons/interface/ArrowUpIcon.svg';
 
 // Dependencies - Icons
-import { Flag } from '@project/source/common/icons/flags/Flag';
+import { Flag } from '@project/app/_assets/icons/flags/Flag';
 
 // Component - YourIpButton
 export interface YourIpButtonProperties {

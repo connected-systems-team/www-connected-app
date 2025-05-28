@@ -4,7 +4,7 @@
 import React from 'react';
 
 // Dependencies - Assets
-import ConnectedOutlineIconSvg from '@project/assets/icons/ConnectedOutlineIcon.svg';
+import ConnectedOutlineIconSvg from '@project/app/_assets/icons/ConnectedOutlineIcon.svg';
 
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';

@@ -26,14 +26,14 @@ import {
     FlowExecution,
     FlowStepExecution,
     ConnectedToolType,
-} from '@project/source/api/graphql/GraphQlGeneratedCode';
+} from '@project/app/_api/graphql/GraphQlGeneratedCode';
 
 // Dependencies - Assets
 import CheckIcon from '@structure/assets/icons/status/CheckIcon.svg';
 import ErrorIcon from '@structure/assets/icons/status/ErrorIcon.svg';
 
 // Dependencies - Common Components
-import { Flag } from '@project/source/common/icons/flags/Flag';
+import { Flag } from '@project/app/_assets/icons/flags/Flag';
 
 // Dependencies - Utilities
 import { uppercaseFirstCharacter } from '@structure/source/utilities/String';

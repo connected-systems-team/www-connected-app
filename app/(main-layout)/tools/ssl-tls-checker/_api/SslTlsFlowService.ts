@@ -1,10 +1,10 @@
 // Dependencies - Flow
-import { FlowService } from '@project/source/modules/flow/FlowService';
-import { FlowInputValidationResultInterface } from '@project/source/modules/flow/FlowService';
+import { FlowService } from '@project/app/_modules/flow/FlowService';
+import { FlowInputValidationResultInterface } from '@project/app/_modules/flow/FlowService';
 
 // Dependencies - API
 import { apolloClient } from '@structure/source/api/apollo/ApolloClient';
-import { NetworkToolTlsCertificateCreateDocument } from '@project/source/api/graphql/GraphQlGeneratedCode';
+import { NetworkToolTlsCertificateCreateDocument } from '@project/app/_api/graphql/GraphQlGeneratedCode';
 
 // Dependencies - Utilities
 import { DomainValidation, PortValidation } from '@project/app/(main-layout)/tools/_utilities/ToolValidationUtilities';

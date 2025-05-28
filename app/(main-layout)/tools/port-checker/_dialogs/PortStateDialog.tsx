@@ -11,7 +11,7 @@ import { DialogProperties, Dialog } from '@structure/source/common/dialogs/Dialo
 
 // Dependencies - Services
 import { PortCheckFlowServiceErrors } from '@project/app/(main-layout)/tools/port-checker/_api/PortCheckFlowService';
-import { FlowServiceErrors } from '@project/source/modules/flow/FlowService';
+import { FlowServiceErrors } from '@project/app/_modules/flow/FlowService';
 
 // Component - PortStateDialog
 export interface PortStateDialogProperties extends DialogProperties {

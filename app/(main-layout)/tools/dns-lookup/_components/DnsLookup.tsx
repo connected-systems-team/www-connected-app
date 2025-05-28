@@ -11,7 +11,7 @@ import { DnsLookupResultsAnimatedList } from '@project/app/(main-layout)/tools/d
 import { DnsLookupResultItemProperties } from '@project/app/(main-layout)/tools/dns-lookup/_types/DnsLookupTypes';
 
 // Dependencies - Types
-import { DnsRecordType } from '@project/source/api/graphql/generated/graphql';
+import { DnsRecordType } from '@project/app/_api/graphql/generated/graphql';
 
 // Dependencies - Hooks
 import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';

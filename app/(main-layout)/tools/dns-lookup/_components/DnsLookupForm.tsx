@@ -9,7 +9,7 @@ import { FormInputMultipleSelect } from '@structure/source/common/forms/FormInpu
 import { RegionFormInputSelect } from '@project/app/(main-layout)/tools/_form/RegionFormInputSelect';
 
 // Dependencies - API
-import { DnsRecordType } from '@project/source/api/graphql/generated/graphql';
+import { DnsRecordType } from '@project/app/_api/graphql/generated/graphql';
 
 // Dependencies - Types
 import { DnsRecordTypeOptions } from '@project/app/(main-layout)/tools/dns-lookup/_types/DnsLookupTypes';

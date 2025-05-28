@@ -13,7 +13,7 @@ import {
     PingStatistics,
 } from '@project/app/(main-layout)/tools/ping/_types/PingTypes';
 import { WebSocketViaSharedWorkerContextInterface } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
-import { FlowExecutionErrorInterface } from '@project/source/modules/flow/FlowService';
+import { FlowExecutionErrorInterface } from '@project/app/_modules/flow/FlowService';
 
 // Dependencies - Base Classes
 import { BaseFlowAdapter } from '@project/app/(main-layout)/tools/_adapters/BaseFlowAdapter';

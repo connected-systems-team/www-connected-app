@@ -1,8 +1,8 @@
 'use client'; // This adapter uses client-only features
 
 // Dependencies - Types
-import { FlowExecutionErrorInterface } from '@project/source/modules/flow/FlowService';
-import { FlowExecution as FlowExecutionGraphQlInterface } from '@project/source/api/graphql/GraphQlGeneratedCode';
+import { FlowExecutionErrorInterface } from '@project/app/_modules/flow/FlowService';
+import { FlowExecution as FlowExecutionGraphQlInterface } from '@project/app/_api/graphql/GraphQlGeneratedCode';
 import { ToolResultItemBase } from '@project/app/(main-layout)/tools/_types/ToolContentTypes';
 import { WebSocketViaSharedWorkerContextInterface } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
 

@@ -5,11 +5,11 @@ import {
     FlowService,
     FlowExecutionInterface,
     FlowInputValidationResultInterface,
-} from '@project/source/modules/flow/FlowService';
+} from '@project/app/_modules/flow/FlowService';
 
 // Dependencies - API
 import { apolloClient } from '@structure/source/api/apollo/ApolloClient';
-import { NetworkToolWhoisCreateDocument } from '@project/source/api/graphql/GraphQlGeneratedCode';
+import { NetworkToolWhoisCreateDocument } from '@project/app/_api/graphql/GraphQlGeneratedCode';
 
 // Dependencies - Utilities
 import { DomainValidation } from '@project/app/(main-layout)/tools/_utilities/ToolValidationUtilities';

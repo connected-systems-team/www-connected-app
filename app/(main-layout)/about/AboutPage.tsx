@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 
 // Dependencies - Main Components
 import { Link } from '@structure/source/common/navigation/Link';
-import { Atlas } from '@project/app/(main-layout)/atlas/components/Atlas';
+import { Atlas } from '@project/app/(main-layout)/atlas/_components/Atlas';
 
 // Metadata
 export async function generateMetadata(): Promise<Metadata> {

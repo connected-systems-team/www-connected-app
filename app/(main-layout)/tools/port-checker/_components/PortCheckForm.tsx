@@ -21,7 +21,7 @@ import {
 import { mergeClassNames } from '@structure/source/utilities/Style';
 
 // Dependencies - Icons
-import { Flag } from '@project/source/common/icons/flags/Flag';
+import { Flag } from '@project/app/_assets/icons/flags/Flag';
 
 // Component - PortCheckForm
 export interface PortCheckFormProperties {

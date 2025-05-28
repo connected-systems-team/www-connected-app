@@ -8,7 +8,7 @@ import { Canvas } from '@react-three/fiber';
 import { PerspectiveCamera } from '@react-three/drei';
 
 // Dependencies - Components
-import { AtlasScene } from '@project/app/(main-layout)/atlas/components/AtlasScene';
+import { AtlasScene } from '@project/app/(main-layout)/atlas/_components/AtlasScene';
 
 // Component - Atlas
 export interface AtlasProperties {

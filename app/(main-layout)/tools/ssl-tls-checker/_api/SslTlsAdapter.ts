@@ -6,7 +6,7 @@ import { FlowErrorResult } from '@project/app/(main-layout)/tools/_adapters/Flow
 import { ToolErrorMappingUtilities } from '@project/app/(main-layout)/tools/_adapters/ToolErrorMappingUtilities';
 
 // Dependencies - Types
-import { FlowExecutionErrorInterface } from '@project/source/modules/flow/FlowService';
+import { FlowExecutionErrorInterface } from '@project/app/_modules/flow/FlowService';
 import { WebSocketViaSharedWorkerContextInterface } from '@structure/source/api/web-sockets/providers/WebSocketViaSharedWorkerProvider';
 import {
     SslTlsInputInterface,

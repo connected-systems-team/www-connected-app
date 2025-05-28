@@ -5,11 +5,11 @@ import {
     FlowService,
     FlowExecutionInterface,
     FlowInputValidationResultInterface,
-} from '@project/source/modules/flow/FlowService';
+} from '@project/app/_modules/flow/FlowService';
 
 // Dependencies - API
 import { apolloClient } from '@structure/source/api/apollo/ApolloClient';
-import { NetworkToolPortCheckCreateDocument } from '@project/source/api/graphql/GraphQlGeneratedCode';
+import { NetworkToolPortCheckCreateDocument } from '@project/app/_api/graphql/GraphQlGeneratedCode';
 
 // Dependencies - Utilities
 import { isIpV6Address, isPrivateIpAddress } from '@structure/source/utilities/network/IpAddress';

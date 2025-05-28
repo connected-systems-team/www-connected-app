@@ -11,7 +11,7 @@
         "dev:wrangler": "wrangler dev --port 2666",
         "api": "npm run api:generate",
         "api:generate": "libraries/structure/scripts/api.sh --api-directory api-connected-app",
-        "graphql:prettier": "npx @system-inc/prettier@3.2.1 --write \"./source/api/graphql/**/*\" \"./libraries/structure/source/api/graphql/**/*\"",
+        "graphql:prettier": "npx @system-inc/prettier@3.2.1 --write \"./app/_api/graphql/**/*\" \"./libraries/structure/source/api/graphql/**/*\"",
         "graphql:generate": "graphql-codegen --config libraries/structure/source/api/graphql/GraphQlCodeGeneratorConfiguration.ts && npm run graphql:prettier",
         "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
         "lint": "eslint",
@@ -128,10 +128,10 @@
         "projects": {
             "app": {
                 "schema": [
-                    "./source/api/graphql/schemas/**/*.graphql"
+                    "./app/_api/graphql/schemas/**/*.graphql"
                 ],
                 "documents": [
-                    "./source/modules/**/api/**/*.graphql"
+                    "./app/_modules/**/api/**/*.graphql"
                 ]
             },
             "structure": {

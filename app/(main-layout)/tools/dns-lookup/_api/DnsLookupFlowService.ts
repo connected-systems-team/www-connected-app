@@ -5,12 +5,12 @@ import {
     FlowService,
     FlowExecutionInterface,
     FlowInputValidationResultInterface,
-} from '@project/source/modules/flow/FlowService';
-import { DnsRecordType } from '@project/source/api/graphql/generated/graphql';
+} from '@project/app/_modules/flow/FlowService';
+import { DnsRecordType } from '@project/app/_api/graphql/generated/graphql';
 
 // Dependencies - API
 import { apolloClient } from '@structure/source/api/apollo/ApolloClient';
-import { NetworkToolDnsCreateDocument } from '@project/source/api/graphql/GraphQlGeneratedCode';
+import { NetworkToolDnsCreateDocument } from '@project/app/_api/graphql/GraphQlGeneratedCode';
 
 // Dependencies - Utilities
 import { DomainValidation } from '@project/app/(main-layout)/tools/_utilities/ToolValidationUtilities';

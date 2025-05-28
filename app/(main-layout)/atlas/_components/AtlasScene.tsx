@@ -8,13 +8,13 @@ import * as Three from 'three';
 import { useFrame } from '@react-three/fiber';
 
 // Dependencies - Components
-import { AtlasCircle } from '@project/app/(main-layout)/atlas/components/AtlasCircle';
-import { useAtlasAnimations } from '@project/app/(main-layout)/atlas/components/useAtlasAnimations';
-import { ParticleSystem } from '@project/app/(main-layout)/atlas/components/ParticleSystem';
+import { AtlasCircle } from '@project/app/(main-layout)/atlas/_components/AtlasCircle';
+import { useAtlasAnimations } from '@project/app/(main-layout)/atlas/_components/useAtlasAnimations';
+import { ParticleSystem } from '@project/app/(main-layout)/atlas/_components/ParticleSystem';
 
 // Dependencies - Theme
 import { useTheme } from '@structure/source/theme/hooks/useTheme';
-import { getAtlasEyeColors } from '@project/app/(main-layout)/atlas/components/AtlasTheme';
+import { getAtlasEyeColors } from '@project/app/(main-layout)/atlas/_components/AtlasTheme';
 
 // Component - AtlasScene
 export interface AtlasSceneProperties {

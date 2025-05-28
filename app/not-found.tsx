@@ -2,7 +2,7 @@
 import { Metadata } from 'next';
 
 // Dependencies - Main Components
-import { MainLayout } from '@project/source/layouts/MainLayout';
+import { MainLayout } from '@project/app/(main-layout)/MainLayout';
 import { NotFoundPage } from '@structure/source/pages/NotFoundPage';
 
 // Next.js Metadata

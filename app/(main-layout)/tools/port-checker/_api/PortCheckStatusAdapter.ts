@@ -18,7 +18,7 @@ import { WebSocketViaSharedWorkerContextInterface } from '@structure/source/api/
 import { FlowErrorResult } from '@project/app/(main-layout)/tools/_adapters/FlowErrorHandler';
 import { BaseFlowAdapter } from '@project/app/(main-layout)/tools/_adapters/BaseFlowAdapter';
 import { ToolErrorMappingUtilities } from '@project/app/(main-layout)/tools/_adapters/ToolErrorMappingUtilities';
-import { FlowExecutionErrorInterface } from '@project/source/modules/flow/FlowService';
+import { FlowExecutionErrorInterface } from '@project/app/_modules/flow/FlowService';
 
 // Dependencies - Utilities
 import { getCountryByName } from '@structure/source/utilities/geo/Countries';

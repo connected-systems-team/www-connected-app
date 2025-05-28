@@ -14,8 +14,8 @@
 // // Dependencies - SVGs
 // import ArrowRightIcon from '@structure/assets/icons/interface/ArrowRightIcon.svg';
 // import TrashIcon from '@structure/assets/icons/content/TrashIcon.svg';
-// import CheckCircledGreenBorderIcon from '@project/assets/icons/status/CheckCircledGreenBorderIcon.svg';
-// import ErrorCircledRedBorderIcon from '@project/assets/icons/status/ErrorCircledRedBorderIcon.svg';
+// import CheckCircledGreenBorderIcon from '@project/app/_assets/icons/status/CheckCircledGreenBorderIcon.svg';
+// import ErrorCircledRedBorderIcon from '@project/app/_assets/icons/status/ErrorCircledRedBorderIcon.svg';
 
 // // Dependencies - Utilities
 // import { mergeClassNames } from '@structure/source/utilities/Style';

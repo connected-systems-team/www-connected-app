@@ -1,5 +1,5 @@
 // Dependencies - Types
-import { DnsRecordType } from '@project/source/api/graphql/generated/graphql';
+import { DnsRecordType } from '@project/app/_api/graphql/generated/graphql';
 import { ToolContentPart, ToolResultItemBase } from '@project/app/(main-layout)/tools/_types/ToolContentTypes';
 
 // Legacy types for backward compatibility

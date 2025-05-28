@@ -2,7 +2,7 @@
 import React from 'react';
 
 // Dependencies - Types
-import { DnsRecordType } from '@project/source/api/graphql/generated/graphql';
+import { DnsRecordType } from '@project/app/_api/graphql/generated/graphql';
 import {
     DnsLookupResultItemProperties,
     DnsRecordResult,
@@ -10,7 +10,7 @@ import {
 
 // Dependencies - Main Components
 import { ToolResultAnimatedList } from '@project/app/(main-layout)/tools/_components/ToolResultAnimatedList';
-import { AnimatedListItemBadge } from '@project/source/common/animations/AnimatedListItemBadge';
+import { AnimatedListItemBadge } from '@project/app/_components/animations/AnimatedListItemBadge';
 import { CopyButton } from '@structure/source/common/buttons/CopyButton';
 
 // Component - DnsLookupResultsAnimatedList

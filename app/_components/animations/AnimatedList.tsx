@@ -4,7 +4,7 @@
 import React from 'react';
 
 // Dependencies - Main Components
-import { AnimatedListItemProperties, AnimatedListItem } from '@project/source/common/animations/AnimatedListItem';
+import { AnimatedListItemProperties, AnimatedListItem } from '@project/app/_components/animations/AnimatedListItem';
 
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';

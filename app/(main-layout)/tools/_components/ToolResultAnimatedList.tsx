@@ -5,8 +5,8 @@ import React from 'react';
 import { ToolResultItemBase } from '@project/app/(main-layout)/tools/_types/ToolContentTypes';
 
 // Dependencies - Main Components
-import { AnimatedList } from '@project/source/common/animations/AnimatedList';
-import { AnimatedListItemBadge } from '@project/source/common/animations/AnimatedListItemBadge';
+import { AnimatedList } from '@project/app/_components/animations/AnimatedList';
+import { AnimatedListItemBadge } from '@project/app/_components/animations/AnimatedListItemBadge';
 import { CopyButton } from '@structure/source/common/buttons/CopyButton';
 
 // Dependencies - Hooks
@@ -16,8 +16,8 @@ import { useTheme } from '@structure/source/theme/hooks/useTheme';
 // Dependencies - Assets
 import ErrorCircledIcon from '@structure/assets/icons/status/ErrorCircledIcon.svg';
 import CheckCircledIcon from '@structure/assets/icons/status/CheckCircledIcon.svg';
-import CheckCircledGreenBorderIcon from '@project/assets/icons/status/CheckCircledGreenBorderIcon.svg';
-import ErrorCircledRedBorderIcon from '@project/assets/icons/status/ErrorCircledRedBorderIcon.svg';
+import CheckCircledGreenBorderIcon from '@project/app/_assets/icons/status/CheckCircledGreenBorderIcon.svg';
+import ErrorCircledRedBorderIcon from '@project/app/_assets/icons/status/ErrorCircledRedBorderIcon.svg';
 
 // Component - ToolResultAnimatedList
 export interface ToolResultAnimatedListProperties<TResultItem extends ToolResultItemBase> {

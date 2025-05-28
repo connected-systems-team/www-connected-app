@@ -4,7 +4,7 @@
 import React from 'react';
 
 // Dependencies - Main Components
-import { Atlas } from '@project/app/(main-layout)/atlas/components/Atlas';
+import { Atlas } from '@project/app/(main-layout)/atlas/_components/Atlas';
 import { Button } from '@structure/source/common/buttons/Button';
 
 // Component - AtlasPage

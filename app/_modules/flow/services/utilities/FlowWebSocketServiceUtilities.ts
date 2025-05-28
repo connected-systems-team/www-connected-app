@@ -5,7 +5,7 @@ import {
     FlowWebSocketMessageInterface,
     FlowExecutionWebSocketMessageInterface,
     FlowStepExecutionWebSocketMessageInterface,
-} from '@project/source/modules/flow/services/FlowWebSocketService';
+} from '@project/app/_modules/flow/services/FlowWebSocketService';
 
 // Function to check if a WebSocket message event contains a Flow message
 export function isFlowWebSocketEventMessage(

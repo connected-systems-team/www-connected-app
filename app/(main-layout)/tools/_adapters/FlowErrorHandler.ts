@@ -1,5 +1,5 @@
 // Dependencies - Types
-import { FlowExecutionErrorInterface, FlowServiceErrors } from '@project/source/modules/flow/FlowService';
+import { FlowExecutionErrorInterface, FlowServiceErrors } from '@project/app/_modules/flow/FlowService';
 
 // Shared error processing result
 export interface FlowErrorResult {

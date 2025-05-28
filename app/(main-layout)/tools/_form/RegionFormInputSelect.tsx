@@ -7,14 +7,14 @@ import { FormInputSelect } from '@structure/source/common/forms/FormInputSelect'
 
 // Dependencies - API
 import { useQuery } from '@apollo/client';
-import { GridRegionLevelsDocument, GridRegionLevel } from '@project/source/api/graphql/GraphQlGeneratedCode';
+import { GridRegionLevelsDocument, GridRegionLevel } from '@project/app/_api/graphql/GraphQlGeneratedCode';
 
 // Dependencies - Utilities
 import { filterCountriesByCountryNames, getCountryByName } from '@structure/source/utilities/geo/Countries';
 import { getClosestAvailableCountryUsingCountryCode } from '@structure/source/utilities/geo/Geo';
 
 // Dependencies - Icons
-import { Flag } from '@project/source/common/icons/flags/Flag';
+import { Flag } from '@project/app/_assets/icons/flags/Flag';
 
 // Component - RegionFormInputSelect
 export interface RegionFormInputSelectProperties {
