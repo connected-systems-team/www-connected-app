@@ -2,55 +2,55 @@
 
 ## Import Rules
 
-**no-internal-imports**: Only files within a parent folder can import from its `internal/` subfolder. Prevents: `import { Button } from '@project/components/internal/Button'` or `'../../components/buttons/internal/Button'`
+**no-internal-imports-rule**: Only files within a parent folder can import from its `internal/` subfolder. Prevents: `import { Button } from '@project/components/internal/Button'` or `'../../components/buttons/internal/Button'`
 
-**no-structure-project-imports**: Structure library can't use `@project` imports except: `ProjectSettings`, `source/theme/styles/theme.css`, `tailwind.config`
+**no-structure-project-imports-rule**: Structure library can't use `@project` imports except: `ProjectSettings`, `source/theme/styles/theme.css`, `tailwind.config`
 
 ## React Rules
 
-**react-no-destructuring-properties**: No destructuring in component parameters.
+**react-destructuring-properties-rule**: No destructuring in component parameters.
 
 ```tsx
 // ❌ function Button({ color, text }) {...}
 // ✅ function Button(properties) { return <button style={{color: properties.color}}>... }
 ```
 
-**react-no-destructuring-import**: No destructuring React imports.
+**react-no-destructuring-react-rule**: No destructuring React imports.
 
 ```tsx
 // ❌ import React, { useState } from 'react'; const [state, setState] = useState();
 // ✅ import React from 'react'; const [state, setState] = React.useState();
 ```
 
-**react-properties-parameter-name**: Use 'properties' not 'props'.
+**react-properties-parameter-name-rule**: Use 'properties' not 'props'.
 
 ```tsx
 // ❌ function Button(props) {...}; interface ButtonProps {...}
 // ✅ function Button(properties) {...}; interface ButtonProperties {...}
 ```
 
-**react-no-arrow-functions-as-hook-parameters**: Use regular functions with hooks.
+**react-no-arrow-functions-as-hook-parameters-rule**: Use regular functions with hooks.
 
 ```tsx
 // ❌ React.forwardRef((props, ref) => {...}); element.addEventListener('click', () => {...})
 // ✅ React.forwardRef(function(properties, ref) {...}); element.addEventListener('click', function() {...})
 ```
 
-**react-properties-type-naming**: Type names must end with "Properties".
+**react-properties-type-naming-rule**: Type names must end with "Properties".
 
 ```tsx
 // ❌ interface ButtonProps {...}; function Button(properties: ButtonProps) {...}
 // ✅ interface ButtonProperties {...}; function Button(properties: ButtonProperties) {...}
 ```
 
-**react-function-style**: Use function declarations for components.
+**react-function-style-rule**: Use function declarations for components.
 
 ```tsx
 // ❌ export const Button = function(properties) {...}; export const Card = (properties) => {...}
 // ✅ export function Button(properties) {...}
 ```
 
-**react-export-rules**: Named exports for components, default exports for pages.
+**react-export-rule**: Named exports for components, default exports for pages.
 
 ```tsx
 // ❌ export default function Button(properties) {...}
