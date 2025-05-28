@@ -14,6 +14,55 @@ import EsLintConfigurationPrettier from 'eslint-config-prettier';
 // Structure
 import StructureLintRules from './libraries/structure/lint-rules/StructureLintRules.mjs';
 
+// Nexus
+import NexusLintRules from './libraries/nexus/lint-rules/NexusLintRules.mjs';
+
+// Shared configuration for both JS and TS
+const sharedPlugins = {
+    '@next/next': EsLintPluginNext,
+    react: EsLintPluginReact,
+    'react-hooks': EsLintPluginReactHooks,
+    structure: StructureLintRules,
+    nexus: NexusLintRules,
+};
+
+const sharedRules = {
+    // Next.js presets
+    ...EsLintPluginNext.configs.recommended.rules,
+    ...EsLintPluginNext.configs['core-web-vitals'].rules,
+
+    // React and hooks
+    ...EsLintPluginReact.configs['jsx-runtime'].rules,
+    ...EsLintPluginReactHooks.configs.recommended.rules,
+
+    // Project rules
+    'no-empty': ['error', { allowEmptyCatch: true }],
+    'nexus/no-internal-imports-rule': 'error',
+    'nexus/no-nexus-project-or-base-imports-rule': 'error',
+    'structure/no-structure-project-imports-rule': 'error',
+    'structure/react-destructuring-properties-rule': 'error',
+    'structure/react-no-destructuring-react-rule': 'error',
+    'structure/react-properties-parameter-name-rule': 'error',
+    'structure/react-no-arrow-functions-as-hook-parameters-rule': 'error',
+    'structure/react-properties-type-naming-rule': 'error',
+    'structure/react-function-style-rule': 'error',
+    'structure/react-export-rule': 'error',
+};
+
+const sharedGlobals = {
+    // React global
+    React: 'writable', // Keep "React" writable for rules that still expect the old pragma
+
+    // Browser globals
+    document: 'readonly',
+    window: 'readonly',
+    navigator: 'readonly',
+    setTimeout: 'readonly',
+    clearTimeout: 'readonly',
+    setInterval: 'readonly',
+    clearInterval: 'readonly',
+};
+
 // Export - Default
 export default [
     // Global ignore patterns
@@ -54,8 +103,7 @@ export default [
                 jsx: true, // Enable JSX parsing
             },
             globals: {
-                // React global
-                React: 'writable', // Keep "React" writable for rules that still expect the old pragma
+                ...sharedGlobals,
 
                 // Node.js globals (for all JS files including scripts)
                 __dirname: 'readonly',
@@ -66,15 +114,6 @@ export default [
                 console: 'readonly',
                 global: 'readonly',
                 Buffer: 'readonly',
-
-                // Browser globals
-                document: 'readonly',
-                window: 'readonly',
-                navigator: 'readonly',
-                setTimeout: 'readonly',
-                clearTimeout: 'readonly',
-                setInterval: 'readonly',
-                clearInterval: 'readonly',
             },
         },
 
@@ -84,34 +123,11 @@ export default [
         },
 
         // Plugins
-        plugins: {
-            '@next/next': EsLintPluginNext,
-            react: EsLintPluginReact,
-            'react-hooks': EsLintPluginReactHooks,
-            structure: StructureLintRules,
-        },
+        plugins: sharedPlugins,
 
         // Rules
         rules: {
-            // Next.js presets
-            ...EsLintPluginNext.configs.recommended.rules,
-            ...EsLintPluginNext.configs['core-web-vitals'].rules,
-
-            // React and hooks
-            ...EsLintPluginReact.configs['jsx-runtime'].rules,
-            ...EsLintPluginReactHooks.configs.recommended.rules,
-
-            // Project rules
-            'no-empty': ['error', { allowEmptyCatch: true }],
-            'structure/no-internal-imports-rule': 'error',
-            'structure/no-structure-project-imports-rule': 'error',
-            'structure/react-destructuring-properties-rule': 'error',
-            'structure/react-no-destructuring-react-rule': 'error',
-            'structure/react-properties-parameter-name-rule': 'error',
-            'structure/react-no-arrow-functions-as-hook-parameters-rule': 'error',
-            'structure/react-properties-type-naming-rule': 'error',
-            'structure/react-function-style-rule': 'error',
-            'structure/react-export-rule': 'error',
+            ...sharedRules,
 
             // More permissive rules for Node.js/scripts
             'no-console': 'off', // Allow console logs
@@ -131,43 +147,20 @@ export default [
                 project: true, // Auto-detect nearest tsconfig.json
                 sourceType: 'module',
             },
-            globals: { React: 'writable' }, // Keep "React" writable for rules that still expect the old pragma
+            globals: sharedGlobals,
         },
 
         // Plugins
-        plugins: {
-            '@next/next': EsLintPluginNext,
-            react: EsLintPluginReact,
-            'react-hooks': EsLintPluginReactHooks,
-            structure: StructureLintRules,
-        },
+        plugins: sharedPlugins,
 
         // Rules
         rules: {
-            // Next.js presets
-            ...EsLintPluginNext.configs.recommended.rules,
-            ...EsLintPluginNext.configs['core-web-vitals'].rules,
-
-            // React and hooks
-            ...EsLintPluginReact.configs['jsx-runtime'].rules,
-            ...EsLintPluginReactHooks.configs.recommended.rules,
+            ...sharedRules,
 
             // TypeScript tweaks
             '@typescript-eslint/no-empty-object-type': 'off',
             '@typescript-eslint/no-explicit-any': ['error', { ignoreRestArgs: true }],
             '@typescript-eslint/no-unused-vars': 'error',
-
-            // Project rules
-            'no-empty': ['error', { allowEmptyCatch: true }],
-            'structure/no-internal-imports-rule': 'error',
-            'structure/no-structure-project-imports-rule': 'error',
-            'structure/react-destructuring-properties-rule': 'error',
-            'structure/react-no-destructuring-react-rule': 'error',
-            'structure/react-properties-parameter-name-rule': 'error',
-            'structure/react-no-arrow-functions-as-hook-parameters-rule': 'error',
-            'structure/react-properties-type-naming-rule': 'error',
-            'structure/react-function-style-rule': 'error',
-            'structure/react-export-rule': 'error',
         },
     },
 
