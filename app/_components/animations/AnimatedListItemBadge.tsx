@@ -83,11 +83,12 @@ export function AnimatedListItemBadge(properties: AnimatedListItemBadgePropertie
         }
     }
 
-    // If href is provided, render as Link
-    if(properties.href) {
+    // If href is provided or this is a region badge, render as Link
+    const href = properties.href || (properties.variant === 'region' ? '/grid' : undefined);
+    if(href) {
         return (
             <Link
-                href={properties.href}
+                href={href}
                 target={properties.target || '_blank'}
                 rel={properties.rel || 'noreferrer'}
                 className={finalClasses}

@@ -3,7 +3,6 @@ import React from 'react';
 
 // Dependencies - Main Components
 import { Link } from '@structure/source/common/navigation/Link';
-// import { ConnectedOutlineIcon } from '@project/source/common/ConnectedOutlineIcon';
 
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';

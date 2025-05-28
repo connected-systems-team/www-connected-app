@@ -74,6 +74,7 @@ export function Footer() {
             title: 'Company',
             links: [
                 { title: 'About', url: '/about', prefetch: false },
+                { title: 'The Grid', url: '/grid', prefetch: false },
                 // { title: 'News', url: '/news' },
                 // { title: 'Careers', url: '/careers' },
                 // { title: 'Owners', url: '/owners' },
