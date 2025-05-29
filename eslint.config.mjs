@@ -47,6 +47,7 @@ const sharedRules = {
     'structure/react-function-style-rule': 'error',
     'structure/react-export-rule': 'error',
     'structure/react-import-rule': 'error',
+    'structure/react-file-organization-rule': 'error',
 };
 
 const sharedGlobals = {
