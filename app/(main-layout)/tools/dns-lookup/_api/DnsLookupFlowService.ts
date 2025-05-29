@@ -1,5 +1,3 @@
-'use client'; // This service uses client-only features
-
 // Dependencies - Types
 import {
     FlowService,

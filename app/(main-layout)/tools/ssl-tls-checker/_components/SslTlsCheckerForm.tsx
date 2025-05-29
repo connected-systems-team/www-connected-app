@@ -14,10 +14,10 @@ import { ToolFormInputProperties } from '@project/app/(main-layout)/tools/_form/
 import { mergeClassNames } from '@structure/source/utilities/Style';
 
 // Dependencies - Types
-import { SslTlsFormProperties } from '@project/app/(main-layout)/tools/ssl-tls-checker/_types/SslTlsTypes';
+import { SslTlsCheckerFormProperties } from '@project/app/(main-layout)/tools/ssl-tls-checker/_types/SslTlsCheckerTypes';
 
-// Component - SslTlsForm
-export function SslTlsForm(properties: SslTlsFormProperties) {
+// Component - SslTlsCheckerForm
+export function SslTlsCheckerForm(properties: SslTlsCheckerFormProperties) {
     // Function to check certificate
     function checkCertificate() {
         const host = properties.hostReference.current?.getValue() || '';

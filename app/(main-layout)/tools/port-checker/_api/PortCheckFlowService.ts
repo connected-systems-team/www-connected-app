@@ -1,5 +1,3 @@
-'use client'; // This service uses client-only features
-
 // Dependencies - Types
 import {
     FlowService,
@@ -196,8 +194,10 @@ export class PortCheckFlowService extends FlowService<PortCheckFlowInputInterfac
 
         // If it failed IPv4 validation because it looks like an IP pattern but has invalid values, return specific error
         // Only check for format errors if it actually looks like an IP (contains only numbers and dots)
-        if(input.host.match(/^[\d.]+$/) && 
-           (ipv4Validation.errorCode === 'InvalidIpv4Octet' || ipv4Validation.errorCode === 'InvalidIpv4Format')) {
+        if(
+            input.host.match(/^[\d.]+$/) &&
+            (ipv4Validation.errorCode === 'InvalidIpv4Octet' || ipv4Validation.errorCode === 'InvalidIpv4Format')
+        ) {
             return {
                 isValid: false,
                 error: {

@@ -9,22 +9,22 @@ import { useWebSocketViaSharedWorker } from '@structure/source/api/web-sockets/p
 // Dependencies - Types
 import { FormInputReferenceInterface } from '@structure/source/common/forms/FormInput';
 import {
-    SslTlsProperties,
-    SslTlsResultItemInterface,
-} from '@project/app/(main-layout)/tools/ssl-tls-checker/_types/SslTlsTypes';
+    SslTlsCheckerProperties,
+    SslTlsCheckerResultItemInterface,
+} from '@project/app/(main-layout)/tools/ssl-tls-checker/_types/SslTlsCheckerTypes';
 
 // Dependencies - Components
-import { SslTlsForm } from '@project/app/(main-layout)/tools/ssl-tls-checker/_components/SslTlsForm';
-import { SslTlsResultsAnimatedList } from '@project/app/(main-layout)/tools/ssl-tls-checker/_components/SslTlsResultsAnimatedList';
+import { SslTlsCheckerForm } from '@project/app/(main-layout)/tools/ssl-tls-checker/_components/SslTlsCheckerForm';
+import { SslTlsCheckerResultsAnimatedList } from '@project/app/(main-layout)/tools/ssl-tls-checker/_components/SslTlsCheckerResultsAnimatedList';
 
 // Dependencies - Services
-import { SslTlsAdapter } from '@project/app/(main-layout)/tools/ssl-tls-checker/_api/SslTlsAdapter';
+import { SslTlsCheckerAdapter } from '@project/app/(main-layout)/tools/ssl-tls-checker/_api/SslTlsCheckerAdapter';
 
-// Component - SslTls
-export function SslTls(properties: SslTlsProperties) {
+// Component - SslTlsChecker
+export function SslTlsChecker(properties: SslTlsCheckerProperties) {
     // State
     const [isProcessing, setIsProcessing] = React.useState<boolean>(false);
-    const [resultItems, setResultItems] = React.useState<SslTlsResultItemInterface[]>([]);
+    const [resultItems, setResultItems] = React.useState<SslTlsCheckerResultItemInterface[]>([]);
 
     // Hooks
     const webSocketViaSharedWorker = useWebSocketViaSharedWorker();
@@ -33,10 +33,10 @@ export function SslTls(properties: SslTlsProperties) {
     const hostReference = React.useRef<FormInputReferenceInterface>(null);
     const portReference = React.useRef<FormInputReferenceInterface>(null);
     const regionReference = React.useRef<FormInputReferenceInterface>(null);
-    const adapterReference = React.useRef<SslTlsAdapter | null>(null);
+    const adapterReference = React.useRef<SslTlsCheckerAdapter | null>(null);
 
     // Function to handle result items from the adapter
-    function handleResultItem(resultItem: SslTlsResultItemInterface): void {
+    function handleResultItem(resultItem: SslTlsCheckerResultItemInterface): void {
         setResultItems(function (previousResultItems) {
             return [...previousResultItems, resultItem];
         });
@@ -54,7 +54,7 @@ export function SslTls(properties: SslTlsProperties) {
         setIsProcessing(true);
 
         // Perform the SSL/TLS check using the adapter
-        await adapterReference.current?.performSslTlsCheck(host, port, region);
+        await adapterReference.current?.checkSslTlsCertificate(host, port, region);
     }
 
     // Effect to initialize the adapter
@@ -62,7 +62,7 @@ export function SslTls(properties: SslTlsProperties) {
         function () {
             // Create the adapter if it doesn't exist
             if(!adapterReference.current && webSocketViaSharedWorker) {
-                adapterReference.current = new SslTlsAdapter(webSocketViaSharedWorker, handleResultItem);
+                adapterReference.current = new SslTlsCheckerAdapter(webSocketViaSharedWorker, handleResultItem);
             }
         },
         [webSocketViaSharedWorker],
@@ -71,7 +71,7 @@ export function SslTls(properties: SslTlsProperties) {
     // Render the component
     return (
         <div className="mt-6 flex flex-col gap-6">
-            <SslTlsForm
+            <SslTlsCheckerForm
                 hostReference={hostReference}
                 portReference={portReference}
                 regionReference={regionReference}
@@ -79,7 +79,7 @@ export function SslTls(properties: SslTlsProperties) {
                 isProcessing={isProcessing}
                 performSslTlsCheck={performSslTlsCheck}
             />
-            <SslTlsResultsAnimatedList resultItems={resultItems} />
+            <SslTlsCheckerResultsAnimatedList resultItems={resultItems} />
         </div>
     );
 }

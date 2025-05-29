@@ -7,10 +7,10 @@ import React from 'react';
 import { FingerprintSimple } from '@phosphor-icons/react';
 
 // Dependencies - Components
-import { SslTls } from '@project/app/(main-layout)/tools/ssl-tls-checker/_components/SslTls';
+import { SslTlsChecker } from '@project/app/(main-layout)/tools/ssl-tls-checker/_components/SslTlsChecker';
 
 // Dependencies - Types
-import { SslTlsCheckerPageProperties } from '@project/app/(main-layout)/tools/ssl-tls-checker/_types/SslTlsTypes';
+import { SslTlsCheckerPageProperties } from '@project/app/(main-layout)/tools/ssl-tls-checker/_types/SslTlsCheckerTypes';
 
 // Component - SslTlsCheckerPage
 export function SslTlsCheckerPage(properties: SslTlsCheckerPageProperties) {
@@ -24,7 +24,7 @@ export function SslTlsCheckerPage(properties: SslTlsCheckerPageProperties) {
             <p className="mt-4 text-foreground-secondary">
                 Inspect the validity and security of a domain&apos;s SSL certificate.
             </p>
-            <SslTls countryCode={properties.countryCode} />
+            <SslTlsChecker countryCode={properties.countryCode} />
             <div className="mt-6">
                 <h3 className="text-lg font-semibold">About SSL/TLS Certificate Checking</h3>
                 <p className="mt-2 text-foreground-secondary">

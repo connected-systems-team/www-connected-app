@@ -9,19 +9,19 @@ import { ToolResultAnimatedList } from '@project/app/(main-layout)/tools/_compon
 
 // Dependencies - Types
 import {
-    SslTlsResultItemInterface,
-    SslTlsResultsAnimatedListProperties,
-} from '@project/app/(main-layout)/tools/ssl-tls-checker/_types/SslTlsTypes';
+    SslTlsCheckerResultItemInterface,
+    SslTlsCheckerResultsAnimatedListProperties,
+} from '@project/app/(main-layout)/tools/ssl-tls-checker/_types/SslTlsCheckerTypes';
 
-// Component - SslTlsResultsAnimatedList
-export function SslTlsResultsAnimatedList(properties: SslTlsResultsAnimatedListProperties) {
+// Component - SslTlsCheckerResultsAnimatedList
+export function SslTlsCheckerResultsAnimatedList(properties: SslTlsCheckerResultsAnimatedListProperties) {
     // Function to determine if a result item represents a negative state
-    function isNegativeState(item: SslTlsResultItemInterface): boolean {
-        return !item.isSuccess || !!item.errorCode || (item.validation ? !item.validation.isValid : false);
+    function isNegativeState(item: SslTlsCheckerResultItemInterface): boolean {
+        return !item.isSuccess || !!item.errorCode;
     }
 
     // Function to render final actions for completed SSL/TLS checks
-    function renderFinalActions(item: SslTlsResultItemInterface, displayText: string): React.ReactNode {
+    function renderFinalActions(item: SslTlsCheckerResultItemInterface, displayText: string): React.ReactNode {
         if(!item.isFinal || !displayText) {
             return null;
         }
@@ -40,34 +40,18 @@ export function SslTlsResultsAnimatedList(properties: SslTlsResultsAnimatedListP
             />,
         );
 
-        // Copy fingerprint button (if available)
-        if(item.certificate?.fingerprint?.sha256) {
+        // Copy subject alternative names (if available)
+        if(item.subjectAltNames?.length) {
             actions.push(
                 <CopyButton
-                    key="copy-fingerprint"
-                    value={item.certificate.fingerprint.sha256}
+                    key="copy-alt-names"
+                    value={item.subjectAltNames.join(', ')}
                     notice={{
                         title: 'Copied to Clipboard',
-                        content: 'Fingerprint copied',
+                        content: 'Alternative names copied',
                     }}
                 >
-                    Copy Fingerprint
-                </CopyButton>,
-            );
-        }
-
-        // Copy serial number button (if available)
-        if(item.certificate?.serialNumber) {
-            actions.push(
-                <CopyButton
-                    key="copy-serial"
-                    value={item.certificate.serialNumber}
-                    notice={{
-                        title: 'Copied to Clipboard',
-                        content: 'Serial number copied',
-                    }}
-                >
-                    Copy Serial
+                    Copy Alt Names
                 </CopyButton>,
             );
         }
@@ -77,7 +61,7 @@ export function SslTlsResultsAnimatedList(properties: SslTlsResultsAnimatedListP
 
     // Render the component
     return (
-        <ToolResultAnimatedList<SslTlsResultItemInterface>
+        <ToolResultAnimatedList<SslTlsCheckerResultItemInterface>
             resultItems={properties.resultItems}
             renderFinalActions={renderFinalActions}
             isNegativeState={isNegativeState}
