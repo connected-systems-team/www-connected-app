@@ -41,6 +41,10 @@ certificates
 *.tsbuildinfo
 next-env.d.ts
 
+# Caching
+.cache/
+.eslintcache
+
 # Editors & IDEs
 .idea/
 *.sublime-workspace
