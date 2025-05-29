@@ -2,7 +2,7 @@
 
 // Dependencies - React and Next.js
 import React from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useUrlSearchParameters } from '@structure/source/router/Navigation';
 
 // Dependencies - Main Components
 import { Pagination } from '@structure/source/common/navigation/pagination/Pagination';
@@ -15,11 +15,11 @@ import { addCommas } from '@structure/source/utilities/Number';
 // Component - PortsPage
 export function PortsPage() {
     // Hooks
-    const searchParameters = useSearchParams();
+    const urlSearchParameters = useUrlSearchParameters();
 
     // Get current pagination values from URL
-    const page = parseInt(searchParameters.get('page') || '1');
-    const itemsPerPage = parseInt(searchParameters.get('itemsPerPage') || '10');
+    const page = parseInt(urlSearchParameters.get('page') || '1');
+    const itemsPerPage = parseInt(urlSearchParameters.get('itemsPerPage') || '10');
 
     // Constants
     const totalPorts = 65535; // Valid port range is 1-65535

@@ -42,11 +42,11 @@ const sharedRules = {
     'structure/no-structure-project-imports-rule': 'error',
     'structure/react-destructuring-properties-rule': 'error',
     'structure/react-no-destructuring-react-rule': 'error',
-    'structure/react-properties-parameter-name-rule': 'error',
     'structure/react-no-arrow-functions-as-hook-parameters-rule': 'error',
-    'structure/react-properties-type-naming-rule': 'error',
+    'structure/react-naming-conventions-rule': 'error',
     'structure/react-function-style-rule': 'error',
     'structure/react-export-rule': 'error',
+    'structure/react-import-rule': 'error',
 };
 
 const sharedGlobals = {

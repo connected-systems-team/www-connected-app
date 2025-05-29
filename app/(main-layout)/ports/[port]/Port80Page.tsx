@@ -11,7 +11,7 @@ import { Dialog } from '@structure/source/common/dialogs/Dialog';
 import InformationCircledIcon from '@structure/assets/icons/status/InformationCircledIcon.svg';
 
 // Dependencies - Utilities
-import { useUrlParameters } from '@structure/source/utilities/next/NextNavigation';
+import { useUrlParameters } from '@structure/source/router/Navigation';
 
 // Component - PortPage
 export function PortPage() {

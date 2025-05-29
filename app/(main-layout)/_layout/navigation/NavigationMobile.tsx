@@ -2,7 +2,7 @@
 
 // Dependencies - React and Next.js
 import React from 'react';
-import { usePathname } from 'next/navigation';
+import { useUrlPath } from '@structure/source/router/Navigation';
 
 // Dependencies - Main Components
 import { Link } from '@structure/source/common/navigation/Link';
@@ -33,12 +33,12 @@ export function NavigationMobile() {
         };
     }, []);
 
-    const pathname = usePathname();
+    const urlPath = useUrlPath();
     React.useEffect(
         function () {
             setOpen(false);
         },
-        [pathname],
+        [urlPath],
     );
 
     // Render the component

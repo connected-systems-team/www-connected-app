@@ -4,7 +4,7 @@
 import React from 'react';
 
 // Dependencies - Utilities
-import { useUrlParameters } from '@structure/source/utilities/next/NextNavigation';
+import { useUrlParameters } from '@structure/source/router/Navigation';
 
 // Component - DomainPage
 export function DomainPage() {

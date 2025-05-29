@@ -4,15 +4,34 @@
 
 **no-internal-imports-rule**: Only files within a parent folder can import from its `internal/` subfolder. Prevents: `import { Button } from '@project/components/internal/Button'` or `'../../components/buttons/internal/Button'`
 
-**no-structure-project-imports-rule**: Structure library can't use `@project` imports except: `ProjectSettings`, `source/theme/styles/theme.css`, `tailwind.config`
+**no-structure-project-imports-rule**: Structure library can't use `@project` imports except: `@project/ProjectSettings`, `@project/app/_theme/styles/theme.css`, `@project/tailwind.config`
+
+**react-import-rule**: Use `@structure/source/router/Navigation` instead of `next/navigation` for framework-independent navigation.
+
+```tsx
+// ❌ import { useRouter } from 'next/navigation';
+// ✅ import { useRouter } from '@structure/source/router/Navigation';
+```
 
 ## React Rules
 
-**react-destructuring-properties-rule**: No destructuring in component parameters.
+**react-destructuring-properties-rule**: Destructuring in component parameters is only allowed when spreading remaining properties to another element. Spread variables must end with 'Properties' and be semantically named.
 
 ```tsx
-// ❌ function Button({ color, text }) {...}
-// ✅ function Button(properties) { return <button style={{color: properties.color}}>... }
+// ❌ No destructuring without spreading
+function Button({ color, text }) {...}
+
+// ❌ Generic spread names
+function Button({ color, ...props }) {...}
+function Button({ color, ...rest }) {...}
+
+// ✅ No destructuring when not needed
+function Button(properties) { return <button style={{color: properties.color}}>... }
+
+// ✅ Destructuring with semantic spread names ending in 'Properties'
+function Button({ className, onClick, children, ...buttonProperties }) {
+    return <button className={className} onClick={onClick} {...buttonProperties}>{children}</button>
+}
 ```
 
 **react-no-destructuring-react-rule**: No destructuring React imports.
@@ -22,25 +41,22 @@
 // ✅ import React from 'react'; const [state, setState] = React.useState();
 ```
 
-**react-properties-parameter-name-rule**: Use 'properties' not 'props'.
+**react-naming-conventions-rule**: Ban "prop"/"props"/"param"/"params" or ending in "Prop"/"Props"/"Param"/"Params". Exception: `params`/`searchParams` are allowed in Next.js page files and files with Next.js APIs.
 
 ```tsx
 // ❌ function Button(props) {...}; interface ButtonProps {...}
+// ❌ const param = getValue(); const userParams = getConfig();
+// ❌ const prop = 'value'; const params = [1, 2, 3];
 // ✅ function Button(properties) {...}; interface ButtonProperties {...}
+// ✅ const parameter = getValue(); const userParameters = getConfiguration();
+// ✅ const property = 'value'; const parameters = [1, 2, 3];
 ```
 
-**react-no-arrow-functions-as-hook-parameters-rule**: Use regular functions with hooks.
+**react-no-arrow-functions-as-hook-parameters-rule**: Use regular functions with React hooks and event listeners.
 
 ```tsx
 // ❌ React.forwardRef((props, ref) => {...}); element.addEventListener('click', () => {...})
 // ✅ React.forwardRef(function(properties, ref) {...}); element.addEventListener('click', function() {...})
-```
-
-**react-properties-type-naming-rule**: Type names must end with "Properties".
-
-```tsx
-// ❌ interface ButtonProps {...}; function Button(properties: ButtonProps) {...}
-// ✅ interface ButtonProperties {...}; function Button(properties: ButtonProperties) {...}
 ```
 
 **react-function-style-rule**: Use function declarations for components.
@@ -97,10 +113,10 @@
     });
     ```
 
--   **Properties**: Always use a properties object for React components, never destructure properties. Always access properties directly using `properties.propertyName` syntax. For default values, use inline conditionals rather than destructuring with defaults:
+-   **Properties**: Use direct property access (`properties.propertyName`) for React components. Only destructure when you need to spread remaining properties to another element, using semantic naming that ends with 'Properties':
 
     ```typescript
-    // Use this:
+    // Use this for simple components (no spreading needed):
     export function MyComponent(properties: MyComponentProperties) {
         // Direct property access with inline defaults
         return (
@@ -117,43 +133,29 @@
         );
     }
 
-    // Don't use this with destructuring:
-    export function MyComponent(properties: MyComponentProperties) {
-        // No destructuring - AVOID THIS
-        const {
-            className = '',
-            title,
-            onButtonClick,
-            isDisabled = false,
-            buttonText = 'Default Text',
-            buttonStyle = { color: 'blue' }
-        } = properties;
-
+    // Use this when spreading remaining properties:
+    export function MyButton({ className, onClick, children, ...buttonProperties }: MyButtonProperties) {
         return (
-            <div className={className}>
-                {title}
-                <button onClick={onButtonClick} disabled={isDisabled} style={buttonStyle}>
-                    {buttonText}
-                </button>
-            </div>
+            <button
+                className={className}
+                onClick={onClick}
+                {...buttonProperties}
+            >
+                {children}
+            </button>
         );
     }
 
-    // Also avoid creating local variables for property values:
-    export function MyComponent(properties: MyComponentInterface) {
-        // No local variables for properties - AVOID THIS
-        const className = properties.className || '';
-        const isDisabled = properties.isDisabled !== undefined ? properties.isDisabled : false;
-        const buttonText = properties.buttonText || 'Default Text';
+    // Don't use destructuring without spreading:
+    export function MyComponent({ title, className, onClick }: MyComponentProperties) {
+        // AVOID THIS - no spreading, so use properties.title instead
+        return <div className={className} onClick={onClick}>{title}</div>;
+    }
 
-        return (
-            <div className={className}>
-                {properties.title}
-                <button onClick={properties.onButtonClick} disabled={isDisabled}>
-                    {buttonText}
-                </button>
-            </div>
-        );
+    // Don't use generic spread names:
+    export function MyButton({ className, ...props }: MyButtonProperties) {
+        // AVOID THIS - use 'buttonProperties' instead of 'props'
+        return <button className={className} {...props} />;
     }
     ```
 
@@ -211,26 +213,24 @@
 -   Group imports by category with comments:
 
     ```
-    // Dependencies - React
+    // Dependencies - React and Next.js
     import React from 'react';
-
-    // Dependencies - Next.js
     import { useRouter } from 'next/router';
 
     // Dependencies - Main Components
     import { Button } from '@structure/source/common/buttons/Button';
 
-    // Dependencies - Utilities
-    import { mergeClassNames } from '@structure/source/utilities/Style';
+    // Dependencies - API
+    import { useQuery, useMutation } from '@apollo/client';
 
     // Dependencies - Assets
     import UserIcon from '@structure/assets/icons/people/UserIcon.svg';
 
-    // Dependencies - API
-    import { useQuery, useMutation } from '@apollo/client';
+    // Dependencies - Utilities
+    import { mergeClassNames } from '@structure/source/utilities/Style';
     ```
 
-### CSS & Styling
+### CSS and Styling
 
 -   Use Tailwind CSS utility classes for styling
 -   Keep the order of Tailwind classes consistent and grouped by type
@@ -266,7 +266,7 @@ Avoid multi-line comments for each property in interfaces. Instead, use descript
     -   Module-specific components: `/libraries/structure/source/modules/[module]/`
     -   Pages and routes: `/app/`
 
-## Documentation & Comments
+## Documentation and Comments
 
 -   Comments should be preserved and updated when modifying code
 -   Document your code with frequent comments
@@ -289,16 +289,19 @@ Avoid multi-line comments for each property in interfaces. Instead, use descript
 
 ## Common Commands
 
-### Building & Development
+### Building and Development
 
 ```bash
 # Start development server
 npm run dev
 
+# Check linting only
+npm run lint
+
 # Check linting and types (won't break dev server)
 npm run compile
 
-# Full build with Next.js compilation (use when ready to deploy)
+# Full build with Next.js compilation (use when ready to deploy, will break active dev server)
 npm run build
 ```
 
