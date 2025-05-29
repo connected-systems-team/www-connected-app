@@ -4,6 +4,7 @@ import React from 'react';
 // Dependencies - Main Components
 import { FormInputText } from '@structure/source/common/forms/FormInputText';
 import { FormInputReferenceInterface } from '@structure/source/common/forms/FormInput';
+import { ToolFormInputProperties } from '@project/app/(main-layout)/tools/_form/ToolFormInputProperties';
 
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';
@@ -30,13 +31,14 @@ export function SubnetCalculatorForm(properties: SubnetCalculatorFormProperties)
             {/* IP Address */}
             <FormInputText
                 ref={properties.ipAddressReference as React.Ref<FormInputReferenceInterface>}
-                componentClassName="dark:bg-background-tertiary"
+                {...ToolFormInputProperties}
+                labelTipIconProperties={{
+                    ...ToolFormInputProperties.labelTipIconProperties,
+                    contentClassName: 'w-60',
+                }}
                 id="ipAddress"
                 label="IP Address"
                 labelTip="Enter an IPv4 address to calculate subnet information for. Results will update automatically as you type."
-                labelTipIconProperties={{
-                    contentClassName: 'w-60',
-                }}
                 defaultValue={'192.168.1.100'}
                 selectOnFocus={true}
                 onChange={handleInputChange}
@@ -47,13 +49,14 @@ export function SubnetCalculatorForm(properties: SubnetCalculatorFormProperties)
                 <FormInputText
                     ref={properties.subnetMaskReference as React.Ref<FormInputReferenceInterface>}
                     className="w-full"
-                    componentClassName="dark:bg-background-tertiary"
+                    {...ToolFormInputProperties}
+                    labelTipIconProperties={{
+                        ...ToolFormInputProperties.labelTipIconProperties,
+                        contentClassName: 'w-64',
+                    }}
                     id="subnetMask"
                     label="Subnet Mask"
                     labelTip="Enter a subnet mask in dotted decimal notation (e.g., 255.255.255.0) or CIDR notation (e.g., /24). Results will update automatically as you type."
-                    labelTipIconProperties={{
-                        contentClassName: 'w-64',
-                    }}
                     defaultValue={'255.255.255.0'}
                     selectOnFocus={true}
                     onChange={handleInputChange}

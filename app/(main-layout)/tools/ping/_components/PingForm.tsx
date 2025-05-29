@@ -7,6 +7,7 @@ import { FormInputReferenceInterface } from '@structure/source/common/forms/Form
 import { FormInputText } from '@structure/source/common/forms/FormInputText';
 import { FormInputSelect } from '@structure/source/common/forms/FormInputSelect';
 import { RegionFormInputSelect } from '@project/app/(main-layout)/tools/_form/RegionFormInputSelect';
+import { ToolFormInputProperties } from '@project/app/(main-layout)/tools/_form/ToolFormInputProperties';
 
 // Dependencies - Assets
 import { CellTower } from '@phosphor-icons/react';
@@ -68,13 +69,10 @@ export function PingForm(properties: PingFormProperties) {
             {/* Host */}
             <FormInputText
                 ref={properties.hostFormInputReference as React.Ref<FormInputReferenceInterface>}
-                componentClassName="dark:bg-background-tertiary"
+                {...ToolFormInputProperties}
                 id="host"
                 label="Host"
                 labelTip="Enter a hostname or IP address to ping."
-                labelTipIconProperties={{
-                    contentClassName: 'w-48',
-                }}
                 defaultValue={'google.com'}
                 selectOnFocus={true}
                 onKeyDown={function (event) {
@@ -93,9 +91,7 @@ export function PingForm(properties: PingFormProperties) {
                     id="count"
                     label="Packet Count"
                     labelTip="Number of ping packets to send."
-                    labelTipIconProperties={{
-                        contentClassName: 'w-48',
-                    }}
+                    labelTipIconProperties={ToolFormInputProperties.labelTipIconProperties}
                     items={pingCountOptions}
                     defaultValue="1"
                 />
@@ -108,9 +104,7 @@ export function PingForm(properties: PingFormProperties) {
                     id="timeout"
                     label="Timeout"
                     labelTip="Maximum time to wait for each ping response."
-                    labelTipIconProperties={{
-                        contentClassName: 'w-48',
-                    }}
+                    labelTipIconProperties={ToolFormInputProperties.labelTipIconProperties}
                     items={pingTimeoutOptions}
                     defaultValue="5000"
                 />
@@ -119,7 +113,6 @@ export function PingForm(properties: PingFormProperties) {
                 <RegionFormInputSelect
                     formInputReference={properties.regionFormInputReference}
                     countryCode={properties.countryCode}
-                    labelTip="The region of the server used to perform the ping."
                 />
             </div>
 

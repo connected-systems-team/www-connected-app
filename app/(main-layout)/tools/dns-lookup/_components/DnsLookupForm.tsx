@@ -7,6 +7,7 @@ import { FormInputReferenceInterface } from '@structure/source/common/forms/Form
 import { FormInputText } from '@structure/source/common/forms/FormInputText';
 import { FormInputMultipleSelect } from '@structure/source/common/forms/FormInputMultipleSelect';
 import { RegionFormInputSelect } from '@project/app/(main-layout)/tools/_form/RegionFormInputSelect';
+import { ToolFormInputProperties } from '@project/app/(main-layout)/tools/_form/ToolFormInputProperties';
 
 // Dependencies - API
 import { DnsRecordType } from '@project/app/_api/graphql/generated/graphql';
@@ -60,13 +61,10 @@ export function DnsLookupForm(properties: DnsLookupFormProperties) {
             {/* Domain */}
             <FormInputText
                 ref={properties.domainFormInputReference as React.Ref<FormInputReferenceInterface>}
-                componentClassName="dark:bg-background-tertiary"
+                {...ToolFormInputProperties}
                 id="domain"
                 label="Domain Name"
                 labelTip="Enter a domain name to look up DNS records for."
-                labelTipIconProperties={{
-                    contentClassName: 'w-48',
-                }}
                 defaultValue={'google.com'}
                 selectOnFocus={true}
                 onKeyDown={function (event) {
@@ -85,9 +83,7 @@ export function DnsLookupForm(properties: DnsLookupFormProperties) {
                     id="recordTypes"
                     label="Record Types"
                     labelTip="Select which DNS record types to look up."
-                    labelTipIconProperties={{
-                        contentClassName: 'w-48',
-                    }}
+                    labelTipIconProperties={ToolFormInputProperties.labelTipIconProperties}
                     items={DnsRecordTypeOptions.map(function (option) {
                         return {
                             value: option.value,

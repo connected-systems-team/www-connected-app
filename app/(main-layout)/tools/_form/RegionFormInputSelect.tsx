@@ -4,6 +4,8 @@ import React from 'react';
 // Dependencies - Main Components
 import { FormInputReferenceInterface } from '@structure/source/common/forms/FormInput';
 import { FormInputSelect } from '@structure/source/common/forms/FormInputSelect';
+import { TipIconProperties } from '@structure/source/common/popovers/TipIcon';
+import { ToolFormInputProperties } from '@project/app/(main-layout)/tools/_form/ToolFormInputProperties';
 
 // Dependencies - API
 import { useQuery } from '@apollo/client';
@@ -23,9 +25,7 @@ export interface RegionFormInputSelectProperties {
     id?: string;
     label?: string;
     labelTip?: string;
-    labelTipIconProperties?: {
-        contentClassName?: string;
-    };
+    labelTipIconProperties?: Omit<TipIconProperties, 'content'>;
     placeholder?: string;
     countryCode?: string;
     formInputReference: React.RefObject<FormInputReferenceInterface>;
@@ -75,18 +75,11 @@ export function RegionFormInputSelect(properties: RegionFormInputSelectPropertie
                 'loading-regions'
             }
             className={properties.className || 'w-full'}
-            componentClassName={
-                properties.componentClassName ||
-                'dark:bg-background-tertiary dark:border-dark-4 dark:hover:bg-background-secondary'
-            }
+            componentClassName={properties.componentClassName || ToolFormInputProperties.componentClassName}
             id={properties.id || 'region'}
             label={properties.label || 'Region'}
             labelTip={properties.labelTip || 'The region of the server used for the operation.'}
-            labelTipIconProperties={
-                properties.labelTipIconProperties || {
-                    contentClassName: 'w-48',
-                }
-            }
+            labelTipIconProperties={properties.labelTipIconProperties || ToolFormInputProperties.labelTipIconProperties}
             items={
                 gridRegionLevelsQueryState.data?.gridRegionLevels.map(function (gridRegionLevel) {
                     const country = getCountryByName(gridRegionLevel.country || '');

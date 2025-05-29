@@ -9,13 +9,11 @@ import { FormInputText } from '@structure/source/common/forms/FormInputText';
 import { CopyButton } from '@structure/source/common/buttons/CopyButton';
 import { TipIcon } from '@structure/source/common/popovers/TipIcon';
 import { RegionFormInputSelect } from '@project/app/(main-layout)/tools/_form/RegionFormInputSelect';
+import { ToolFormInputProperties } from '@project/app/(main-layout)/tools/_form/ToolFormInputProperties';
 
 // Dependencies - Assets
 import ArrowUpIcon from '@structure/assets/icons/interface/ArrowUpIcon.svg';
-import {
-    Broadcast,
-    //Info,
-} from '@phosphor-icons/react';
+import { Broadcast } from '@phosphor-icons/react';
 
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';
@@ -48,13 +46,10 @@ export function PortCheckForm(properties: PortCheckFormProperties) {
             {/* Remote Address */}
             <FormInputText
                 ref={properties.remoteAddressFormInputReference as React.Ref<FormInputReferenceInterface>}
-                componentClassName="dark:bg-background-tertiary"
+                {...ToolFormInputProperties}
                 id="remoteAddress"
                 label="IP Address or Domain"
                 labelTip="This can either be a domain name or IP address."
-                labelTipIconProperties={{
-                    contentClassName: 'w-48',
-                }}
                 defaultValue={'google.com'}
                 description={
                     <div className="flex items-center">
@@ -110,13 +105,10 @@ export function PortCheckForm(properties: PortCheckFormProperties) {
                 <FormInputText
                     ref={properties.remotePortFormInputReference as React.Ref<FormInputReferenceInterface>}
                     className="w-full"
-                    componentClassName="dark:bg-background-tertiary"
+                    {...ToolFormInputProperties}
                     id="remotePort"
                     label="Port"
                     labelTip="This can be a number between 1 and 65,535."
-                    labelTipIconProperties={{
-                        contentClassName: 'w-48',
-                    }}
                     defaultValue={'80'}
                     selectOnFocus={true}
                     onKeyDown={function (event) {
@@ -130,7 +122,6 @@ export function PortCheckForm(properties: PortCheckFormProperties) {
                 <RegionFormInputSelect
                     formInputReference={properties.regionFormInputReference}
                     countryCode={properties.countryCode}
-                    labelTip="The region of the server used to check the port."
                 />
             </div>
 

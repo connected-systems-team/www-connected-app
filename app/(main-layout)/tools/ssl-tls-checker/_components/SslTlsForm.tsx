@@ -8,6 +8,7 @@ import { FormInputReferenceInterface } from '@structure/source/common/forms/Form
 
 // Dependencies - Form Components
 import { RegionFormInputSelect } from '@project/app/(main-layout)/tools/_form/RegionFormInputSelect';
+import { ToolFormInputProperties } from '@project/app/(main-layout)/tools/_form/ToolFormInputProperties';
 
 // Dependencies - Utilities
 import { mergeClassNames } from '@structure/source/utilities/Style';
@@ -36,13 +37,10 @@ export function SslTlsForm(properties: SslTlsFormProperties) {
             {/* Host */}
             <FormInputText
                 ref={properties.hostReference as React.Ref<FormInputReferenceInterface>}
-                componentClassName="dark:bg-background-tertiary"
+                {...ToolFormInputProperties}
                 id="host"
                 label="Host"
                 labelTip="Enter a domain name or IP address to check its SSL/TLS certificate."
-                labelTipIconProperties={{
-                    contentClassName: 'w-48',
-                }}
                 defaultValue={'github.com'}
                 selectOnFocus={true}
                 onKeyDown={function (event) {
@@ -57,13 +55,10 @@ export function SslTlsForm(properties: SslTlsFormProperties) {
                 <FormInputText
                     ref={properties.portReference as React.Ref<FormInputReferenceInterface>}
                     className="w-full"
-                    componentClassName="dark:bg-background-tertiary"
+                    {...ToolFormInputProperties}
                     id="port"
                     label="Port"
                     labelTip="The port number to check the SSL/TLS certificate on (typically 443 for HTTPS)."
-                    labelTipIconProperties={{
-                        contentClassName: 'w-48',
-                    }}
                     defaultValue={'443'}
                     selectOnFocus={true}
                     onKeyDown={function (event) {
@@ -77,7 +72,6 @@ export function SslTlsForm(properties: SslTlsFormProperties) {
                 <RegionFormInputSelect
                     formInputReference={properties.regionReference}
                     countryCode={properties.countryCode}
-                    labelTip="The region of the server used to check the SSL/TLS certificate."
                 />
             </div>
 
