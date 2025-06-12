@@ -1,3 +1,9 @@
+// Dependencies
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
+
+// Initialize OpenNext for Cloudflare Workers in development mode
+initOpenNextCloudflareForDev();
+
 // Next Configuration
 /** @type {import('next').NextConfig} */
 export const NextConfiguration = {

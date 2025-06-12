@@ -15,6 +15,7 @@
 
 # Testing & Coverage
 /coverage
+*storybook.log
 
 # Logs
 npm-debug.log*

@@ -1,5 +1,5 @@
-// Flat-config ESLint file for ESLint 9 + TypeScript-ESLint v8
-// Works with Next.js 14 and React 18.
+// Flat-config ESLint file for ESLint 9 and TypeScript-ESLint 8
+// Works with Next.js 14 and React 18
 import EsLint from '@eslint/js'; // Core JS rules
 import TsEsLint from 'typescript-eslint'; // TS parser + flat presets
 
