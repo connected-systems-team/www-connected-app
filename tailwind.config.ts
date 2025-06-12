@@ -1,6 +1,5 @@
-// Dependencies - Project
-// Have to use relative paths for tailwind.config.ts
-// import ProjectSettings from './ProjectSettings';
+// Dependencies
+// Have to use relative paths here
 import { TailwindConfiguration as StructureTailwindConfiguration } from './libraries/structure/source/theme/TailwindConfiguration';
 
 // Dependencies - Theme
