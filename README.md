@@ -1,4 +1,4 @@
-# Connected Website
+# www.connected.app
 
 This is a [Next.js](https://nextjs.org/) project which uses [OpenNext for Cloudflare](https://github.com/opennextjs/opennextjs-cloudflare) for hosting. This project uses Tailwind CSS for styling.
 
@@ -12,6 +12,8 @@ Before you begin, ensure you have the following installed on your local machine:
 ## Setting Up Your Development Environment
 
 1. **Clone the Repository to Your Local Machine Using `git`**
+
+    First, clone this repository to your local machine using git.
 
     ```bash
     git clone git@github.com:connected-systems-team/www-connected-app.git
@@ -27,6 +29,14 @@ Before you begin, ensure you have the following installed on your local machine:
     cd ../../
     ```
 
+    Also, initialize the Nexus submodule:
+
+    ```bash
+    cd libraries/nexus
+    git checkout main
+    cd ../../
+    ```
+
 2. **Install Dependencies with `NPM`**
 
     Navigate into the project’s directory and install the necessary dependencies.
@@ -37,7 +47,7 @@ Before you begin, ensure you have the following installed on your local machine:
 
 3. **Update Your System hosts File**
 
-    In order to access your `HTTPS` web server hosted on `localhost.connected.app`, you will need to update your system hosts file:
+    Because we are using `HTTP Only` cookies, we need to use the `HTTPS` protocol when developing. This allows the cookies from `*.connected.app` to be sent in the headers of requests from the web browser. You'll need to update your development machine's hosts file and create a record for `localhost.connected.app`.
 
     ```bash
     sudo nano /etc/hosts
@@ -49,7 +59,15 @@ Before you begin, ensure you have the following installed on your local machine:
 
     Now `localhost.connected.app` will point to your local machine.
 
-4. **Start the Development Server**
+4. **Add a `.dev.vars` file to the root directory of your Next.js app:**
+
+    ```.dev.vars
+    NEXTJS_ENV=development
+    ```
+
+    The `NEXTJS_ENV` variable defines the environment to use when loading Next.js .env files. It defaults to "production" when not defined.
+
+5. **Start the Development Server**
 
     Start the development server using:
 
@@ -69,15 +87,9 @@ To synchronize your GraphQL types with the Base API, use:
 npm run api
 ```
 
-This command expects the `api` git repository to be in the `api` folder in the same directory as your `website` git repository.
-
 ## Cloudflare Integration
 
 -   `npm run build` to build the application
--   `npm run preview` to locally preview your application using the [Wrangler](https://developers.cloudflare.com/workers/wrangler/) CLI
--   `npm run deploy` to deploy your application using the [Wrangler](https://developers.cloudflare.com/workers/wrangler/) CLI
-
-> **Note:** While the `npm run dev` script is optimal for local development you should use `npm run preview` on your application as well (periodically or before deployments) in order to make sure that it can properly work in the Cloudflare environment
 
 ## Routing in Next.js
 

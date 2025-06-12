@@ -12,6 +12,11 @@ export const ProjectSettings: StructureSettingsInterface = {
     tagline: 'Network Monitoring and Security',
     description: "We are building the world's most advanced network monitoring platform.",
     url: 'https://www.connected.app/',
+    environments: {
+        production: {
+            hosts: ['www.connected.app'],
+        },
+    },
     apis: {
         base: {
             host: 'api.connected.app',
