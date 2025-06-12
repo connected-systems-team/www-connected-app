@@ -3,7 +3,7 @@ name = "www-connected-app"
 main = ".open-next/worker.js"
 
 # Compatiblity dates
-compatibility_date = "2025-03-05"
+compatibility_date = "2025-06-12"
 compatibility_flags = ["nodejs_compat"]
 
 # Minification helps to keep the Worker bundle size down and improve start up time
@@ -15,7 +15,8 @@ assets = { directory = ".open-next/assets", binding = "ASSETS" }
 # Define custom domains
 routes = [
     { pattern = "connected.app", custom_domain = true },
-    { pattern = "www.connected.app", custom_domain = true }
+    { pattern = "www.connected.app", custom_domain = true },
+    { pattern = "ww.connected.app", custom_domain = true }
 ]
 
 # Service Bindings
