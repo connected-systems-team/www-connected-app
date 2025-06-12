@@ -64,8 +64,10 @@ export interface SslTlsCheckerClientInputInterface {
 }
 
 // Type - SslTlsCheckerFlowExecutionInterface
-export interface SslTlsCheckerFlowExecutionInterface
-    extends FlowExecutionInterface<SslTlsCheckerInputInterface, SslTlsCheckerOutputInterface> {}
+export type SslTlsCheckerFlowExecutionInterface = FlowExecutionInterface<
+    SslTlsCheckerInputInterface,
+    SslTlsCheckerOutputInterface
+>;
 
 // SslTlsCheckerFlowService
 export class SslTlsCheckerFlowService extends FlowService<SslTlsCheckerInputInterface, SslTlsCheckerOutputInterface> {

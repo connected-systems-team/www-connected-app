@@ -145,8 +145,10 @@ export interface PortCheckFlowOutputInterface {
 }
 
 // Type - PortCheckFlowExecutionInterface
-export interface PortCheckFlowExecutionInterface
-    extends FlowExecutionInterface<PortCheckFlowInputInterface, PortCheckFlowOutputInterface> {}
+export type PortCheckFlowExecutionInterface = FlowExecutionInterface<
+    PortCheckFlowInputInterface,
+    PortCheckFlowOutputInterface
+>;
 
 // Class - PortCheckFlowService
 export class PortCheckFlowService extends FlowService<PortCheckFlowInputInterface, PortCheckFlowOutputInterface> {

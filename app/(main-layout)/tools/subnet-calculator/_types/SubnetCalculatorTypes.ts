@@ -71,14 +71,10 @@ export interface SubnetCalculatorResultsAnimatedListProperties {
 }
 
 // Subnet Calculator Main Component Properties Interface
-export interface SubnetCalculatorProperties {
-    // No specific properties needed for this client-only tool
-}
+export type SubnetCalculatorProperties = object;
 
 // Subnet Calculator Page Properties Interface
-export interface SubnetCalculatorPageProperties {
-    // No specific properties needed for this page
-}
+export type SubnetCalculatorPageProperties = object;
 
 // CIDR to Subnet Mask Mapping
 export const CIDR_TO_SUBNET_MASK: Record<number, string> = {

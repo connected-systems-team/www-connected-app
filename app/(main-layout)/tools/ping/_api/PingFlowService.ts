@@ -113,8 +113,7 @@ export interface PingFlowOutputInterface {
 }
 
 // Type - PingFlowExecutionInterface
-export interface PingFlowExecutionInterface
-    extends FlowExecutionInterface<PingFlowInputInterface, PingFlowOutputInterface> {}
+export type PingFlowExecutionInterface = FlowExecutionInterface<PingFlowInputInterface, PingFlowOutputInterface>;
 
 // Class - PingFlowService
 export class PingFlowService extends FlowService<PingFlowInputInterface, PingFlowOutputInterface> {

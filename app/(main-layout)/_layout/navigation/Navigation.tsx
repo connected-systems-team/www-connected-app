@@ -18,7 +18,7 @@ import ConnectedLogo from '@project/public/images/logo/connected-logo.svg';
 import { mergeClassNames } from '@structure/source/utilities/Style';
 
 // Component - Navigation
-interface NavigationProperties extends React.HTMLProps<HTMLElement> {}
+type NavigationProperties = React.HTMLProps<HTMLElement>;
 export function Navigation(properties: NavigationProperties) {
     // Render the component
     return (

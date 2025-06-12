@@ -146,8 +146,10 @@ export interface WhoisLookupFlowOutputInterface {
 }
 
 // Type - WhoisLookupFlowExecutionInterface
-export interface WhoisLookupFlowExecutionInterface
-    extends FlowExecutionInterface<WhoisLookupFlowInputInterface, WhoisLookupFlowOutputInterface> {}
+export type WhoisLookupFlowExecutionInterface = FlowExecutionInterface<
+    WhoisLookupFlowInputInterface,
+    WhoisLookupFlowOutputInterface
+>;
 
 // Class - WhoisLookupFlowService
 export class WhoisLookupFlowService extends FlowService<WhoisLookupFlowInputInterface, WhoisLookupFlowOutputInterface> {

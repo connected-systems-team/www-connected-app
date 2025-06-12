@@ -38,7 +38,7 @@ const sharedRules = {
     // Project rules
     'no-empty': ['error', { allowEmptyCatch: true }],
     'nexus/no-internal-imports-rule': 'error',
-    'nexus/no-nexus-project-or-base-imports-rule': 'error',
+    'nexus/no-nexus-outside-imports-rule': 'error',
     'structure/no-structure-project-imports-rule': 'error',
     'structure/react-destructuring-properties-rule': 'error',
     'structure/react-no-destructuring-react-rule': 'error',
@@ -159,9 +159,9 @@ export default [
             ...sharedRules,
 
             // TypeScript tweaks
-            '@typescript-eslint/no-empty-object-type': 'off',
             '@typescript-eslint/no-explicit-any': ['error', { ignoreRestArgs: true }],
             '@typescript-eslint/no-unused-vars': 'error',
+            '@typescript-eslint/no-namespace': 'off', // Allow TypeScript namespaces
         },
     },
 

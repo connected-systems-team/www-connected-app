@@ -13,6 +13,7 @@
         "noUncheckedIndexedAccess": true,
         "paths": {
             "@structure/*": ["./libraries/structure/*"],
+            "@nexus/*": ["./libraries/nexus/*"],
             "@project/*": ["./*"]
         },
         "plugins": [

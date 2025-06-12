@@ -141,8 +141,10 @@ export interface DnsLookupFlowOutputInterface {
 }
 
 // Type - DnsLookupFlowExecutionInterface
-export interface DnsLookupFlowExecutionInterface
-    extends FlowExecutionInterface<DnsLookupFlowInputInterface, DnsLookupFlowOutputInterface> {}
+export type DnsLookupFlowExecutionInterface = FlowExecutionInterface<
+    DnsLookupFlowInputInterface,
+    DnsLookupFlowOutputInterface
+>;
 
 // Class - DnsLookupFlowService
 export class DnsLookupFlowService extends FlowService<DnsLookupFlowInputInterface, DnsLookupFlowOutputInterface> {

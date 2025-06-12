@@ -43,7 +43,7 @@ export interface FlowExecutionErrorInterface {
 }
 
 // Server Type - FlowStepExecutionErrorInterface
-export interface FlowStepExecutionErrorInterface extends FlowExecutionErrorInterface {}
+export type FlowStepExecutionErrorInterface = FlowExecutionErrorInterface;
 
 // Type - FlowInputValidationResultInterface
 // Standard validation result interface for flow services
